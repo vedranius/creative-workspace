@@ -22,7 +22,7 @@ import { fileURLToPath } from 'node:url';
 
 import { randomBytes } from 'node:crypto';
 
-export function createWorkspaceFileProvider({work,fuseBin,maxUploadBytes=2147483648,...options}) {
+export function createWorkspaceFileProvider({work,fuseBin,maxUploadBytes=2147483648,recovery,...options}) {
 const here = path.dirname(fileURLToPath(import.meta.url));
 const WORK = path.resolve(work);
 const CHUNK = 1 << 20;          // unit of the cache and of fetching = the largest piece in one WebSocket message
@@ -312,6 +312,8 @@ class Share {
     this.timers = new Map();
     this.pushing = new Map();      // rel → queue of sends to the browsing computer (one at a time, the last content wins)
     this.pushErrors = new Map();
+    this.writeGenerations = new Map();
+    this.operations = new Set();
     this.started = Date.now();
     this.waiters = new Set();      // requests waiting for the browser to reconnect
     this.active = [0, 0, 0, 0];    // fetches from the browsing computer in progress, per priority (PRIO)
@@ -383,8 +385,8 @@ class Share {
   // Waits at most until RECONNECT_WAIT after the disconnect; a folder disconnected for longer fails at once
   // (otherwise every listing of the folder and every RapidRAW stat on it would hang for two minutes)
   online() {
-    if (this.agent) return Promise.resolve();
     if (this.stopped) return Promise.reject(fail('EIO', 'stopped'));
+    if (this.agent) return Promise.resolve();
     const left = this.offlineSince + RECONNECT_WAIT - Date.now();
     if (left <= 0) return Promise.reject(fail('EIO', 'client folder is not connected'));
     return new Promise((resolve, reject) => {
@@ -564,12 +566,21 @@ class Share {
 
   // Sends of the same file go one after another (a FUSE release arrives asynchronously, after close), and deleting
   // and renaming wait for the send to finish, otherwise deleted or old content would still reach the browsing computer.
-  queuePush(rel, file = this.localPath(rel)) {
+  queuePush(rel, file = this.localPath(rel), generationPromise) {
+    const token = generationPromise ?? recovery?.begin(this, rel, 'unacknowledged');
+    token?.catch(() => {}); // A queued generation may fail before the earlier send finishes.
+    let generation;
     const p = (this.pushing.get(rel) ?? Promise.resolve()).catch(() => {}).then(async () => {
+      generation = await token;
+      if (recovery) await recovery.update(this.id, rel, generation, 'unacknowledged');
       if (await exists(file)) await this.push(rel, file);
+      else throw fail('ENOENT', 'Pending laptop output is missing');
+      if (recovery) await recovery.acknowledge(this.id, rel, generation);
+      if (this.writeGenerations.get(rel) === token) this.writeGenerations.delete(rel);
       this.pushErrors.delete(rel);
-    }).catch(error => {
+    }).catch(async error => {
       this.pushErrors.set(rel, error);
+      if (recovery && generation) await recovery.update(this.id, rel, generation, 'failed', error.message).catch(e => console.warn(`[storage] Could not update recovery status: ${e.message}`));
       throw error;
     });
     this.pushing.set(rel, p);
@@ -578,6 +589,14 @@ class Share {
   }
 
   async settled(rel) { await this.pushing.get(rel); if (this.pushErrors.has(rel)) throw this.pushErrors.get(rel); }
+
+  async beginWrite(rel) {
+    if (!this.dirty.has(rel)) {
+      this.dirty.add(rel);
+      this.writeGenerations.set(rel, recovery?.begin(this, rel));
+    }
+    await this.writeGenerations.get(rel);
+  }
 
   async remoteRemove(rel) {
     await this.request({ op: 'remove', path: rel, recursive: false }).catch((e) => { if (e.code !== 'ENOENT') throw e; });
@@ -634,6 +653,7 @@ class Share {
   }
 
   async fuseOp(h, data) {
+    if (this.stopped && h.op !== 'release') throw fail('EIO', 'stopped');
     const rel = h.path === undefined ? undefined : checkRel(h.path);
     switch (h.op) {
       case 'getattr': return this.attr(rel);
@@ -658,6 +678,7 @@ class Share {
         return [{}, await (await this.cached(rel)).read(h.off, h.len)];
       }
       case 'create': {
+        await this.beginWrite(rel);
         await this.materialize(rel, false);
         this.created.add(rel);
         this.dirty.add(rel);
@@ -665,6 +686,7 @@ class Share {
         return { kind: 'file', size: 0, mtime: Date.now() };
       }
       case 'write': {
+        await this.beginWrite(rel);
         const file = await this.materialize(rel, true);
         const fd = await fsp.open(file, 'r+');
         try { await fd.write(data, 0, data.length, h.off); } finally { await fd.close(); }
@@ -672,13 +694,14 @@ class Share {
         return {};
       }
       case 'truncate': {
+        await this.beginWrite(rel);
         const file = await this.materialize(rel, h.size > 0);
         await fsp.truncate(file, h.size);
         this.dirty.add(rel);
         return {};
       }
       case 'release': {
-        if (this.dirty.delete(rel)) await this.queuePush(rel);
+        if (this.dirty.delete(rel)) await this.queuePush(rel, this.localPath(rel), this.writeGenerations.get(rel));
         return {};
       }
       case 'mkdir': {
@@ -690,6 +713,7 @@ class Share {
       }
       case 'unlink':
       case 'rmdir': {
+        const generation = await this.writeGenerations.get(rel);
         this.dirty.delete(rel);
         await this.settled(rel);
         if (h.op === 'unlink' && !this.created.has(rel)) await this.remoteTrash(rel);
@@ -699,6 +723,8 @@ class Share {
         await this.files.get(rel)?.dispose();
         this.files.delete(rel);
         await fsp.rm(this.localPath(rel), { recursive: h.op === 'rmdir', force: true });
+        if (recovery && generation) await recovery.acknowledge(this.id, rel, generation); // Explicit deletion completed, not a save.
+        this.writeGenerations.delete(rel);
         this.patchList(parentOf(rel), nameOf(rel), null);
         if (h.op === 'rmdir') this.invalidate(rel);
         return {};
@@ -707,15 +733,38 @@ class Share {
         const from = checkRel(h.from);
         const to = checkRel(h.to);
         await this.settled(from);
+        const dirty = this.dirty.has(from);
+        // Engines often save a temporary file, then rename it. Data ACK alone
+        // does not confirm that final operation; keep the local copy recoverable.
+        if (recovery && !dirty && (await fsp.stat(this.localPath(from)).catch(() => null))?.isFile()) {
+          const generation = recovery.begin(this, from, 'unacknowledged');
+          this.writeGenerations.set(from, generation);
+          await generation;
+        }
+        const generation = await this.writeGenerations.get(from);
         let remoteMissing = false;
-        await this.request({ op: 'rename', from, to }).catch((e) => { if (e.code === 'ENOENT') remoteMissing = true; else throw e; });
+        try { await this.request({ op: 'rename', from, to }); }
+        catch (e) {
+          if (e.code === 'ENOENT') remoteMissing = true;
+          else {
+            this.pushErrors.set(from, e); // Do not let engine cleanup discard an uncertain final save.
+            if (recovery && generation) await recovery.update(this.id, from, generation, 'failed', e.message);
+            throw e;
+          }
+        }
         await this.files.get(from)?.dispose();
         this.files.delete(from);
         if (this.local.delete(from)) this.local.add(to);
         if (this.dirty.delete(from)) this.dirty.add(to);
         if (this.created.delete(from)) this.created.add(to);
         if (await exists(this.localPath(from))) await moveFile(this.localPath(from), this.localPath(to));
-        if (remoteMissing && this.local.has(to) && !this.dirty.has(to)) await this.queuePush(to); // not sent yet
+        if (this.writeGenerations.has(from)) { this.writeGenerations.set(to, this.writeGenerations.get(from)); this.writeGenerations.delete(from); }
+        if (recovery) await recovery.relocate(this.id, from, to);
+        if (remoteMissing && this.local.has(to) && !this.dirty.has(to)) await this.queuePush(to, this.localPath(to), this.writeGenerations.get(to)); // not sent yet
+        else if (recovery && generation && !dirty && !remoteMissing) {
+          await recovery.acknowledge(this.id, to, generation);
+          this.writeGenerations.delete(to);
+        }
         const moved = this.lists.get(parentOf(from))?.entries.get(nameOf(from));
         this.patchList(parentOf(from), nameOf(from), null);
         this.patchList(parentOf(to), nameOf(to), moved ?? null);
@@ -762,13 +811,15 @@ class Share {
           buf = buf.subarray(8 + hlen + dlen);
           if (head.op === 'mounted') { resolve(); continue; }
           if (VERBOSE && head.op !== 'read' && head.op !== 'write') console.log(`[fuse] ${head.op} ${head.path ?? `${head.from} → ${head.to}`}`);
-          this.fuseOp(head, data).then(
+          const operation = this.fuseOp(head, data);
+          this.operations.add(operation);
+          operation.then(
             (r) => (Array.isArray(r) ? send({ id: head.id, ...r[0] }, r[1]) : send({ id: head.id, ...r })),
             (e) => {
               if (VERBOSE) console.log(`[fuse] ${head.op} ${head.path ?? `${head.from} → ${head.to}`}: ${e.code ?? e.message}`);
               if (e.code !== 'ENOENT') console.warn(`[remote] ${this.name}: ${head.op} ${head.path ?? ''}: ${e.message}`);
               send({ id: head.id, err: ERRNO[e.code] ?? ERRNO.EIO });
-            });
+            }).finally(() => this.operations.delete(operation)).catch(() => {});
         }
       });
     });
@@ -830,8 +881,9 @@ class Share {
   }
 
   async sync(rel) {
-    if (!this.agent || rel.split('/').some((s) => s.startsWith('.rrweb'))) return;
+    if (this.stopped || rel.split('/').some((s) => s.startsWith('.rrweb'))) return;
     const st = await fsp.stat(path.join(this.mirror, rel)).catch(() => null);
+    if (this.stopped) return;
     if (!st) return; // deletions are deliberately not sent to the browsing computer
     if (st.isDirectory()) { await this.request({ op: 'mkdir', path: rel }); return; }
     if (this.known.get(rel) === `${st.size}:${Math.round(st.mtimeMs)}`) return;
@@ -848,18 +900,30 @@ class Share {
   }
 
   async stop() {
-    const preserveWrites = this.dirty.size > 0 || this.pushing.size > 0 || this.pushErrors.size > 0;
     this.stopped = true;
     for (const w of this.waiters) w.fail();
     this.waiters.clear();
     this.watcher?.close();
+    const pendingFiles = [...this.timers.keys()];
     for (const t of this.timers.values()) clearTimeout(t);
+    if (this.mode === 'transfer' && recovery) {
+      for (const rel of pendingFiles) {
+        if (this.pushing.has(rel) || this.pushErrors.has(rel)) continue;
+        const st = await fsp.stat(this.localPath(rel)).catch(() => null);
+        if (st?.isFile() && this.known.get(rel) !== `${st.size}:${Math.round(st.mtimeMs)}`) await recovery.begin(this, rel, 'unacknowledged');
+      }
+    }
+    for (const p of this.pending.values()) { clearTimeout(p.timer); p.reject(fail('EIO', 'stopped before laptop acknowledgement')); }
+    this.pending.clear();
     for (const c of this.files.values()) await c.dispose();
     if (this.fuse) {
       const child = this.fuse;
       await new Promise((r) => { child.once('exit', r); child.stdin.end(); setTimeout(r, 5000); });
     }
     this.agent?.close();
+    await Promise.allSettled([...this.operations, ...this.pushing.values()]);
+    await recovery?.flush();
+    const preserveWrites = this.dirty.size > 0 || this.pushErrors.size > 0 || (recovery && await recovery.has(this.id));
     if (preserveWrites) console.warn(`[storage] Pending laptop writes retained in ${this.mirror}`);
     else {
       await fsp.rm(this.stage, { recursive: true, force: true });
@@ -880,7 +944,7 @@ function internalCreateRemote({ validName, insideRoots, onChange = () => {} }) {
   const shares = new Map();
   const id = () => randomBytes(8).toString('hex');
 
-  async function start({ id: wanted, name, mode, keep, keepDir, fill = false }) {
+  async function start({ id: wanted, app, name, mode, keep, keepDir, fill = false }) {
     validName(name);
     if (mode !== 'transfer' && mode !== 'ondemand') throw new Error('mode must be transfer or ondemand');
     if (mode === 'ondemand' && !capabilities().ondemand) throw new Error(capabilities().reason);
@@ -893,7 +957,7 @@ function internalCreateRemote({ validName, insideRoots, onChange = () => {} }) {
       const dir = await insideRoots(keepDir); // only inside the photo folders
       mirror = path.join(dir, name);
     }
-    const share = new Share({ id: sid, name, mode, keep: !!keep, fill: mode === 'ondemand' && fill !== false, mirror,
+    const share = new Share({ id: sid, app, name, mode, keep: !!keep, fill: mode === 'ondemand' && fill !== false, mirror,
       mount: path.join(WORK, 'mnt', sid, name) }, shares);
     await share.start();
     shares.set(sid, share);

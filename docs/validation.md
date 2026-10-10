@@ -42,3 +42,10 @@ Five local automated suites passed, including streaming size limits, folder hier
 - Reproduce the native storage test using `node scripts/smoke-photocraft-local-folder.mjs` against a running workspace with PhotoCraft and the common helper installed. This generated protocol fixture does **not** verify browser directory-picker permissions on a real laptop. Hybrid stress cases, crash recovery and native Windows/macOS builds remain pending.
 
 The adapter is a working browser prototype, with core tools and a discoverable command palette. It does not reproduce every original egui tool/dialog. Sessions and share registrations are in memory; save layered documents before restarting. Other ArtCraft adapters remain unimplemented.
+
+## REC-01 — durable uncertain-save recovery
+
+- Sixteen local gateway/provider tests passed. Added restart persistence, old-generation ACK protection, app-scoped downloads, invalid manifest/traversal/symlink rejection, failed write acknowledgement, actual WebSocket disconnect before ACK, and Stop before the copy-mode delayed sync. Imports do not become uncertain server outputs.
+- Real PhotoCraft/FUSE success smoke confirms acknowledged layered saves clear their journal, reopen with two layers, match downloaded bytes and do not fetch an unrelated 8 MiB source.
+- Real PhotoCraft/FUSE failure smoke acknowledges a generated temporary layered file, rejects its final rename and verifies the save fails. Engine cleanup cannot delete the uncertain output. After Stop and gateway restart, its 8,709-byte server copy is downloadable and reopens in a new native engine with two layers.
+- The native fixture scripts use isolated test servers/binaries and do not restart the user's live editor. They do not test a real browser picker, sudden power loss, or hostile concurrent replacement of server-directory ancestors. Partial local writes are labelled possibly incomplete. Recovery UI and version-safe replay remain pending.

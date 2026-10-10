@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {mkdtemp,mkdir,rm,readdir} from 'node:fs/promises';
+import {mkdtemp,mkdir,rm,readdir,writeFile,readFile} from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import {once} from 'node:events';
@@ -42,4 +42,17 @@ test('storage API enforces share ownership, save destination, active sessions an
   assert.equal((await api(`/api/storage/shares/${share.id}`,'DELETE',{})).status,200);
   assert.deepEqual(await api('/api/storage/shares').then(response=>response.json()),[]);
   assert.deepEqual(await readdir(path.join(directory,'data/local-folders/stage')).catch(()=>[]),[]);
+  assert.deepEqual((await api('/api/storage/recovery').then(response=>response.json())).records,[],'Acknowledged imports are not uncertain server outputs');
+});
+
+test('copy mode records changed files when Stop precedes the delayed sync',async t=>{
+  const directory=await mkdtemp(path.join(os.tmpdir(),'cw-copy-stop-'));t.after(()=>rm(directory,{recursive:true,force:true}));
+  const provider=await createStorageProvider({dataDir:path.join(directory,'data'),resolveAppRoot:async()=>{const root=path.join(directory,'projects');await mkdir(root,{recursive:true});return root;}});t.after(()=>provider.shutdown());
+  const share=await provider.start({app:'photocraft',name:'Laptop',mode:'transfer'});
+  const bytes=Buffer.from('export stopped before its delayed send');await writeFile(path.join(share.mirror,'export.png'),bytes);
+  // Allow the native filesystem change event, but stop well before the 1.5 s send delay.
+  await new Promise(resolve=>setTimeout(resolve,100));await provider.stop(share.id);
+  const record=(await provider.recovery.list('photocraft')).records[0];assert.equal(record.relativePath,'export.png');assert.equal(record.state,'unacknowledged');
+  assert.deepEqual(await readFile(path.join(share.mirror,'export.png')),bytes);
+  const output=await provider.recovery.output(record.id,'photocraft');try{assert.deepEqual(await output.handle.readFile(),bytes);}finally{await output.handle.close();}
 });

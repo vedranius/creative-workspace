@@ -19,7 +19,7 @@ Use `CW_STORAGE_RUNTIME` for another build directory and `CW_FUSE_BINARY` to poi
 - **Save to server:** source is read-only; outputs go to the app's configured server workspace.
 - **Save to laptop:** on-demand only; the user grants write access to the chosen folder. Save returns only after the laptop acknowledges writes. Download remains available too.
 
-Temporary caches are removed on stopping a clean share. Retained originals use separate `local-<share-id>` directories inside the application workspace. Failed/unacknowledged writes preserve their server mirror when stopping, with its recovery location in the server log. Automatic recovery after a server restart, version-conflict resolution, cache quotas and durable reconnect journals are still pending. Keep the browser tab connected and save documents regularly.
+Temporary caches are removed on stopping a clean share. Retained originals use separate `local-<share-id>` directories inside the application workspace. Failed/unacknowledged writes preserve their server mirror and a durable recovery manifest when stopping. `GET /api/storage/recovery?app=photocraft` lists uncertain outputs after restart; `/api/storage/recovery/<record-id>/output` downloads their validated server copy with gateway authentication. Generation checks prevent an old ACK clearing a newer write. An interrupted local write may be incomplete; final-rename failures preserve temporary outputs from engine cleanup. Recovery UI, automatic reconnect/replay, version-conflict resolution and cache quotas are pending. Keep the browser tab connected and save documents regularly.
 
 ## Source attribution
 
@@ -32,3 +32,5 @@ node scripts/smoke-photocraft-local-folder.mjs
 ```
 
 It needs a running PhotoCraft engine and this helper. It tests actual processing, laptop save/reopen, server save, and zero reads of an unrelated 8 MiB file. It does not automate a browser directory-picker permission flow.
+
+`node scripts/smoke-photocraft-recovery.mjs` starts an isolated temporary gateway, rejects a generated laptop's final rename, stops/restarts the gateway, downloads the retained layered output and reopens it with the real PhotoCraft engine. It uses installed binaries, or `CW_PHOTOCRAFT_BINARY`/`CW_FUSE_BINARY` overrides; it does not restart the live editor.

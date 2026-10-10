@@ -9,6 +9,7 @@ A self-hosted creative studio: native browser interfaces, server-side processing
 - Responsive application catalog for RapidRAW and seven ArtCraft creative apps.
 - PhotoCraft browser editing: documents, brush strokes, layers, adjustments, history and layered saves/exports.
 - Shared laptop-folder provider: on demand, hybrid background copy and copy-first modes, with server or laptop save destinations.
+- Durable pending-save journal and authenticated recovery downloads after a gateway restart; recovery UI is the next step.
 - Persistent per-application server workspace configuration.
 - Browser file/folder selection and drag & drop from the visiting laptop, with streamed copies into server workspaces.
 - Transfer progress and cancellation, folder structure preservation, and download back to the laptop.
@@ -60,7 +61,7 @@ npm test
 4. FilmCraft and EffectCraft: server preview jobs, proxy media, synchronized playback and exports.
 5. Multi-user identity, permissions, resumable file transfer, installation and verified upgrades.
 
-See the [development roadmap](docs/roadmap.md) and [compact handoff](docs/development-state.md), as well as [architecture](docs/architecture.md), [adapter contract](docs/adapter-contract.md) and [validation](docs/validation.md).
+See the [development roadmap](docs/roadmap.md), [AI/MCP integration plan](docs/ai-assistant.md) and [compact handoff](docs/development-state.md), as well as [architecture](docs/architecture.md), [adapter contract](docs/adapter-contract.md) and [validation](docs/validation.md).
 
 ## Known limits
 

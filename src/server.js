@@ -79,6 +79,13 @@ export async function createWorkspaceServer({dataDir=process.env.DATA_DIR||path.
       if(url.pathname==='/api/storage/capabilities'&&req.method==='GET')return json(storage.capabilities());
       if(url.pathname==='/api/storage/shares'&&req.method==='GET')return json(storage.list());
       if(url.pathname==='/api/storage/shares'&&req.method==='POST')return json(await storage.start(await body(req)),201);
+      if(url.pathname==='/api/storage/recovery'&&req.method==='GET')return json(await storage.recovery.list(url.searchParams.get('app')));
+      const recoveryOutput=url.pathname.match(/^\/api\/storage\/recovery\/([a-f0-9]{16}-[a-f0-9]{64})\/output$/);
+      if(recoveryOutput&&req.method==='GET'){
+        const file=await storage.recovery.output(recoveryOutput[1],url.searchParams.get('app'));
+        try{res.writeHead(200,{'Content-Type':'application/octet-stream','Content-Length':file.size,'Content-Disposition':`attachment; filename*=UTF-8''${encodeURIComponent(file.name)}`,'Cache-Control':'no-store'});await pipeline(file.handle.createReadStream(),res);}
+        finally{await file.handle.close();}return;
+      }
       if(url.pathname==='/api/storage/put'&&req.method==='PUT'){if(Number(req.headers['content-length']||0)>maxUploadBytes)throw error('File exceeds upload limit',413);await storage.put(req,res,url);return;}
       const shareMatch=url.pathname.match(/^\/api\/storage\/shares\/([a-z0-9]{6,16})(?:\/(have|files))?$/);
       if(shareMatch){

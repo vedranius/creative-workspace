@@ -44,6 +44,8 @@ try{
   await rpc('engine.execute',{command:'layer.new.layer',params:{name:'Browser ink'},wait:true});
   await rpc('engine.execute',{command:'paint.stroke',params:{points:[[10,10,1],[50,40,1]],size:8,color:'#2855dd'},wait:true});
   await rpc('doc.save',{path:'laptop-result.pcraft',format:'pcraft'});
+  const recovery=await api('/api/storage/recovery?app=photocraft');
+  assert.equal(recovery.records.filter(record=>record.id.startsWith(`${share.id}-`)).length,0,'Acknowledged laptop saves must clear their recovery journal');
   assert.ok(files.get('laptop-result.pcraft')?.length>100,'Save must reach the generated laptop before the API confirms success');
   const download=Buffer.from(await (await fetch(`${base}/api/photocraft/sessions/${created.id}/output?path=laptop-result.pcraft`,{headers})).arrayBuffer());assert.equal(hash(download),hash(files.get('laptop-result.pcraft')));
   state=await rpc('doc.open',{path:'laptop-result.pcraft'});assert.equal(state.document.layers.length,2);
@@ -55,7 +57,7 @@ try{
   const serverOutput=`generated-server-smoke-${randomUUID()}.png`;
   await serverRpc('doc.save',{path:serverOutput,format:'png'});assert.equal(files.has(serverOutput),false);
   const exported=Buffer.from(await (await fetch(`${base}/api/photocraft/sessions/${serverSession.id}/output?path=${serverOutput}`,{headers})).arrayBuffer());assert.equal(exported.subarray(1,4).toString(),'PNG');
-  const report={verifiedAt:new Date().toISOString(),test:'native PhotoCraft + independent filesystem helper + generated laptop-agent protocol fixture',realBrowserPickerTest:false,sourceBytes:files.get('selected.png').length,unrelatedBytes:files.get('unrelated-library.bin').length,unrelatedBytesRead:reads['unrelated-library.bin']||0,readBytesByPath:reads,writeBytesByPath:writes,previewChanged:hash(before)!==hash(after),laptopLayeredSaveBytes:files.get('laptop-result.pcraft').length,layeredSaveReopened:true,downloadMatchesLaptop:true,serverOutputBytes:exported.length,serverDestinationKeepsLaptopUnchanged:true,fill:false};
+  const report={verifiedAt:new Date().toISOString(),test:'native PhotoCraft + independent filesystem helper + generated laptop-agent protocol fixture',realBrowserPickerTest:false,sourceBytes:files.get('selected.png').length,unrelatedBytes:files.get('unrelated-library.bin').length,unrelatedBytesRead:reads['unrelated-library.bin']||0,readBytesByPath:reads,writeBytesByPath:writes,previewChanged:hash(before)!==hash(after),laptopLayeredSaveBytes:files.get('laptop-result.pcraft').length,layeredSaveReopened:true,downloadMatchesLaptop:true,acknowledgedSaveClearsRecovery:true,serverOutputBytes:exported.length,serverDestinationKeepsLaptopUnchanged:true,fill:false};
   if(process.argv[2])await writeFile(process.argv[2],JSON.stringify(report,null,2)+'\n');console.log(JSON.stringify(report,null,2));
 }finally{
   for(const id of sessions)await api(`/api/photocraft/sessions/${id}`,'DELETE',{}).catch(()=>{});
