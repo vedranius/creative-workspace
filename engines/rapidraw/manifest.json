@@ -1,0 +1,12 @@
+{
+  "id": "rapidraw",
+  "source": "https://github.com/vedranius/rapidraw-web.git",
+  "upstream": "https://github.com/CyberTimon/RapidRAW",
+  "commit": "38ddc8af1bc51552fcab8781c4838b17082f97bd",
+  "identifier": "io.github.vedranius.creativeworkspace.rapidraw",
+  "binary": "cw-rapidraw-engine",
+  "runtimeId": "creative-workspace-rapidraw-v1",
+  "port": 8791,
+  "license": "AGPL-3.0-only",
+  "platformsVerified": ["linux-x64"]
+}

@@ -9,6 +9,7 @@ import {catalog} from './catalog.js';
 import {readState,writeState,isWithin,listFiles,resolveWorkspace} from './storage.js';
 import {receiveFile,importSegments} from './transfers.js';
 import {checkRelease} from './updates.js';
+import {createRapidRaw} from './rapidraw.js';
 
 const base=path.dirname(fileURLToPath(import.meta.url));
 const publicRoot=path.join(base,'../public');
@@ -16,9 +17,10 @@ function error(message,status=400){return Object.assign(new Error(message),{stat
 async function body(req){let data='';for await(const chunk of req){data+=chunk;if(Buffer.byteLength(data)>16384)throw error('Request too large',413);}try{return JSON.parse(data||'{}');}catch{throw error('Invalid JSON');}}
 function secretEquals(a,b){const x=Buffer.from(a),y=Buffer.from(b);return x.length===y.length&&timingSafeEqual(x,y);}
 
-export async function createWorkspaceServer({dataDir=process.env.DATA_DIR||path.join(base,'../data'),allowedRoots=(process.env.WORKSPACE_ROOTS||path.join(base,'../workspaces')).split(path.delimiter),auth=process.env.WORKSPACE_AUTH,fetcher=fetch,maxUploadBytes=Number(process.env.MAX_UPLOAD_BYTES||2147483648)}={}){
+export async function createWorkspaceServer({dataDir=process.env.DATA_DIR||path.join(base,'../data'),allowedRoots=(process.env.WORKSPACE_ROOTS||path.join(base,'../workspaces')).split(path.delimiter),auth=process.env.WORKSPACE_AUTH,fetcher=fetch,rapidrawUrl,maxUploadBytes=Number(process.env.MAX_UPLOAD_BYTES||2147483648)}={}){
   if(!Number.isSafeInteger(maxUploadBytes)||maxUploadBytes<=0)throw new Error('Invalid MAX_UPLOAD_BYTES');
   let state=await readState(dataDir);
+  const rapidraw=createRapidRaw({url:rapidrawUrl});
   let queue=Promise.resolve();
   let updateInProgress=null;
   const mutate=(operation)=>{const next=queue.then(operation);queue=next.catch(()=>{});return next;};
@@ -51,6 +53,11 @@ export async function createWorkspaceServer({dataDir=process.env.DATA_DIR||path.
     try{
       if(auth&&!secretEquals(req.headers.authorization||'',`Basic ${Buffer.from(auth).toString('base64')}`)){res.setHeader('WWW-Authenticate','Basic realm="Creative Workspace"');return json({error:'Authentication required'},401);}
       const url=new URL(req.url,'http://localhost');
+      if(rapidraw.handles(url.pathname)){
+        if(req.headers['sec-fetch-site']==='cross-site'||(req.headers.origin&&new URL(req.headers.origin).host!==req.headers.host))throw error('Origin mismatch',403);
+        if(!(await rapidraw.status()).ready)throw error('Workspace-owned RapidRAW engine is not running',503);
+        rapidraw.proxy(req,res);return;
+      }
       if(!['GET','HEAD'].includes(req.method)){
         if(req.headers['sec-fetch-site']==='cross-site')throw error('Cross-site request rejected',403);
         if(req.headers.origin&&new URL(req.headers.origin).host!==req.headers.host)throw error('Origin mismatch',403);
@@ -58,6 +65,7 @@ export async function createWorkspaceServer({dataDir=process.env.DATA_DIR||path.
         if(binary?req.headers['content-type']!=='application/octet-stream':!req.headers['content-type']?.startsWith('application/json'))throw error('Unsupported content type',415);
       }
       if(url.pathname==='/api/health'&&req.method==='GET')return json({status:'ok',version:'0.1.0'});
+      if(url.pathname==='/api/engines/rapidraw'&&req.method==='GET')return json(await rapidraw.status());
       if(url.pathname==='/api/apps'&&req.method==='GET')return json(catalog.map(app=>({...app,configuration:state.apps[app.id]||{},update:state.updates[app.id]||{status:'unchecked'}})));
       if(url.pathname==='/api/settings'&&req.method==='GET')return json({allowedRoots,authentication:!!auth,mode:'single-user',updateIntervalHours:24,maxUploadBytes});
       if(url.pathname==='/api/imports/prepare'&&req.method==='POST'){
@@ -113,6 +121,14 @@ export async function createWorkspaceServer({dataDir=process.env.DATA_DIR||path.
       const type=url.pathname.endsWith('.js')?'text/javascript':url.pathname.endsWith('.css')?'text/css':'text/html';
       res.writeHead(200,{'Content-Type':`${type}; charset=utf-8`,'Cache-Control':'no-cache'});res.end(req.method==='HEAD'?undefined:buffer);
     }catch(e){if(res.headersSent){res.destroy();return;}req.resume();json({error:e.status?e.message:'Operation failed; check the directory and server configuration'},e.status||400);}
+  });
+  server.on('upgrade',async(req,socket,head)=>{
+    try{
+      if(auth&&!secretEquals(req.headers.authorization||'',`Basic ${Buffer.from(auth).toString('base64')}`))throw new Error('Unauthorized');
+      if(!req.headers.origin||new URL(req.headers.origin).host!==req.headers.host)throw new Error('Origin mismatch');
+      if(!(await rapidraw.status()).ready)throw new Error('Owned engine not running');
+      rapidraw.upgrade(req,socket,head);
+    }catch{socket.end('HTTP/1.1 403 Forbidden\r\nConnection: close\r\n\r\n');}
   });
   server.requestTimeout=60*60*1000;
   // Scheduled checks run inside the self-hosted service, not in a hosted automation.

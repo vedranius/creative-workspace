@@ -4,6 +4,17 @@
   "private": true,
   "type": "module",
   "description": "Self-hosted creative workspace with native browser interfaces and server-side engines",
-  "engines": { "node": ">=24" },
-  "scripts": { "start": "node src/server.js", "test": "node --test", "check": "node --check src/server.js && node --check public/app.js" }
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "start": "node src/server.js",
+    "test": "node --test",
+    "check": "node --check src/server.js && node --check src/rapidraw.js && node --check scripts/manage-rapidraw.mjs && node --check public/app.js",
+    "engine:rapidraw:install": "node scripts/manage-rapidraw.mjs install",
+    "engine:rapidraw:start": "node scripts/manage-rapidraw.mjs start"
+  },
+  "dependencies": {
+    "ws": "^8.22.0"
+  }
 }

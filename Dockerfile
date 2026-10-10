@@ -1,6 +1,7 @@
 FROM node:24-bookworm-slim
 WORKDIR /app
-COPY --chown=node:node package.json ./
+COPY --chown=node:node package.json package-lock.json ./
+RUN npm ci --omit=dev
 COPY --chown=node:node src ./src
 COPY --chown=node:node public ./public
 RUN mkdir -p /app/data /app/workspaces && chown -R node:node /app/data /app/workspaces

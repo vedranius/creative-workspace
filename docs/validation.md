@@ -19,3 +19,14 @@ Not yet verified: full Windows/macOS browser workflows, multi-user isolation, ac
 ## Local import milestone
 
 Five local automated suites passed, including streaming size limits, folder hierarchy, no-overwrite conflicts, download, traversal restrictions and cleanup of failed transfers. A real browser file-chooser upload imported a generated laptop test file into the RapidRAW workspace. Original and uploaded bytes were compared. Upstream attribution links were verified in the browser. Cross-platform CI results for this milestone are available in GitHub Actions.
+
+## First workspace-owned creative editor
+
+- Built a new `cw-rapidraw-engine` from the pinned RapidRAW Web source with an independent Tauri identifier. The existing installed bridge was not used for the final integration.
+- Runtime on loopback port 8791 has its own data/config/cache directories, relay, FUSE helper and photo workspace. Gateway readiness requires the workspace runtime identity plus an actual Rust backend response.
+- Native backend smoke: opened a generated 960×640 PNG, changed exposure, returned different preview bytes, and exported a valid PNG (575,978 bytes).
+- Browser smoke: opened the server photo folder, opened the generated image, changed exposure in the original React editor, and resumed the library after reload.
+- Native FUSE smoke: requested 128 bytes from an 8 MiB generated source; only one 1 MiB block was fetched. A 47-byte server write reached the generated laptop-agent fixture and matched byte-for-byte.
+- The FUSE test uses a protocol fixture, not an automated real browser directory-picker permission flow. The browser UI exposes the supported local-folder mode controls; real laptop-folder testing remains to be performed by selecting a folder.
+- Seven gateway/storage tests passed locally, including rejecting an unrelated engine identity and foreign WebSocket origins.
+- PhotoCraft source checkout is prepared, but no ArtCraft server adapter is implemented yet. The engine is currently Linux-only and one shared RapidRAW editing session.

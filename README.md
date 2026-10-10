@@ -2,7 +2,7 @@
 
 A self-hosted creative studio: native browser interfaces, server-side processing, and shared project files. No remote desktop or desktop-display transport.
 
-**Status: development foundation, not a finished creative suite.** This milestone implements a real control-panel service. It does not yet install or launch engines, and it does not claim ArtCraft's existing browser builds perform processing on the server.
+**Status: early creative-suite integration.** RapidRAW has a separately built, workspace-owned Linux engine and a functioning browser editor. ArtCraft server adapters are still pending; their static browser builds are not presented as server processing.
 
 ## Implemented
 
@@ -20,9 +20,10 @@ A self-hosted creative studio: native browser interfaces, server-side processing
 
 ## Run locally
 
-Requires Node.js 24 or later. There are no npm dependencies to install.
+Requires Node.js 24 or later. Run `npm ci` to install the pinned gateway dependency.
 
 ```sh
+npm ci
 mkdir -p workspaces/photography
 npm start
 ```
@@ -51,7 +52,7 @@ npm test
 
 ## Next milestones
 
-1. RapidRAW service integration, with engine-session isolation and authenticated routing.
+1. Installer/start controls in the control panel and independent per-user engine sessions (RapidRAW gateway and managed CLI installer are implemented).
 2. PhotoCraft proof: server document open → browser edit → server preview → server save.
 3. Shared adapter protocol and extension to PdfCraft, VectorCraft and DesignCraft.
 4. FilmCraft and EffectCraft: server preview jobs, proxy media, synchronized playback and exports.
@@ -61,8 +62,12 @@ See [architecture](docs/architecture.md), [adapter contract](docs/adapter-contra
 
 ## Known limits
 
-Single-user only. No delete or document editing in the file browser yet. No installed-version detection, tag fallback, engine installation, rollback or ArtCraft server adapters. A 404 from GitHub's release endpoint is reported as no published release; repository deletion or access changes need separate future checks. Upstream release notes are displayed as plain text. Scheduled checks need the service to remain running. Filesystem permissions remain the final authority; do not allow unrelated processes to replace workspace symlinks while browsing. Windows/macOS runtime behavior requires verification on those hosts.
+Single-user only. No delete or document editing in the file browser yet. No automatic compatible upgrades, tag fallback, rollback or ArtCraft server adapters. RapidRAW installation/start is currently managed by the CLI, not a control-panel job. A 404 from GitHub's release endpoint is reported as no published release; repository deletion or access changes need separate future checks. Upstream release notes are displayed as plain text. Scheduled checks need the service to remain running. Filesystem permissions remain the final authority; do not allow unrelated processes to replace workspace symlinks while browsing. Windows/macOS runtime behavior requires verification on those hosts.
 
 ## Laptop file imports
 
 Import copies selected content to the server; it does not mount or continuously synchronize your local folder. Choose-folder imports preserve the relative tree; empty directories are not transferred. For directories use **Choose folder**, rather than folder drag and drop. Click a server file to download it. Default per-file limit: 2 GiB, configurable with `MAX_UPLOAD_BYTES`. Transfers stream to temporary files, then publish without overwriting existing names. Failed or cancelled transfers remove their temporary file. Already completed files remain imported. Transfers are not resumable yet. The HTTP request timeout is one hour; reverse proxy limits also apply.
+
+## Workspace-owned creative engines
+
+RapidRAW is the first native browser/server adapter. Its own installer builds a separate engine with an independent application identifier and port 8791. It does not connect to your existing RapidRAW Web installation. See [engine installation](engines/rapidraw/README.md). The gateway only enables the editor after runtime-identity and backend checks. ArtCraft engine adapters remain pending.
