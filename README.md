@@ -54,8 +54,8 @@ npm test
 4. FilmCraft and EffectCraft: server preview jobs, proxy media, synchronized playback and exports.
 5. Multi-user identity, permissions, resumable file transfer, installation and verified upgrades.
 
-See [architecture](docs/architecture.md) and [adapter contract](docs/adapter-contract.md).
+See [architecture](docs/architecture.md), [adapter contract](docs/adapter-contract.md) and [validation](docs/validation.md).
 
 ## Known limits
 
-Single-user only. No upload, delete or editing in the file browser yet. No installed-version detection, tag fallback, engine installation, rollback or ArtCraft server adapters. A 404 from GitHub's release endpoint is reported as no published release; repository deletion or access changes need separate future checks. Upstream release notes are displayed as plain text. Scheduled checks need the service to remain running. Filesystem permissions remain the final authority; do not allow unrelated processes to replace workspace symlinks while browsing. Docker execution and Windows/macOS runtime behavior require verification on those hosts.
+Single-user only. No upload, delete or editing in the file browser yet. No installed-version detection, tag fallback, engine installation, rollback or ArtCraft server adapters. A 404 from GitHub's release endpoint is reported as no published release; repository deletion or access changes need separate future checks. Upstream release notes are displayed as plain text. Scheduled checks need the service to remain running. Filesystem permissions remain the final authority; do not allow unrelated processes to replace workspace symlinks while browsing. Windows/macOS runtime behavior requires verification on those hosts.
