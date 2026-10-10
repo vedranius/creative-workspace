@@ -12,7 +12,8 @@ function renderApps(){
   $('apps').replaceChildren(...list.map(app=>{
     const card=element('article',`app-card ${app.id}`);
     const top=element('div','card-top');top.append(element('div','app-icon',app.symbol),element('span','category-label',app.category));
-    card.append(top,element('h3','',app.name),element('p','description',app.description));
+    const art=element('div','app-art');art.setAttribute('aria-hidden','true');art.append(element('span','art-orbit'),element('span','art-grid'),element('span','art-symbol',app.symbol),element('span','art-index',String(apps.indexOf(app)+1).padStart(2,'0')));
+    card.append(art,top,element('h3','',app.name),element('p','description',app.description));
     const state=element('div','adapter-state',app.id==='rapidraw'?'Existing bridge · integration pending':'Server adapter in development');card.append(state);
     const folder=element('div','workspace-path',app.configuration.workspace||'No workspace assigned');folder.title=folder.textContent;card.append(folder);
     const bottom=element('div','card-bottom');const configure=element('button','secondary',app.configuration.workspace?'Change workspace':'Set workspace');configure.onclick=()=>showWorkspace(app);bottom.append(configure,githubLink(app));card.append(bottom);return card;

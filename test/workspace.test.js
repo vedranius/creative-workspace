@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {mkdtemp,mkdir,writeFile,symlink,rm} from 'node:fs/promises';
+import {mkdtemp,mkdir,writeFile,symlink,rm,realpath} from 'node:fs/promises';
 import path from 'node:path';
 import os from 'node:os';
 import {once} from 'node:events';
@@ -34,7 +34,7 @@ test('API persists workspaces, rejects foreign origins and requires authenticati
   const foreign=await fetch(`${url}/api/apps/rapidraw/workspace`,{method:'PUT',headers:{...headers,Origin:'https://foreign.example'},body:JSON.stringify({root:allowed})});assert.equal(foreign.status,403);
   const outside=await fetch(`${url}/api/apps/rapidraw/workspace`,{method:'PUT',headers,body:JSON.stringify({root:path.join(root,'outside')})});assert.equal(outside.status,403);
   const saved=await fetch(`${url}/api/apps/rapidraw/workspace`,{method:'PUT',headers,body:JSON.stringify({root:allowed})});assert.equal(saved.status,200);
-  assert.equal((await readState(dataDir)).apps.rapidraw.workspace,allowed);
+  assert.equal((await readState(dataDir)).apps.rapidraw.workspace,await realpath(allowed));
   assert.equal((await fetch(`${url}/api/files?app=rapidraw&path=../outside`,{headers})).status,400);
   const apps=await(await fetch(`${url}/api/apps`,{headers})).json();assert.equal(apps.length,8);assert.equal(apps.find(app=>app.id==='photocraft').status,'adapter-required');
 });
