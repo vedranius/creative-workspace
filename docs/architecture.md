@@ -15,6 +15,8 @@ User interface logic runs in the browser. Document engines, original media proce
 
 This milestone implements the initial control service, catalog, workspace settings and read-only browsing. The session, job and installation services are future work, not placeholder operations exposed as working buttons.
 
+The transfer milestone additionally implements local browser file/folder imports and downloads. Upload alone is not the final storage architecture: [storage modes](storage-modes.md) requires laptop-authoritative on-demand access and hybrid background copying for every creative adapter.
+
 ## Update model
 
 Track upstream application version, adapter version and installed deployment version separately. A new GitHub release does not imply the adapter is compatible. Future installation must pin build inputs, validate package digests, check migrations, and preserve an old deployment until health checks pass. Existing sessions must not be terminated silently. Persistent data migrations require their own backup/restore strategy.
