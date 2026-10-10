@@ -1,0 +1,17 @@
+[package]
+name = "cw-designcraft-engine"
+version = "0.1.0"
+edition = "2024"
+license = "MIT OR Apache-2.0"
+
+[lints]
+workspace = true
+
+[dependencies]
+designcraft-mcp = { workspace = true }
+designcraft-engine = { workspace = true }
+designcraft-doc = { workspace = true }
+designcraft-format = { workspace = true }
+serde_json = { workspace = true }
+zip = { workspace = true }
+image = { workspace = true }

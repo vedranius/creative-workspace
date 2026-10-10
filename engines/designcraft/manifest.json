@@ -1,0 +1,8 @@
+{
+  "source": "https://github.com/storytold/designcraft.git",
+  "commit": "a127c6d5c3576972bbd60445f26d893db071eef3",
+  "version": "0.5.0",
+  "binary": "cw-designcraft-engine",
+  "license": "MIT OR Apache-2.0",
+  "runtimeId": "creative-workspace-designcraft-v1"
+}

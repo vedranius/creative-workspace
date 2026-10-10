@@ -2,7 +2,7 @@
 
 A self-hosted creative studio: native browser interfaces, server-side processing, and shared project files. No remote desktop or desktop-display transport.
 
-**Status: four working Linux creative integrations.** RapidRAW has a separately built, workspace-owned engine and functioning browser editor. PhotoCraft, PdfCraft and VectorCraft have independent Rust server engines and native browser adapter prototypes, including laptop-folder modes. FilmCraft, LightCraft, EffectCraft and DesignCraft remain planned. The dashboard lists available editors first and separates them from repository entries.
+**Status: five working Linux creative integrations.** RapidRAW has a separately built, workspace-owned engine and functioning browser editor. PhotoCraft, PdfCraft, VectorCraft and DesignCraft have independent Rust server engines and native browser adapter prototypes, including laptop-folder modes. FilmCraft, LightCraft and EffectCraft remain planned. The dashboard lists available editors first and separates them from repository entries.
 
 ## Implemented
 
@@ -13,6 +13,7 @@ A self-hosted creative studio: native browser interfaces, server-side processing
 - PhotoCraft gateway session-version checks reject stale browser/controller edits, including a stale Save after another client switches documents. The [MCP adapter audit](docs/mcp-adapter-audit.md) defines the next small prototype; an MCP endpoint is not yet implemented.
 - PdfCraft opens/imports PDFs, renders pages on the server, rotates/moves/deletes pages, adds notes, supports undo/redo and exports a new PDF copy. Native on-demand tests confirm selected-file access, acknowledged laptop output and separate server output. See [PdfCraft runtime](engines/pdfcraft/README.md).
 - VectorCraft opens SVG/native documents, draws shapes and paths, edits colours and positions, supports undo/redo and saves editable native copies or SVG/PDF/PNG exports. Native Linux and browser upload/edit/save/download/reopen flows passed, including acknowledged on-demand laptop output. See [VectorCraft runtime](engines/vectorcraft/README.md).
+- DesignCraft creates/opens native publications, edits text frames and typography, reports overset, resizes/reflows frames and exports PDF/PNG or editable native copies. Native/browser save/reopen and acknowledged on-demand laptop output passed. See [DesignCraft runtime](engines/designcraft/README.md).
 - Persistent per-application server workspace configuration.
 - Browser file/folder selection and drag & drop from the visiting laptop, with streamed copies into server workspaces.
 - Transfer progress and cancellation, folder structure preservation, and download back to the laptop.
@@ -68,7 +69,7 @@ See the [development roadmap](docs/roadmap.md), [AI/MCP integration plan](docs/a
 
 ## Known limits
 
-Single-user only. No delete or document editing in the file browser yet. No automatic compatible upgrades, tag fallback, rollback, or the four remaining ArtCraft server adapters. Engine installation/start is currently managed by the CLI, not a control-panel job. PhotoCraft has at most four separate sessions and a prototype UI; save documents before server restarts. A 404 from GitHub's release endpoint is reported as no published release; repository deletion or access changes need separate future checks. Upstream release notes are displayed as plain text. Scheduled checks need the service to remain running. Filesystem permissions remain the final authority; do not allow unrelated processes to replace workspace symlinks while browsing. Windows/macOS runtime behavior requires verification on those hosts.
+Single-user only. No delete or document editing in the file browser yet. No automatic compatible upgrades, tag fallback, rollback, or the three remaining ArtCraft server adapters. Engine installation/start is currently managed by the CLI, not a control-panel job. PhotoCraft has at most four separate sessions and a prototype UI; save documents before server restarts. A 404 from GitHub's release endpoint is reported as no published release; repository deletion or access changes need separate future checks. Upstream release notes are displayed as plain text. Scheduled checks need the service to remain running. Filesystem permissions remain the final authority; do not allow unrelated processes to replace workspace symlinks while browsing. Windows/macOS runtime behavior requires verification on those hosts.
 
 ## Laptop file imports
 
