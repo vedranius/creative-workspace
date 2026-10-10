@@ -16,9 +16,9 @@ function renderApps(){
     const art=element('div','app-art');art.setAttribute('aria-hidden','true');art.append(element('span','art-orbit'),element('span','art-grid'),element('span','art-symbol',app.symbol),element('span','art-index',String(apps.indexOf(app)+1).padStart(2,'0')));
     card.append(art,top,element('h3','',app.name),element('p','description',app.description));
     card.append(attribution(app));
-    const state=element('div','adapter-state',app.id==='rapidraw'?'Existing bridge · integration pending':'Server adapter in development');card.append(state);
+    const state=element('div','adapter-state','Editor not available yet');card.append(state);
     const folder=element('div','workspace-path',app.configuration.workspace||'No workspace assigned');folder.title=folder.textContent;card.append(folder);
-    const bottom=element('div','card-bottom');const configure=element('button','secondary',app.configuration.workspace?'Change workspace':'Set workspace');configure.onclick=()=>showWorkspace(app);const local=element('button','primary','Import from laptop');local.onclick=()=>showImport(app.id);bottom.append(local,configure);card.append(bottom);return card;
+    const bottom=element('div','card-bottom');const configure=element('button','secondary',app.configuration.workspace?'Server folder':'Set server folder');configure.onclick=()=>showWorkspace(app);const local=element('button','primary','Import from laptop');local.onclick=()=>showImport(app.id);bottom.append(local,configure);card.append(bottom);return card;
   }));
   if(!list.length)$('apps').append(element('div','empty','No applications match your search.'));
 }
@@ -30,7 +30,7 @@ function renderFileApps(){const configured=apps.filter(app=>app.configuration.wo
 async function refresh(){apps=await api('/api/apps');renderApps();renderUpdates();renderFileApps();}
 document.querySelectorAll('[data-view]').forEach(button=>button.onclick=()=>{currentView=button.dataset.view;document.querySelectorAll('[data-view]').forEach(b=>b.classList.toggle('active',b===button));for(const view of ['apps','files','updates','settings'])$(`${view}-view`).hidden=view!==currentView;$('view-name').textContent=button.textContent.trim().replace(/^[^A-Za-z]+/,'');if(currentView==='files')loadFiles();});
 $('search').oninput=renderApps;$('close-dialog').onclick=()=>$('workspace-dialog').close();
-$('workspace-form').onsubmit=async event=>{event.preventDefault();try{await api(`/api/apps/${selectedApp}/workspace`,'PUT',{root:$('workspace-root').value});$('workspace-dialog').close();await refresh();toast('Workspace saved on your server.');}catch(e){$('form-error').textContent=e.message;}};
+$('workspace-form').onsubmit=async event=>{event.preventDefault();try{await api(`/api/apps/${selectedApp}/workspace`,'PUT',{root:$('workspace-root').value});$('workspace-dialog').close();await refresh();toast('Workspace saved on your server.');}catch(e){$('form-error').textContent=e.message.includes('WORKSPACE_ROOTS')?'This is a server-folder setting. Use a folder inside the allowed roots below, or choose Import from laptop for files on your computer.':e.message;}};
 $('file-app').onchange=()=>{relativePath='';loadFiles();};$('parent').onclick=()=>{relativePath=relativePath.split('/').slice(0,-1).join('/');loadFiles();};
 $('check-updates').onclick=async()=>{const button=$('check-updates');button.disabled=true;button.textContent='Checking…';try{await api('/api/updates/check','POST',{});toast('Release check started. Results appear as each repository responds.');setTimeout(()=>refresh().catch(e=>toast(e.message)),2000);}catch(e){toast(e.message);}finally{setTimeout(()=>{button.disabled=false;button.textContent='Check GitHub now';},5000);}};
 try{settings=await api('/api/settings');await refresh();renderFilters();renderSettings();$('connection').textContent='Server connected';}catch(e){$('connection').textContent='Connection failed';toast(e.message);}
@@ -84,3 +84,6 @@ $('cancel-upload').onclick=()=>{if(transfer){transfer.cancelled=true;transfer.xh
 $('drop-zone').ondragover=event=>{event.preventDefault();$('drop-zone').classList.add('dragging');};
 $('drop-zone').ondragleave=()=>$('drop-zone').classList.remove('dragging');
 $('drop-zone').ondrop=event=>{event.preventDefault();$('drop-zone').classList.remove('dragging');importLocal(Array.from(event.dataTransfer.files));};
+
+$('workspace-import').onclick=()=>{$('workspace-dialog').close();showImport(selectedApp);};
+$('default-workspace').onclick=async()=>{try{const result=await api('/api/imports/prepare','POST',{app:selectedApp});$('workspace-root').value=result.workspace;$('form-error').textContent='';await refresh();toast('Server folder ready. Use Import from laptop to choose local files.');}catch(e){$('form-error').textContent=e.message;}};
