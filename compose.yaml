@@ -1,0 +1,18 @@
+services:
+  workspace:
+    build: .
+    ports:
+      - "127.0.0.1:8788:8788"
+    environment:
+      WORKSPACE_AUTH: ${WORKSPACE_AUTH:?Set WORKSPACE_AUTH=user:password in .env}
+      GITHUB_TOKEN: ${GITHUB_TOKEN:-}
+    volumes:
+      - workspace-state:/app/data
+      - ./workspaces:/app/workspaces:ro
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+volumes:
+  workspace-state:

@@ -1,0 +1,9 @@
+{
+  "name": "creative-workspace",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Self-hosted creative workspace with native browser interfaces and server-side engines",
+  "engines": { "node": ">=24" },
+  "scripts": { "start": "node src/server.js", "test": "node --test", "check": "node --check src/server.js && node --check public/app.js" }
+}
