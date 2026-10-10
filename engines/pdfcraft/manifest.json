@@ -1,0 +1,12 @@
+{
+  "id": "pdfcraft",
+  "source": "https://github.com/storytold/pdfcraft.git",
+  "commit": "9ccf77bdf685bc3cb0f545865c9f9b3e97ab5025",
+  "version": "0.5.0",
+  "binary": "cw-pdfcraft-engine",
+  "transport": "isolated-json-lines-stdio",
+  "processing": "server",
+  "license": "MIT OR Apache-2.0",
+  "platformsVerified": ["linux-x64"],
+  "frontendStatus": "browser-adapter-prototype"
+}

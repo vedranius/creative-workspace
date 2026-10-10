@@ -51,3 +51,5 @@ Evoto daje [batch obradu](https://www.evoto.ai/features/batch-edits) i specijali
 - **AI-03:** evaluacija portrait/batch kvalitete na reprezentativnim korisničkim primjerima, uz masku, intenzitet i dosljednost. Ne obećavati Evoto ekvivalent prije te provjere.
 
 REC-02 UI oporavka i MCP-01 audit/version guard su implementirani. Sljedeći je MCP-02a scoped adapter prema auditu. Višekorisnički MCP endpoint zahtijeva AUTH/ACL fazu prije produkcijske dostupnosti.
+
+Najnovija korisnikova uputa prioritizira funkcionalne kreativne aplikacije. PdfCraft je sada dodan; VectorCraft je sljedeći. MCP-02a se nastavlja nakon tog osnovnog adapter rada, bez predstavljanja planiranog endpointa kao gotove funkcije.

@@ -10,23 +10,24 @@ const readMethods=new Set(['state','heartbeat','engine.commands','doc.inspect','
 const failure=(message,status=400,code)=>Object.assign(new Error(message),{status,...(code?{code}:{})});
 
 export class EngineProcess {
-  constructor(binary,root,{spawnProcess=spawn,timeout=120000,configDir=path.resolve('data/engines/photocraft/config'),writeRoot=root}={}){
-    this.next=0;this.pending=new Map();this.buffer='';this.closed=false;this.timeout=timeout;this.logs='';
-    this.child=spawnProcess(binary,['serve','--automation-read-root',root,'--automation-write-root',writeRoot],{stdio:['pipe','pipe','pipe'],env:{...process.env,XDG_CONFIG_HOME:configDir,XDG_DATA_HOME:configDir,XDG_CACHE_HOME:configDir}});
+  constructor(binary,root,{spawnProcess=spawn,timeout=120000,configDir=path.resolve('data/engines/photocraft/config'),writeRoot=root,args,allowedMethods=methods,engineName='PhotoCraft'}={}){
+    this.next=0;this.pending=new Map();this.buffer='';this.closed=false;this.timeout=timeout;this.logs='';this.engineName=engineName;
+    this.methods=allowedMethods;
+    this.child=spawnProcess(binary,args||['serve','--automation-read-root',root,'--automation-write-root',writeRoot],{stdio:['pipe','pipe','pipe'],env:{...process.env,XDG_CONFIG_HOME:configDir,XDG_DATA_HOME:configDir,XDG_CACHE_HOME:configDir}});
     this.child.stdout.setEncoding('utf8');this.child.stdout.on('data',data=>this.receive(data));
     this.child.stderr.on('data',data=>{this.logs=(this.logs+data).slice(-4096);});
-    this.child.on('error',()=>this.stop('PhotoCraft process could not start'));
-    this.child.on('exit',()=>this.stop('PhotoCraft engine stopped'));
-    this.child.stdin.on('error',()=>this.stop('PhotoCraft command pipe disconnected'));
+    this.child.on('error',()=>this.stop(`${this.engineName} process could not start`));
+    this.child.on('exit',()=>this.stop(`${this.engineName} engine stopped`));
+    this.child.stdin.on('error',()=>this.stop(`${this.engineName} command pipe disconnected`));
   }
   receive(data){
     this.buffer+=data;if(this.buffer.length>48*1024*1024){this.stop('Engine reply exceeded the limit');return;}
     let newline;
-    while((newline=this.buffer.indexOf('\n'))!==-1){const line=this.buffer.slice(0,newline);this.buffer=this.buffer.slice(newline+1);let reply;try{reply=JSON.parse(line);}catch{this.stop('Invalid PhotoCraft engine reply');return;}const job=this.pending.get(reply.id);if(!job)continue;this.pending.delete(reply.id);clearTimeout(job.timer);reply.ok?job.resolve(reply.result):job.reject(failure(String(reply.error||'Engine command failed')));}
+    while((newline=this.buffer.indexOf('\n'))!==-1){const line=this.buffer.slice(0,newline);this.buffer=this.buffer.slice(newline+1);let reply;try{reply=JSON.parse(line);}catch{this.stop(`Invalid ${this.engineName} engine reply`);return;}const job=this.pending.get(reply.id);if(!job)continue;this.pending.delete(reply.id);clearTimeout(job.timer);reply.ok?job.resolve(reply.result):job.reject(failure(String(reply.error||'Engine command failed')));}
   }
   call(method,params={}){
     if(this.closed)return Promise.reject(failure('Engine is unavailable',503));
-    if(!methods.has(method))return Promise.reject(failure('Unsupported PhotoCraft method'));
+    if(!this.methods.has(method))return Promise.reject(failure('Unsupported engine method'));
     const id=++this.next;return new Promise((resolve,reject)=>{const timer=setTimeout(()=>{this.pending.delete(id);reject(failure('Operation timed out; session was stopped to avoid ambiguous retries',504));this.stop('Engine timed out');},this.timeout);this.pending.set(id,{resolve,reject,timer});this.child.stdin.write(`${JSON.stringify({id,method,params})}\n`);});
   }
   stop(reason='Session closed'){if(this.closed)return;this.closed=true;for(const job of this.pending.values()){clearTimeout(job.timer);job.reject(failure(reason,503));}this.pending.clear();this.child.stdin.end();this.child.kill('SIGTERM');}

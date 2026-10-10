@@ -1,0 +1,11 @@
+[package]
+name = "cw-pdfcraft-engine"
+version = "0.1.0"
+edition = "2024"
+license = "MIT OR Apache-2.0"
+
+[dependencies]
+pdfcraft-automation = { workspace = true, default-features = false }
+pdfcraft-engine = { workspace = true }
+serde_json = { workspace = true }
+base64 = "=0.22.1"

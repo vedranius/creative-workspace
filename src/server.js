@@ -11,6 +11,7 @@ import {receiveFile,importSegments} from './transfers.js';
 import {checkRelease} from './updates.js';
 import {createRapidRaw} from './rapidraw.js';
 import {createPhotoCraft} from './photocraft.js';
+import {createPdfCraft} from './pdfcraft.js';
 import {createStorageProvider} from './storage-provider.js';
 
 const base=path.dirname(fileURLToPath(import.meta.url));
@@ -19,11 +20,12 @@ function error(message,status=400){return Object.assign(new Error(message),{stat
 async function body(req,limit=16384){let data='';for await(const chunk of req){data+=chunk;if(Buffer.byteLength(data)>limit)throw error('Request too large',413);}try{return JSON.parse(data||'{}');}catch{throw error('Invalid JSON');}}
 function secretEquals(a,b){const x=Buffer.from(a),y=Buffer.from(b);return x.length===y.length&&timingSafeEqual(x,y);}
 
-export async function createWorkspaceServer({dataDir=process.env.DATA_DIR||path.join(base,'../data'),allowedRoots=(process.env.WORKSPACE_ROOTS||path.join(base,'../workspaces')).split(path.delimiter),auth=process.env.WORKSPACE_AUTH,fetcher=fetch,rapidrawUrl,photocraftOptions={},maxUploadBytes=Number(process.env.MAX_UPLOAD_BYTES||2147483648)}={}){
+export async function createWorkspaceServer({dataDir=process.env.DATA_DIR||path.join(base,'../data'),allowedRoots=(process.env.WORKSPACE_ROOTS||path.join(base,'../workspaces')).split(path.delimiter),auth=process.env.WORKSPACE_AUTH,fetcher=fetch,rapidrawUrl,photocraftOptions={},pdfcraftOptions={},studioContext=null,maxUploadBytes=Number(process.env.MAX_UPLOAD_BYTES||2147483648)}={}){
   if(!Number.isSafeInteger(maxUploadBytes)||maxUploadBytes<=0)throw new Error('Invalid MAX_UPLOAD_BYTES');
   let state=await readState(dataDir);
   const rapidraw=createRapidRaw({url:rapidrawUrl});
   const photocraft=createPhotoCraft({binary:process.env.CW_PHOTOCRAFT_BINARY||path.join(dataDir,'engines/photocraft/build/release/photocraft-cli'+(process.platform==='win32'?'.exe':'')),stateDir:path.join(dataDir,'engines/photocraft/sessions'),...photocraftOptions});
+  const pdfcraft=createPdfCraft({binary:process.env.CW_PDFCRAFT_BINARY||path.join(dataDir,'engines/pdfcraft/build/release/cw-pdfcraft-engine'+(process.platform==='win32'?'.exe':'')),stateDir:path.join(dataDir,'engines/pdfcraft/sessions'),settleOutput:(id,relative)=>storage.settle(id,relative),...pdfcraftOptions});
   let queue=Promise.resolve();
   let updateInProgress=null;
   const mutate=(operation)=>{const next=queue.then(operation);queue=next.catch(()=>{});return next;};
@@ -76,6 +78,7 @@ export async function createWorkspaceServer({dataDir=process.env.DATA_DIR||path.
       if(url.pathname==='/api/health'&&req.method==='GET')return json({status:'ok',version:'0.1.0'});
       if(url.pathname==='/api/engines/rapidraw'&&req.method==='GET')return json(await rapidraw.status());
       if(url.pathname==='/api/engines/photocraft'&&req.method==='GET')return json(await photocraft.status());
+      if(url.pathname==='/api/engines/pdfcraft'&&req.method==='GET')return json(await pdfcraft.status());
       if(url.pathname==='/api/storage/capabilities'&&req.method==='GET')return json(storage.capabilities());
       if(url.pathname==='/api/storage/shares'&&req.method==='GET')return json(storage.list());
       if(url.pathname==='/api/storage/shares'&&req.method==='POST')return json(await storage.start(await body(req)),201);
@@ -92,7 +95,7 @@ export async function createWorkspaceServer({dataDir=process.env.DATA_DIR||path.
       if(shareMatch){
         if(req.method==='GET'&&shareMatch[2]==='have')return json(await storage.have(shareMatch[1]));
         if(req.method==='GET'&&shareMatch[2]==='files'){const share=storage.source(shareMatch[1],url.searchParams.get('app'));return json(await listFiles(share.view,url.searchParams.get('path')||''));}
-        if(req.method==='DELETE'&&!shareMatch[2]){await body(req);if(photocraft.usesShare(shareMatch[1]))throw error('Close the editing sessions using this folder before stopping it',409);return json(await storage.stop(shareMatch[1]));}
+        if(req.method==='DELETE'&&!shareMatch[2]){await body(req);if(photocraft.usesShare(shareMatch[1])||pdfcraft.usesShare(shareMatch[1]))throw error('Close the editing sessions using this folder before stopping it',409);return json(await storage.stop(shareMatch[1]));}
         throw error('Method not allowed',405);
       }
       if(url.pathname==='/api/photocraft/sessions'&&req.method==='POST'){
@@ -116,8 +119,26 @@ export async function createWorkspaceServer({dataDir=process.env.DATA_DIR||path.
         if(req.method==='GET'&&photoSession[2]==='output'){const file=await photocraft.output(photoSession[1],url.searchParams.get('path'));const info=await stat(file);if(!info.isFile())throw error('Output is not a file');res.writeHead(200,{'Content-Type':'application/octet-stream','Content-Length':info.size,'Content-Disposition':`attachment; filename*=UTF-8''${encodeURIComponent(path.basename(file))}`,'Cache-Control':'no-store'});await pipeline(createReadStream(file),res);return;}
         throw error('Method not allowed',405);
       }
+      if(url.pathname==='/api/pdfcraft/sessions'&&req.method==='POST'){
+        const input=await body(req),root=await appWorkspace('pdfcraft');
+        if(input.sourceShareId){const share=storage.source(input.sourceShareId,'pdfcraft'),laptop=input.saveDestination==='laptop';if(laptop&&(share.access!=='readwrite'||share.mode!=='ondemand'))throw error('Laptop saving requires an on-demand folder with write permission',403);return json(await pdfcraft.create(share.view,{writeRoot:laptop?share.view:root,shareId:share.id,laptopOutput:laptop}),201);}
+        return json(await pdfcraft.create(root),201);
+      }
+      const pdfSession=url.pathname.match(/^\/api\/pdfcraft\/sessions\/([a-f0-9]{48})(?:\/(rpc|preview.png|output))?$/);
+      if(pdfSession){
+        if(req.method==='POST'&&pdfSession[2]==='rpc'){
+          const input=await body(req,65536),detail=pdfcraft.describe(pdfSession[1]);
+          if(detail.shareId&&(input.method==='doc.open'||input.method==='doc.save'&&detail.laptopOutput))try{storage.source(detail.shareId,'pdfcraft');}catch{throw error('Reconnect the laptop folder before opening or saving files',503);}
+          if(input.method==='doc.open'&&detail.shareId&&typeof input.params?.path==='string')storage.focus(path.join(detail.readRoot,input.params.path));
+          storage.activity.touch();storage.activity.loading(input.requestId);try{return json(await pdfcraft.execute(pdfSession[1],input));}finally{storage.activity.loaded(input.requestId);}
+        }
+        if(req.method==='DELETE'&&!pdfSession[2])return json(await pdfcraft.close(pdfSession[1],await body(req)));
+        if(req.method==='GET'&&pdfSession[2]==='preview.png'){const image=pdfcraft.preview(pdfSession[1],url.searchParams.get('v'));res.writeHead(200,{'Content-Type':'image/png','Cache-Control':'no-store'});res.end(image);return;}
+        if(req.method==='GET'&&pdfSession[2]==='output'){const file=await pdfcraft.output(pdfSession[1],url.searchParams.get('path'));res.writeHead(200,{'Content-Type':'application/pdf','Content-Disposition':`attachment; filename*=UTF-8''${encodeURIComponent(path.basename(file))}`,'Cache-Control':'no-store'});await pipeline(createReadStream(file),res);return;}
+        throw error('Method not allowed',405);
+      }
       if(url.pathname==='/api/apps'&&req.method==='GET')return json(catalog.map(app=>({...app,configuration:state.apps[app.id]||{},update:state.updates[app.id]||{status:'unchecked'}})));
-      if(url.pathname==='/api/settings'&&req.method==='GET')return json({allowedRoots,authentication:!!auth,mode:'single-user',updateIntervalHours:24,maxUploadBytes});
+      if(url.pathname==='/api/settings'&&req.method==='GET')return json({allowedRoots,authentication:!!auth,mode:'single-user',updateIntervalHours:24,maxUploadBytes,studioContext});
       if(url.pathname==='/api/imports/prepare'&&req.method==='POST'){
         const input=await body(req);
         if(!catalog.some(app=>app.id===input.app))throw error('Unknown application',404);
@@ -165,7 +186,7 @@ export async function createWorkspaceServer({dataDir=process.env.DATA_DIR||path.
       }
       if(url.pathname.startsWith('/api/'))throw error('Endpoint not found',404);
       if(req.method!=='GET'&&req.method!=='HEAD')throw error('Method not allowed',405);
-      const assets={'/':'index.html','/app.js':'app.js','/style.css':'style.css','/apps/photocraft/':'photocraft/index.html','/apps/photocraft/app.js':'photocraft/app.js','/apps/photocraft/style.css':'photocraft/style.css','/storage/agent.js':'storage/agent.js','/storage/folders.js':'storage/folders.js','/storage/recovery.js':'storage/recovery.js','/storage/recovery.css':'storage/recovery.css'};
+      const assets={'/':'index.html','/app.js':'app.js','/style.css':'style.css','/apps/photocraft/':'photocraft/index.html','/apps/photocraft/app.js':'photocraft/app.js','/apps/photocraft/style.css':'photocraft/style.css','/apps/pdfcraft/':'pdfcraft/index.html','/apps/pdfcraft/app.js':'pdfcraft/app.js','/apps/pdfcraft/style.css':'pdfcraft/style.css','/storage/agent.js':'storage/agent.js','/storage/folders.js':'storage/folders.js','/storage/recovery.js':'storage/recovery.js','/storage/recovery.css':'storage/recovery.css'};
       if(!assets[url.pathname])throw error('Not found',404);
       const buffer=await readFile(path.join(publicRoot,assets[url.pathname]));
       const type=url.pathname.endsWith('.js')?'text/javascript':url.pathname.endsWith('.css')?'text/css':'text/html';
@@ -185,7 +206,7 @@ export async function createWorkspaceServer({dataDir=process.env.DATA_DIR||path.
   server.requestTimeout=60*60*1000;
   // Scheduled checks run inside the self-hosted service, not in a hosted automation.
   const timer=setInterval(()=>checkAll().catch(()=>{}),24*60*60*1000);timer.unref();
-  server.on('close',()=>{clearInterval(timer);photocraft.shutdown();storage.shutdown().catch(()=>{});});
+  server.on('close',()=>{clearInterval(timer);photocraft.shutdown();pdfcraft.shutdown();storage.shutdown().catch(()=>{});});
   return server;
 }
 if(process.argv[1]&&path.resolve(process.argv[1])===fileURLToPath(import.meta.url)){

@@ -6,11 +6,13 @@ Laptop access must support more than file upload. This requirement applies to ev
 
 | Mode | Source of truth | Data access | Availability |
 | --- | --- | --- | --- |
-| Server project | Server workspace | Upload selected files/folders first; engines read the server copy | Working in RapidRAW and PhotoCraft |
-| Laptop / on demand | User-selected local folder | Engine requests file ranges through a browser agent; save destination is selected separately | Native Linux read/edit/laptop-save flow verified with a generated protocol fixture |
-| On demand + background copy | Laptop; server retention is optional | Interactive reads take priority; remaining originals copy in the background | Available in PhotoCraft prototype UI; background-copy stress tests pending |
+| Server project | Server workspace | Upload selected files/folders first; engines read the server copy | Working in RapidRAW, PhotoCraft and PdfCraft |
+| Laptop / on demand | User-selected local folder | Engine requests file ranges through a browser agent; save destination is selected separately | Native Linux PhotoCraft/PdfCraft read/edit/laptop-save flows verified with generated protocol fixtures |
+| On demand + background copy | Laptop; server retention is optional | Interactive reads take priority; remaining originals copy in the background | Available in PhotoCraft/PdfCraft prototype UI; background-copy stress tests pending |
 
 Storage retention is a separate choice: temporary cache or a retained server copy. Saving outputs is also separate: selected local folder or server project. Downloading saved outputs is always available. Simultaneous automatic saving to both locations is a future option. Avoid a silent change of the authoritative location when switching modes.
+
+PdfCraft's headless library has one filesystem root. The adapter fetches only the selected PDF into a private session workspace for parsing; that PDF must be read in full. Its export-copy operation leaves native undo/state intact until the selected destination confirms publication. On-demand tests confirm no access to an unrelated 8 MiB file, byte-identical acknowledged laptop output, reopen, and separate server output. This does not automate a real user's directory picker or version-safe replay.
 
 ## Verified reference
 

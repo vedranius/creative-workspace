@@ -2,7 +2,7 @@
 
 A self-hosted creative studio: native browser interfaces, server-side processing, and shared project files. No remote desktop or desktop-display transport.
 
-**Status: early creative-suite integration.** RapidRAW has a separately built, workspace-owned Linux engine and a functioning browser editor. PhotoCraft now has a working Rust server engine and a native browser adapter prototype, including laptop-folder modes. The other six ArtCraft adapters are pending.
+**Status: three working Linux creative integrations.** RapidRAW has a separately built, workspace-owned engine and functioning browser editor. PhotoCraft and PdfCraft have independent Rust server engines and native browser adapter prototypes, including laptop-folder modes. VectorCraft, FilmCraft, LightCraft, EffectCraft and DesignCraft remain planned. The dashboard lists available editors first and separates them from repository entries.
 
 ## Implemented
 
@@ -11,6 +11,7 @@ A self-hosted creative studio: native browser interfaces, server-side processing
 - Shared laptop-folder provider: on demand, hybrid background copy and copy-first modes, with server or laptop save destinations.
 - Durable pending-save journal with a Save recovery dialog in the homepage and PhotoCraft. Review uncertain/incomplete outputs and download separate `.recovered` server copies after a gateway restart.
 - PhotoCraft gateway session-version checks reject stale browser/controller edits, including a stale Save after another client switches documents. The [MCP adapter audit](docs/mcp-adapter-audit.md) defines the next small prototype; an MCP endpoint is not yet implemented.
+- PdfCraft opens/imports PDFs, renders pages on the server, rotates/moves/deletes pages, adds notes, supports undo/redo and exports a new PDF copy. Native on-demand tests confirm selected-file access, acknowledged laptop output and separate server output. See [PdfCraft runtime](engines/pdfcraft/README.md).
 - Persistent per-application server workspace configuration.
 - Browser file/folder selection and drag & drop from the visiting laptop, with streamed copies into server workspaces.
 - Transfer progress and cancellation, folder structure preservation, and download back to the laptop.

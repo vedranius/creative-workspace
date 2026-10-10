@@ -17,7 +17,7 @@ export async function chooseLocalFolder({app,onReady,onStatus=()=>{}}){
   const caps=await api('/api/storage/capabilities');
   const dialog=element('dialog');dialog.className='storage-dialog';
   const title=element('div');title.className='dialog-title';title.append(element('h2','Work with a laptop folder'));const close=element('button','×');close.type='button';close.onclick=()=>dialog.close();title.append(close);dialog.append(title);
-  dialog.append(element('p','Choose where your originals stay and where your results are saved. The server runs the image engine.'));
+  dialog.append(element('p','Choose where your originals stay and where your results are saved. The server processes the selected document.'));
   const modeLabel=element('label','Working mode');const mode=element('select');
   for(const [value,label]of [['ondemand','On demand — originals stay on laptop'],['hybrid','On demand + background server copy'],['transfer','Copy the whole folder to server first']]){const option=element('option',label);option.value=value;if(value!=='transfer'&&!caps.ondemand)option.disabled=true;mode.append(option);}mode.value=caps.ondemand?'ondemand':'transfer';modeLabel.append(mode);dialog.append(modeLabel);
   if(!caps.ondemand)dialog.append(element('p',caps.reason||'This server cannot mount local folders on demand.'));
@@ -26,7 +26,7 @@ export async function chooseLocalFolder({app,onReady,onStatus=()=>{}}){
   const picker=element('button','Choose laptop folder…');picker.type='button';picker.className='accent';const chosen=element('p','No folder selected');let handle=null;
   picker.onclick=async()=>{try{handle=await window.showDirectoryPicker({id:`cw-${app}`,mode:destination.value==='laptop'?'readwrite':'read'});chosen.textContent=handle.name;start.disabled=false;}catch(error){if(error.name!=='AbortError')chosen.textContent=error.message;}};
   const status=element('p');status.setAttribute('role','status');dialog.append(picker,chosen,status);
-  dialog.append(element('p','On-demand access needs this tab to stay connected. Only selected files/ranges are fetched; opening an image may require its complete contents.'));
+  dialog.append(element('p','On-demand access needs this tab to stay connected. Only selected files/ranges are fetched; opening a document may require its complete contents.'));
   const start=element('button','Start this mode');start.className='accent';start.disabled=true;dialog.append(start);
   function changed(){destination.querySelector('option[value=laptop]').disabled=mode.value==='transfer';if(mode.value==='transfer'){destination.value='server';keep.checked=true;keep.disabled=true;}else keep.disabled=false;handle=null;chosen.textContent='Choose the folder for this mode';start.disabled=true;}
   mode.onchange=changed;destination.onchange=()=>{handle=null;chosen.textContent='Choose again to grant the selected access';start.disabled=true;};changed();
