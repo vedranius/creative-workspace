@@ -4,9 +4,9 @@ Updated: 2026-10-10. Read this file, `../AGENTS.md`, and the relevant roadmap ro
 
 ## Current milestone
 
-- Completed: **REC-01**, implementation commit `ebf3c4e` with a follow-up configured-root alias fix. Durable generation-scoped journal, authenticated inventory/download after restart, preserved failed final rename, and safe Stop before delayed copy sync. Local checks and all **17 tests** passed. Real PhotoCraft/FUSE success and failed-rename recovery/reopen fixtures passed.
-- Next task: **REC-02**, native browser recovery UI using `GET /api/storage/recovery?app=photocraft` and `/api/storage/recovery/<id>/output`. Show filename/folder, timestamp, uncertain/possibly incomplete state, availability and download; do not automatically replay or overwrite laptop originals. REC-03 handles version conflicts.
-- Latest user steering: AI should control our editors through **MCP** from Claude/ChatGPT/Codex, with server engines doing the edit. Read `ai-assistant.md`. MCP is currently planned, not implemented. After REC-02, start bounded **MCP-01** command/auth/revision audit before extending full PhotoCraft UI; an external subscription client need not call our paid API.
+- Completed: **REC-02**, native browser recovery dialog in the homepage and PhotoCraft, with app filters, file/folder/time, failed/unacknowledged/incomplete states, missing-copy warnings, optional availability checks and streaming browser downloads named `.recovered`. Downloads preserve the journal and do not replay saves. REC-01 (`ebf3c4e`, root-alias fix `8caf6f6`) remains the backend. Local checks and **17 tests** passed; generated browser download bytes, state/filter/error/refresh behavior and narrow layout were checked.
+- Next task: **MCP-01**, bounded audit of actual PhotoCraft/RapidRAW commands, permissions, document revisions and browser-state synchronization; read `ai-assistant.md`. Specify the smallest implementable PhotoCraft MCP-02 prototype with real commands and acceptance checks. MCP is currently planned, not implemented. REC-03 version-safe replay remains pending; do not overwrite newer laptop content.
+- Latest user steering: AI should control our editors through **MCP** from Claude/ChatGPT/Codex, with server engines doing the edit; an external subscription client need not call our paid API.
 - A completed save must mean the selected destination acknowledged it. Preserve uncertain outputs, surface recovery metadata after restart, and do not silently overwrite laptop originals.
 - No other writer is assigned to this checkout. Read-only storage reviews completed. Hourly Codex continuation is active in the existing local conversation; this repo is not yet a saved Codex project, so do not invent a project ID for new repository threads.
 
@@ -14,9 +14,9 @@ Updated: 2026-10-10. Read this file, `../AGENTS.md`, and the relevant roadmap ro
 
 Gateway: Node 24 ESM + `ws`; `src/server.js`, `src/storage-provider.js`, `src/vendor/storage/provider.js`. Owned RapidRAW relay identity is required. PhotoCraft has its own Rust CLI per session, `src/photocraft.js`, browser UI in `public/photocraft/`. Common browser folder agent is in `public/storage/`.
 
-RapidRAW and PhotoCraft native Linux flows work. PhotoCraft on-demand native smoke reads only the selected fixture, edits, saves/reopens a layered file on the laptop, and saves to server independently. Recovery backend is implemented; recovery UI, version-safe replay, browser directory-picker permission with a real user folder, background-fill stress, Windows native, macOS mounts, multi-user, cache quotas and the six other ArtCraft adapters remain pending. Current Docker packages the gateway only. Do not label pending adapters installed or fully supported.
+RapidRAW and PhotoCraft native Linux flows work. PhotoCraft on-demand native smoke reads only the selected fixture, edits, saves/reopens a layered file on the laptop, and saves to server independently. Recovery backend and UI are implemented. Version-safe replay, browser directory-picker permission with a real user folder, background-fill stress, Windows native, macOS mounts, multi-user, cache quotas and the six other ArtCraft adapters remain pending. Current Docker packages the gateway only. Do not label pending adapters installed or fully supported.
 
-Checks: `npm run check`, `npm test` (17 tests). Linux native smokes: `scripts/smoke-photocraft-local-folder.mjs`, `scripts/smoke-photocraft-recovery.mjs` (isolated gateway). REC-01 CI [38051582171](https://github.com/vedranius/creative-workspace/actions/runs/38051582171) found macOS `/var` versus `/private/var` aliases in recovery downloads. The follow-up canonicalizes the configured base, then checks each per-share directory; a regression test covers temporary and retained mirrors and still rejects symlinks below the base. Verify the latest commit's CI before further code changes. Gateway CI does not verify native engines on all OSes.
+Checks: `npm run check`, `npm test` (17 tests). Linux native smokes: `scripts/smoke-photocraft-local-folder.mjs`, `scripts/smoke-photocraft-recovery.mjs` (isolated gateway). Latest REC-01 baseline CI [38051979521](https://github.com/vedranius/creative-workspace/actions/runs/38051979521) passed Linux/Windows/macOS after the configured-root alias fix. REC-02 adds recovery-asset authentication and download-header/error assertions; verify this update's CI before further code changes. Gateway CI does not verify native engines on all OSes.
 
 ## Local development host
 
@@ -26,7 +26,9 @@ Gateway URL: `http://127.0.0.1:8788/`; PhotoCraft `/apps/photocraft/`; owned Rap
 
 Detached service records/logs are in `work/runtime/local-services/` outside the repository. Check recorded PIDs and command lines before stopping a process. The user may have an unsaved document: use a separate temporary test port and storage roots; restart the live service only when safe.
 
-REC-01 was tested on isolated temporary gateways. The live port-8788 process was left running its previous backend to protect the user's editor. The new API becomes available on a safe restart; coordinate this with REC-02 deployment rather than silently restarting an unsaved session. Do not claim it is active in the live browser yet.
+The live port-8788 process was left running its previous backend to protect the user's editor. Recovery requires a safe restart there; the lazy UI loader shows an explanation rather than breaking the existing app. Do not claim its new API is active on 8788.
+
+Updated **PhotoCraft preview: `http://127.0.0.1:8789/apps/photocraft/`**. It has independent data/projects under `work/runtime/recovery-preview/`, with process metadata/logs in that directory and launcher `work/scripts/start-recovery-preview.mjs`. It uses existing own PhotoCraft/FUSE binaries; RapidRAW is deliberately disabled there so the existing relay remains separate. Treat this preview's documents as potentially unsaved too. Inspect its exact PID/command before stopping it. Temporary recovery UI fixtures were tested separately; browser screenshots and a compact report are under the task's outputs directory.
 
 Existing native binaries, avoid needless rebuilds:
 

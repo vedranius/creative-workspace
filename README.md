@@ -9,7 +9,7 @@ A self-hosted creative studio: native browser interfaces, server-side processing
 - Responsive application catalog for RapidRAW and seven ArtCraft creative apps.
 - PhotoCraft browser editing: documents, brush strokes, layers, adjustments, history and layered saves/exports.
 - Shared laptop-folder provider: on demand, hybrid background copy and copy-first modes, with server or laptop save destinations.
-- Durable pending-save journal and authenticated recovery downloads after a gateway restart; recovery UI is the next step.
+- Durable pending-save journal with a Save recovery dialog in the homepage and PhotoCraft. Review uncertain/incomplete outputs and download separate `.recovered` server copies after a gateway restart.
 - Persistent per-application server workspace configuration.
 - Browser file/folder selection and drag & drop from the visiting laptop, with streamed copies into server workspaces.
 - Transfer progress and cancellation, folder structure preservation, and download back to the laptop.

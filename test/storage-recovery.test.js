@@ -103,6 +103,10 @@ test('failed laptop ACK is retained through Stop and gateway restart with an aut
   let base=await start();
   const authorization=`Basic ${Buffer.from(options.auth).toString('base64')}`;
   const api=(route,method='GET',body)=>fetch(base+route,{method,headers:{authorization,Origin:base,'Content-Type':'application/json'},body:body===undefined?undefined:JSON.stringify(body)});
+  for(const [route,type] of [['/storage/recovery.js','text/javascript'],['/storage/recovery.css','text/css']]){
+    assert.equal((await fetch(base+route)).status,401);
+    const asset=await api(route);assert.equal(asset.status,200);assert.ok(asset.headers.get('Content-Type').startsWith(type));
+  }
   const share=await (await api('/api/storage/shares','POST',{app:'photocraft',name:'Laptop',mode:'transfer',access:'readwrite'})).json();assert.ok(share.id);
   const agent=new WebSocket(base.replace('http','ws')+`/storage/agent?id=${share.id}`,{headers:{authorization,Origin:base}});
   agent.on('error',()=>{});t.after(()=>agent.terminate());await once(agent,'open');
@@ -132,7 +136,12 @@ test('failed laptop ACK is retained through Stop and gateway restart with an aut
   assert.equal((await fetch(base+'/api/storage/recovery')).status,401);
   const recovered=(await (await api('/api/storage/recovery?app=photocraft')).json()).records;assert.equal(recovered.find(item=>item.relativePath==='document.pcraft').id,record.id);assert.equal(recovered.find(item=>item.id===pending.id).state,'failed');
   const response=await api(`/api/storage/recovery/${record.id}/output?app=photocraft`);assert.equal(response.status,200);
+  assert.ok(response.headers.get('Content-Disposition').includes('document.recovered.pcraft'));
   assert.deepEqual(Buffer.from(await response.arrayBuffer()),bytes);
   assert.deepEqual(Buffer.from(await (await api(`/api/storage/recovery/${pending.id}/output?app=photocraft`)).arrayBuffer()),networkBytes);
   assert.equal((await api(`/api/storage/recovery/${record.id}/output?app=rapidraw`)).status,404);
+  await rm(path.join(share.mirror,'document.pcraft'));
+  const unavailable=await api(`/api/storage/recovery/${record.id}/output?app=photocraft`);
+  assert.notEqual(unavailable.status,200);assert.equal(unavailable.headers.get('Content-Disposition'),null);assert.ok(unavailable.headers.get('Content-Type').startsWith('application/json'));
+  assert.equal((await (await api('/api/storage/recovery?app=photocraft')).json()).records.find(item=>item.id===record.id).downloadAvailable,false);
 });

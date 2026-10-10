@@ -1,6 +1,11 @@
 import {LocalFolderAgent} from './agent.js';
 
 const agents=new Map();
+// Lazy loading keeps existing editor sessions usable with an older running gateway.
+export async function openRecovery(options){
+  const module=await import('./recovery.js').catch(()=>{throw new Error('Save recovery requires the updated server. Save your open documents before restarting it.');});
+  return module.openRecovery(options);
+}
 const element=(tag,text)=>{const node=document.createElement(tag);if(text!==undefined)node.textContent=text;return node;};
 async function api(url,method='GET',value){const response=await fetch(url,{method,headers:value===undefined?{}:{'Content-Type':'application/json'},body:value===undefined?undefined:JSON.stringify(value)});const data=await response.json();if(!response.ok)throw new Error(data.error||'Folder service failed');return data;}
 function database(){return new Promise((resolve,reject)=>{const request=indexedDB.open('cw-local-folders',1);request.onupgradeneeded=()=>request.result.createObjectStore('folders',{keyPath:'id'});request.onsuccess=()=>resolve(request.result);request.onerror=()=>reject(request.error);});}

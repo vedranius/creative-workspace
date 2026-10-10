@@ -83,7 +83,8 @@ export async function createWorkspaceServer({dataDir=process.env.DATA_DIR||path.
       const recoveryOutput=url.pathname.match(/^\/api\/storage\/recovery\/([a-f0-9]{16}-[a-f0-9]{64})\/output$/);
       if(recoveryOutput&&req.method==='GET'){
         const file=await storage.recovery.output(recoveryOutput[1],url.searchParams.get('app'));
-        try{res.writeHead(200,{'Content-Type':'application/octet-stream','Content-Length':file.size,'Content-Disposition':`attachment; filename*=UTF-8''${encodeURIComponent(file.name)}`,'Cache-Control':'no-store'});await pipeline(file.handle.createReadStream(),res);}
+        const extension=path.extname(file.name),copyName=extension?`${file.name.slice(0,-extension.length)}.recovered${extension}`:`${file.name}.recovered`;
+        try{res.writeHead(200,{'Content-Type':'application/octet-stream','Content-Length':file.size,'Content-Disposition':`attachment; filename*=UTF-8''${encodeURIComponent(copyName)}`,'Cache-Control':'no-store'});await pipeline(file.handle.createReadStream(),res);}
         finally{await file.handle.close();}return;
       }
       if(url.pathname==='/api/storage/put'&&req.method==='PUT'){if(Number(req.headers['content-length']||0)>maxUploadBytes)throw error('File exceeds upload limit',413);await storage.put(req,res,url);return;}
@@ -164,7 +165,7 @@ export async function createWorkspaceServer({dataDir=process.env.DATA_DIR||path.
       }
       if(url.pathname.startsWith('/api/'))throw error('Endpoint not found',404);
       if(req.method!=='GET'&&req.method!=='HEAD')throw error('Method not allowed',405);
-      const assets={'/':'index.html','/app.js':'app.js','/style.css':'style.css','/apps/photocraft/':'photocraft/index.html','/apps/photocraft/app.js':'photocraft/app.js','/apps/photocraft/style.css':'photocraft/style.css','/storage/agent.js':'storage/agent.js','/storage/folders.js':'storage/folders.js'};
+      const assets={'/':'index.html','/app.js':'app.js','/style.css':'style.css','/apps/photocraft/':'photocraft/index.html','/apps/photocraft/app.js':'photocraft/app.js','/apps/photocraft/style.css':'photocraft/style.css','/storage/agent.js':'storage/agent.js','/storage/folders.js':'storage/folders.js','/storage/recovery.js':'storage/recovery.js','/storage/recovery.css':'storage/recovery.css'};
       if(!assets[url.pathname])throw error('Not found',404);
       const buffer=await readFile(path.join(publicRoot,assets[url.pathname]));
       const type=url.pathname.endsWith('.js')?'text/javascript':url.pathname.endsWith('.css')?'text/css':'text/html';

@@ -50,4 +50,4 @@ Evoto daje [batch obradu](https://www.evoto.ai/features/batch-edits) i specijali
 - **AI-02:** audit i instalacijski manifest jednog specijaliziranog lokalnog AI backend-a; mjeriti kvalitetu, VRAM/RAM i vrijeme rada. Nema preuzimanja velikih modela ili plaćenih poziva samo radi plana.
 - **AI-03:** evaluacija portrait/batch kvalitete na reprezentativnim korisničkim primjerima, uz masku, intenzitet i dosljednost. Ne obećavati Evoto ekvivalent prije te provjere.
 
-REC-02 UI oporavka ide sljedeći. MCP-01 audit može slijediti rano; MCP-02 koristi provjereno spremanje i session/revision ugovor. Višekorisnički MCP endpoint zahtijeva AUTH/ACL fazu prije produkcijske dostupnosti.
+REC-02 UI oporavka je implementiran. Sljedeći je MCP-01 audit; MCP-02 koristi provjereno spremanje i session/revision ugovor. Višekorisnički MCP endpoint zahtijeva AUTH/ACL fazu prije produkcijske dostupnosti.

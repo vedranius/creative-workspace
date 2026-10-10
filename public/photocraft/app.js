@@ -1,4 +1,4 @@
-import {chooseLocalFolder,reconnectLocalFolder,stopLocalFolder} from '/storage/folders.js';
+import {chooseLocalFolder,reconnectLocalFolder,stopLocalFolder,openRecovery} from '/storage/folders.js';
 const $=id=>document.getElementById(id);
 const node=(tag,text,className)=>{const item=document.createElement(tag);if(text!==undefined)item.textContent=text;if(className)item.className=className;return item;};
 let sourceShare=JSON.parse(sessionStorage.getItem('cw-photocraft-source')||'null');
@@ -6,13 +6,14 @@ let sessionId,documentState=null,sessionState=null,commands=[],currentCommand=nu
 async function request(url,method='GET',data){const response=await fetch(url,{method,headers:data===undefined?{}:{'Content-Type':'application/json'},body:data===undefined?undefined:JSON.stringify(data)});const value=await response.json();if(!response.ok)throw Object.assign(new Error(value.error||'Request failed'),{status:response.status});return value;}
 function report(error){$('error').textContent=error.message||String(error);$('error').hidden=false;setTimeout(()=>$('error').hidden=true,8000);}
 function status(text){$('activity').textContent=text;}
+$('save-recovery').onclick=()=>openRecovery({app:'photocraft',apps:[{id:'photocraft',name:'PhotoCraft'}]}).catch(report);
 const hasUnsavedDocuments=()=>sessionState?.documents?.some(document=>document.dirty);
 const savingToLaptop=()=>sourceShare?.saveDestination==='laptop';
 async function rpc(method,params={}){return request(`/api/photocraft/sessions/${sessionId}/rpc`,'POST',{method,params,requestId:crypto.randomUUID()});}
 async function action(method,params={},label='Processing on server…'){
   if(busy)return;busy=true;document.body.classList.add('busy');status(label);
   try{const result=await rpc(method,params);if(result.document!==undefined)applyState(result);status('Ready · processing stays on the server');return result;}
-  catch(error){status('Operation failed');report(error);throw error;}
+  catch(error){status(method==='doc.save'&&savingToLaptop()?'Save not confirmed · check Save recovery':'Operation failed');report(error);throw error;}
   finally{busy=false;document.body.classList.remove('busy');}
 }
 function flatten(layers,depth=0){return layers.flatMap(layer=>[{...layer,depth},...flatten(layer.children||[],depth+1)]);}

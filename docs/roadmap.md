@@ -18,6 +18,8 @@ Kreativni studio kojem korisnik pristupa iz browsera na slabijem laptopu, dok se
 
 RapidRAW ima zaseban Linux engine i browser editor. PhotoCraft ima zaseban Rust CLI engine, izolirane sesije i browser prototip za dokumente, slojeve, kist, prilagodbe, history i izvoz. Zajednički provider podržava on-demand, hybrid i copy-first; native Linux provjera potvrđuje čitanje odabranog dokumenta i spremanje natrag na laptop, bez čitanja nepovezane datoteke. Pravi browser picker s korisnikovom mapom još treba ručnu provjeru. Ostalih šest ArtCraft adaptera još nije implementirano. Docker trenutno sadrži gateway.
 
+**REC-01 i REC-02 dovršeni:** trajni zapisi nepotvrđenih spremanja i browser dijalog za preuzimanje zasebnih serverskih kopija. Sljedeći mali zadatak je MCP-01 audit prema najnovijoj korisnikovoj ideji; automatski replay i provjera verzijskih konflikata ostaju REC-03.
+
 ## Redoslijed i kriteriji dovršenosti
 
 | Faza | Rezultat za korisnika | Zadaci i provjera |

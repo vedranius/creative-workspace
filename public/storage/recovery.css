@@ -1,0 +1,28 @@
+.cw-recovery-dialog{color-scheme:light;width:740px;max-width:calc(100vw - 28px);max-height:88vh;padding:28px;background:#f4f2ed;color:#171719;border:1px solid #c6c1b6;border-radius:12px;box-shadow:0 22px 90px #0007;overflow:auto;font:13px/1.5 Arial,Helvetica,sans-serif}
+.cw-recovery-dialog::backdrop{background:#10131ab0;backdrop-filter:blur(4px)}
+.cw-recovery-dialog .cw-recovery-heading{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:16px}
+.cw-recovery-dialog .cw-recovery-eyebrow{font:10px monospace;color:#2855dd;letter-spacing:1px}
+.cw-recovery-dialog h2{font-size:27px;font-weight:700;letter-spacing:-1px;margin:8px 0 0;color:#171719}
+.cw-recovery-dialog .cw-recovery-close{padding:0 5px;border:0;background:transparent;color:#171719;font-size:28px}
+.cw-recovery-dialog p{font:12px/1.6 Arial,Helvetica,sans-serif;color:#575751;margin:10px 0}
+.cw-recovery-dialog .cw-recovery-toolbar{display:flex;gap:12px;align-items:center;margin:20px 0 10px}
+.cw-recovery-dialog select{width:auto;max-width:75%;min-width:140px;background:#fffdf8;color:#171719;border:1px solid #c6c1b6;padding:9px;border-radius:5px;font:12px Arial}
+.cw-recovery-dialog button{font:11px Arial;cursor:pointer;background:#2855dd;border:1px solid #2855dd;color:white;border-radius:5px;padding:9px 13px}
+.cw-recovery-dialog button:disabled{opacity:.5;cursor:default}
+.cw-recovery-dialog a,.cw-recovery-dialog button,.cw-recovery-dialog select{outline-offset:4px}
+.cw-recovery-dialog .cw-recovery-record{padding:18px;margin-top:12px;background:#fffdf8;border:1px solid #d3d0c9;border-left:3px solid #2855dd;border-radius:6px}
+.cw-recovery-dialog h3{font-size:14px;color:#171719;margin:0 0 9px;overflow-wrap:anywhere}
+.cw-recovery-dialog .cw-recovery-meta{display:flex;flex-wrap:wrap;gap:5px 18px;font:10px/1.5 monospace;color:#6a6963;overflow-wrap:anywhere}
+.cw-recovery-dialog .cw-recovery-state{color:#3b517e;font-weight:600}
+.cw-recovery-dialog .cw-recovery-state.incomplete{color:#9e4c24}
+.cw-recovery-dialog details{margin:12px 0;font-size:11px;color:#575751}
+.cw-recovery-dialog pre{font:11px/1.5 monospace;white-space:pre-wrap;overflow-wrap:anywhere;background:#efede7;padding:10px;max-height:120px;overflow:auto}
+.cw-recovery-dialog .cw-recovery-actions{display:flex;align-items:center;flex-wrap:wrap;gap:12px;margin-top:14px}
+.cw-recovery-dialog .cw-recovery-direct{display:inline-block;background:#2855dd;color:white;font:11px Arial;text-decoration:none;padding:10px 13px;border-radius:5px;overflow-wrap:anywhere}
+.cw-recovery-dialog .cw-recovery-check{background:transparent;color:#2855dd}
+.cw-recovery-dialog .cw-recovery-empty{padding:22px 0;border-top:1px solid #d3d0c9}
+.cw-recovery-dialog .cw-recovery-notice{color:#575751;overflow-wrap:anywhere}
+.cw-recovery-dialog .cw-recovery-unavailable{color:#9e4c24}
+.cw-recovery-dialog .cw-recovery-download-status{display:flex;align-items:center;gap:12px;flex-wrap:wrap;overflow-wrap:anywhere}
+.cw-recovery-dialog .cw-recovery-footnote{font-size:10px;margin-top:18px;color:#77736a}
+@media(max-width:600px){.cw-recovery-dialog{padding:20px}.cw-recovery-dialog h2{font-size:23px}.cw-recovery-dialog .cw-recovery-record{padding:14px}.cw-recovery-dialog .cw-recovery-meta{display:grid}}

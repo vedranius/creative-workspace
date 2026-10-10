@@ -1,8 +1,10 @@
+import {openRecovery} from '/storage/folders.js';
 const $=id=>document.getElementById(id);
 let apps=[],settings={},category='All tools',selectedApp='',relativePath='',currentView='apps',rapidrawEngine={ready:false},photocraftEngine={ready:false};
 const element=(tag,className,text)=>{const node=document.createElement(tag);if(className)node.className=className;if(text!==undefined)node.textContent=text;return node;};
 async function api(url,method='GET',data){const response=await fetch(url,{method,headers:data===undefined?{}:{'Content-Type':'application/json'},body:data===undefined?undefined:JSON.stringify(data)});const result=await response.json();if(!response.ok)throw new Error(result.error||'Request failed');return result;}
 function toast(message){$('toast').textContent=message;$('toast').hidden=false;setTimeout(()=>$('toast').hidden=true,5000);}
+$('save-recovery').onclick=()=>openRecovery({apps}).catch(error=>toast(error.message));
 function githubLink(app){const a=element('a','repo-link','Repository ↗');a.href=`https://github.com/${app.repo}`;a.target='_blank';a.rel='noopener noreferrer';return a;}
 function attribution(app){const group=element('div','attribution');const source=element('a','source-link',`${app.creator} / ${app.sourceRepo} ↗`);source.href=`https://github.com/${app.sourceRepo}`;source.target='_blank';source.rel='noopener noreferrer';group.append(source);if(app.webAdaptation){const fork=element('a','source-link',`Web adaptation: ${app.webAdaptation.creator} ↗`);fork.href=`https://github.com/${app.webAdaptation.repo}`;fork.target='_blank';fork.rel='noopener noreferrer';group.append(fork);}return group;}
 function showWorkspace(app){selectedApp=app.id;$('dialog-title').textContent=app.name;$('workspace-root').value=app.configuration.workspace||'';$('form-error').textContent='';$('allowed-roots').replaceChildren(...settings.allowedRoots.map(root=>element('code','',root)));$('workspace-dialog').showModal();}
