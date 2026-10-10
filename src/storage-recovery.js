@@ -72,15 +72,17 @@ export function createStorageRecovery({work,resolveAppRoot}){
     const appRoot=await resolveAppRoot(manifest.app);
     const candidates=[path.join(work,'mirror',manifest.shareId,manifest.folderName),path.join(appRoot,`local-${manifest.shareId}`,manifest.folderName)];
     if(!candidates.some(candidate=>path.resolve(candidate)===path.resolve(manifest.mirror)))throw error('Recovery copy is outside its application workspace',403);
-    // Reject a mirror or parent changed to a symlink, including kept copies.
+    // Configured roots can use an OS alias (macOS /var -> /private/var).
+    // Walk the namespace relative to that root, then reject per-share symlinks.
     const candidate=candidates.find(item=>path.resolve(item)===path.resolve(manifest.mirror));
-    const base=candidate===candidates[0]?path.resolve(work):await realpath(appRoot);
+    const declaredBase=path.resolve(candidate===candidates[0]?work:appRoot);
+    const base=await realpath(declaredBase);
     let current=base;
-    for(const segment of path.relative(base,candidate).split(path.sep)){
+    for(const segment of path.relative(declaredBase,candidate).split(path.sep)){
       current=path.join(current,segment);
       const info=await lstat(current);if(!info.isDirectory()||info.isSymbolicLink())throw error('Recovery copy is not a regular directory',403);
     }
-    return realpath(candidate);
+    return realpath(current);
   }
 
   async function copy(manifest,entry){

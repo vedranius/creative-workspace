@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {mkdtemp,mkdir,writeFile,readFile,rm,symlink} from 'node:fs/promises';
+import {mkdtemp,mkdir,writeFile,readFile,rm,symlink,rename} from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import {once} from 'node:events';
@@ -66,6 +66,32 @@ test('recovery refuses symbolic links in its journal and output namespaces',asyn
   await rm(path.join(work,'recovery'),{recursive:true});await symlink(outside,path.join(work,'recovery'),process.platform==='win32'?'junction':'dir');
   await assert.rejects(journal.list(),error=>error.status===403);
   await assert.rejects(journal.begin(metadata,'new.png'),error=>error.status===403);
+});
+
+test('configured root aliases allow recovery while per-share directory aliases are refused',async t=>{
+  const {directory,work,resolveAppRoot}=await fixture(t);
+  const workAlias=path.join(directory,'work-alias'),appAlias=path.join(directory,'app-alias');
+  const linkType=process.platform==='win32'?'junction':'dir';
+  try{await symlink(work,workAlias,linkType);await symlink(await resolveAppRoot('photocraft'),appAlias,linkType);}
+  catch(error){if(['EPERM','EACCES','ENOSYS'].includes(error.code)){t.skip('Host does not permit test directory aliases');return;}throw error;}
+  const options={work:workAlias,resolveAppRoot:async app=>{assert.equal(app,'photocraft');return appAlias;}};
+  const journal=createStorageRecovery(options);
+  for(const [index,id] of ['aaaaaaaaaaaaaaaa','bbbbbbbbbbbbbbbb'].entries()){
+    const name=`Laptop-${index}`;
+    const mirror=index===0?path.join(workAlias,'mirror',id,name):path.join(appAlias,`local-${id}`,name);
+    const metadata={id,app:'photocraft',name,mirror};
+    await mkdir(mirror,{recursive:true});await journal.begin(metadata,'output.png','unacknowledged');
+    const bytes=Buffer.from(`recoverable output ${index}`);await writeFile(path.join(mirror,'output.png'),bytes);
+    const restarted=createStorageRecovery(options);
+    const record=(await restarted.list()).records.find(item=>item.folderName===name);
+    assert.equal(record.downloadAvailable,true);
+    const output=await restarted.output(record.id);
+    try{assert.deepEqual(await output.handle.readFile(),bytes);}finally{await output.handle.close();}
+    const parent=path.dirname(mirror),moved=path.join(directory,`moved-share-${index}`);
+    await rename(parent,moved);await symlink(moved,parent,linkType);
+    assert.equal((await restarted.list()).records.find(item=>item.id===record.id).downloadAvailable,false);
+    await assert.rejects(restarted.output(record.id),error=>error.status===403);
+  }
 });
 
 test('failed laptop ACK is retained through Stop and gateway restart with an authenticated download',async t=>{

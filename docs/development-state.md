@@ -4,7 +4,7 @@ Updated: 2026-10-10. Read this file, `../AGENTS.md`, and the relevant roadmap ro
 
 ## Current milestone
 
-- Completed: **REC-01**, implementation commit `ebf3c4e`. Durable generation-scoped journal, authenticated inventory/download after restart, preserved failed final rename, and safe Stop before delayed copy sync. Local checks and all **16 tests** passed. Real PhotoCraft/FUSE success and failed-rename recovery/reopen fixtures passed.
+- Completed: **REC-01**, implementation commit `ebf3c4e` with a follow-up configured-root alias fix. Durable generation-scoped journal, authenticated inventory/download after restart, preserved failed final rename, and safe Stop before delayed copy sync. Local checks and all **17 tests** passed. Real PhotoCraft/FUSE success and failed-rename recovery/reopen fixtures passed.
 - Next task: **REC-02**, native browser recovery UI using `GET /api/storage/recovery?app=photocraft` and `/api/storage/recovery/<id>/output`. Show filename/folder, timestamp, uncertain/possibly incomplete state, availability and download; do not automatically replay or overwrite laptop originals. REC-03 handles version conflicts.
 - Latest user steering: AI should control our editors through **MCP** from Claude/ChatGPT/Codex, with server engines doing the edit. Read `ai-assistant.md`. MCP is currently planned, not implemented. After REC-02, start bounded **MCP-01** command/auth/revision audit before extending full PhotoCraft UI; an external subscription client need not call our paid API.
 - A completed save must mean the selected destination acknowledged it. Preserve uncertain outputs, surface recovery metadata after restart, and do not silently overwrite laptop originals.
@@ -16,7 +16,7 @@ Gateway: Node 24 ESM + `ws`; `src/server.js`, `src/storage-provider.js`, `src/ve
 
 RapidRAW and PhotoCraft native Linux flows work. PhotoCraft on-demand native smoke reads only the selected fixture, edits, saves/reopens a layered file on the laptop, and saves to server independently. Recovery backend is implemented; recovery UI, version-safe replay, browser directory-picker permission with a real user folder, background-fill stress, Windows native, macOS mounts, multi-user, cache quotas and the six other ArtCraft adapters remain pending. Current Docker packages the gateway only. Do not label pending adapters installed or fully supported.
 
-Checks: `npm run check`, `npm test` (16 tests). Linux native smokes: `scripts/smoke-photocraft-local-folder.mjs`, `scripts/smoke-photocraft-recovery.mjs` (isolated gateway). Latest known baseline CI: [38049475981](https://github.com/vedranius/creative-workspace/actions/runs/38049475981), gateway tests passed on Linux/Windows/macOS. Verify the new commit's CI before further code changes. This does not verify native engines on those OSes.
+Checks: `npm run check`, `npm test` (17 tests). Linux native smokes: `scripts/smoke-photocraft-local-folder.mjs`, `scripts/smoke-photocraft-recovery.mjs` (isolated gateway). REC-01 CI [38051582171](https://github.com/vedranius/creative-workspace/actions/runs/38051582171) found macOS `/var` versus `/private/var` aliases in recovery downloads. The follow-up canonicalizes the configured base, then checks each per-share directory; a regression test covers temporary and retained mirrors and still rejects symlinks below the base. Verify the latest commit's CI before further code changes. Gateway CI does not verify native engines on all OSes.
 
 ## Local development host
 
