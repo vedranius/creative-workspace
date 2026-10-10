@@ -1,4 +1,4 @@
-# Storage modes — required architecture
+# Storage modes — prototype implementation and production targets
 
 Laptop access must support more than file upload. This requirement applies to every creative adapter, using one common file-provider layer.
 
@@ -6,11 +6,11 @@ Laptop access must support more than file upload. This requirement applies to ev
 
 | Mode | Source of truth | Data access | Availability |
 | --- | --- | --- | --- |
-| Server project | Server workspace | Upload selected files/folders first; engines read the server copy | Implemented for transfers; engine adapters pending |
-| Laptop / on demand | User-selected local folder | Engine requests file ranges through a browser agent, with bounded server cache; saves return to that folder | Required, not yet implemented in Creative Workspace |
-| On demand + background copy | Laptop, with an explicitly retained server mirror | Interactive reads take priority; remaining originals copy in the background | Required, not yet implemented |
+| Server project | Server workspace | Upload selected files/folders first; engines read the server copy | Working in RapidRAW and PhotoCraft |
+| Laptop / on demand | User-selected local folder | Engine requests file ranges through a browser agent; save destination is selected separately | Native Linux read/edit/laptop-save flow verified with a generated protocol fixture |
+| On demand + background copy | Laptop; server retention is optional | Interactive reads take priority; remaining originals copy in the background | Available in PhotoCraft prototype UI; background-copy stress tests pending |
 
-Storage retention is a separate choice: temporary cache or a retained server copy. Saving outputs is also separate: selected local folder, server project, or both. Avoid a silent change of the authoritative location when switching modes.
+Storage retention is a separate choice: temporary cache or a retained server copy. Saving outputs is also separate: selected local folder or server project. Downloading saved outputs is always available. Simultaneous automatic saving to both locations is a future option. Avoid a silent change of the authoritative location when switching modes.
 
 ## Verified reference
 
@@ -21,7 +21,7 @@ Reviewed `vedranius/rapidraw-web`:
 - `rrweb/fuse/src/main.rs`: filesystem operations travel between the native mount helper and relay over framed stdin/stdout messages. The helper is not a desktop-display transport.
 - Linux uses FUSE; Windows uses WinFsp. The reference does not support macOS on-demand mounts currently. Folder sharing requires a compatible browser with File System Access and a secure page (HTTPS or localhost).
 
-These are source-level findings, not an assertion that Creative Workspace has integrated or tested those modes yet. On the development Linux host `/dev/fuse` and `fusermount3` are present; the helper still needs building and integration.
+The common provider and browser agent now derive from these pinned sources, with licenses included and independent runtime paths. A separately built `cw-filesystem-helper` serves PhotoCraft without any RapidRAW relay. On the development Linux host, real PhotoCraft processing read the selected generated PNG, changed its preview, wrote/reopened a layered laptop document, and read zero bytes from an unrelated 8 MiB file. Server-destination output also passed. The directory-picker permission flow on a real laptop has not been automated.
 
 ## Common provider
 
@@ -29,9 +29,9 @@ The common file provider exposes directory listing, file metadata, byte-range re
 
 For engines that require native filesystem paths, expose the provider through a session-scoped mount. For engines that accept reader/service abstractions, connect directly to the provider. One application's own engine must not own this facility for the whole workspace.
 
-Use independent per-share namespaces and strong session identifiers; authenticate both HTTP and WebSocket requests, check origins, bound message sizes and cache consumption, and enforce the selected root. Browser UI controls continue to run locally; only document commands and data travel to the server.
+Use independent per-share namespaces and strong session identifiers; authenticate both HTTP and WebSocket requests, check origins, bound message sizes and uploads, and enforce the selected root. Cache quotas remain pending. Browser UI controls continue to run locally; only document commands and data travel to the server.
 
-## Lifecycle and correctness
+## Production lifecycle targets
 
 - Keep the browser connection visible; laptop data that has not been cached cannot be read while that laptop is disconnected.
 - Retain pending writes in a recovery journal until the browser acknowledges the save. Display a pending-save state, never an incorrect saved confirmation.
@@ -41,7 +41,7 @@ Use independent per-share namespaces and strong session identifiers; authenticat
 - Prioritize open-document reads over thumbnails and background copies.
 - On-demand does not imply zero network transfer or zero server storage. Opening a RAW file may require all its bytes; a video decoder may request scattered ranges. The benefit is avoiding an upfront transfer of the entire library.
 
-## Acceptance gates before enabling modes in the UI
+## Production acceptance gates
 
 1. A generated local folder can be listed on the server without copying all contents.
 2. Native or direct engine reads return the requested bytes and demonstrably avoid unrelated files.
@@ -54,3 +54,7 @@ Use independent per-share namespaces and strong session identifiers; authenticat
 ## Later options
 
 Proxy-media mode for FilmCraft/EffectCraft: interactive preview uses small proxies while server exports use original media through the selected provider. Project-scoped asset collection can transfer only referenced files rather than the entire source folder. Neither option replaces the required laptop on-demand mode.
+
+## Current prototype boundaries
+
+Shared folder handles are retained in browser IndexedDB and require a user gesture to regain permission. A browser reconnect can reattach to a live server share. Server share/session registry state is in memory: after a server restart, choose the folder again and reopen a saved document. Pending laptop writes are preserved on the server when stopping; their recovery location is logged. Automatic recovery, version conflicts, durable journals and cache quotas remain pending. Copy-first can work without a mount helper; on-demand currently needs a Linux/FUSE or Windows/WinFsp server. Windows native and high-latency behavior remain unverified; macOS on-demand server mounts are unsupported. Full-folder sharing requires File System Access, while ordinary file/folder upload is the browser fallback.

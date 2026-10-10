@@ -14,7 +14,7 @@ The published GitHub CI run [38039052090](https://github.com/vedranius/creative-
 
 The redesigned interface was visually checked at desktop and mobile sizes, including application search and mobile content width. The local service is available at `http://127.0.0.1:8788` while its development process remains running.
 
-Not yet verified: full Windows/macOS browser workflows, multi-user isolation, actual creative engine processing, installation, upgrade rollback, and performance over high-latency connections.
+At this initial milestone, native creative processing and installation had not been tested. Later native-engine validation is recorded below. Full Windows/macOS engine workflows, multi-user identity, upgrade rollback and high-latency performance remain unverified.
 
 ## Local import milestone
 
@@ -29,4 +29,16 @@ Five local automated suites passed, including streaming size limits, folder hier
 - Native FUSE smoke: requested 128 bytes from an 8 MiB generated source; only one 1 MiB block was fetched. A 47-byte server write reached the generated laptop-agent fixture and matched byte-for-byte.
 - The FUSE test uses a protocol fixture, not an automated real browser directory-picker permission flow. The browser UI exposes the supported local-folder mode controls; real laptop-folder testing remains to be performed by selecting a folder.
 - Seven gateway/storage tests passed locally, including rejecting an unrelated engine identity and foreign WebSocket origins.
-- PhotoCraft source checkout is prepared, but no ArtCraft server adapter is implemented yet. The engine is currently Linux-only and one shared RapidRAW editing session.
+- RapidRAW native runtime is currently verified on Linux with one shared editing session. PhotoCraft validation follows below.
+
+## PhotoCraft and independent shared storage
+
+- Built PhotoCraft 0.6.0 from pinned commit `29d5f791d52cd54e411611a609fbc56949e0c653` as a new Rust CLI engine. Each browser editing session has separate engine state and explicit read/write capabilities.
+- Browser UI test reopened a two-layer `.pcraft`, applied brightness/contrast through the native engine, and saved a layered output with an available download link. Earlier browser brush strokes visibly changed the canvas and native history.
+- Server smoke covered generated image open, changed preview bytes, layer creation, brush strokes, undo and native/PNG exports.
+- Built the common `cw-filesystem-helper` independently of the RapidRAW runtime. Its native Linux mount test read a selected 12,677-byte PNG, changed the native preview and returned a 29,740-byte layered save to a generated laptop-agent fixture. Download matched the laptop bytes; reopening preserved two layers. An unrelated 8 MiB source was read zero times. A second session read from that laptop source while exporting only to the server.
+- PhotoCraft UI exposes on-demand, hybrid and copy-first folder modes, separate output destination and server-retention choices. Pure on-demand sends `fill=false`. Browser controls, adjustments and the storage mode dialog were inspected live.
+- Eleven automated tests passed locally: previous workspace/gateway coverage plus session deduplication/limits, overwrite/path protection, app-scoped share roots, concurrent share limits, active-session stop protection, destination permissions and malformed/foreign-origin WebSockets.
+- Reproduce the native storage test using `node scripts/smoke-photocraft-local-folder.mjs` against a running workspace with PhotoCraft and the common helper installed. This generated protocol fixture does **not** verify browser directory-picker permissions on a real laptop. Hybrid stress cases, crash recovery and native Windows/macOS builds remain pending.
+
+The adapter is a working browser prototype, with core tools and a discoverable command palette. It does not reproduce every original egui tool/dialog. Sessions and share registrations are in memory; save layered documents before restarting. Other ArtCraft adapters remain unimplemented.

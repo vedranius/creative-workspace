@@ -62,10 +62,10 @@ if(action==='install'){
   const inherited={...process.env};for(const key of Object.keys(inherited))if(key.startsWith('RR_'))delete inherited[key];
   const env={...inherited,RR_AUTH:'',RR_LOG:path.join(runtime,'relay.log'),RR_PORT:String(manifest.port),RR_BRIDGE_PORT:String(manifest.port),RR_HOST:'127.0.0.1',RR_PHOTOS:photos,RR_ROOTS:[photos,path.join(runtime,'data'),path.join(runtime,'cache')].join(path.delimiter),RR_CONFIG:config,RR_WORK:path.join(runtime,'cache/remote'),RR_NO_BROWSER:'1',RR_DIST:path.join(source,'rrweb/dist-web'),RR_FUSE_BIN:path.join(fuseBuild,'release/rrweb-fuse'),XDG_DATA_HOME:path.join(runtime,'data'),XDG_CONFIG_HOME:path.join(runtime,'config'),XDG_CACHE_HOME:path.join(runtime,'cache')};
   // Two owned children. Stop only these PIDs; never look up or kill an existing installation.
-  const relay=spawn(process.execPath,[path.join(source,'rrweb/relay/relay.mjs')],{env,stdio:'inherit'});
-  const engine=spawn('xvfb-run',['-a',binary],{env,stdio:'inherit'});
+  const relay=spawn(process.execPath,[path.join(source,'rrweb/relay/relay.mjs')],{env,stdio:'inherit',detached:true});
+  const engine=spawn('xvfb-run',['-a',binary],{env,stdio:'inherit',detached:true});
   let stopping=false;
-  const stop=()=>{if(stopping)return;stopping=true;relay.kill('SIGTERM');engine.kill('SIGTERM');};
+  const stop=()=>{if(stopping)return;stopping=true;for(const child of [relay,engine]){if(child.pid)try{process.kill(-child.pid,'SIGTERM');}catch(error){if(error.code!=='ESRCH')console.warn(error.message);}}};
   process.on('SIGINT',stop);process.on('SIGTERM',stop);
   for(const child of [relay,engine]){child.on('error',error=>{console.error(error.message);process.exitCode=1;stop();});child.on('exit',code=>{if(!stopping&&code!==0)process.exitCode=1;stop();});}
   console.log(`Workspace-owned RapidRAW: http://127.0.0.1:${manifest.port}; workspace ${photos}`);

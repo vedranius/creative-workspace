@@ -1,0 +1,12 @@
+{
+  "id": "photocraft",
+  "source": "https://github.com/storytold/photocraft.git",
+  "commit": "29d5f791d52cd54e411611a609fbc56949e0c653",
+  "version": "0.6.0",
+  "binary": "photocraft-cli",
+  "transport": "capability-scoped-json-lines-stdio",
+  "processing": "server",
+  "license": "MIT OR Apache-2.0",
+  "platformsVerified": ["linux-x64"],
+  "frontendStatus": "browser-adapter-prototype"
+}
