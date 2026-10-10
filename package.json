@@ -10,7 +10,7 @@
   "scripts": {
     "start": "node src/server.js",
     "test": "node --test",
-    "check": "node --check src/server.js && node --check src/rapidraw.js && node --check src/photocraft.js && node --check src/storage-provider.js && node --check src/storage-recovery.js && node --check src/vendor/storage/provider.js && node --check public/app.js && node --check public/photocraft/app.js && node --check public/storage/agent.js && node --check public/storage/folders.js && node --check public/storage/recovery.js && node --check scripts/manage-rapidraw.mjs && node --check scripts/manage-photocraft.mjs && node --check scripts/manage-storage.mjs && node --check scripts/smoke-photocraft-local-folder.mjs && node --check scripts/smoke-photocraft-recovery.mjs",
+    "check": "node --check src/server.js && node --check src/rapidraw.js && node --check src/photocraft.js && node --check src/storage-provider.js && node --check src/storage-recovery.js && node --check src/vendor/storage/provider.js && node --check public/app.js && node --check public/photocraft/app.js && node --check public/storage/agent.js && node --check public/storage/folders.js && node --check public/storage/recovery.js && node --check scripts/manage-rapidraw.mjs && node --check scripts/manage-photocraft.mjs && node --check scripts/manage-storage.mjs && node --check scripts/smoke-photocraft-local-folder.mjs && node --check scripts/smoke-photocraft-recovery.mjs && node --check scripts/smoke-photocraft-versions.mjs",
     "engine:rapidraw:install": "node scripts/manage-rapidraw.mjs install",
     "engine:rapidraw:start": "node scripts/manage-rapidraw.mjs start",
     "engine:photocraft:install": "node scripts/manage-photocraft.mjs install",

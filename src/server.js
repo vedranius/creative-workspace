@@ -170,7 +170,7 @@ export async function createWorkspaceServer({dataDir=process.env.DATA_DIR||path.
       const buffer=await readFile(path.join(publicRoot,assets[url.pathname]));
       const type=url.pathname.endsWith('.js')?'text/javascript':url.pathname.endsWith('.css')?'text/css':'text/html';
       res.writeHead(200,{'Content-Type':`${type}; charset=utf-8`,'Cache-Control':'no-cache'});res.end(req.method==='HEAD'?undefined:buffer);
-    }catch(e){if(res.headersSent){res.destroy();return;}req.resume();json({error:e.status?e.message:'Operation failed; check the directory and server configuration'},e.status||400);}
+    }catch(e){if(res.headersSent){res.destroy();return;}req.resume();json({error:e.status?e.message:'Operation failed; check the directory and server configuration',...(e.status&&['STATE_VERSION_CONFLICT','OUTPUT_EXISTS'].includes(e.code)?{code:e.code}:{})},e.status||400);}
   });
   server.on('listening',()=>storage.sweep());
   server.on('upgrade',async(req,socket,head)=>{

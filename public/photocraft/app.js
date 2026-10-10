@@ -2,23 +2,30 @@ import {chooseLocalFolder,reconnectLocalFolder,stopLocalFolder,openRecovery} fro
 const $=id=>document.getElementById(id);
 const node=(tag,text,className)=>{const item=document.createElement(tag);if(text!==undefined)item.textContent=text;if(className)item.className=className;return item;};
 let sourceShare=JSON.parse(sessionStorage.getItem('cw-photocraft-source')||'null');
-let sessionId,documentState=null,sessionState=null,commands=[],currentCommand=null,folder='',tool='brush',busy=false,points=[];
-async function request(url,method='GET',data){const response=await fetch(url,{method,headers:data===undefined?{}:{'Content-Type':'application/json'},body:data===undefined?undefined:JSON.stringify(data)});const value=await response.json();if(!response.ok)throw Object.assign(new Error(value.error||'Request failed'),{status:response.status});return value;}
+let sessionId,stateVersion,documentState=null,sessionState=null,commands=[],currentCommand=null,folder='',tool='brush',busy=false,points=[];
+const readMethods=new Set(['state','heartbeat','engine.commands','doc.inspect','doc.render','session.list']);
+async function request(url,method='GET',data){const response=await fetch(url,{method,headers:data===undefined?{}:{'Content-Type':'application/json'},body:data===undefined?undefined:JSON.stringify(data)});const value=await response.json();if(!response.ok)throw Object.assign(new Error(value.error||'Request failed'),{status:response.status,code:value.code});return value;}
 function report(error){$('error').textContent=error.message||String(error);$('error').hidden=false;setTimeout(()=>$('error').hidden=true,8000);}
 function status(text){$('activity').textContent=text;}
 $('save-recovery').onclick=()=>openRecovery({app:'photocraft',apps:[{id:'photocraft',name:'PhotoCraft'}]}).catch(report);
 const hasUnsavedDocuments=()=>sessionState?.documents?.some(document=>document.dirty);
 const savingToLaptop=()=>sourceShare?.saveDestination==='laptop';
-async function rpc(method,params={}){return request(`/api/photocraft/sessions/${sessionId}/rpc`,'POST',{method,params,requestId:crypto.randomUUID()});}
+async function rpc(method,params={}){return request(`/api/photocraft/sessions/${sessionId}/rpc`,'POST',{method,params,requestId:crypto.randomUUID(),...(!readMethods.has(method)&&stateVersion!==undefined?{expectedVersion:stateVersion}:{})});}
 async function action(method,params={},label='Processing on server…'){
   if(busy)return;busy=true;document.body.classList.add('busy');status(label);
   try{const result=await rpc(method,params);if(result.document!==undefined)applyState(result);status('Ready · processing stays on the server');return result;}
-  catch(error){status(method==='doc.save'&&savingToLaptop()?'Save not confirmed · check Save recovery':'Operation failed');report(error);throw error;}
+  catch(error){
+    if(error.status===409&&(error.code==='STATE_VERSION_CONFLICT'||error.message.startsWith('Document or session changed.'))){
+      if(method==='doc.save')$('save-dialog').close();
+      try{applyState(await rpc('state'));status('Document changed elsewhere · refreshed. Review it before trying again.');}catch{status('State changed · refresh unavailable');}
+    }else status(method==='doc.save'&&savingToLaptop()?'Save not confirmed · check Save recovery':'Operation failed');
+    report(error);throw error;
+  }
   finally{busy=false;document.body.classList.remove('busy');}
 }
 function flatten(layers,depth=0){return layers.flatMap(layer=>[{...layer,depth},...flatten(layer.children||[],depth+1)]);}
 function applyState(result){
-  documentState=result.document;sessionState=result.session;
+  documentState=result.document;sessionState=result.session;stateVersion=result.stateVersion;
   $('documents').replaceChildren(...(sessionState?.documents||[]).map(doc=>{const option=node('option',`${doc.name}${doc.dirty?' •':''}`);option.value=doc.index;return option;}));$('documents').value=sessionState?.active??'';$('documents').hidden=(sessionState?.documents?.length||0)<2;$('close-document').hidden=!documentState;
   $('empty').hidden=!!documentState;$('image-wrap').hidden=!documentState;
   $('document-name').textContent=documentState?.name||'No document open';
@@ -86,7 +93,7 @@ $('command-form').onsubmit=async event=>{event.preventDefault();try{const params
 $('commands').onclick=async()=>{try{commands=(await rpc('engine.commands')).result;palette();$('palette').showModal();}catch(error){report(error);}};$('command-search').oninput=palette;
 $('save').onclick=()=>{$('download-output').hidden=true;$('save-path').value=`${(documentState?.name||'Untitled').replace(/\.[^.]+$/,'')}.pcraft`;$('save-format').value='pcraft';$('save-destination').textContent=savingToLaptop()?'Save into your chosen laptop folder. Keep this tab connected until saving finishes.':'Save a layered document or export a flattened copy in this application’s server workspace.';$('save-submit').textContent=savingToLaptop()?'Save to laptop folder':'Save on server';$('save-dialog').showModal();};
 $('save-format').onchange=()=>{$('save-path').value=$('save-path').value.replace(/\.[^./]+$/,'')+`.${$('save-format').value}`;};
-$('save-form').onsubmit=async event=>{event.preventDefault();const filename=$('save-path').value;const label=savingToLaptop()?'Saving to laptop folder…':'Saving document on server…';try{let result;const params={path:filename,format:$('save-format').value,quality:90};try{result=await action('doc.save',params,label);}catch(error){if(error.status!==409||!confirm(`Replace ${filename} in the ${savingToLaptop()?'chosen laptop folder':'server workspace'}?`))return;$('error').hidden=true;result=await action('doc.save',{...params,overwrite:true},label);}if(result){$('download-output').href=`/api/photocraft/sessions/${sessionId}/output?path=${encodeURIComponent(filename)}`;$('download-output').textContent=`Download ${filename} ↗`;$('download-output').download=filename;$('download-output').hidden=false;status(savingToLaptop()?'Saved to laptop folder · acknowledged':'Saved on server');}}catch{}};
+$('save-form').onsubmit=async event=>{event.preventDefault();const filename=$('save-path').value;const label=savingToLaptop()?'Saving to laptop folder…':'Saving document on server…';try{let result;const params={path:filename,format:$('save-format').value,quality:90};try{result=await action('doc.save',params,label);}catch(error){const existing=error.code==='OUTPUT_EXISTS'||error.message==='This file already exists. Confirm replacement or choose another name.';if(error.status!==409||!existing||!confirm(`Replace ${filename} in the ${savingToLaptop()?'chosen laptop folder':'server workspace'}?`))return;$('error').hidden=true;result=await action('doc.save',{...params,overwrite:true},label);}if(result){$('download-output').href=`/api/photocraft/sessions/${sessionId}/output?path=${encodeURIComponent(filename)}`;$('download-output').textContent=`Download ${filename} ↗`;$('download-output').download=filename;$('download-output').hidden=false;status(savingToLaptop()?'Saved to laptop folder · acknowledged':'Saved on server');}}catch{}};
 for(const button of document.querySelectorAll('[data-tool]'))button.onclick=()=>{tool=button.dataset.tool;document.querySelectorAll('[data-tool]').forEach(item=>item.classList.toggle('selected',item===button));};
 function position(event){const rect=$('preview').getBoundingClientRect();return [Math.max(0,Math.min(documentState.width-1,(event.clientX-rect.left)/rect.width*documentState.width)),Math.max(0,Math.min(documentState.height-1,(event.clientY-rect.top)/rect.height*documentState.height)),event.pointerType==='mouse'?1:event.pressure||1];}
 $('preview').onpointerdown=event=>{if(!documentState||busy||event.button!==0)return;event.preventDefault();points=[position(event)];$('preview').setPointerCapture(event.pointerId);$('stroke').setAttribute('stroke',$('colour').value);$('stroke').setAttribute('stroke-width',$('brush-size').value);};

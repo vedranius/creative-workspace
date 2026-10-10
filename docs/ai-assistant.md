@@ -1,6 +1,6 @@
 # AI upravljanje kreativnim aplikacijama
 
-Status: plan, nije implementirani MCP endpoint ni instalirani AI engine. Korisnik je 10. listopada 2026. predložio automatsku obradu nalik Evotu i AI klijent koji kroz MCP upravlja našim aplikacijama. Ovo proširuje studio: skupa obrada ostaje na serveru, a korisnik može raditi iz browsera.
+Status: MCP-01 audit i PhotoCraft provjera verzije sesije su implementirani; MCP endpoint i AI engine još nisu. Detalji stvarnih naredbi, transporta/dozvola, dokaza i ograničenja su u [MCP auditu](mcp-adapter-audit.md). Korisnik je 10. listopada 2026. predložio automatsku obradu nalik Evotu i AI klijent koji kroz MCP upravlja našim aplikacijama. Ovo proširuje studio: skupa obrada ostaje na serveru, a korisnik može raditi iz browsera.
 
 ## Glavni način rada: AI klijent + Creative Workspace MCP
 
@@ -43,11 +43,11 @@ Evoto daje [batch obradu](https://www.evoto.ai/features/batch-edits) i specijali
 
 ## Zadaci i prihvat
 
-- **MCP-01:** inventar postojećih PhotoCraft/RapidRAW naredbi; odabrati mali skup alata, autentifikaciju, schema/permission granice i način spajanja s aktivnim dokumentom.
-- **MCP-02:** implementirati single-user MCP prototip za PhotoCraft; otvori → inspect/preview → brightness/contrast → undo → save copy. Provjeriti iz kompatibilnog klijenta/Inspectora bez lažnog enginea. Ujednačiti događaje s browserom.
+- **MCP-01 — dovršeno:** inventar PhotoCraft/RapidRAW naredbi i ugovor prvog prototipa; queue version guard s native/browser dokazima. Povezana sesija treba scoped grant i UI state push/poll, još neimplementirano.
+- **MCP-02a:** implementirati single-user server-only session grant + stdio SDK adapter za PhotoCraft; otvori → inspect/preview → brightness/contrast → undo → save copy. Provjeriti SDK/Inspector, opoziv/expiry/konflikt i browser refresh bez lažnog enginea. **MCP-02b:** setup i provjera konkretnog AI klijenta.
 - **MCP-03:** proširiti na vlastiti RapidRAW, batch red i laptop provider; testirati idempotenciju, revizijske konflikte, gubitak veze i oporavak.
 - **AI-01:** implementirati recepte za kontrolirane fotografske korekcije kroz postojeće engineove; AI u klijentu bira parametre, korisnik dobiva prije/poslije i promjene koje može poništiti.
 - **AI-02:** audit i instalacijski manifest jednog specijaliziranog lokalnog AI backend-a; mjeriti kvalitetu, VRAM/RAM i vrijeme rada. Nema preuzimanja velikih modela ili plaćenih poziva samo radi plana.
 - **AI-03:** evaluacija portrait/batch kvalitete na reprezentativnim korisničkim primjerima, uz masku, intenzitet i dosljednost. Ne obećavati Evoto ekvivalent prije te provjere.
 
-REC-02 UI oporavka je implementiran. Sljedeći je MCP-01 audit; MCP-02 koristi provjereno spremanje i session/revision ugovor. Višekorisnički MCP endpoint zahtijeva AUTH/ACL fazu prije produkcijske dostupnosti.
+REC-02 UI oporavka i MCP-01 audit/version guard su implementirani. Sljedeći je MCP-02a scoped adapter prema auditu. Višekorisnički MCP endpoint zahtijeva AUTH/ACL fazu prije produkcijske dostupnosti.

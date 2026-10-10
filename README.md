@@ -10,6 +10,7 @@ A self-hosted creative studio: native browser interfaces, server-side processing
 - PhotoCraft browser editing: documents, brush strokes, layers, adjustments, history and layered saves/exports.
 - Shared laptop-folder provider: on demand, hybrid background copy and copy-first modes, with server or laptop save destinations.
 - Durable pending-save journal with a Save recovery dialog in the homepage and PhotoCraft. Review uncertain/incomplete outputs and download separate `.recovered` server copies after a gateway restart.
+- PhotoCraft gateway session-version checks reject stale browser/controller edits, including a stale Save after another client switches documents. The [MCP adapter audit](docs/mcp-adapter-audit.md) defines the next small prototype; an MCP endpoint is not yet implemented.
 - Persistent per-application server workspace configuration.
 - Browser file/folder selection and drag & drop from the visiting laptop, with streamed copies into server workspaces.
 - Transfer progress and cancellation, folder structure preservation, and download back to the laptop.

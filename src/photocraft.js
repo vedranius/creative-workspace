@@ -6,7 +6,8 @@ import {importSegments} from './transfers.js';
 import {resolveWorkspace} from './storage.js';
 
 const methods=new Set(['doc.open','doc.new','doc.save','doc.inspect','doc.render','engine.execute','engine.commands','session.list','doc.select','doc.close','jobs.list','jobs.cancel']);
-const failure=(message,status=400)=>Object.assign(new Error(message),{status});
+const readMethods=new Set(['state','heartbeat','engine.commands','doc.inspect','doc.render','session.list']);
+const failure=(message,status=400,code)=>Object.assign(new Error(message),{status,...(code?{code}:{})});
 
 export class EngineProcess {
   constructor(binary,root,{spawnProcess=spawn,timeout=120000,configDir=path.resolve('data/engines/photocraft/config'),writeRoot=root}={}){
@@ -42,37 +43,51 @@ export function createPhotoCraft({binary=process.env.CW_PHOTOCRAFT_BINARY||path.
     let reserved=true;
     try{
     const canonical=await realpath(root),writeCanonical=await realpath(writeRoot);const id=randomBytes(24).toString('hex');const configDir=path.join(stateDir,id);await mkdir(configDir,{recursive:true});const engine=processFactory(binary,canonical,{configDir,writeRoot:writeCanonical});
-    const session={id,root:canonical,writeRoot:writeCanonical,shareId,outputs:new Set(),engine,queue:Promise.resolve(),preview:null,previewVersion:0,frames:new Map(),lastUsed:Date.now(),requests:new Map()};sessions.set(id,session);creating--;reserved=false;
+    const session={id,root:canonical,writeRoot:writeCanonical,shareId,outputs:new Set(),engine,queue:Promise.resolve(),preview:null,previewVersion:0,frames:new Map(),stateVersion:0,observation:null,lastUsed:Date.now(),requests:new Map()};sessions.set(id,session);creating--;reserved=false;
     try{await engine.call('session.list');}catch(error){sessions.delete(id);engine.stop();throw error;}
     return {id,workspace:canonical,writeWorkspace:writeCanonical,shareId,processing:'server'};
     }finally{if(reserved)creating--;}
   }
   const get=id=>{const session=sessions.get(id);if(!session||session.engine.closed)throw failure('PhotoCraft session is not available',404);session.lastUsed=Date.now();return session;};
-  async function snapshot(session){
+  async function observe(session){
     const list=await session.engine.call('session.list');let document=null;
-    if(list.active!==null&&list.active!==undefined){document=await session.engine.call('doc.inspect');const rendered=await session.engine.call('doc.render',{maxSide:1280});session.preview=Buffer.from(rendered.base64,'base64');session.frames.set(++session.previewVersion,session.preview);while(session.frames.size>3)session.frames.delete(session.frames.keys().next().value);}
-    else session.preview=null;
-    return {session:list,document,preview:session.preview?`/api/photocraft/sessions/${session.id}/preview.png?revision=${document?.revision||0}&v=${session.previewVersion}`:null};
+    if(list.active!==null&&list.active!==undefined)document=await session.engine.call('doc.inspect');
+    const observation=JSON.stringify({list,document});
+    if(session.observation!==null&&session.observation!==observation)session.stateVersion++;
+    session.observation=observation;return {list,document};
   }
-  async function execute(id,{method,params={},requestId}={}){
+  async function snapshot(session){
+    const {list,document}=await observe(session);
+    if(document){const rendered=await session.engine.call('doc.render',{maxSide:1280});session.preview=Buffer.from(rendered.base64,'base64');session.frames.set(++session.previewVersion,session.preview);while(session.frames.size>3)session.frames.delete(session.frames.keys().next().value);}
+    else session.preview=null;
+    return {session:list,document,stateVersion:session.stateVersion,preview:session.preview?`/api/photocraft/sessions/${session.id}/preview.png?revision=${document?.revision||0}&v=${session.previewVersion}`:null};
+  }
+  async function execute(id,{method,params={},requestId,expectedVersion}={}){
     const session=get(id);if(!methods.has(method)&&!['state','heartbeat'].includes(method))throw failure('Unsupported PhotoCraft method');
     if(typeof requestId!=='string'||requestId.length<8||requestId.length>100)throw failure('A unique requestId is required');
-    const signature=JSON.stringify({method,params});
+    if(expectedVersion!==undefined&&(!Number.isSafeInteger(expectedVersion)||expectedVersion<0))throw failure('expectedVersion must be a non-negative safe integer');
+    const signature=JSON.stringify({method,params,expectedVersion});
     if(session.requests.has(requestId)){const previous=session.requests.get(requestId);if(previous.signature!==signature)throw failure('requestId was already used for a different operation',409);return previous.task;}
     if([...session.requests.values()].filter(item=>item.pending).length>=32)throw failure('Too many queued operations',429);
     if(params===null||typeof params!=='object'||Array.isArray(params))throw failure('Params must be an object');
     if(['doc.open','doc.save'].includes(method)&&params.path!==undefined){try{importSegments(params.path);}catch{throw failure('Use a relative path inside this application workspace');}}
     if(method==='doc.render'&&params.path!==undefined)throw failure('Preview output paths are managed by the workspace');
     const task=session.queue.then(async()=>{
+      // Compare inside the same queue as every browser/adapter mutation. A
+      // document's own revision is insufficient when active tabs are changed.
+      if(expectedVersion!==undefined){await observe(session);if(expectedVersion!==session.stateVersion)throw failure('Document or session changed. Refresh its state before applying this operation.',409,'STATE_VERSION_CONFLICT');}
       if(method==='state')return snapshot(session);
       if(method==='heartbeat')return {alive:true};
       if(method==='engine.commands')return {result:await session.engine.call(method,params)};
       const nativeParams={...params};
       if(method==='doc.save'&&params.path){
         let exists=false;try{await lstat(path.join(session.writeRoot,params.path));exists=true;}catch(error){if(error.code!=='ENOENT')throw error;}
-        if(exists&&!params.overwrite){const list=await session.engine.call('session.list');const document=list.documents?.find(item=>item.index===(params.index??list.active));const sameLayered=session.root===session.writeRoot&&/\.(pcraft|psd|psb)$/i.test(params.path)&&document?.path===params.path;if(!sameLayered)throw failure('This file already exists. Confirm replacement or choose another name.',409);}
+        if(exists&&!params.overwrite){const list=await session.engine.call('session.list');const document=list.documents?.find(item=>item.index===(params.index??list.active));const sameLayered=session.root===session.writeRoot&&/\.(pcraft|psd|psb)$/i.test(params.path)&&document?.path===params.path;if(!sameLayered)throw failure('This file already exists. Confirm replacement or choose another name.',409,'OUTPUT_EXISTS');}
         delete nativeParams.overwrite;
       }
+      // Failed native operations can have partial effects. Invalidate old
+      // tokens before dispatch, even if the operation eventually fails.
+      if(!readMethods.has(method)){session.stateVersion++;session.observation=null;}
       const result=await session.engine.call(method,nativeParams);if(method==='doc.save'&&params.path)session.outputs.add(params.path);return {result,...await snapshot(session)};
     });session.queue=task.catch(()=>{});const entry={task,signature,pending:true};session.requests.set(requestId,entry);task.then(()=>{entry.pending=false;},()=>{entry.pending=false;});if(session.requests.size>100)for(const [key,value]of session.requests){if(!value.pending)session.requests.delete(key);if(session.requests.size<=100)break;}return task;
   }
