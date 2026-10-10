@@ -8,7 +8,10 @@ A self-hosted creative studio: native browser interfaces, server-side processing
 
 - Responsive application catalog for RapidRAW and seven ArtCraft creative apps.
 - Persistent per-application server workspace configuration.
-- Read-only file browser restricted to configured roots, including symlink checks.
+- Browser file/folder selection and drag & drop from the visiting laptop, with streamed copies into server workspaces.
+- Transfer progress and cancellation, folder structure preservation, and download back to the laptop.
+- Root-restricted file browser; existing files are never overwritten on import.
+- Visible upstream project/team attribution, including separate RapidRAW original and web-fork links.
 - GitHub latest stable release checks, manually and every 24 hours while running.
 - Distinct unchecked, upstream release, no release, and check failure states.
 - Upstream releases explicitly marked as not yet verified for adapter compatibility.
@@ -24,7 +27,7 @@ mkdir -p workspaces/photography
 npm start
 ```
 
-Open http://127.0.0.1:8788. Assign the **absolute** path of `workspaces/photography` to an application. The default allowed root is this checkout's `workspaces` directory.
+Open http://127.0.0.1:8788. Click **Import from laptop**, then choose files or a folder. An application workspace is created automatically inside the first allowed root if needed. You can also assign the **absolute** path of `workspaces/photography` manually. The default allowed root is this checkout's `workspaces` directory.
 
 For other server directories, set `WORKSPACE_ROOTS` to a platform-delimited list (colon on Linux/macOS, semicolon on Windows). Set `DATA_DIR` to change the persistent state location. Use `WORKSPACE_AUTH=user:password` and TLS for network access. `GITHUB_TOKEN` is optional and only used server-side for release checks.
 
@@ -37,7 +40,7 @@ mkdir -p workspaces/photography
 docker compose up --build -d
 ```
 
-Open http://127.0.0.1:8788. The container sees the workspace at `/app/workspaces/photography`. Files are mounted read-only for this browsing milestone. Ensure the container's non-root user can read your directories. No Docker socket or privileged container is needed.
+Open http://127.0.0.1:8788. The container sees the workspace at `/app/workspaces/photography`. The workspace mount is writable for imports. Ensure the container's non-root user can read and write your directories. No Docker socket or privileged container is needed.
 
 ## Checks
 
@@ -58,4 +61,8 @@ See [architecture](docs/architecture.md), [adapter contract](docs/adapter-contra
 
 ## Known limits
 
-Single-user only. No upload, delete or editing in the file browser yet. No installed-version detection, tag fallback, engine installation, rollback or ArtCraft server adapters. A 404 from GitHub's release endpoint is reported as no published release; repository deletion or access changes need separate future checks. Upstream release notes are displayed as plain text. Scheduled checks need the service to remain running. Filesystem permissions remain the final authority; do not allow unrelated processes to replace workspace symlinks while browsing. Windows/macOS runtime behavior requires verification on those hosts.
+Single-user only. No delete or document editing in the file browser yet. No installed-version detection, tag fallback, engine installation, rollback or ArtCraft server adapters. A 404 from GitHub's release endpoint is reported as no published release; repository deletion or access changes need separate future checks. Upstream release notes are displayed as plain text. Scheduled checks need the service to remain running. Filesystem permissions remain the final authority; do not allow unrelated processes to replace workspace symlinks while browsing. Windows/macOS runtime behavior requires verification on those hosts.
+
+## Laptop file imports
+
+Import copies selected content to the server; it does not mount or continuously synchronize your local folder. Choose-folder imports preserve the relative tree; empty directories are not transferred. For directories use **Choose folder**, rather than folder drag and drop. Click a server file to download it. Default per-file limit: 2 GiB, configurable with `MAX_UPLOAD_BYTES`. Transfers stream to temporary files, then publish without overwriting existing names. Failed or cancelled transfers remove their temporary file. Already completed files remain imported. Transfers are not resumable yet. The HTTP request timeout is one hour; reverse proxy limits also apply.

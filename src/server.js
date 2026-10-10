@@ -1,10 +1,13 @@
 import http from 'node:http';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
-import {readFile,realpath,stat} from 'node:fs/promises';
+import {readFile,realpath,stat,mkdir} from 'node:fs/promises';
+import {createReadStream} from 'node:fs';
+import {pipeline} from 'node:stream/promises';
 import {timingSafeEqual} from 'node:crypto';
 import {catalog} from './catalog.js';
-import {readState,writeState,isWithin,listFiles} from './storage.js';
+import {readState,writeState,isWithin,listFiles,resolveWorkspace} from './storage.js';
+import {receiveFile,importSegments} from './transfers.js';
 import {checkRelease} from './updates.js';
 
 const base=path.dirname(fileURLToPath(import.meta.url));
@@ -13,7 +16,8 @@ function error(message,status=400){return Object.assign(new Error(message),{stat
 async function body(req){let data='';for await(const chunk of req){data+=chunk;if(Buffer.byteLength(data)>16384)throw error('Request too large',413);}try{return JSON.parse(data||'{}');}catch{throw error('Invalid JSON');}}
 function secretEquals(a,b){const x=Buffer.from(a),y=Buffer.from(b);return x.length===y.length&&timingSafeEqual(x,y);}
 
-export async function createWorkspaceServer({dataDir=process.env.DATA_DIR||path.join(base,'../data'),allowedRoots=(process.env.WORKSPACE_ROOTS||path.join(base,'../workspaces')).split(path.delimiter),auth=process.env.WORKSPACE_AUTH,fetcher=fetch}={}){
+export async function createWorkspaceServer({dataDir=process.env.DATA_DIR||path.join(base,'../data'),allowedRoots=(process.env.WORKSPACE_ROOTS||path.join(base,'../workspaces')).split(path.delimiter),auth=process.env.WORKSPACE_AUTH,fetcher=fetch,maxUploadBytes=Number(process.env.MAX_UPLOAD_BYTES||2147483648)}={}){
+  if(!Number.isSafeInteger(maxUploadBytes)||maxUploadBytes<=0)throw new Error('Invalid MAX_UPLOAD_BYTES');
   let state=await readState(dataDir);
   let queue=Promise.resolve();
   let updateInProgress=null;
@@ -50,11 +54,43 @@ export async function createWorkspaceServer({dataDir=process.env.DATA_DIR||path.
       if(!['GET','HEAD'].includes(req.method)){
         if(req.headers['sec-fetch-site']==='cross-site')throw error('Cross-site request rejected',403);
         if(req.headers.origin&&new URL(req.headers.origin).host!==req.headers.host)throw error('Origin mismatch',403);
-        if(!req.headers['content-type']?.startsWith('application/json'))throw error('JSON content type required',415);
+        const binary=url.pathname==='/api/files/upload'&&req.method==='PUT';
+        if(binary?req.headers['content-type']!=='application/octet-stream':!req.headers['content-type']?.startsWith('application/json'))throw error('Unsupported content type',415);
       }
       if(url.pathname==='/api/health'&&req.method==='GET')return json({status:'ok',version:'0.1.0'});
       if(url.pathname==='/api/apps'&&req.method==='GET')return json(catalog.map(app=>({...app,configuration:state.apps[app.id]||{},update:state.updates[app.id]||{status:'unchecked'}})));
-      if(url.pathname==='/api/settings'&&req.method==='GET')return json({allowedRoots,authentication:!!auth,mode:'single-user',updateIntervalHours:24});
+      if(url.pathname==='/api/settings'&&req.method==='GET')return json({allowedRoots,authentication:!!auth,mode:'single-user',updateIntervalHours:24,maxUploadBytes});
+      if(url.pathname==='/api/imports/prepare'&&req.method==='POST'){
+        const input=await body(req);
+        if(!catalog.some(app=>app.id===input.app))throw error('Unknown application',404);
+        await mutate(async()=>{
+          if(state.apps[input.app]?.workspace)return;
+          await mkdir(allowedRoots[0],{recursive:true});
+          const baseRoot=await realpath(allowedRoots[0]);
+          const folder=path.join(baseRoot,input.app);
+          await mkdir(folder,{recursive:true});
+          const workspace=await permittedRoot(folder);
+          state.apps[input.app]={workspace};await writeState(dataDir,state);
+        });
+        return json({workspace:state.apps[input.app].workspace});
+      }
+      if(url.pathname==='/api/files/upload'&&req.method==='PUT'){
+        const configuration=state.apps[url.searchParams.get('app')];
+        if(!configuration?.workspace)throw error('Set an application workspace first');
+        const relative=url.searchParams.get('path');importSegments(relative);
+        if(Number(req.headers['content-length']||0)>maxUploadBytes)throw error('File exceeds upload limit',413);
+        const root=await permittedRoot(configuration.workspace);
+        return json(await receiveFile(req,root,relative,maxUploadBytes),201);
+      }
+      if(url.pathname==='/api/files/download'&&req.method==='GET'){
+        const configuration=state.apps[url.searchParams.get('app')];
+        if(!configuration?.workspace)throw error('Set an application workspace first');
+        const root=await permittedRoot(configuration.workspace);
+        const file=await resolveWorkspace(root,url.searchParams.get('path')||'');
+        const info=await stat(file);if(!info.isFile())throw error('Select a file');
+        res.writeHead(200,{'Content-Type':'application/octet-stream','Content-Length':info.size,'Content-Disposition':`attachment; filename*=UTF-8''${encodeURIComponent(path.basename(file))}`,'Cache-Control':'no-store'});
+        await pipeline(createReadStream(file),res);return;
+      }
       if(url.pathname==='/api/updates/check'&&req.method==='POST'){await body(req);checkAll().catch(()=>{});return json({status:'checking'},202);}
       const match=url.pathname.match(/^\/api\/apps\/([a-z]+)\/workspace$/);
       if(match&&req.method==='PUT'){
@@ -76,8 +112,9 @@ export async function createWorkspaceServer({dataDir=process.env.DATA_DIR||path.
       const buffer=await readFile(path.join(publicRoot,assets[url.pathname]));
       const type=url.pathname.endsWith('.js')?'text/javascript':url.pathname.endsWith('.css')?'text/css':'text/html';
       res.writeHead(200,{'Content-Type':`${type}; charset=utf-8`,'Cache-Control':'no-cache'});res.end(req.method==='HEAD'?undefined:buffer);
-    }catch(e){json({error:e.status?e.message:'Operation failed; check the directory and server configuration'},e.status||400);}
+    }catch(e){if(res.headersSent){res.destroy();return;}req.resume();json({error:e.status?e.message:'Operation failed; check the directory and server configuration'},e.status||400);}
   });
+  server.requestTimeout=60*60*1000;
   // Scheduled checks run inside the self-hosted service, not in a hosted automation.
   const timer=setInterval(()=>checkAll().catch(()=>{}),24*60*60*1000);timer.unref();
   server.on('close',()=>clearInterval(timer));

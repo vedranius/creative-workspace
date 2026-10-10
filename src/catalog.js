@@ -8,3 +8,8 @@ export const catalog = [
   {id:'effectcraft',name:'EffectCraft',category:'Motion & VFX',description:'Compositions, keyframes and visual effects.',repo:'storytold/effectcraft',adapter:'server-engine',status:'adapter-required',color:'#97d6d2',symbol:'E'},
   {id:'designcraft',name:'DesignCraft',category:'Publishing',description:'Page layout, typography and publications.',repo:'storytold/designcraft',adapter:'server-engine',status:'adapter-required',color:'#afd5ab',symbol:'D'}
 ];
+for(const app of catalog){
+  app.sourceRepo=app.id==='rapidraw'?'CyberTimon/RapidRAW':app.repo;
+  app.creator=app.id==='rapidraw'?'CyberTimon':'ArtCraft team';
+  if(app.id==='rapidraw')app.webAdaptation={creator:'vedranius',repo:app.repo};
+}

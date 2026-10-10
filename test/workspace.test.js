@@ -1,12 +1,14 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {mkdtemp,mkdir,writeFile,symlink,rm,realpath} from 'node:fs/promises';
+import {mkdtemp,mkdir,writeFile,symlink,rm,realpath,readFile,readdir} from 'node:fs/promises';
 import path from 'node:path';
 import os from 'node:os';
 import {once} from 'node:events';
 import {createWorkspaceServer} from '../src/server.js';
 import {listFiles,resolveWorkspace,readState} from '../src/storage.js';
 import {checkRelease} from '../src/updates.js';
+import {receiveFile} from '../src/transfers.js';
+import {Readable} from 'node:stream';
 
 async function fixture(t){const root=await mkdtemp(path.join(os.tmpdir(),'creative-workspace-'));t.after(()=>rm(root,{recursive:true,force:true}));await mkdir(path.join(root,'allowed'));await mkdir(path.join(root,'outside'));await writeFile(path.join(root,'outside','secret.txt'),'private');return root;}
 test('file access blocks traversal and symlinks outside the workspace',async t=>{
@@ -16,6 +18,33 @@ test('file access blocks traversal and symlinks outside the workspace',async t=>
   await symlink(path.join(root,'outside'),path.join(allowed,'escape'),process.platform==='win32'?'junction':'dir');
   await assert.rejects(resolveWorkspace(allowed,'escape'));
   assert.deepEqual((await listFiles(allowed)).entries.map(entry=>entry.name),['photo.raw']);
+});
+test('local imports stream files, preserve folders, reject collisions and enforce upload limits',async t=>{
+  const root=await fixture(t);const allowed=path.join(root,'allowed');
+  const server=await createWorkspaceServer({dataDir:path.join(root,'state'),allowedRoots:[allowed],maxUploadBytes:16});
+  server.listen(0,'127.0.0.1');await once(server,'listening');t.after(()=>new Promise(resolve=>server.close(resolve)));
+  const url=`http://127.0.0.1:${server.address().port}`;
+  const prepared=await fetch(`${url}/api/imports/prepare`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({app:'photocraft'})});assert.equal(prepared.status,200);
+  const upload=(relative,data)=>fetch(`${url}/api/files/upload?app=photocraft&path=${encodeURIComponent(relative)}`,{method:'PUT',headers:{'Content-Type':'application/octet-stream'},body:data});
+  assert.equal((await upload('shoot/image.raw','original')).status,201);
+  assert.equal(await readFile(path.join(allowed,'photocraft','shoot','image.raw'),'utf8'),'original');
+  assert.equal((await upload('shoot/image.raw','replacement')).status,409);
+  assert.equal(await readFile(path.join(allowed,'photocraft','shoot','image.raw'),'utf8'),'original');
+  assert.equal((await upload('../outside/secret.txt','attack')).status,400);
+  assert.equal((await upload('too-large.raw','x'.repeat(17))).status,413);
+  assert.equal((await upload('empty.txt','')).status,201);
+  assert.equal((await upload('bad\\name.txt','x')).status,400);
+  const downloaded=await fetch(`${url}/api/files/download?app=photocraft&path=shoot/image.raw`);assert.equal(downloaded.status,200);assert.equal(await downloaded.text(),'original');
+  assert.equal((await fetch(`${url}/api/files/download?app=photocraft&path=../../outside/secret.txt`)).status,400);
+  assert.ok(!(await readdir(path.join(allowed,'photocraft','shoot'))).some(name=>name.startsWith('.cw-upload-')));
+});
+test('streaming failures remove temporary files and uploads cannot follow escaping folder links',async t=>{
+  const root=await fixture(t);const allowed=path.join(root,'allowed');
+  await assert.rejects(receiveFile(Readable.from([Buffer.from('123'),Buffer.from('456')]),allowed,'large.bin',4),/limit/);
+  assert.deepEqual(await readdir(allowed),[]);
+  await symlink(path.join(root,'outside'),path.join(allowed,'escape'),process.platform==='win32'?'junction':'dir');
+  await assert.rejects(receiveFile(Readable.from(['x']),allowed,'escape/new.txt',16),/outside/);
+  assert.equal(await readFile(path.join(root,'outside','secret.txt'),'utf8'),'private');
 });
 test('release checks distinguish release absence, network failure and unverified compatibility',async()=>{
   assert.equal((await checkRelease('storytold/photocraft',{fetcher:async()=>new Response('',{status:404})})).status,'no-release');

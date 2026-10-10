@@ -15,3 +15,7 @@ The published GitHub CI run [38039052090](https://github.com/vedranius/creative-
 The redesigned interface was visually checked at desktop and mobile sizes, including application search and mobile content width. The local service is available at `http://127.0.0.1:8788` while its development process remains running.
 
 Not yet verified: full Windows/macOS browser workflows, multi-user isolation, actual creative engine processing, installation, upgrade rollback, and performance over high-latency connections.
+
+## Local import milestone
+
+Five local automated suites passed, including streaming size limits, folder hierarchy, no-overwrite conflicts, download, traversal restrictions and cleanup of failed transfers. A real browser file-chooser upload imported a generated laptop test file into the RapidRAW workspace. Original and uploaded bytes were compared. Upstream attribution links were verified in the browser. Cross-platform CI results for this milestone are available in GitHub Actions.

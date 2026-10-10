@@ -29,6 +29,7 @@ export async function listFiles(root,relative='') {
   const entries=await readdir(target,{withFileTypes:true});
   const result=[];
   for(const entry of entries.slice(0,1000)) {
+    if(entry.name.startsWith('.cw-upload-'))continue;
     const child=path.join(target,entry.name);
     try {
       const resolved=await realpath(child);
