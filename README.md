@@ -60,7 +60,7 @@ npm test
 4. FilmCraft and EffectCraft: server preview jobs, proxy media, synchronized playback and exports.
 5. Multi-user identity, permissions, resumable file transfer, installation and verified upgrades.
 
-See [architecture](docs/architecture.md), [adapter contract](docs/adapter-contract.md) and [validation](docs/validation.md).
+See the [development roadmap](docs/roadmap.md) and [compact handoff](docs/development-state.md), as well as [architecture](docs/architecture.md), [adapter contract](docs/adapter-contract.md) and [validation](docs/validation.md).
 
 ## Known limits
 
