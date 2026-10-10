@@ -1,0 +1,8 @@
+{
+  "source": "https://github.com/storytold/vectorcraft.git",
+  "commit": "96344f07617edb24ab22fa08430ad1389042811d",
+  "version": "0.8.0",
+  "binary": "cw-vectorcraft-engine",
+  "license": "MIT OR Apache-2.0",
+  "runtimeId": "creative-workspace-vectorcraft-v1"
+}

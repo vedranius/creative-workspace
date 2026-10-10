@@ -10,12 +10,13 @@
   "scripts": {
     "start": "node src/server.js",
     "test": "node --test",
-    "check": "node --check src/server.js && node --check src/rapidraw.js && node --check src/photocraft.js && node --check src/storage-provider.js && node --check src/storage-recovery.js && node --check src/vendor/storage/provider.js && node --check public/app.js && node --check public/photocraft/app.js && node --check public/storage/agent.js && node --check public/storage/folders.js && node --check public/storage/recovery.js && node --check scripts/manage-rapidraw.mjs && node --check scripts/manage-photocraft.mjs && node --check scripts/manage-storage.mjs && node --check scripts/smoke-photocraft-local-folder.mjs && node --check scripts/smoke-photocraft-recovery.mjs && node --check scripts/smoke-photocraft-versions.mjs && node --check src/pdfcraft.js && node --check public/pdfcraft/app.js && node --check scripts/manage-pdfcraft.mjs && node --check scripts/smoke-pdfcraft.mjs",
+    "check": "node --check src/server.js && node --check src/rapidraw.js && node --check src/photocraft.js && node --check src/storage-provider.js && node --check src/storage-recovery.js && node --check src/vendor/storage/provider.js && node --check public/app.js && node --check public/photocraft/app.js && node --check public/storage/agent.js && node --check public/storage/folders.js && node --check public/storage/recovery.js && node --check scripts/manage-rapidraw.mjs && node --check scripts/manage-photocraft.mjs && node --check scripts/manage-storage.mjs && node --check scripts/smoke-photocraft-local-folder.mjs && node --check scripts/smoke-photocraft-recovery.mjs && node --check scripts/smoke-photocraft-versions.mjs && node --check src/pdfcraft.js && node --check public/pdfcraft/app.js && node --check scripts/manage-pdfcraft.mjs && node --check scripts/smoke-pdfcraft.mjs && node --check src/vectorcraft.js && node --check public/vectorcraft/app.js && node --check scripts/manage-vectorcraft.mjs && node --check scripts/smoke-vectorcraft.mjs",
     "engine:rapidraw:install": "node scripts/manage-rapidraw.mjs install",
     "engine:rapidraw:start": "node scripts/manage-rapidraw.mjs start",
     "engine:photocraft:install": "node scripts/manage-photocraft.mjs install",
     "storage:install": "node scripts/manage-storage.mjs install",
-    "engine:pdfcraft:install": "node scripts/manage-pdfcraft.mjs install"
+    "engine:pdfcraft:install": "node scripts/manage-pdfcraft.mjs install",
+    "engine:vectorcraft:install": "node scripts/manage-vectorcraft.mjs install"
   },
   "dependencies": {
     "ws": "^8.22.0"

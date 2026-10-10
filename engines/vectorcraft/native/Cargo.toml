@@ -1,0 +1,14 @@
+[package]
+name = "cw-vectorcraft-engine"
+version = "0.1.0"
+edition = "2024"
+license = "MIT OR Apache-2.0"
+
+[lints]
+workspace = true
+
+[dependencies]
+vectorcraft-mcp = { workspace = true }
+vectorcraft-engine = { workspace = true }
+vectorcraft-doc = { workspace = true }
+serde_json = { workspace = true }
