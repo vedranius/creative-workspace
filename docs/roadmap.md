@@ -20,6 +20,8 @@ RapidRAW ima zaseban Linux engine i browser editor. PhotoCraft ima zaseban Rust 
 
 **REC-01, REC-02, MCP-01, PDF-01, VEC-01 i DES-01 dovršeni:** recovery UI, provjera verzije PhotoCraft sesije i stvarni PdfCraft/VectorCraft/DesignCraft browser adapteri nad vlastitim native engineom. RapidRAW, PhotoCraft, PdfCraft, VectorCraft i DesignCraft imaju radne tokove, a dashboard odvaja pet dostupnih editora od tri planirana projekta. LGT-01b je započet sigurnim recipe ugovorom/validatorom; browser/session gateway, UI, provider tok i acceptance još puštaju LightCraft u planned status. Sljedeći mali zadatak: gateway recipe/session save/load s ACK-om, zatim browser/FUSE acceptance. MCP-02a i automatski laptop replay ostaju kasnije.
 
+**Prioritet REL-01 (korisnička uputa, 11. listopada):** svaka dovršena promjena dobiva novu SemVer verziju, changelog, summary/cilj i Actions-built download. Prvi pipeline 0.2.0-alpha.1 pakira četiri enginea za Linux x64, Windows x64 i Apple Silicon macOS; javna objava čeka stvarne native smoke provjere svih targeta. RapidRAW, mount helper, Intel Mac i engine-enabled Docker imaju zasebne packaging follow-up stavke, bez lažne pune podrške. Najprije potvrditi release assete/riješiti stvarni CI kvar, zatim nastaviti LGT-01b. Detalji u [release vodiču](releases.md).
+
 ## Redoslijed i kriteriji dovršenosti
 
 | Faza | Rezultat za korisnika | Zadaci i provjera |

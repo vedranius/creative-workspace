@@ -3,3 +3,5 @@ workspaces/
 .env
 node_modules/
 *.log
+build/
+dist/

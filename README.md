@@ -1,8 +1,16 @@
 # Creative Workspace
 
+**Version: 0.2.0-alpha.1** — single-user creative prototype.
+
 A self-hosted creative studio: native browser interfaces, server-side processing, and shared project files. No remote desktop or desktop-display transport.
 
 **Status: five working Linux creative integrations.** RapidRAW has a separately built, workspace-owned engine and functioning browser editor. PhotoCraft, PdfCraft, VectorCraft and DesignCraft have independent Rust server engines and native browser adapter prototypes, including laptop-folder modes. FilmCraft, LightCraft and EffectCraft remain planned. The dashboard lists available editors first and separates them from repository entries.
+
+## Goal and downloads
+
+A lightweight laptop should be able to access a powerful self-hosted creative server from anywhere, using native browser editors and explicitly selected laptop/server files. The control panel brings owned engines, workspace folders, safe saves and upstream attribution together.
+
+[GitHub Releases](https://github.com/vedranius/creative-workspace/releases) is the download location. The new Actions pipeline builds portable Linux x64, Windows x64 and Apple Silicon macOS bundles with Node 24 and PhotoCraft/PdfCraft/VectorCraft/DesignCraft; publication waits for every target native smoke. RapidRAW and the native mount helper are not bundled. A pipeline run in progress is not an available release. See [installation, requirements and upgrades](docs/releases.md) and [changelog](CHANGELOG.md).
 
 ## Implemented
 

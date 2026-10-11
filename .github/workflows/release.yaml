@@ -1,0 +1,138 @@
+name: Build and release
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: release-${{ github.sha }}
+  cancel-in-progress: false
+jobs:
+  contract:
+    runs-on: ubuntu-22.04
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - run: npm ci
+      - run: npm run check
+      - run: npm test
+      - id: version
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          VERSION=$(node scripts/release.mjs validate)
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          # Published versions are immutable. A forgotten bump stops before builds.
+          if gh api "repos/$GITHUB_REPOSITORY/git/ref/tags/v$VERSION" >/dev/null 2>&1; then
+            echo "Version v$VERSION already exists; bump version and changelog." >&2
+            exit 1
+          fi
+  native:
+    needs: contract
+    timeout-minutes: 90
+    strategy:
+      fail-fast: false
+      matrix:
+        platform:
+          - {runner: ubuntu-22.04, target: linux-x64}
+          - {runner: windows-2022, target: win32-x64}
+          - {runner: macos-14, target: darwin-arm64}
+        engine: [photocraft, pdfcraft, vectorcraft, designcraft]
+    runs-on: ${{ matrix.platform.runner }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - uses: dtolnay/rust-toolchain@1.95.0
+      - if: runner.os == 'Linux'
+        run: sudo apt-get update && sudo apt-get install -y cmake pkg-config libfontconfig1-dev libfreetype6-dev libssl-dev
+      - uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            build/runtime/${{ matrix.engine }}/build
+          key: native-${{ matrix.platform.target }}-${{ matrix.engine }}-${{ hashFiles('engines/**/manifest.json', 'engines/**/native/**', 'scripts/manage-*.mjs') }}-rust195
+      - run: npm ci
+      - name: Build independently pinned native engine
+        run: node scripts/release.mjs engine ${{ matrix.engine }}
+      - uses: actions/upload-artifact@v4
+        with:
+          name: native-${{ matrix.platform.target }}-${{ matrix.engine }}
+          path: build/staged/${{ matrix.engine }}/
+          if-no-files-found: error
+          retention-days: 7
+  bundle:
+    needs: [contract, native]
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        platform:
+          - {runner: ubuntu-22.04, target: linux-x64}
+          - {runner: windows-2022, target: win32-x64}
+          - {runner: macos-14, target: darwin-arm64}
+    runs-on: ${{ matrix.platform.runner }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - run: npm ci
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: native-${{ matrix.platform.target }}-*
+          path: build/downloaded
+      - name: Restore independently built engines
+        shell: bash
+        run: |
+          mkdir -p build/staged
+          for ENGINE in photocraft pdfcraft vectorcraft designcraft; do
+            mv "build/downloaded/native-${{ matrix.platform.target }}-$ENGINE" "build/staged/$ENGINE"
+          done
+      - run: node scripts/release.mjs bundle
+      - name: Bundled Node and actual native open/edit/save/reopen
+        run: node scripts/release.mjs smoke
+      - run: node scripts/release.mjs archive
+      - uses: actions/upload-artifact@v4
+        with:
+          name: release-${{ matrix.platform.target }}
+          path: dist/*
+          if-no-files-found: error
+          retention-days: 30
+  publish:
+    needs: [contract, bundle]
+    runs-on: ubuntu-22.04
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: release-*
+          path: dist
+          merge-multiple: true
+      - name: Verify complete release and create notes
+        run: |
+          node scripts/release.mjs notes release-notes.md
+          cd dist
+          sha256sum -c *.sha256
+          test "$(find . -name '*.sha256' | wc -l)" -eq 3
+      - name: Publish verified alpha through GitHub Actions
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ needs.contract.outputs.version }}
+        run: |
+          gh release create "v$VERSION" dist/* --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" --draft --prerelease --title "Creative Workspace $VERSION (alpha)" --notes-file release-notes.md
+          test "$(gh release view "v$VERSION" --repo "$GITHUB_REPOSITORY" --json assets --jq '.assets | length')" -eq 6
+          gh release edit "v$VERSION" --repo "$GITHUB_REPOSITORY" --draft=false

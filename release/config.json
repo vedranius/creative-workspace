@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "channel": "alpha",
+  "engines": ["photocraft", "pdfcraft", "vectorcraft", "designcraft"],
+  "targets": ["linux-x64", "win32-x64", "darwin-arm64"],
+  "limitations": [
+    "Single-user browser adapter prototypes; not a production multi-user service.",
+    "RapidRAW is not bundled: its independent Linux installation remains a separate CLI workflow.",
+    "LightCraft has a native foundation only; FilmCraft and EffectCraft are not implemented.",
+    "The native laptop mount helper is not bundled. Use upload or copy-first mode; on-demand/hybrid mounts require a separately installed and verified helper.",
+    "CI smoke tests use generated documents; real browser folder permissions and broad format compatibility require separate acceptance.",
+    "Linux requires glibc 2.35+; Windows requires the Microsoft Visual C++ 2015–2022 x64 runtime; macOS bundle targets Apple Silicon on macOS 14+."
+  ]
+}

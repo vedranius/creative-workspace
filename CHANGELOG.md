@@ -1,0 +1,30 @@
+# Changelog
+
+Each completed product update receives a new SemVer, changelog entry and immutable Actions-built release. Engine source versions remain independently pinned.
+
+## [0.2.0-alpha.1] — 2026-10-11
+
+### Added
+
+- GitHub Actions native build pipeline for Linux x64, Windows x64 and macOS Apple Silicon. Separate pinned PhotoCraft, PdfCraft, VectorCraft and DesignCraft builds feed portable bundles with Node 24, licenses, source attribution, capability manifests and SHA256 checksums.
+- Publication waits for actual native document open/edit/save/reopen and bundled-launcher health checks on every target. A failure prevents public release; duplicate published versions are refused.
+- Portable start scripts and installation/upgrade instructions; users do not need Node, npm or Rust to run the four bundled editors.
+- Version consistency validation across package/lockfile/README/changelog/tag, plus release rules inherited by subsequent feature sessions and automation.
+
+### Existing creative prototype included
+
+- Browser-native PhotoCraft layered editing, PdfCraft document editing, VectorCraft illustration and DesignCraft publication layout with server processing, separate workspace roots and upstream attribution.
+- File imports, explicit server/laptop destinations, common provider modes, acknowledgement-based save handling and durable recovery for uncertain outputs.
+- LightCraft native CPU foundation and guarded recipe format; its browser adapter remains pending.
+
+### Limits
+
+- Alpha, single-user. The portable bundle includes four editors, without RapidRAW or the native folder mount helper. RapidRAW remains a separate owned Linux installation; on-demand/hybrid mounts require a separate verified helper. Upload and copy-first work without that helper.
+- FilmCraft/EffectCraft and the LightCraft browser UI remain planned. Docker currently packages the gateway. Full format parity, user browser permissions, native installer signing and Intel Mac packaging remain follow-up tasks.
+- CI verifies generated native documents and startup. It does not establish real directory-picker permission or broad camera/media compatibility.
+
+## [0.1.0] — unreleased development baseline
+
+- Independent Linux RapidRAW installation and browser proxy with runtime identity verification.
+- Four ArtCraft native engine/browser adapter prototypes, shared storage providers, save recovery and session version protection.
+- No downloadable product release was published for this baseline.
