@@ -1,0 +1,166 @@
+{
+  "url": "http://127.0.0.1:8819/?webgl&nosw",
+  "steps": {
+    "viewer": {
+      "waitMs": 17,
+      "renderMs": 75.585,
+      "activeComp": 502,
+      "window": [
+        1600,
+        1000
+      ],
+      "screenshot": "/tmp/cw-effectcraft-web-smoke/01-demo.png"
+    },
+    "gpu": {
+      "webgpu": true,
+      "backend": "BrowserWebGpu",
+      "compositor": " (BrowserWebGpu)",
+      "viewerOnGpu": true
+    },
+    "renderFrame": {
+      "w": 480,
+      "h": 270,
+      "pngBytes": 518773
+    },
+    "frameWorkers": {
+      "before": {
+        "alive": 2,
+        "busy": 0,
+        "diskHits": 0,
+        "failed": 0,
+        "gpu": [
+          {
+            "cpu": "no adapter: No suitable graphics adapter found; noop not requested, vulkan not requested, metal not requested, dx12 not requested, gl not requested, webgpu found no adapters"
+          },
+          {
+            "cpu": "no adapter: No suitable graphics adapter found; noop not requested, vulkan not requested, metal not requested, dx12 not requested, gl not requested, webgpu found no adapters"
+          }
+        ],
+        "gpuFrames": 0,
+        "lastMs": 0,
+        "lastPasses": 0,
+        "rendered": 0,
+        "syncBytes": 0,
+        "syncs": 0,
+        "workers": 2
+      },
+      "after": {
+        "alive": 2,
+        "busy": 0,
+        "diskHits": 0,
+        "failed": 0,
+        "gpu": [
+          {
+            "cpu": "no adapter: No suitable graphics adapter found; noop not requested, vulkan not requested, metal not requested, dx12 not requested, gl not requested, webgpu found no adapters"
+          },
+          {
+            "cpu": "no adapter: No suitable graphics adapter found; noop not requested, vulkan not requested, metal not requested, dx12 not requested, gl not requested, webgpu found no adapters"
+          }
+        ],
+        "gpuFrames": 0,
+        "lastMs": 0,
+        "lastPasses": 0,
+        "rendered": 0,
+        "syncBytes": 0,
+        "syncs": 0,
+        "workers": 2
+      },
+      "maxGapMs": 16.274999999906868
+    }
+  },
+  "load": {
+    "wasmMs": 165.1549999997951,
+    "readyMs": 272.8300000000745,
+    "wallMs": 613
+  },
+  "info": {
+    "audio": {
+      "backend": null,
+      "baseLatency": 0,
+      "outputLatency": 0,
+      "played": 0,
+      "posted": 0,
+      "sampleRate": 0,
+      "state": "none",
+      "underruns": 0
+    },
+    "backend": "BrowserWebGpu",
+    "diskCache": {
+      "available": true,
+      "bytes": 0,
+      "enabled": true,
+      "entries": 0,
+      "error": null,
+      "evictions": 0,
+      "folder": "Origin Private File System: effectcraft-cache/v1 (frames, layers)",
+      "frames": 0,
+      "hits": 0,
+      "layerHits": 0,
+      "layerWrites": 0,
+      "layers": 0,
+      "loaded": true,
+      "maxBytes": 5368709204,
+      "misses": 0,
+      "writes": 0
+    },
+    "frameWorkers": {
+      "alive": 2,
+      "busy": 0,
+      "diskHits": 0,
+      "failed": 0,
+      "gpu": [
+        null,
+        null
+      ],
+      "gpuFrames": 0,
+      "lastMs": 0,
+      "lastPasses": 0,
+      "rendered": 0,
+      "syncBytes": 0,
+      "syncs": 0,
+      "workers": 2
+    },
+    "gpu": {
+      "compositor": " (BrowserWebGpu)",
+      "viewerOnGpu": true
+    },
+    "restored": false,
+    "storage": {
+      "backend": "opfs",
+      "entries": 0,
+      "loadMs": 36
+    },
+    "threads": false,
+    "version": "0.8.0",
+    "workers": {
+      "gpu": null,
+      "idle": 0,
+      "jobs": [],
+      "running": 0
+    },
+    "crossOriginIsolated": true,
+    "webgpu": true,
+    "serviceWorker": false,
+    "load": {
+      "wasmMs": 165.1549999997951,
+      "readyMs": 272.8300000000745
+    }
+  },
+  "error": "Error: check failed: frames rendered in workers: {\"before\":{\"alive\":2,\"busy\":0,\"diskHits\":0,\"failed\":0,\"gpu\":[{\"cpu\":\"no adapter: No suitable graphics adapter found; noop not requested, vulkan not requested, metal not requested, dx12 not requested, gl not requested, webgpu found no adapters\"},{\"cpu\":\"no adapter: No suitable graphics adapter found; noop not requested, vulkan not requested, metal not requested, dx12 not requested, gl not requested, webgpu found no adapters\"}],\"gpuFrames\":0,\"lastMs\":0,\"lastPasses\":0,\"rendered\":0,\"syncBytes\":0,\"syncs\":0,\"workers\":2},\"after\":{\"alive\":2,\"busy\":0,\"diskHits\":0,\"failed\":0,\"gpu\":[{\"cpu\":\"no adapter: No suitable graphics adapter found; noop not requested, vulkan not requested, metal not requested, dx12 not requested, gl not requested, webgpu found no adapters\"},{\"cpu\":\"no adapter: No suitable graphics adapter found; noop not requested, vulkan not requested, metal not requested, dx12 not requested, gl not requested, webgpu found no adapters\"}],\"gpuFrames\":0,\"lastMs\":0,\"lastPasses\":0,\"rendered\":0,\"syncBytes\":0,\"syncs\":0,\"workers\":2},\"maxGapMs\":16.274999999906868}\n    at check (file:///home/vedran/Documents/Codex/2026-10-10/da-x20/work/original-ui/effectcraft/apps/effectcraft-web/tests/smoke.mjs:97:20)\n    at file:///home/vedran/Documents/Codex/2026-10-10/da-x20/work/original-ui/effectcraft/apps/effectcraft-web/tests/smoke.mjs:194:3",
+  "errorShot": "/tmp/cw-effectcraft-web-smoke/error.png",
+  "console": [
+    "[egui_wgpu] egui-wgpu-0.36.2/src/lib.rs:461: Software rasterizer detected - loss of performance expected. backend: BrowserWebGpu, device_type: Cpu, subgroup_size: 4..=4, transient_saves_memory: None, limit_bucket: None",
+    "[eframe::web::web_runner] eframe-0.36.2/src/web/web_runner.rs:94: event handlers installed.",
+    "[effectcraft_ui_egui] ui-egui/src/lib.rs:743: GPU compositor:  (BrowserWebGpu)",
+    "[eframe::web::app_runner] eframe-0.36.2/src/web/app_runner.rs:337: Unhandled egui viewport command: SetTheme(SystemDefault) - not implemented in web backend",
+    "[eframe::web::app_runner] eframe-0.36.2/src/web/app_runner.rs:337: Unhandled egui viewport command: Title(\"EffectCraft - Untitled Project.ecproj\") - not implemented in web backend",
+    "[eframe::web::app_runner] eframe-0.36.2/src/web/app_runner.rs:337: Unhandled egui viewport command: SetTheme(Dark) - not implemented in web backend",
+    "[effectcraft_gpu] gpu/src/lib.rs:330: GPU declined the frame at 2.502 s, the CPU renders it: no GPU readback is available here",
+    "[effectcraft_web::frames] effectcraft-web/src/frames.rs:247: frame worker 0: CPU only (no adapter: No suitable graphics adapter found; noop not requested, vulkan not requested, metal not requested, dx12 not requested, gl not requested, webgpu found no adapters)",
+    "[effectcraft_web::frames] effectcraft-web/src/frames.rs:247: frame worker 1: CPU only (no adapter: No suitable graphics adapter found; noop not requested, vulkan not requested, metal not requested, dx12 not requested, gl not requested, webgpu found no adapters)",
+    "[effectcraft_ui_egui] ui-egui/src/lib.rs:674: GPU preview retired: GPU device lost (Unknown): A valid external Instance reference no longer exists.",
+    "[effectcraft_ui_egui] ui-egui/src/lib.rs:689: graphics device lost: auto-saved /EffectCraft Auto-Save/Untitled Project auto-save 1.ecproj; the next launch offers to recover it",
+    "[effectcraft_ui_egui] ui-egui/src/lib.rs:698: graphics device lost: closing the window",
+    "[eframe::web::app_runner] eframe-0.36.2/src/web/app_runner.rs:337: Unhandled egui viewport command: Close - not implemented in web backend"
+  ]
+}

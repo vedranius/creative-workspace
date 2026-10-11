@@ -1,5 +1,7 @@
 # PAR-03a handoff — implementation incomplete
 
+Update 2026-10-11: original EffectCraft UI preview ORG-FX-UI is complete; the next bounded task is the server seam below. The EffectCraft preview did not change this implementation scope or acceptance.
+
 Status: the dashboard correction is implemented; the original UI to server worker bridge is not. This is a handoff, not evidence of a server-backed DesignCraft port.
 
 ## Current code change
