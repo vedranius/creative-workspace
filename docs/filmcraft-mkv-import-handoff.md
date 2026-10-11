@@ -1,6 +1,6 @@
 # FIL-MKV-01 — original FilmCraft pending import fix
 
-2026-10-11. Implemented and isolated browser regression verified; Creative Workspace **0.2.0-alpha.10** release candidate. Feature commit `1348d4b62aba016e498b654bd5745975f549768b` is pushed. The protected alpha.9 development candidate (identical import behavior; earlier patch header format) is verified at [studio 8794](http://127.0.0.1:8794/) / [original FilmCraft](http://127.0.0.1:8794/original/filmcraft/?webgl). [Publication status](filmcraft-mkv-release-state.md) tracks Actions separately; release downloads are not yet claimed.
+2026-10-11. Implemented and isolated browser regression verified; Creative Workspace **0.2.0-alpha.10** is an Actions-verified draft/prerelease. Source commit `6481512ae825ecab09dfa5a9ff731b54ecbe2574` is pushed. The protected alpha.9 development candidate (identical import behavior; earlier patch header format) remains at [studio 8794](http://127.0.0.1:8794/) / [original FilmCraft](http://127.0.0.1:8794/original/filmcraft/?webgl). [Publication status](filmcraft-mkv-release-state.md) and [release verification evidence](evidence/filmcraft-mkv-alpha10-release.md) record CI and asset checks; the draft is not presented as a public stable release.
 
 ## Changed behavior
 
@@ -29,3 +29,5 @@ This fixture exercises the original UI command boundary in a real browser with t
 Preserve studio 8793, legacy 8792 and the user's independent RapidRAW 8780. A new release candidate must run on a separate package/state root and free port; do not restart an unsaved document. Main checkout's DesignCraft PAR-03 work and unrelated untracked `engines/filmcraft/` remain separate. Final publication evidence must include CI results, tag, release draft and eight archive/checksum assets before download claims.
 
 After this fix, resume the concrete DesignCraft **PAR-03** original UI/server Session/read-model/render bridge. Read its preserved sample smoke/handoff; do not expand a replacement frontend or repeat source audits as implementation. The original server/provider/full parity milestone remains incomplete.
+
+Alpha.10 publication verification is complete: workflow 38166022700 and Checks 38166022656 passed; tag `v0.2.0-alpha.10` points to the source commit, and the GitHub prerelease remains draft. All eight downloaded release assets/checksums, three native prototype bundle manifests/startup smokes, embedded Node 24 hashes, FilmCraft pin/patch and browser artifact were verified. Original FilmCraft browser report has `ok: true`, eight cases, and no uncaught errors. Continue with the bounded DesignCraft PAR-03 bridge from [PAR-03a handoff](par-03a-handoff.md); do not claim original server/provider/save-ACK/full parity or public stable availability.
