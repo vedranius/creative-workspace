@@ -145,6 +145,73 @@ jobs:
           path: dist/*
           if-no-files-found: error
           retention-days: 30
+  original-designcraft:
+    needs: [contract, native]
+    runs-on: ubuntu-22.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - uses: dtolnay/rust-toolchain@1.99.0
+        with:
+          targets: wasm32-unknown-unknown
+      - uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            build/original-ui/target
+          key: designcraft-par03-wasm-rust199-${{ hashFiles('patches/designcraft/a127c6d5/par-03-server-sample.patch') }}
+      - name: Install checksum-pinned Trunk
+        shell: bash
+        run: |
+          curl -fsSLo "$RUNNER_TEMP/trunk.tar.gz" https://github.com/trunk-rs/trunk/releases/download/v0.21.14/trunk-x86_64-unknown-linux-gnu.tar.gz
+          echo 'f2b4680cd239693a646a2795e4633c625328d7b2a044fbe749fa3a2fe9e7036b  trunk.tar.gz' | (cd "$RUNNER_TEMP" && sha256sum -c -)
+          tar -xzf "$RUNNER_TEMP/trunk.tar.gz" -C "$RUNNER_TEMP"
+          echo "$RUNNER_TEMP" >> "$GITHUB_PATH"
+      - run: npm ci
+      - name: Fetch pinned DesignCraft source and Linux worker
+        shell: bash
+        run: |
+          mkdir -p build/original-ui/source-designcraft
+          git -C build/original-ui/source-designcraft init
+          git -C build/original-ui/source-designcraft remote add origin https://github.com/storytold/designcraft.git
+          git -C build/original-ui/source-designcraft fetch --depth=1 origin a127c6d5c3576972bbd60445f26d893db071eef3
+          git -C build/original-ui/source-designcraft checkout --detach FETCH_HEAD
+          mkdir -p build/staged/designcraft
+      - uses: actions/download-artifact@v4
+        with:
+          name: native-linux-x64-designcraft
+          path: build/staged/designcraft
+      - name: Build/register the reviewed original UI variant
+        run: node scripts/build-designcraft-par03-ui.mjs build/original-ui/source-designcraft build/original-ui/assets-designcraft build/original-ui/packages
+      - name: Verify the original UI against the owned server worker
+        env:
+          CW_DESIGNCRAFT_BINARY: ${{ github.workspace }}/build/staged/designcraft/cw-designcraft-engine
+          CW_ORIGINAL_UI_DIR: ${{ github.workspace }}/build/original-ui/packages
+          CW_PLAYWRIGHT_MODULE: file://${{ github.workspace }}/build/browser-qa/node_modules/playwright/index.mjs
+          CW_PAR03_SCREENSHOT: ${{ github.workspace }}/build/designcraft-par03-evidence/browser.png
+          CW_PAR03_REPORT: ${{ github.workspace }}/build/designcraft-par03-evidence/report.json
+        run: |
+          chmod +x "$CW_DESIGNCRAFT_BINARY"
+          npm install --prefix build/browser-qa --no-audit --no-fund --save-exact playwright@1.64.0
+          (cd build/browser-qa && npx playwright install --with-deps chromium)
+          node scripts/smoke-designcraft-par03-browser.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: designcraft-par03-browser-evidence
+          path: build/designcraft-par03-evidence/
+          if-no-files-found: warn
+          retention-days: 30
+      - uses: actions/upload-artifact@v4
+        with:
+          name: release-designcraft-par03-ui
+          path: dist/*
+          if-no-files-found: error
+          retention-days: 30
   bundle:
     needs: [contract, native]
     timeout-minutes: 20
@@ -184,7 +251,7 @@ jobs:
           if-no-files-found: error
           retention-days: 30
   publish:
-    needs: [contract, bundle, original-filmcraft]
+    needs: [contract, bundle, original-filmcraft, original-designcraft]
     runs-on: ubuntu-22.04
     permissions:
       contents: write
@@ -203,14 +270,14 @@ jobs:
           node scripts/release.mjs notes release-notes.md
           cd dist
           sha256sum -c *.sha256
-          test "$(find . -name '*.sha256' | wc -l)" -eq 4
+          test "$(find . -name '*.sha256' | wc -l)" -eq 5
       - name: Publish verified alpha through GitHub Actions
         env:
           GH_TOKEN: ${{ github.token }}
           VERSION: ${{ needs.contract.outputs.version }}
         run: |
           gh release create "v$VERSION" dist/* --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" --draft --prerelease --title "Creative Workspace $VERSION (alpha)" --notes-file release-notes.md
-          test "$(gh release view "v$VERSION" --repo "$GITHUB_REPOSITORY" --json assets --jq '.assets | length')" -eq 8
+          test "$(gh release view "v$VERSION" --repo "$GITHUB_REPOSITORY" --json assets --jq '.assets | length')" -eq 10
           # A draft release alone does not create its immutable Git tag.
           git tag "v$VERSION" "$GITHUB_SHA"
           git push origin "refs/tags/v$VERSION"

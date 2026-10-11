@@ -2,6 +2,12 @@
 
 Each completed product update receives a new SemVer, changelog entry and immutable Actions-built release. Engine source versions remain independently pinned.
 
+## [0.2.0-alpha.11] — 2026-10-11 (draft candidate)
+
+- Add a reviewed DesignCraft original UI variant whose browser shell routes the representative `file.newSample` operation to the owned server worker and presents its bounded revisioned PNG in the original canvas area.
+- Preserve the upstream source command ID; restrict this bridge to the one known operation. Verify an owned native worker, real browser render, invalid-Origin/foreign-session rejection and original menu/tool visibility.
+- Add an Actions-built DesignCraft PAR-03 preview archive and browser evidence. The local DesignApp session, panels/read-model parity, other commands/tools, provider/save ACK, recovery, full OS/browser acceptance and complete creative-suite packaging remain pending. Keep the release draft.
+
 ## [0.2.0-alpha.10] — 2026-10-11 (draft candidate)
 
 - Make reviewed original-UI Git patch validation deterministic across full/shallow repositories and Git formatting settings: full blob IDs, explicit prefixes/context/algorithm, exact known pin/diff/SHA256 checks retained.

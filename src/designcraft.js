@@ -7,12 +7,13 @@ import {EngineProcess} from './photocraft.js';
 import {resolveWorkspace,isWithin} from './storage.js';
 import {importSegments,receiveFile} from './transfers.js';
 
-const nativeMethods=new Set(['__cw_identity','new','open','state','render','command','export','mark_saved']);
-const methods=new Set(['state','heartbeat','doc.new','doc.open','doc.save','page.select','frame.create','select.set','select.all','select.none','transform.move','transform.resize','object.fill','object.stroke','swatch.create','story.setText','type.char','edit.clear','edit.undo','edit.redo']);
+const nativeMethods=new Set(['__cw_identity','new','sample','open','state','render','command','export','mark_saved']);
+const methods=new Set(['state','heartbeat','doc.new','doc.sample','doc.open','doc.save','page.select','frame.create','select.set','select.all','select.none','transform.move','transform.resize','object.fill','object.stroke','swatch.create','story.setText','type.char','edit.clear','edit.undo','edit.redo']);
 const fail=(message,status=400,code)=>Object.assign(new Error(message),{status,...(code?{code}:{})});
 const relative=value=>{try{importSegments(value);return value;}catch{throw fail('Use a relative path inside this application workspace');}};
 const number=(value,min,max,label)=>{if(typeof value!=='number'||!Number.isFinite(value)||value<min||value>max)throw fail(`Invalid ${label}`);return value;};
 const ids=value=>{if(!Array.isArray(value)||value.length>200||value.some(id=>!Number.isSafeInteger(id)||id<0))throw fail('Choose up to 200 object IDs');return value;};
+const boundedPng=value=>{if(typeof value!=='string'||value.length>16*1024*1024||!/^iVBORw0KGgo/.test(value))throw fail('Server preview is missing or exceeds the 12 MB render limit',502);const bytes=Buffer.from(value,'base64');if(bytes.length<24||bytes.length>12*1024*1024||bytes.readUInt32BE(0)!==0x89504e47)throw fail('Server preview is not a bounded PNG',502);const width=bytes.readUInt32BE(16),height=bytes.readUInt32BE(20);if(!width||!height||width>1280||height>1280||width*height>1280*1280)throw fail('Server preview dimensions exceed 1280 × 1280',502);return bytes;};
 
 // Do not forward arbitrary engine parameters: some native commands accept filesystem paths.
 function commandParams(method,p){
@@ -46,7 +47,7 @@ export function createDesignCraft({binary=process.env.CW_DESIGNCRAFT_BINARY||pat
   async function snapshot(s){
     const document=await s.engine.call('state');let preview=null;
     s.dirty=document?.dirty||false;
-    if(document){document.name=s.name||document.title;s.page=Math.max(0,Math.min(s.page,(document.pageCount||1)-1));const frame=await s.engine.call('render',{page:s.page});s.frames.set(++s.previewVersion,Buffer.from(frame.pngBase64,'base64'));while(s.frames.size>3)s.frames.delete(s.frames.keys().next().value);preview=`/api/designcraft/sessions/${s.id}/preview.png?v=${s.previewVersion}`;}
+    if(document){document.name=s.name||document.title;s.page=Math.max(0,Math.min(s.page,(document.pageCount||1)-1));const frame=await s.engine.call('render',{page:s.page});s.frames.set(++s.previewVersion,boundedPng(frame.pngBase64));while(s.frames.size>3)s.frames.delete(s.frames.keys().next().value);preview=`/api/designcraft/sessions/${s.id}/preview.png?v=${s.previewVersion}`;}
     return {document,page:s.page,stateVersion:s.version,preview};
   }
   async function execute(id,{method,params={},requestId,expectedVersion}={}){
@@ -55,9 +56,10 @@ export function createDesignCraft({binary=process.env.CW_DESIGNCRAFT_BINARY||pat
     const task=s.queue.then(async()=>{
       if(expectedVersion!==undefined&&expectedVersion!==s.version)throw fail('Document changed. Refresh its state before applying this operation.',409,'STATE_VERSION_CONFLICT');
       if(method==='heartbeat')return {alive:true};if(method==='state')return snapshot(s);let result={};
-      if(method==='doc.open'||method==='doc.new'){
+      if(method==='doc.open'||method==='doc.new'||method==='doc.sample'){
         if(await s.engine.call('state'))throw fail('Save and close the current document before opening another',409);
         if(method==='doc.open'){const input=relative(params.path);if(!/\.designcraft$/i.test(input))throw fail('Choose a native .designcraft document');const file=await resolveWorkspace(s.root,input),info=await stat(file);if(!info.isFile()||info.size>maxFileBytes)throw fail('Document exceeds the 64 MB prototype limit',413);s.version++;result=await s.engine.call('open',{path:file});s.name=path.basename(input);}
+        else if(method==='doc.sample'){s.version++;s.dirty=true;result=await s.engine.call('sample');s.name='Sample Document';}
         else{const width=number(params.width,1,10000,'width'),height=number(params.height,1,10000,'height');if(!Number.isInteger(params.pages))throw fail('Page count must be an integer');s.version++;s.dirty=true;result=await s.engine.call('new',{title:typeof params.name==='string'?params.name.slice(0,100):'Untitled',width,height,pages:number(params.pages,1,64,'page count'),facingPages:false});s.name=typeof params.name==='string'?params.name.slice(0,100):'Untitled';}
       }else{
         if(!(await s.engine.call('state')))throw fail('Open a publication first');

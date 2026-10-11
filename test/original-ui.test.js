@@ -8,6 +8,13 @@ import path from 'node:path';
 import {createWorkspaceServer} from '../src/server.js';
 import {originalUiPins,originalUiPatches,originalUiPackageId} from '../src/original-ui.js';
 
+test('DesignCraft PAR-03 variant is pinned to its exact reviewed source patch',async()=>{
+  const patch=originalUiPatches.designcraft,bytes=await readFile(new URL('../'+patch.path,import.meta.url));
+  assert.equal(patch.id,'par-03-server-sample-v1');
+  assert.equal(createHash('sha256').update(bytes).digest('hex'),patch.sha256);
+  assert.equal(originalUiPackageId('designcraft'),`${originalUiPins.designcraft}-${patch.sha256.slice(0,12)}`);
+});
+
 // Protocol fixtures; actual upstream UI browser acceptance is recorded separately.
 async function fixture(t){
   const root=await mkdtemp(path.join(os.tmpdir(),'cw-original-ui-'));t.after(()=>rm(root,{recursive:true,force:true}));

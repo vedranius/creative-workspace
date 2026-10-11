@@ -1,0 +1,35 @@
+{
+  "task": "PAR-03 bounded original UI server sample bridge",
+  "sourceCommit": "a127c6d5c3576972bbd60445f26d893db071eef3",
+  "sourcePatch": {
+    "id": "par-03-server-sample-v1",
+    "path": "patches/designcraft/a127c6d5/par-03-server-sample.patch",
+    "sha256": "02f187a6e89d4d531485693844da8c8de0aa17f3945d10d878a2990639d04f7c"
+  },
+  "browser": {
+    "path": "/original/designcraft/?serverSample&webgl",
+    "result": "pass",
+    "visibleOriginalMenus": ["File", "Edit", "Layout", "Type", "Object", "Table", "View", "Window", "Help"],
+    "visibleOriginalToolbarsAndPanels": true,
+    "serverCommandId": "file.newSample",
+    "stateVersion": 1,
+    "serverRender": {
+      "format": "PNG",
+      "width": 612,
+      "height": 792,
+      "sha256": "a0f4b28af9304e3d567037a2cd5ab305d08d14078848d6862d3d7cb0f3d981d5"
+    },
+    "uncaughtBrowserErrors": 0,
+    "screenshot": "designcraft-par03-original-ui.png"
+  },
+  "ownedWorker": {"ownedRuntime": true, "commandId": "file.newSample", "stateVersion": 1, "samplePageCount": 4},
+  "guardChecks": {"foreignSession": 404, "invalidOrigin": 403},
+  "cleanup": {"sessionClosed": true, "activeSessionsAfterClose": 0, "candidateServerStopped": true},
+  "verification": {"npmRunCheck": "pass", "npmTest": "45/45 pass", "npmRunReleaseValidate": "pass", "gitDiffCheck": "pass"},
+  "scopeLimits": [
+    "Only the original file.newSample command is routed to the server.",
+    "The original DesignApp still owns an empty local Session and its panels do not yet consume the server read-model.",
+    "The server PNG is presented over the original canvas area; general server-backed editing and provider/save ACK are not implemented.",
+    "DesignCraft remains planned; this is not an available complete creative app."
+  ]
+}

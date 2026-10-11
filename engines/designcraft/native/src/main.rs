@@ -192,6 +192,18 @@ fn answer(h: &mut Headless, saved: &mut Option<Arc<Document>>, read: &Path, writ
             }
             Ok(json!({"warnings":[]}))
         }
+        // Preserve the original upstream command ID while keeping its Session on
+        // this owned server worker. Browser RPC never forwards an arbitrary ID.
+        "sample" => {
+            if h.session.active().is_some() {
+                return Err("One document per session; save and close first".into());
+            }
+            h.call("engine.execute", json!({"command":"file.newSample","params":{}}))?;
+            let doc = h.session.active().ok_or("Sample command created no document")?.doc.clone();
+            budget(&doc)?;
+            *saved = None;
+            Ok(json!({"commandId":"file.newSample"}))
+        }
         "command" => {
             let c = p.get("command").and_then(Value::as_str).ok_or("Missing command")?;
             if !COMMANDS.contains(&c) {

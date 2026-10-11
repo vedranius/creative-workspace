@@ -1,0 +1,77 @@
+diff --git a/apps/designcraft-web/index.html b/apps/designcraft-web/index.html
+index b05be39367b0eeb780fc1759c79f61d53f196abf..441f58de395e6d02527ce1e42f0be4a5280c906d 100644
+--- a/apps/designcraft-web/index.html
++++ b/apps/designcraft-web/index.html
+@@ -14,6 +14,7 @@
+ </head>
+ <body>
+   <canvas id="designcraft_canvas"></canvas>
++  <script defer src="./server-bridge.js" data-trunk></script>
+   <div id="designcraft_loading">Loading DesignCraft&hellip;</div>
+ </body>
+ </html>
+diff --git a/apps/designcraft-web/server-bridge.js b/apps/designcraft-web/server-bridge.js
+new file mode 100644
+index 0000000000000000000000000000000000000000..3bcf76ebe2fa842a6143fe03ce07a780ee9d9be0
+--- /dev/null
++++ b/apps/designcraft-web/server-bridge.js
+@@ -0,0 +1,43 @@
++// PAR-03 bounded experiment: invoke one original command on the owned server worker.
++// The original DesignApp remains the rendered shell; its local Session is not used for this sample.
++const params = new URLSearchParams(location.search);
++if (params.has("serverSample")) {
++  const banner = document.createElement("div");
++  banner.id = "cw_server_status";
++  Object.assign(banner.style, {position:"fixed",right:"12px",bottom:"12px",zIndex:"20",padding:"8px 12px",borderRadius:"4px",background:"#173b32",color:"#e8fff6",font:"12px system-ui",boxShadow:"0 2px 8px #0008"});
++  banner.textContent = "Connecting to server-owned DesignCraft sample…";
++  document.body.append(banner);
++  let sessionId = null;
++  const post = async (url, body) => {
++    const response = await fetch(url, {method:"POST",credentials:"same-origin",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)});
++    const value = await response.json();
++    if (!response.ok) throw new Error(value.error || `HTTP ${response.status}`);
++    return value;
++  };
++  (async () => {
++    try {
++      const session = await post("/api/designcraft/sessions", {});
++      sessionId = session.id;
++      const reply = await post(`/api/designcraft/sessions/${sessionId}/rpc`, {method:"doc.sample",params:{},requestId:crypto.randomUUID(),expectedVersion:0});
++      if (reply.result?.commandId !== "file.newSample" || reply.stateVersion !== 1 || !reply.preview) throw new Error("Server response did not match the expected command and revision");
++      const image = document.createElement("img");
++      image.id = "cw_server_render"; image.alt = `Server-rendered DesignCraft sample, revision ${reply.stateVersion}`;
++      image.dataset.stateVersion = String(reply.stateVersion); image.dataset.commandId = reply.result.commandId; image.src = reply.preview;
++      Object.assign(image.style, {position:"fixed",left:"34%",top:"24%",width:"32%",height:"52%",objectFit:"contain",zIndex:"2",pointerEvents:"none",filter:"drop-shadow(0 2px 6px #0008)"});
++      image.addEventListener("load", () => {
++        image.dataset.width = String(image.naturalWidth); image.dataset.height = String(image.naturalHeight);
++        banner.textContent = `Server sample • file.newSample • revision ${reply.stateVersion} • ${image.naturalWidth}×${image.naturalHeight}`;
++        banner.dataset.stateVersion = String(reply.stateVersion);
++      }, {once:true});
++      image.addEventListener("error", () => { banner.textContent = "Server render failed to load"; banner.style.background = "#6d2222"; }, {once:true});
++      document.body.append(image);
++      addEventListener("pagehide", () => {
++        if (!sessionId) return;
++        fetch(`/api/designcraft/sessions/${sessionId}`, {method:"DELETE",credentials:"same-origin",headers:{"Content-Type":"application/json"},body:JSON.stringify({discard:true}),keepalive:true}).catch(()=>{});
++      }, {once:true});
++    } catch (error) {
++      banner.textContent = `Server sample unavailable: ${error.message}`; banner.style.background = "#6d2222";
++      console.error("DesignCraft server bridge failed", error);
++    }
++  })();
++}
+diff --git a/apps/designcraft-web/src/web.rs b/apps/designcraft-web/src/web.rs
+index fe7cca4ae5e51ab3101b9d0b73a543fde8beae16..d4331908f1a376dff50623659a454e337d60ba49 100644
+--- a/apps/designcraft-web/src/web.rs
++++ b/apps/designcraft-web/src/web.rs
+@@ -56,10 +56,7 @@ pub fn start() {
+                         log::info!("designcraft-web: wgpu backend {:?}", rs.adapter.get_info().backend);
+                     }
+                     let inbox: Inbox = Inbox::default();
+-                    let mut app = DesignApp::new(Session::new(), services(inbox.clone(), cc.egui_ctx.clone()));
+-                    if has_query_flag(&query(), "sample") {
+-                        let _ = app.run("file.newSample", serde_json::json!({}));
+-                    }
++                    let app = DesignApp::new(Session::new(), services(inbox.clone(), cc.egui_ctx.clone()));
+                     Ok(Box::new(WebShell { app, inbox }))
+                 }),
+             )
