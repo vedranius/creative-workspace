@@ -19,7 +19,7 @@ Izvori su provjereni na navedenim revizijama; to nisu tvrdnje da su njihove brow
 | [VectorCraft — storytold](https://github.com/storytold/vectorcraft) | `96344f07617edb24ab22fa08430ad1389042811d` | `apps/vectorcraft-web`, zajednički `VectorcraftApp` | Originalni WASM UI izgrađen i provjeren na `127.0.0.1:8815`; server obrada/provider integracija slijede — [dokaz](vectorcraft-original-ui-preview.md) |
 | [PdfCraft — storytold](https://github.com/storytold/pdfcraft) | `9ccf77bdf685bc3cb0f545865c9f9b3e97ab5025` | `apps/pdfcraft-web`, zajednički `PdfCraftApp` | Originalni WASM UI izgrađen i provjeren na `127.0.0.1:8816`; server obrada/provider integracija slijede — [dokaz](pdfcraft-original-ui-preview.md) |
 | [LightCraft — storytold](https://github.com/storytold/lightcraft) | `9e6c4c6fc9c7a7f192ce846c00ceb531e0f64dda` | `apps/lightcraft-web`, zajednički `lightcraft-ui-egui` | Originalni UI build i browser preview dokazani na `127.0.0.1:8817`; server/provider integracija slijedi — [dokaz](lightcraft-original-ui-preview.md) |
-| [FilmCraft — storytold](https://github.com/storytold/filmcraft) | `4e2d0bc2d3646f9cf27ef7aa8b2095c6858c7efe` | `apps/filmcraft-web`, zajednički `FilmcraftApp` | Izvorni browser host postoji; originalni build i owned server engine nisu prihvaćeni |
+| [FilmCraft — storytold](https://github.com/storytold/filmcraft) | `4e2d0bc2d3646f9cf27ef7aa8b2095c6858c7efe` | `apps/filmcraft-web`, zajednički `FilmcraftApp` | Originalni WASM UI izgrađen i provjeren na `127.0.0.1:8818`; server processing/provider integracija slijede — [dokaz](filmcraft-original-ui-preview.md) |
 | [EffectCraft — storytold](https://github.com/storytold/effectcraft) | `9a7d3e76991d5372448033b473dc12c2480a6a04` | `apps/effectcraft-web` potvrđen GitHub API-jem | Repo/browser ulaz provjereni; clean checkout, shared-UI trag i build još slijede |
 | [RapidRAW — CyberTimon](https://github.com/CyberTimon/RapidRAW), [web fork — vedranius](https://github.com/vedranius/rapidraw-web) | `38ddc8af1bc51552fcab8781c4838b17082f97bd` web forka | Postojeći izvorni web fork, zasebna upravljana instalacija | Postojeća integracija ostaje; zasebna provjera/pakiranje datoteka i OS podrške |
 
@@ -29,7 +29,7 @@ PhotoCraft/PdfCraft/VectorCraft/DesignCraft trenutno imaju i vlastite ograničen
 
 ### A. Originalna sučelja za pregled
 
-**DesignCraft PAR-02, PhotoCraft ORG-PC-UI, VectorCraft ORG-VC-UI, PdfCraft ORG-PDF-UI i LightCraft ORG-LGT-UI su dovršeni. Slijede FilmCraft → EffectCraft**, svaki u zasebnoj kratkoj razvojnoj sesiji i s jednim aktivnim writerom. Ovaj prolaz korisniku rano omogućuje pregled izvornog izgleda svih aplikacija. Svaki preview jasno navodi koristi li lokalnu obradu; preview ne postaje dostupna server aplikacija samim buildom.
+**DesignCraft PAR-02, PhotoCraft ORG-PC-UI, VectorCraft ORG-VC-UI, PdfCraft ORG-PDF-UI, LightCraft ORG-LGT-UI i FilmCraft ORG-FIL-UI su dovršeni. Slijedi EffectCraft ORG-FX-UI**, u zasebnoj kratkoj razvojnoj sesiji i s jednim aktivnim writerom. Ovaj prolaz korisniku rano omogućuje pregled izvornog izgleda svih aplikacija. Svaki preview jasno navodi koristi li lokalnu obradu; preview ne postaje dostupna server aplikacija samim buildom.
 
 Za svaku stavku `ORG-<APP>-UI`:
 
@@ -96,4 +96,4 @@ Svaka aplikacija ima odvojena stanja: **originalni UI source potvrđen → origi
 
 Jedna nova sesija po malom zadatku, jedan writer u checkoutu. Plan → implementacija → relevantne provjere → compact handoff → normalni commit/push → CI; produktne promjene uključuju verziju i Actions release. Čisti plan/evidence docs koriste docs-only gate bez ponovnog izdavanja iste verzije. Automatizacija čita ovaj redoslijed i posljednju primopredaju; ne otvara retry petlje niti ponavlja dovršene audite/buildove.
 
-**Prvi sljedeći zadatak: ORG-FIL-UI — izgraditi i u browseru provjeriti originalni FilmCraft na izoliranom portu.** Zatim EffectCraft. DesignCraft PAR-03 server seam ostaje otvoren i nastavlja se nakon ovog preview prolaza; nijedan runnable originalni UI preview nije dovršen server-backed port.
+**Prvi sljedeći zadatak: ORG-FX-UI — izgraditi i u browseru provjeriti originalni EffectCraft na izoliranom portu.** DesignCraft PAR-03 server seam ostaje otvoren i nastavlja se nakon ovog preview prolaza; nijedan runnable originalni UI preview nije dovršen server-backed port.

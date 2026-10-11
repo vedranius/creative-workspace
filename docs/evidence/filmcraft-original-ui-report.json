@@ -1,0 +1,359 @@
+{
+  "task": "ORG-FIL-UI",
+  "source": {
+    "repository": "https://github.com/storytold/filmcraft",
+    "commit": "4e2d0bc2d3646f9cf27ef7aa8b2095c6858c7efe",
+    "version": "0.6.0",
+    "webEntry": "apps/filmcraft-web",
+    "license": "MIT OR Apache-2.0"
+  },
+  "build": {
+    "rust": "1.99.0",
+    "target": "wasm32-unknown-unknown",
+    "wasmBindgen": "0.2.129",
+    "recipe": "cargo xtask web",
+    "wasmBytes": 39042432,
+    "wasmSha256": "e2aa63fdbe7807279bade6e3e77d3d016d4f41f078ec9940e41fb97d5d672bfa"
+  },
+  "preview": {
+    "url": "http://127.0.0.1:8818/?webgl",
+    "isolated": true,
+    "headers": [
+      "Cross-Origin-Opener-Policy: same-origin",
+      "Cross-Origin-Embedder-Policy: require-corp"
+    ],
+    "browser": "Google Chrome for Testing 151.0.7922.34",
+    "viewport": "1600x1000",
+    "renderer": "WebGL2 / SwiftShader software rendering",
+    "load": {
+      "wasmMs": 116.88500000000931,
+      "readyMs": 272.285000000149,
+      "wallMs": 1669
+    },
+    "info": {
+      "audio": true,
+      "audioWorklet": true,
+      "backend": "Gl",
+      "compositor": "cpu",
+      "crossOriginIsolated": true,
+      "fetchesInFlight": 0,
+      "frameWorkers": "cooperative",
+      "opfs": true,
+      "restoredMedia": 0,
+      "startupMs": 153.23000000000002,
+      "threads": false,
+      "webcodecs": [
+        "avc",
+        "vp9",
+        "av1"
+      ],
+      "webcodecsStats": {
+        "fallbacks": 0,
+        "framesDecoded": 0,
+        "sessions": [],
+        "sources": 0,
+        "transfers": {
+          "canvasFrames": 0,
+          "canvasMs": 0,
+          "canvasReasons": {},
+          "closedFrames": 0,
+          "nativeBytes": 0,
+          "nativeFrames": 0,
+          "nativeMs": 0,
+          "staleFrames": 0
+        }
+      }
+    }
+  },
+  "smoke": {
+    "ok": true,
+    "demoTimeline": {
+      "window": [
+        1600,
+        1000
+      ],
+      "activeSequence": 21,
+      "fps": 23.231050491333008
+    },
+    "playback": {
+      "playhead": 1334917584000,
+      "playback": {
+        "audioClock": true,
+        "dropped": 23,
+        "loop": false,
+        "playing": true,
+        "preroll": false,
+        "shown": 1,
+        "speed": 1
+      },
+      "fps": 11.119329452514648,
+      "screenshot": "/tmp/cw-filmcraft-proof/browser-webgl/02-playing.png"
+    },
+    "import": {
+      "errors": [],
+      "items": [
+        48
+      ],
+      "paths": [
+        "/files/filmcraft-smoke.mp4"
+      ]
+    },
+    "sequence": {
+      "sequence": 55
+    },
+    "importPlayback": {
+      "playhead": 328104000000,
+      "playback": {
+        "audioClock": true,
+        "dropped": 19,
+        "loop": false,
+        "playing": true,
+        "preroll": false,
+        "shown": 12,
+        "speed": 1
+      },
+      "screenshot": "/tmp/cw-filmcraft-proof/browser-webgl/03-imported.png"
+    },
+    "export": {
+      "job": 1,
+      "ms": 6499,
+      "jobs": [
+        {
+          "done": 48,
+          "etaSeconds": null,
+          "finished": true,
+          "id": 1,
+          "label": "Export web-export.mp4",
+          "progress": 1,
+          "result": {
+            "bytes": 457067,
+            "frames": 48,
+            "path": "/exports/web-export.mp4",
+            "render_fps": 7.53609080989426,
+            "seconds": 6.36935
+          },
+          "status": "Done in 6.4s",
+          "total": 48
+        }
+      ],
+      "files": [
+        {
+          "kind": "memory",
+          "path": "/exports/web-export.mp4",
+          "size": 457067
+        },
+        {
+          "kind": "blob",
+          "path": "/files/filmcraft-smoke.mp4",
+          "size": 77021
+        }
+      ],
+      "downloads": [
+        {
+          "f": "web-export.mp4",
+          "bytes": 457067
+        }
+      ],
+      "screenshot": "/tmp/cw-filmcraft-proof/browser-webgl/04-exported.png"
+    },
+    "modeAndViewportChanges": true,
+    "importBinGates": {
+      "gates": {
+        "activeTab": true,
+        "browserDrop": true,
+        "destinationCapturedBeforeRead": true
+      },
+      "cases": [
+        {
+          "key": "activeTab",
+          "expected": 1,
+          "actual": 1,
+          "name": "tab.mp4"
+        },
+        {
+          "key": "browserDrop",
+          "expected": 2,
+          "actual": 2,
+          "name": "drop.mp4"
+        },
+        {
+          "key": "destinationCapturedBeforeRead",
+          "expected": 2,
+          "actual": 2,
+          "name": "pending.mp4"
+        }
+      ],
+      "delayedReadHits": 1,
+      "ok": true
+    },
+    "importCollisionRecovery": {
+      "hashes": [
+        "65589be06b4b0d7a5ebf2e37648ce3311cca257e7816bde7cf2179601c614165",
+        "413392c1c3f2c51b7324699e8f3166fae8559cb16f27769e605d876ff544a787"
+      ],
+      "fixtureBytes": [
+        192044,
+        192044
+      ],
+      "gates": {
+        "healthyInitial": true,
+        "distinctPaths": true,
+        "originalPreserved": true,
+        "recoveredProject": true,
+        "recoveredSources": true
+      },
+      "a": {
+        "errors": [],
+        "items": [
+          1
+        ],
+        "paths": [
+          "/files/collision.wav"
+        ]
+      },
+      "initialHash": "65589be06b4b0d7a5ebf2e37648ce3311cca257e7816bde7cf2179601c614165",
+      "b": {
+        "errors": [],
+        "items": [
+          10
+        ],
+        "paths": [
+          "/files/collision (2).wav"
+        ]
+      },
+      "afterBHash": "65589be06b4b0d7a5ebf2e37648ce3311cca257e7816bde7cf2179601c614165",
+      "beforeProject": {
+        "activeSequence": 8,
+        "dirty": true,
+        "name": "Import collision",
+        "path": null,
+        "revision": 16,
+        "root": {
+          "children": [
+            {
+              "duration": 508032000000,
+              "item": 1,
+              "label": "Caribbean",
+              "name": "collision.wav",
+              "type": "Audio"
+            },
+            {
+              "duration": 508540032000,
+              "item": 8,
+              "label": "Forest",
+              "name": "Original A",
+              "type": "Sequence"
+            },
+            {
+              "duration": 508032000000,
+              "item": 10,
+              "label": "Caribbean",
+              "name": "collision (2).wav",
+              "type": "Audio"
+            }
+          ],
+          "id": 0,
+          "name": "Import collision"
+        },
+        "sourceItem": null
+      },
+      "recoveryMeta": {
+        "dirty": true,
+        "name": "Import collision",
+        "revision": 16,
+        "time": 1791724401560
+      },
+      "opfs": [
+        {
+          "name": "tab.mp4",
+          "hash": "1a78ddb0e85de1a461448761af28a36a6855af816ac3d23f777791a1ce1adc1d"
+        },
+        {
+          "name": "pending.mp4",
+          "hash": "1a78ddb0e85de1a461448761af28a36a6855af816ac3d23f777791a1ce1adc1d"
+        },
+        {
+          "name": "filmcraft-smoke.mp4",
+          "hash": "1a78ddb0e85de1a461448761af28a36a6855af816ac3d23f777791a1ce1adc1d"
+        },
+        {
+          "name": "drop.mp4",
+          "hash": "1a78ddb0e85de1a461448761af28a36a6855af816ac3d23f777791a1ce1adc1d"
+        },
+        {
+          "name": "collision.wav",
+          "hash": "65589be06b4b0d7a5ebf2e37648ce3311cca257e7816bde7cf2179601c614165"
+        },
+        {
+          "name": "collision (2).wav",
+          "hash": "413392c1c3f2c51b7324699e8f3166fae8559cb16f27769e605d876ff544a787"
+        }
+      ],
+      "recovered": {
+        "activeSequence": 8,
+        "dirty": true,
+        "name": "Import collision",
+        "path": "/recovered/Import collision.fcproj",
+        "revision": 2,
+        "root": {
+          "children": [
+            {
+              "duration": 508032000000,
+              "item": 1,
+              "label": "Caribbean",
+              "name": "collision.wav",
+              "type": "Audio"
+            },
+            {
+              "duration": 508540032000,
+              "item": 8,
+              "label": "Forest",
+              "name": "Original A",
+              "type": "Sequence"
+            },
+            {
+              "duration": 508032000000,
+              "item": 10,
+              "label": "Caribbean",
+              "name": "collision (2).wav",
+              "type": "Audio"
+            }
+          ],
+          "id": 0,
+          "name": "Import collision"
+        },
+        "sourceItem": null
+      },
+      "afterReload": {
+        "a": "65589be06b4b0d7a5ebf2e37648ce3311cca257e7816bde7cf2179601c614165",
+        "b": "413392c1c3f2c51b7324699e8f3166fae8559cb16f27769e605d876ff544a787"
+      },
+      "ok": true
+    },
+    "console": [
+      "[egui_wgpu] egui-wgpu-0.36.2/src/lib.rs:461: Software rasterizer detected - loss of performance expected. backend: Gl, device_type: Cpu, name: \"ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)\", driver_info: \"WebGL 2.0 (OpenGL ES 3.0 Chromium)\", subgroup_size: 4..=128, transient_saves_memory: None, limit_bucket: None",
+      "[eframe::web::web_runner] eframe-0.36.2/src/web/web_runner.rs:94: event handlers installed.",
+      "[eframe::web::app_runner] eframe-0.36.2/src/web/app_runner.rs:337: Unhandled egui viewport command: SetTheme(Dark) - not implemented in web backend",
+      "[filmcraft_web::webcodecs] filmcraft-web/src/webcodecs.rs:230: filmcraft-smoke.mp4: video decoded with WebCodecs (avc1.64000c)",
+      "[filmcraft_web::webcodecs] filmcraft-web/src/webcodecs.rs:230: tab.mp4: video decoded with WebCodecs (avc1.64000c)",
+      "[filmcraft_web::webcodecs] filmcraft-web/src/webcodecs.rs:230: drop.mp4: video decoded with WebCodecs (avc1.64000c)",
+      "[filmcraft_web::webcodecs] filmcraft-web/src/webcodecs.rs:230: pending.mp4: video decoded with WebCodecs (avc1.64000c)",
+      "Failed to get subsystem status for purpose Object",
+      "[egui_wgpu] egui-wgpu-0.36.2/src/lib.rs:461: Software rasterizer detected - loss of performance expected. backend: Gl, device_type: Cpu, name: \"ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)\", driver_info: \"WebGL 2.0 (OpenGL ES 3.0 Chromium)\", subgroup_size: 4..=128, transient_saves_memory: None, limit_bucket: None",
+      "[eframe::web::web_runner] eframe-0.36.2/src/web/web_runner.rs:94: event handlers installed.",
+      "[eframe::web::app_runner] eframe-0.36.2/src/web/app_runner.rs:337: Unhandled egui viewport command: SetTheme(Dark) - not implemented in web backend"
+    ]
+  },
+  "screenshots": [
+    "filmcraft-original-ui-timeline.png",
+    "filmcraft-original-ui-imported-timeline.png",
+    "filmcraft-original-ui-file-menu.png",
+    "filmcraft-original-ui-project-settings.png",
+    "filmcraft-original-ui-selected-tool.png"
+  ],
+  "syntheticMediaFixture": {
+    "recipe": "ffmpeg testsrc2 320x180@24fps + 440Hz sine, 2s, H.264/AAC",
+    "sha256": "1a78ddb0e85de1a461448761af28a36a6855af816ac3d23f777791a1ce1adc1d"
+  },
+  "scope": "Runnable original browser UI preview only; application processing, media storage, recovery and export in this source build remain local WASM/browser behavior. Not server-backed, provider-integrated, native parity or an availability claim."
+}
