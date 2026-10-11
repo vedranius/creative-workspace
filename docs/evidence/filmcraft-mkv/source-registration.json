@@ -1,0 +1,13 @@
+{
+  "version": "0.2.0-alpha.10",
+  "pin": "4e2d0bc2d3646f9cf27ef7aa8b2095c6858c7efe",
+  "priorFailure": "shallow Git diff used seven-digit blob IDs; local full repository used eight",
+  "fullAndShallowCanonicalPatchEqual": true,
+  "canonicalPatchSha256": "8aee3cdf5acc1380564965329472b92f9a02207e6e11a63bb4983f54ef5688bc",
+  "actualShallowSourceRegistration": "passed",
+  "sourceBehaviorChanged": false,
+  "nodeTestsPassed": 43,
+  "realBrowserCasesPreviouslyPassed": 8,
+  "wasmAssetsSha256": "85ca52939203053f53dbb5dbd624f2b971cbc9c60d20c4150ddc9d348ceaa22f",
+  "releasePending": true
+}

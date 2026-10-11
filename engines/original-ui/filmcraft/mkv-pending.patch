@@ -1,5 +1,5 @@
 diff --git a/apps/filmcraft-web/src/import.rs b/apps/filmcraft-web/src/import.rs
-index 6b41a2cd..1b1c9a7f 100644
+index 6b41a2cdd7dc811783148637c4f0c235c8eec95c..1b1c9a7f012196a10cb3cf2f08a03444c0003808 100644
 --- a/apps/filmcraft-web/src/import.rs
 +++ b/apps/filmcraft-web/src/import.rs
 @@ -81,10 +81,31 @@ async fn prewarm(path: &str, size: u64) {
@@ -131,7 +131,7 @@ index 6b41a2cd..1b1c9a7f 100644
      // are imported when the user has chosen them.
      app.hooks.pick_files = Some(Box::new(|exts: &[&str]| {
 diff --git a/crates/engine/src/commands.rs b/crates/engine/src/commands.rs
-index 6609afdd..e6d5a5d5 100644
+index 6609afddff5edb9996569960145cb14a1df7381a..e6d5a5d5b723a68aec10fdee646a3240139f95cf 100644
 --- a/crates/engine/src/commands.rs
 +++ b/crates/engine/src/commands.rs
 @@ -843,6 +843,7 @@ fn build() -> Vec<CommandSpec> {
@@ -159,7 +159,7 @@ index 6609afdd..e6d5a5d5 100644
      s.history = Default::default();
      s.history.limit = 200;
 diff --git a/crates/engine/src/lib.rs b/crates/engine/src/lib.rs
-index a2ed9e6a..b0935b30 100644
+index a2ed9e6a20cbc94b5f2b3f3e09cf7ec1873ec67f..b0935b30dce6e5d24006113970e262536ab64efb 100644
 --- a/crates/engine/src/lib.rs
 +++ b/crates/engine/src/lib.rs
 @@ -347,6 +347,8 @@ pub struct Session {
@@ -180,7 +180,7 @@ index a2ed9e6a..b0935b30 100644
              path: None,
              state: EditorState {
 diff --git a/crates/engine/src/media_browser.rs b/crates/engine/src/media_browser.rs
-index b5a4d5da..253cf197 100644
+index b5a4d5da24dfae95010310ffac1514cd1ad8ea3e..253cf1976a6c9305b473f0e08472ab3c5341f465 100644
 --- a/crates/engine/src/media_browser.rs
 +++ b/crates/engine/src/media_browser.rs
 @@ -592,6 +592,10 @@ pub fn probe(s: &mut Session, path: &str) -> Option<MediaInfo> {
@@ -195,7 +195,7 @@ index b5a4d5da..253cf197 100644
      info
  }
 diff --git a/crates/ui-egui/src/lib.rs b/crates/ui-egui/src/lib.rs
-index 438112a2..7cc5cd71 100644
+index 438112a29a6cfc75829259d5dc781583c3301109..7cc5cd71fee6e37fb92deb6f7131b82822b79d41 100644
 --- a/crates/ui-egui/src/lib.rs
 +++ b/crates/ui-egui/src/lib.rs
 @@ -111,6 +111,9 @@ pub struct AudioDevices {
@@ -209,7 +209,7 @@ index 438112a2..7cc5cd71 100644
      /// The cursor in physical screen pixels. Where the windowing layer reports no pointer while files are dragged in from the OS (Windows), a drop is placed where this says it landed.
      pub cursor_screen_position: Option<Box<dyn Fn() -> Option<(i32, i32)>>>,
 diff --git a/crates/ui-egui/src/menus.rs b/crates/ui-egui/src/menus.rs
-index f4871150..17e2b003 100644
+index f48711505b224f73fbe754d402ab7f7b580be195..17e2b0038e0396038b9b950d069a891a3ca3bf0a 100644
 --- a/crates/ui-egui/src/menus.rs
 +++ b/crates/ui-egui/src/menus.rs
 @@ -558,6 +558,25 @@ pub fn invoke(app: &mut FilmcraftApp, ctx: &egui::Context, id: &str, mut params:

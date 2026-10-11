@@ -2,7 +2,13 @@
 
 Each completed product update receives a new SemVer, changelog entry and immutable Actions-built release. Engine source versions remain independently pinned.
 
-## [0.2.0-alpha.9] — 2026-10-11 (draft candidate)
+## [0.2.0-alpha.10] — 2026-10-11 (draft candidate)
+
+- Make reviewed original-UI Git patch validation deterministic across full/shallow repositories and Git formatting settings: full blob IDs, explicit prefixes/context/algorithm, exact known pin/diff/SHA256 checks retained.
+- Reissue the original FilmCraft MKV/WebM pending-import fix and Actions browser-preview archive. Alpha.9 compiled the original WASM successfully but its shallow checkout used shorter Git diff IDs and registration failed; no alpha.9 release/tag was created. The protected local alpha.9 candidate has the same import behavior.
+- Add source-diff regression coverage and preserve compiled CI cache even if later registration/browser QA fails. Server/provider/full original parity and complete creative-suite packaging remain pending; draft release only.
+
+## [0.2.0-alpha.9] — 2026-10-11 (not released; patch registration failed)
 
 - Fix deferred reads for single MKV/WebM Media Browser imports in the original FilmCraft UI: wait/retry, freeze the target path/bin, deduplicate repeated actions and cancel on project replacement. A queued response is explicitly pending, not import/save success.
 - Keep pending metadata probes retryable instead of permanently caching an unreadable result. Bound retries; report real read errors and preserve partial-import errors.

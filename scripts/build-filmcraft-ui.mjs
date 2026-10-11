@@ -1,4 +1,5 @@
 import path from 'node:path';
+import {originalUiDiffArgs} from './original-ui-source.mjs';
 import {readFile,mkdir,writeFile,cp,access} from 'node:fs/promises';
 import {spawn} from 'node:child_process';
 import {createHash} from 'node:crypto';
@@ -16,7 +17,7 @@ await access(path.join(source,'.git'));
 if((await run('git',['rev-parse','HEAD'],{capture:true})).trim()!==pin)throw Error('FilmCraft source must be at its known original pin');
 const bytes=await readFile(path.join(root,patch.path));
 if(createHash('sha256').update(bytes).digest('hex')!==patch.sha256)throw Error('Reviewed source patch differs from its contract');
-let diff=await run('git',['diff','--binary','--no-color','--no-ext-diff','HEAD','--'],{capture:true});
+let diff=await run('git',originalUiDiffArgs,{capture:true});
 if(diff===''){await run('git',['apply','--check',path.join(root,patch.path)]);await run('git',['apply',path.join(root,patch.path)]);}
 else if(diff!==bytes.toString('utf8'))throw Error('Source has unrelated changes; use a separate clean pinned checkout');
 await run('cargo',['build','--locked',...(process.env.CW_UI_BUILD_OFFLINE==='1'?['--offline']:[]),'--release','--target','wasm32-unknown-unknown','-p','filmcraft-web']);

@@ -88,7 +88,8 @@ jobs:
       - uses: dtolnay/rust-toolchain@1.99.0
         with:
           targets: wasm32-unknown-unknown
-      - uses: actions/cache@v4
+      - id: filmcraft-cache
+        uses: actions/cache/restore@v4
         with:
           path: |
             ~/.cargo/registry
@@ -121,6 +122,16 @@ jobs:
           npm install --prefix build/browser-qa --no-audit --no-fund --save-exact playwright@1.64.0
           (cd build/browser-qa && npx playwright install --with-deps chromium)
           node scripts/smoke-filmcraft-mkv.mjs
+      - name: Preserve pinned compile cache after a later QA/registration failure
+        if: always() && steps.filmcraft-cache.outputs.cache-primary-key != '' && steps.filmcraft-cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            ~/.cargo/bin/wasm-bindgen
+            build/original-ui/target
+          key: ${{ steps.filmcraft-cache.outputs.cache-primary-key }}
       - uses: actions/upload-artifact@v4
         if: always()
         with:

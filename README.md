@@ -1,6 +1,6 @@
 # Creative Workspace
 
-**Version: 0.2.0-alpha.9** — single-user creative prototype.
+**Version: 0.2.0-alpha.10** — single-user creative prototype.
 
 A self-hosted creative studio: native browser interfaces, server-side processing, and shared project files. No remote desktop or desktop-display transport. The LightCraft browser preview opens at `/apps/lightcraft/`; its status stays planned until real browser permission and FUSE/agent open/edit/save/reopen acceptance passes.
 
@@ -12,7 +12,7 @@ A self-hosted creative studio: native browser interfaces, server-side processing
 
 A lightweight laptop should be able to access a powerful self-hosted creative server from anywhere, using native browser editors and explicitly selected laptop/server files. The control panel brings owned engines, workspace folders, safe saves and upstream attribution together. LightCraft recipes preserve editable adjustments with their source hash; only an acknowledged recipe save marks the session clean.
 
-[GitHub Releases](https://github.com/vedranius/creative-workspace/releases) is the download location. The Actions pipeline builds portable Linux x64, Windows x64 and Apple Silicon macOS native-prototype bundles with Node 24 and PhotoCraft/PdfCraft/VectorCraft/DesignCraft; original FilmCraft UI is a separate Actions-built browser preview archive; other original UI assets require separate registration; alpha.9 stays draft pending their packaging/target evidence; publication waits for every target native smoke. The PhotoCraft version-race smoke allows either concurrent request to win while requiring stale-version rejection. LightCraft is not included in those bundles yet. RapidRAW and the native mount helper are not bundled. A pipeline run in progress is not an available release. See [installation, requirements and upgrades](docs/releases.md) and [changelog](CHANGELOG.md).
+[GitHub Releases](https://github.com/vedranius/creative-workspace/releases) is the download location. The Actions pipeline builds portable Linux x64, Windows x64 and Apple Silicon macOS native-prototype bundles with Node 24 and PhotoCraft/PdfCraft/VectorCraft/DesignCraft; original FilmCraft UI is a separate Actions-built browser preview archive; other original UI assets require separate registration; alpha.10 stays draft pending their packaging/target evidence; publication waits for every target native smoke. The PhotoCraft version-race smoke allows either concurrent request to win while requiring stale-version rejection. LightCraft is not included in those bundles yet. RapidRAW and the native mount helper are not bundled. A pipeline run in progress is not an available release. See [installation, requirements and upgrades](docs/releases.md) and [changelog](CHANGELOG.md).
 
 **Frontend scope:** the current ArtCraft integrations use original upstream native engines, but their browser interfaces were written for Creative Workspace and expose limited subsets. They are prototypes, not the original ArtCraft applications ported with their full interfaces/toolsets. Original UI previews for all seven ArtCraft apps can now be installed and launched from the studio. Their session, commands and rendering are not yet server-backed. See PAR-03a and the studio UI guide. Existing download bundles have prototype scope.
 
