@@ -7,6 +7,12 @@ Each completed product update receives a new SemVer, changelog entry and immutab
 - Add the LightCraft server session gateway for explicitly selected source roots, bounded photo open/edit/undo/redo/export and private previews.
 - Add editable recipe save/load bound to the confined source-relative path, original SHA-256 and LightCraft 0.6.0 pin. Session version/dedup guards reject stale mutations; recipe save clears dirty state only after the chosen server or laptop destination acknowledges the new file. Image exports remain dirty.
 - This is gateway groundwork only: no LightCraft browser editor, portable-bundle engine, real browser picker/FUSE acceptance or availability claim.
+- Not released: macOS Actions smoke found a nondeterministic visual-change assertion after the valid concurrent undo winner. No alpha.4 tag or assets were published.
+
+## [0.2.0-alpha.5] — 2026-10-11
+
+- Make the native PhotoCraft version smoke compare a known paint stroke against the preview after either valid concurrent edit/undo winner. Stale-version rejection and exactly one concurrent winner remain required.
+- Reissue the unpublished LightCraft gateway update under a fresh immutable version; the earlier alpha.4 candidate was not tagged or published.
 
 ## [0.2.0-alpha.3] — 2026-10-11
 

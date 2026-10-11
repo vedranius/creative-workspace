@@ -1,6 +1,6 @@
 # Creative Workspace
 
-**Version: 0.2.0-alpha.4** — single-user creative prototype.
+**Version: 0.2.0-alpha.5** — single-user creative prototype.
 
 A self-hosted creative studio: native browser interfaces, server-side processing, and shared project files. No remote desktop or desktop-display transport.
 

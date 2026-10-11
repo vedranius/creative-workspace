@@ -1,8 +1,8 @@
 # Releases and installation
 
-Creative Workspace aims to let a lightweight laptop access a powerful self-hosted creative server through native browser interfaces. Original documents remain under explicitly selected file-provider permissions; rendering/editing runs on the server. No remote desktop transport is used. The current product version is 0.2.0-alpha.4, published as a single-user alpha after the target builds, bundled launchers and native document smokes passed.
+Creative Workspace aims to let a lightweight laptop access a powerful self-hosted creative server through native browser interfaces. Original documents remain under explicitly selected file-provider permissions; rendering/editing runs on the server. No remote desktop transport is used. The current candidate version is 0.2.0-alpha.5; it is not downloadable until all target builds and native bundle smokes succeed.
 
-The current channel is **alpha**, for one user. Version 0.2.0-alpha.4 is the current release; its Actions-built bundles contain Node 24 and four independently pinned native engines, then pass native open/edit/save/reopen, bundle startup and archive checks. Source archives automatically shown by GitHub are source code, not install bundles. Download an OS-labelled asset and its adjacent `.sha256` file from [Releases](https://github.com/vedranius/creative-workspace/releases).
+The current channel is **alpha**, for one user. Alpha.4 was not published because its macOS PhotoCraft smoke exposed a visual-change assertion race; no tag or assets were created. Alpha.5 is the candidate fix. The latest available release remains alpha.3. Source archives automatically shown by GitHub are source code, not install bundles. Download an OS-labelled asset and its adjacent `.sha256` file from [Releases](https://github.com/vedranius/creative-workspace/releases).
 
 | Bundle | Requirements | Included working editors |
 | --- | --- | --- |

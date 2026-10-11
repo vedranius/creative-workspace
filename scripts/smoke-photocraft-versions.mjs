@@ -29,14 +29,11 @@ try{
   const results=await Promise.allSettled([api(route,'POST',edit),rpc('engine.execute',{command:'edit.undo',params:{},wait:true},{expectedVersion:original.stateVersion})]);
   const accepted=results.filter(result=>result.status==='fulfilled');assert.equal(accepted.length,1,'exactly one mutation may win the concurrent version race');
   const stale=results.find(result=>result.status==='rejected');assert.equal(stale.reason.status,409);assert.equal(stale.reason.code,'STATE_VERSION_CONFLICT');
-  let edited;
-  if(results[0].status==='fulfilled')edited=results[0].value;
-  else{
-    // The undo can win the race too. Continue from its acknowledged version and
-    // compare against that preview instead of assuming scheduler ordering.
-    const concurrentUndo=results[1].value;before=Buffer.from(await (await fetch(base+concurrentUndo.preview)).arrayBuffer());
-    edit=makeEdit(concurrentUndo.stateVersion);edited=await api(route,'POST',edit);
-  }
+  // Make the visual assertion independent of which valid request won: compare
+  // a known paint mutation against the exact preview after the accepted race.
+  const concurrent=accepted[0].value;before=Buffer.from(await (await fetch(base+concurrent.preview)).arrayBuffer());
+  edit={method:'engine.execute',params:{command:'paint.stroke',params:{points:[[8,8,1],[40,24,1]],size:12,color:'#ff2020'},wait:true},requestId:randomUUID(),expectedVersion:concurrent.stateVersion};
+  const edited=await api(route,'POST',edit);
   const after=Buffer.from(await (await fetch(base+edited.preview)).arrayBuffer());assert.notEqual(digest(before),digest(after));
   const retry=await api(route,'POST',edit);assert.equal(retry.stateVersion,edited.stateVersion);assert.equal(retry.document.revision,edited.document.revision);
   const second=await rpc('doc.new',{name:'Other document',width:12,height:8,mode:'rgb',depth:8,background:'black'},{expectedVersion:edited.stateVersion});
