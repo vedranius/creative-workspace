@@ -1,8 +1,8 @@
 # Releases and installation
 
-Creative Workspace aims to let a lightweight laptop access a powerful self-hosted creative server through native browser interfaces. Original documents remain under explicitly selected file-provider permissions; rendering/editing runs on the server. No remote desktop transport is used. The current version is 0.2.0-alpha.5, published as a single-user alpha after all target builds and native bundle smokes succeeded.
+Creative Workspace aims to let a lightweight laptop access a powerful self-hosted creative server through native browser interfaces. Original documents remain under explicitly selected file-provider permissions; rendering/editing runs on the server. No remote desktop transport is used. The current candidate is 0.2.0-alpha.6; it is not downloadable until its Actions release build succeeds.
 
-The current channel is **alpha**, for one user. Version 0.2.0-alpha.5 is published; Actions built its Linux x64, Windows x64 and Apple Silicon macOS bundles and passed native open/edit/save/reopen, bundle startup and archive checks. Alpha.4 was not published because its macOS PhotoCraft smoke exposed a visual-change assertion race. Source archives automatically shown by GitHub are source code, not install bundles. Download an OS-labelled asset and its adjacent `.sha256` file from [Releases](https://github.com/vedranius/creative-workspace/releases).
+The current channel is **alpha**, for one user. Version 0.2.0-alpha.5 is the last published release; version 0.2.0-alpha.6 adds the LightCraft browser preview and must pass its Actions Linux x64, Windows x64 and Apple Silicon macOS bundle builds and native smokes before it is downloadable. Alpha.4 was not published because its macOS PhotoCraft smoke exposed a visual-change assertion race. Source archives automatically shown by GitHub are source code, not install bundles. Download an OS-labelled asset and its adjacent `.sha256` file from [Releases](https://github.com/vedranius/creative-workspace/releases).
 
 | Bundle | Requirements | Included working editors |
 | --- | --- | --- |
@@ -10,7 +10,7 @@ The current channel is **alpha**, for one user. Version 0.2.0-alpha.5 is publish
 | win32-x64 `.zip` | Windows x64; Microsoft Visual C++ 2015–2022 x64 runtime | Same four editors |
 | darwin-arm64 `.tar.gz` | Apple Silicon, macOS 14+ | Same four editors |
 
-Support means the target Actions native smoke passed; broader format compatibility and manual browser picker acceptance remain unverified. Windows and macOS archives are unsigned. Intel Mac and Linux/Windows ARM builds are not yet offered. RapidRAW's own Linux build uses its separate CLI installer; it is not included or automatically attached by the portable launcher. LightCraft has gateway recipe groundwork but no browser editor or bundled engine; FilmCraft/EffectCraft remain unavailable. This is not the complete planned suite.
+Support means the target Actions native smoke passed; broader format compatibility and manual browser picker acceptance remain unverified. Windows and macOS archives are unsigned. Intel Mac and Linux/Windows ARM builds are not yet offered. RapidRAW's own Linux build uses its separate CLI installer; it is not included or automatically attached by the portable launcher. LightCraft has a browser preview and gateway recipe groundwork, but no real browser/FUSE acceptance or bundled engine; FilmCraft/EffectCraft remain unavailable. This is not the complete planned suite.
 
 ## Start
 

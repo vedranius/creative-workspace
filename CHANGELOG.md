@@ -2,6 +2,12 @@
 
 Each completed product update receives a new SemVer, changelog entry and immutable Actions-built release. Engine source versions remain independently pinned.
 
+## [0.2.0-alpha.6] — 2026-10-11
+
+- Add a native browser preview for the existing LightCraft gateway: browse the selected source, open photos and hash-bound recipes, edit using ranges exposed by the pinned engine, undo/redo, save editable recipes and export image copies.
+- Keep LightCraft planned and excluded from portable bundles until real browser permission and Linux FUSE/agent open/edit/save/reopen acceptance passes. Recipe save ACK and export dirty-state behavior remain enforced by the gateway.
+- Release candidate only; platform assets and checksums are available only after the Actions release workflow succeeds.
+
 ## [0.2.0-alpha.4] — 2026-10-11
 
 - Add the LightCraft server session gateway for explicitly selected source roots, bounded photo open/edit/undo/redo/export and private previews.

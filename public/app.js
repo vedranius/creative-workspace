@@ -20,12 +20,13 @@ function renderApps(){
     const art=element('div','app-art');art.setAttribute('aria-hidden','true');art.append(element('span','art-orbit'),element('span','art-grid'),element('span','art-symbol',app.symbol),element('span','art-index',String(apps.indexOf(app)+1).padStart(2,'0')));
     card.append(art,top,element('h3','',app.name),element('p','description',app.description));
     card.append(attribution(app));
-    const engine=engines()[app.id];const state=element('div','adapter-state',engine?.ready?(app.id==='rapidraw'?'Available · one shared editing session':'Available · native browser adapter prototype'):'Planned · browser adapter not implemented');card.append(state);
+    const engine=engines()[app.id];const state=element('div','adapter-state',app.id==='lightcraft'?'Planned · browser preview adapter; acceptance pending':engine?.ready?(app.id==='rapidraw'?'Available · one shared editing session':'Available · native browser adapter prototype'):'Planned · browser adapter not implemented');card.append(state);
     if(app.id==='rapidraw'&&rapidrawEngine.ready){const open=element('a','editor-launch','Open RapidRAW editor ↗');open.href=rapidrawEngine.url;open.target='_blank';open.rel='noopener';card.append(open);}
     if(app.id==='photocraft'&&photocraftEngine.ready){const open=element('a','editor-launch','Open PhotoCraft prototype ↗');open.href=photocraftEngine.url;open.target='_blank';open.rel='noopener';card.append(open);}
     if(app.id==='pdfcraft'&&pdfcraftEngine.ready){const open=element('a','editor-launch','Open PdfCraft editor ↗');open.href=pdfcraftEngine.url;open.target='_blank';open.rel='noopener';card.append(open);}
     if(app.id==='vectorcraft'&&vectorcraftEngine.ready){const open=element('a','editor-launch','Open VectorCraft editor ↗');open.href=vectorcraftEngine.url;open.target='_blank';open.rel='noopener';card.append(open);}
     if(app.id==='designcraft'&&designcraftEngine.ready){const open=element('a','editor-launch','Open DesignCraft editor ↗');open.href=designcraftEngine.url;open.target='_blank';open.rel='noopener';card.append(open);}
+    if(app.id==='lightcraft'){const open=element('a','editor-launch','Open LightCraft preview ↗');open.href='/apps/lightcraft/';card.append(open);}
     const folder=element('div','workspace-path',app.configuration.workspace||'No workspace assigned');folder.title=folder.textContent;card.append(folder);
     const bottom=element('div','card-bottom');const configure=element('button','secondary',app.configuration.workspace?'Server folder':'Set server folder');configure.onclick=()=>showWorkspace(app);if(engine?.ready){const local=element('button','primary','Import from laptop');local.onclick=()=>showImport(app.id);bottom.append(local);}else bottom.append(githubLink(app));bottom.append(configure);card.append(bottom);return card;
   }));

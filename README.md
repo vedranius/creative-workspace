@@ -1,10 +1,10 @@
 # Creative Workspace
 
-**Version: 0.2.0-alpha.5** — single-user creative prototype.
+**Version: 0.2.0-alpha.6** — single-user creative prototype.
 
-A self-hosted creative studio: native browser interfaces, server-side processing, and shared project files. No remote desktop or desktop-display transport.
+A self-hosted creative studio: native browser interfaces, server-side processing, and shared project files. No remote desktop or desktop-display transport. The LightCraft browser preview opens at `/apps/lightcraft/`; its status stays planned until real browser permission and FUSE/agent open/edit/save/reopen acceptance passes.
 
-**Status: five working Linux creative integrations.** RapidRAW has a separately built, workspace-owned engine and functioning browser editor. PhotoCraft, PdfCraft, VectorCraft and DesignCraft have independent Rust server engines and native browser adapter prototypes, including laptop-folder modes. LightCraft now has a guarded session/recipe gateway, but no browser editor or packaged engine; it remains planned alongside FilmCraft and EffectCraft. The dashboard lists available editors first and separates them from repository entries.
+**Status: five working Linux creative integrations.** RapidRAW has a separately built, workspace-owned engine and functioning browser editor. PhotoCraft, PdfCraft, VectorCraft and DesignCraft have independent Rust server engines and native browser adapter prototypes, including laptop-folder modes. LightCraft now has a guarded session/recipe gateway and browser preview, but no real browser/FUSE acceptance or packaged engine; it remains planned alongside FilmCraft and EffectCraft. The dashboard lists available editors first and separates them from repository entries.
 
 ## Goal and downloads
 
@@ -22,7 +22,7 @@ A lightweight laptop should be able to access a powerful self-hosted creative se
 - PdfCraft opens/imports PDFs, renders pages on the server, rotates/moves/deletes pages, adds notes, supports undo/redo and exports a new PDF copy. Native on-demand tests confirm selected-file access, acknowledged laptop output and separate server output. See [PdfCraft runtime](engines/pdfcraft/README.md).
 - VectorCraft opens SVG/native documents, draws shapes and paths, edits colours and positions, supports undo/redo and saves editable native copies or SVG/PDF/PNG exports. Native Linux and browser upload/edit/save/download/reopen flows passed, including acknowledged on-demand laptop output. See [VectorCraft runtime](engines/vectorcraft/README.md).
 - DesignCraft creates/opens native publications, edits text frames and typography, reports overset, resizes/reflows frames and exports PDF/PNG or editable native copies. Native/browser save/reopen and acknowledged on-demand laptop output passed. See [DesignCraft runtime](engines/designcraft/README.md).
-- LightCraft has a pinned native CPU foundation and a gateway prototype for session versioning and editable hash-bound recipes. Recipe saves require destination acknowledgement; JPEG/PNG export alone stays dirty. No browser editor or Actions bundle engine is supplied yet, so LightCraft stays planned. See [LightCraft foundation](engines/lightcraft/README.md).
+- LightCraft has a pinned native CPU foundation, version-guarded gateway, and browser preview UI for photo open, native-range controls, undo/redo, hash-bound editable recipes and image exports. Recipe saves require destination acknowledgement; JPEG/PNG export alone stays dirty. This preview is not yet accepted as an available app: real browser permission and FUSE/agent open/edit/save/reopen evidence is still required. LightCraft is not in Actions bundles. See [LightCraft foundation](engines/lightcraft/README.md).
 - Persistent per-application server workspace configuration.
 - Browser file/folder selection and drag & drop from the visiting laptop, with streamed copies into server workspaces.
 - Transfer progress and cancellation, folder structure preservation, and download back to the laptop.
