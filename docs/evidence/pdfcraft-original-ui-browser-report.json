@@ -1,0 +1,63 @@
+{
+  "task": "ORG-PDF-UI",
+  "source": {
+    "repository": "https://github.com/storytold/pdfcraft",
+    "revision": "9ccf77bdf685bc3cb0f545865c9f9b3e97ab5025",
+    "browserEntry": "apps/pdfcraft-web",
+    "sharedApplication": "PdfCraftApp",
+    "sourceTreeClean": true,
+    "sourcePatches": []
+  },
+  "build": {
+    "rust": "1.99.0 (b940084d7)",
+    "target": "wasm32-unknown-unknown",
+    "trunk": "0.21.14",
+    "command": "trunk build --release",
+    "elapsed": "4m 30s Rust release compile; wasm-opt completed afterward",
+    "wasmBytes": 34974666,
+    "wasmSha256": "2bc98b7b1dceb6a48f859d3805fb152894cf7924ad519624be98588b79524cbe",
+    "javascriptBytes": 162788,
+    "javascriptSha256": "18216298c9608201081f13384faa4ad158ef68e7c3b0fa32a66bdce1258f66f6",
+    "compileWarnings": [
+      "Upstream dead-code warnings in pdfcraft-render (4) and pdfcraft-ui-egui (1)."
+    ]
+  },
+  "preview": {
+    "url": "http://127.0.0.1:8816/?file=sample.pdf",
+    "host": "Python SimpleHTTPServer; static files only",
+    "browser": "Chromium for Testing 151.0.7922.34",
+    "playwright": "1.64.0",
+    "viewport": "1440x1000",
+    "deviceScaleFactor": 1,
+    "graphics": "WebGL through Chromium SwiftShader flags",
+    "sample": {
+      "file": "sample.pdf (generated in /tmp; 1 page; 812 bytes)",
+      "sha256": "42962525aca44020f35c9f52cb42e4aff9d4de79a81b5ef1ca3084273f517cd6",
+      "purpose": "Synthetic original-page rendering and annotation interaction."
+    },
+    "finalBrowserErrors": [],
+    "finalFailedRequests": [],
+    "finalHttpErrors": [],
+    "hostNote": "An empty favicon.ico was added only to generated dist/web after the first run exposed the browser's optional favicon request as a 404; no upstream source change was needed."
+  },
+  "interactions": [
+    "Loaded sample.pdf through the upstream ?file= URL path and rendered its original PDF page in the original canvas.",
+    "Opened the Menu > File source menu; its File, Edit, Pages, View and Help headings and File commands were visible.",
+    "Opened File > Document properties; the original Description, Initial View, Security, Fonts and Advanced tabs rendered.",
+    "Selected the original sticky-note comment tool, placed a note on the PDF page and posted 'Browser annotation proof'. The Comments panel showed one annotation and the document tab showed unsaved changes."
+  ],
+  "screenshots": [
+    "pdfcraft-original-ui-sample.png",
+    "pdfcraft-original-ui-file-menu.png",
+    "pdfcraft-original-ui-document-properties.png",
+    "pdfcraft-original-ui-annotation.png"
+  ],
+  "scope": {
+    "documentEngine": "Runs locally inside the upstream browser WASM application.",
+    "serverProcessing": false,
+    "providerIntegration": false,
+    "realFolderPermission": false,
+    "nativeParity": false,
+    "productAvailability": "Pending; this is an isolated static UI preview only."
+  }
+}
