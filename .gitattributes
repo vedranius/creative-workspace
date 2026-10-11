@@ -1,2 +1,3 @@
 # Preserve reviewed Git patch bytes, including blank context-line prefixes.
 engines/original-ui/**/*.patch text eol=lf -whitespace
+patches/**/*.patch text eol=lf -whitespace

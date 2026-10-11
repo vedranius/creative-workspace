@@ -2,6 +2,11 @@
 
 Each completed product update receives a new SemVer, changelog entry and immutable Actions-built release. Engine source versions remain independently pinned.
 
+## [0.2.0-alpha.12] — 2026-10-11 (draft candidate)
+
+- Preserve the reviewed DesignCraft source patch bytes across Windows Git checkouts with an explicit LF attribute. Alpha.11 Linux/macOS checks passed locally/remotely, but its Windows test job exposed line-ending normalization in the new patch path.
+- Keep the original UI pin, patch SHA256 and immutable alpha.11 tag/release untouched. Re-run target checks and Actions-built assets under this fresh version; remain draft-only until all target/browser/provider acceptance is evidenced.
+
 ## [0.2.0-alpha.11] — 2026-10-11 (draft candidate)
 
 - Add a reviewed DesignCraft original UI variant whose browser shell routes the representative `file.newSample` operation to the owned server worker and presents its bounded revisioned PNG in the original canvas area.

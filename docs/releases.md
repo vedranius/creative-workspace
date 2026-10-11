@@ -1,6 +1,6 @@
 # Releases and installation
 
-Creative Workspace aims to let a lightweight laptop access a powerful self-hosted creative server through native browser interfaces. Original documents remain under explicitly selected file-provider permissions; rendering/editing runs on the server. No remote desktop transport is used. The latest published public release is 0.2.0-alpha.7. Alpha.10 verified FilmCraft pending MKV/WebM import; alpha.11 adds a separate Actions-built DesignCraft sample-bridge preview archive and remains draft-only pending full original-UI/server/provider and target/browser acceptance.
+Creative Workspace aims to let a lightweight laptop access a powerful self-hosted creative server through native browser interfaces. Original documents remain under explicitly selected file-provider permissions; rendering/editing runs on the server. No remote desktop transport is used. The latest published public release is 0.2.0-alpha.7. Alpha.10 verified FilmCraft pending MKV/WebM import. Alpha.11 added the separate DesignCraft sample-bridge archive, but its Windows Checks failed because Git normalized the reviewed patch line endings. Alpha.12 adds an explicit LF rule and reruns target checks; it remains draft-only pending full original-app/server/provider and target/browser acceptance.
 
 The current channel is **alpha**, for one user. Version 0.2.0-alpha.7 is published; Actions built the Linux x64, Windows x64 and Apple Silicon macOS bundles and passed all native bundle smokes. Each archive and its SHA256 sidecar is downloadable from [Releases](https://github.com/vedranius/creative-workspace/releases/tag/v0.2.0-alpha.7). Alpha.4 was not published because its macOS PhotoCraft smoke exposed a visual-change assertion race. Source archives automatically shown by GitHub are source code, not install bundles.
 
@@ -24,7 +24,7 @@ The Actions-built `designcraft-par03-preview` archive contains the original Desi
 
 The original previews process locally in WASM; File Open/save/export use upstream browser host behavior. Shared server/laptop on-demand/hybrid/copy-first modes, destination-write acknowledgement and recovery are not integrated into these original UIs. A browser download or a preview's clean indicator is not evidence that the selected disk destination acknowledged a write. Keep original application availability pending until those paths pass acceptance.
 
-`release/config.json` marks alpha.11 `draftOnly`; Actions builds/checks each native target, builds separate FilmCraft/DesignCraft preview archives, verifies browser/native evidence and checksums, then retains the GitHub Release draft. Do not turn it into a public complete-suite claim while original UI packaging/parity evidence is missing.
+`release/config.json` marks alpha.12 `draftOnly`; Actions builds/checks each native target, builds separate FilmCraft/DesignCraft preview archives, verifies browser/native evidence and checksums, then retains the GitHub Release draft. Do not turn it into a public complete-suite claim while original UI packaging/parity evidence is missing.
 
 ## FilmCraft original UI preview archive
 

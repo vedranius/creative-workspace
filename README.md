@@ -1,6 +1,6 @@
 # Creative Workspace
 
-**Version: 0.2.0-alpha.11** — single-user creative prototype.
+**Version: 0.2.0-alpha.12** — single-user creative prototype.
 
 A self-hosted creative studio: native browser interfaces, server-side processing, and shared project files. No remote desktop or desktop-display transport. The LightCraft browser preview opens at `/apps/lightcraft/`; its status stays planned until real browser permission and FUSE/agent open/edit/save/reopen acceptance passes.
 
@@ -12,9 +12,9 @@ A self-hosted creative studio: native browser interfaces, server-side processing
 
 A lightweight laptop should be able to access a powerful self-hosted creative server from anywhere, using native browser editors and explicitly selected laptop/server files. The control panel brings owned engines, workspace folders, safe saves and upstream attribution together. LightCraft recipes preserve editable adjustments with their source hash; only an acknowledged recipe save marks the session clean.
 
-[GitHub Releases](https://github.com/vedranius/creative-workspace/releases) is the download location. The Actions pipeline builds portable Linux x64, Windows x64 and Apple Silicon macOS native-prototype bundles with Node 24 and PhotoCraft/PdfCraft/VectorCraft/DesignCraft; FilmCraft and the bounded DesignCraft PAR-03 sample bridge are separate Actions-built browser preview archives. Alpha.11 stays draft pending full original-app/server/provider/save-ACK and target/browser acceptance; this is not a complete creative suite. The PhotoCraft version-race smoke allows either concurrent request to win while requiring stale-version rejection. LightCraft is not included in those bundles yet. RapidRAW and the native mount helper are not bundled. A pipeline run in progress is not an available release. See [installation, requirements and upgrades](docs/releases.md) and [changelog](CHANGELOG.md).
+[GitHub Releases](https://github.com/vedranius/creative-workspace/releases) is the download location. The Actions pipeline builds portable Linux x64, Windows x64 and Apple Silicon macOS native-prototype bundles with Node 24 and PhotoCraft/PdfCraft/VectorCraft/DesignCraft; FilmCraft and the bounded DesignCraft PAR-03 sample bridge are separate Actions-built browser preview archives. Alpha.12 stays draft pending full original-app/server/provider/save-ACK and target/browser acceptance; this is not a complete creative suite. The PhotoCraft version-race smoke allows either concurrent request to win while requiring stale-version rejection. LightCraft is not included in those bundles yet. RapidRAW and the native mount helper are not bundled. A pipeline run in progress is not an available release. See [installation, requirements and upgrades](docs/releases.md) and [changelog](CHANGELOG.md).
 
-**Frontend scope:** original UI previews for all seven ArtCraft apps can be installed from the studio. DesignCraft alpha.11 routes only its sample command to the owned server worker; its WASM DesignApp still has an empty local session and the rest of its actions/read-model are unbridged. The other original previews still process locally. This is not a completed original-app port. See [PAR-03 sample bridge](docs/designcraft-par03-sample-bridge.md), [PAR-03a handoff](docs/par-03a-handoff.md) and the studio UI guide. Existing native download bundles have prototype scope.
+**Frontend scope:** original UI previews for all seven ArtCraft apps can be installed from the studio. DesignCraft alpha.12 routes only its sample command to the owned server worker; its WASM DesignApp still has an empty local session and the rest of its actions/read-model are unbridged. The other original previews still process locally. This is not a completed original-app port. See [PAR-03 sample bridge](docs/designcraft-par03-sample-bridge.md), [PAR-03a handoff](docs/par-03a-handoff.md) and the studio UI guide. Existing native download bundles have prototype scope.
 
 ## Implemented
 
