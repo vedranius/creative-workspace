@@ -1,6 +1,6 @@
 # STU-ORG-01 — original interfaces launched from the studio
 
-Creative Workspace `0.2.0-alpha.8` changes the studio's primary launchers to the original upstream browser applications. This is original UI hosting/launch integration, not original server-processing or full-functionality acceptance.
+Creative Workspace `0.2.0-alpha.8` introduced the studio's primary launchers to the original upstream browser applications. This is original UI hosting/launch integration, not original server-processing or full-functionality acceptance.
 
 ## What opens
 
@@ -10,15 +10,15 @@ On the development host, the corrected studio is [http://127.0.0.1:8793/](http:/
 
 ## Register an original build
 
-1. Build the corresponding original upstream web entry from its exact clean pinned source. Pins are in `src/original-ui.js`; build recipes and proof are in each `*-original-ui-preview.md`. Do not register shared output after a different app has replaced it. Keep an independent static directory per app. For LightCraft, include its runtime `index.html`, JS, WASM and `worker.js`; Cargo intermediate directories are not publication assets.
+1. Build the corresponding original upstream web entry from its exact clean pinned source. FilmCraft in alpha.9 instead uses the exact reviewed integration patch: run `npm run ui:filmcraft:build -- <pinned-source> <static-output> <package-root>`; clean unpatched FilmCraft output is not the alpha.9 variant. See [FilmCraft fix and evidence](filmcraft-mkv-import-handoff.md). Pins are in `src/original-ui.js`; build recipes and proof are in each `*-original-ui-preview.md`. Do not register shared output after a different app has replaced it. Keep an independent static directory per app. For LightCraft, include its runtime `index.html`, JS, WASM and `worker.js`; Cargo intermediate directories are not publication assets.
 2. Run `npm run ui:install -- photocraft /path/to/clean/photocraft /path/to/photocraft/static-output`. On Windows use the bundled Node or a Node installation with the same script. Set `CW_ORIGINAL_UI_DIR` to the intended registration root; default is `DATA_DIR/original-ui` (or `data/original-ui`). Git is required only by the explicit registration step to check the original source pin and clean tracked source.
 3. Start the studio with that same `CW_ORIGINAL_UI_DIR`. `/api/original-uis` reports each installed preview's URL, original source revision and `processing: browser`, `serverIntegrated: false`. Missing, mismatched or corrupt packages stay unavailable.
 
-The registrar never clones/builds/runs arbitrary repositories. An administrator must supply a build from a known pin. It checks the source revision, clean tracked source and application title; this prevents known shared-output mixups but does not constitute a reproducible CI attestation of arbitrary supplied bytes. Live acceptance here used the builds recorded in upstream UI proof documents.
+The registrar never clones/builds/runs arbitrary repositories. An administrator must supply a build from a known pin. It checks the source revision, clean tracked source (or the exact contracted FilmCraft patch) and application title; this prevents known shared-output mixups but does not constitute a reproducible CI attestation of arbitrary supplied bytes. Live acceptance here used the builds recorded in upstream UI proof documents.
 
 Registration stages assets and source license/notice/attribution files into a separate immutable app/pin directory. It refuses overwriting an existing installed pin. Asset names, canonical roots, symlinks, SHA256, size and file-count budgets are enforced. The loader verifies complete package integrity, caches validation against file metadata and checks requested asset bytes again. Limits: 96 MiB per file, 512 MiB per package, 4096 assets and 1 MiB manifest.
 
-Only host metadata changes are made: remove an unresolved Trunk development-reloader script when it is separate from the app bootstrap, and supply an empty optional PhotoCraft served-font catalogue if absent. Original UI/engine bytecode is retained. These changes are recorded in the package manifest. LightCraft's optional Chinese font is absent in the current build and remains a visible limitation; no fake font is supplied.
+Apart from the explicit reviewed FilmCraft deferred-import patch recorded in a distinct variant, only host metadata changes are made: remove an unresolved Trunk development-reloader script when it is separate from the app bootstrap, and supply an empty optional PhotoCraft served-font catalogue if absent. Original UI/engine bytecode is retained. These changes are recorded in the package manifest. LightCraft's optional Chinese font is absent in the current build and remains a visible limitation; no fake font is supplied.
 
 ## Security and behavior
 
@@ -35,6 +35,6 @@ The original previews retain upstream browser file-picker/download/OPFS behavior
 
 ## Release and next step
 
-Alpha.8 is intentionally draft-only. GitHub Actions builds target native-prototype archives and checksums, but the original WASM UI assets are not included in those OS bundles yet. Do not describe these archives as complete original creative suites or upload locally built assets as Actions builds. Original UI asset packaging, cross-browser/target evidence, full parity and server/provider integration remain future acceptance tasks.
+Alpha.8 and alpha.9 are intentionally draft-only. Alpha.9 adds a separately Actions-built FilmCraft original-UI archive/checksum and Chromium MKV regression; other original UI assets and target/browser/server acceptance remain pending. GitHub Actions builds target native-prototype archives and checksums, but the original WASM UI assets are not included in those OS bundles yet. Do not describe these archives as complete original creative suites or upload locally built assets as Actions builds. Original UI asset packaging, cross-browser/target evidence, full parity and server/provider integration remain future acceptance tasks.
 
 Next: resume the preserved incomplete PAR-03 native sample slice, run its tests with scoped local-socket permission (the default Node sandbox assertion is not a code result), rebuild only its changed owned native worker, and wire an original DesignCraft action/read model/server render into the original UI. Save the portability/backend patch set in the repo. Preserve existing old sessions and original UI documents, and keep the server as authoritative processor before any server-backed claim.

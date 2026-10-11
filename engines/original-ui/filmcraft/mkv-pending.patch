@@ -1,0 +1,240 @@
+diff --git a/apps/filmcraft-web/src/import.rs b/apps/filmcraft-web/src/import.rs
+index 6b41a2cd..1b1c9a7f 100644
+--- a/apps/filmcraft-web/src/import.rs
++++ b/apps/filmcraft-web/src/import.rs
+@@ -81,10 +81,31 @@ async fn prewarm(path: &str, size: u64) {
+ }
+ 
+ /// `file.import` one path, retried while its bytes are loading.
+-async fn import_path(path: String, bin: u64) -> Result<Value, String> {
++async fn import_path(path: String, bin: Option<u64>, epoch: u64, reuse_any_bin: bool) -> Result<Value, String> {
++    let started = js_sys::Date::now();
+     for _ in 0..2000 {
++        if js_sys::Date::now() - started > 120_000.0 {
++            return Err(format!("{path}: timed out loading the file"));
++        }
+         let p = path.clone();
+         let (r, pending) = on_ui(move |w, _| {
++            if w.app.session.project_epoch != epoch {
++                return (Err("Import cancelled: the project changed".into()), false);
++            }
++            if let Some(bin) = bin {
++                if w.app.session.project.root.find_bin(filmcraft_engine::project::BinId(bin)).is_none() {
++                    return (Err("Import cancelled: the target bin was removed".into()), false);
++                }
++            }
++            // A picker import and a Media Browser action can refer to the same registered Blob.
++            // Reuse only the same path in the same target bin; never replay a completed import.
++            if let Some(item) = filmcraft_engine::media_browser::item_for_path(&w.app.session, &p) {
++                let target = bin.unwrap_or(w.app.session.project.root.id.0);
++                if reuse_any_bin || w.app.session.project.root.parent_of(item).is_some_and(|b| b.0 == target) {
++                    return (Ok(json!({"items": [item.0], "errors": []})), false);
++                }
++                return (Err("Import cancelled: the file was already imported into a different bin".into()), false);
++            }
+             let _ = filmcraft_media::pending::take();
+             let r = w.app.session.execute("file.import", json!({"paths": [p], "bin": bin})).map_err(|e| e.to_string());
+             (r, filmcraft_media::pending::take())
+@@ -94,8 +115,13 @@ async fn import_path(path: String, bin: u64) -> Result<Value, String> {
+             Ok(v) => v.get("errors").and_then(Value::as_array).is_some_and(|e| !e.is_empty()),
+             Err(_) => true,
+         };
+-        if failed && pending {
+-            fs::idle().await;
++        let completed = r.as_ref().ok().and_then(|v| v.get("items")).and_then(Value::as_array).is_some_and(|a| !a.is_empty());
++        if failed && pending && !completed {
++            // Do not wait forever for a Blob promise; recheck deadline/project on every pass.
++            for _ in 0..25 {
++                if fs::inflight() == 0 { break; }
++                fs::sleep(4).await;
++            }
+             continue;
+         }
+         return r;
+@@ -106,7 +132,7 @@ async fn import_path(path: String, bin: u64) -> Result<Value, String> {
+ /// Import browser files (no copies): returns `{items, errors, paths}`.
+ pub async fn import_files(files: Vec<web_sys::File>) -> Value {
+     // Capture once per batch: navigation while prewarming must not redirect pending imports.
+-    let bin = on_ui(|w, _| w.app.import_bin().0).await;
++    let (bin, epoch) = on_ui(|w, _| (w.app.import_bin().0, w.app.session.project_epoch)).await;
+     let mut items = Vec::new();
+     let mut errors = Vec::new();
+     let mut paths = Vec::new();
+@@ -115,7 +141,7 @@ pub async fn import_files(files: Vec<web_sys::File>) -> Value {
+         let size = f.size() as u64;
+         let path = fs::register_blob(&name, f.clone().into());
+         prewarm(&path, size).await;
+-        match import_path(path.clone(), bin).await {
++        match import_path(path.clone(), Some(bin), epoch, false).await {
+             Ok(v) => {
+                 items.extend(v.get("items").and_then(Value::as_array).cloned().unwrap_or_default());
+                 errors.extend(v.get("errors").and_then(Value::as_array).cloned().unwrap_or_default());
+@@ -127,7 +153,7 @@ pub async fn import_files(files: Vec<web_sys::File>) -> Value {
+     }
+     if !errors.is_empty() {
+         let msg = errors.iter().filter_map(Value::as_str).collect::<Vec<_>>().join("; ");
+-        crate::post(move |w, _| w.app.status(msg));
++        crate::post(move |w, _| { if w.app.session.project_epoch == epoch { w.app.status(msg); } });
+     }
+     json!({"items": items, "errors": errors, "paths": paths})
+ }
+@@ -251,6 +277,51 @@ pub fn install_drop_handlers() -> Result<(), JsValue> {
+ 
+ /// Wire the UI's file dialogs to the browser.
+ pub fn install_hooks(app: &mut FilmcraftApp) {
++    // Narrow async ownership: one registered MKV/WebM, never a folder or partial batch replay.
++    let active = Rc::new(RefCell::new(std::collections::HashSet::<String>::new()));
++    app.hooks.defer_media_command = Some(Box::new(move |command, params, epoch| {
++        let Some(paths) = params.get("paths").and_then(Value::as_array) else { return Ok(false) };
++        if paths.len() != 1 || params.get("imageSequence").and_then(Value::as_bool) == Some(true) { return Ok(false); }
++        let Some(path) = paths[0].as_str() else { return Ok(false) };
++        let lower = path.to_ascii_lowercase();
++        if !(lower.ends_with(".mkv") || lower.ends_with(".webm")) || !fs::list().iter().any(|(p, _, kind)| p == path && *kind == "blob") { return Ok(false); }
++        let path = path.to_owned();
++        let bin = if command == "mediaBrowser.openInSource" { None } else { params.get("bin").and_then(Value::as_u64) };
++        let key = format!("{epoch}:{command}:{bin:?}:{path}");
++        if active.borrow().contains(&key) { return Ok(true); }
++        if active.borrow().len() >= 4 { return Err("Too many media imports are waiting; finish an import first".into()); }
++        active.borrow_mut().insert(key.clone());
++        let active = active.clone();
++        let command = command.to_owned();
++        wasm_bindgen_futures::spawn_local(async move {
++            crate::set_info("mediaImport", json!({"state": "loading", "path": path}));
++            let mut result = import_path(path.clone(), bin, epoch, command == "mediaBrowser.openInSource").await;
++            if let Ok(v) = &result {
++                if let Some(errors) = v.get("errors").and_then(Value::as_array).filter(|e| !e.is_empty()) {
++                    result = Err(errors.iter().filter_map(Value::as_str).collect::<Vec<_>>().join("; "));
++                }
++            }
++            if command == "mediaBrowser.openInSource" {
++                if let Ok(v) = &result {
++                    if let Some(item) = v.get("items").and_then(Value::as_array).and_then(|a| a.first()).and_then(Value::as_u64) {
++                        result = on_ui(move |w, _| {
++                            if w.app.session.project_epoch != epoch { return Err("Import cancelled: the project changed".into()); }
++                            w.app.session.execute("source.open", json!({"item": item})).map(|_| json!({"item": item})).map_err(|e| e.to_string())
++                        }).await;
++                    }
++                }
++            }
++            active.borrow_mut().remove(&key);
++            let state = if result.is_ok() { "finished" } else { "failed" };
++            crate::set_info("mediaImport", json!({"state": state, "path": path, "result": result.as_ref().ok(), "error": result.as_ref().err()}));
++            crate::post(move |w, _| {
++                if w.app.session.project_epoch == epoch {
++                    w.app.status(match result { Ok(_) => format!("Imported {path}"), Err(e) => e });
++                }
++            });
++        });
++        Ok(true)
++    }));
+     // Pickers are asynchronous: the dialog hook starts the picker and returns nothing; the files
+     // are imported when the user has chosen them.
+     app.hooks.pick_files = Some(Box::new(|exts: &[&str]| {
+diff --git a/crates/engine/src/commands.rs b/crates/engine/src/commands.rs
+index 6609afdd..e6d5a5d5 100644
+--- a/crates/engine/src/commands.rs
++++ b/crates/engine/src/commands.rs
+@@ -843,6 +843,7 @@ fn build() -> Vec<CommandSpec> {
+         // ================= File =================
+         cmd!("file.newProject", "Project…", ["File", "New"], Some("Cmd+Alt+N"), r#"{"name":str}"#, always, |s, p| {
+             let name = str_p(p, "name").unwrap_or("Untitled").to_string();
++            s.project_epoch += 1;
+             s.project = std::sync::Arc::new(filmcraft_project::Project::new(&name));
+             s.history = Default::default();
+             s.history.limit = 200;
+@@ -857,6 +858,7 @@ fn build() -> Vec<CommandSpec> {
+         }),
+         cmd!("file.openDemoProject", "Demo Project", ["File", "New"], None, "{}", always, |s, _| {
+             let (p, seq) = crate::demo::demo_project(&s.media);
++            s.project_epoch += 1;
+             s.project = std::sync::Arc::new(p);
+             s.history = Default::default();
+             s.history.limit = 200;
+@@ -3856,6 +3858,7 @@ fn install_project(s: &mut Session, proj: filmcraft_project::Project, path: Opti
+     s.media.set_use_proxies(proxies);
+     s.offline = Default::default();
+     let first = proj.sequences().next().map(|i| i.id);
++    s.project_epoch += 1;
+     s.project = std::sync::Arc::new(proj);
+     s.history = Default::default();
+     s.history.limit = 200;
+diff --git a/crates/engine/src/lib.rs b/crates/engine/src/lib.rs
+index a2ed9e6a..b0935b30 100644
+--- a/crates/engine/src/lib.rs
++++ b/crates/engine/src/lib.rs
+@@ -347,6 +347,8 @@ pub struct Session {
+     pub project: Arc<Project>,
+     pub history: History,
+     pub revision: u64,
++    /// Changes only when the project is replaced, to invalidate deferred host operations.
++    pub project_epoch: u64,
+     pub saved_revision: u64,
+     pub path: Option<String>,
+     pub state: EditorState,
+@@ -462,6 +464,7 @@ impl Session {
+             project: Arc::new(Project::new("Untitled")),
+             history: History { limit: 200, ..Default::default() },
+             revision: 1,
++            project_epoch: 1,
+             saved_revision: 1,
+             path: None,
+             state: EditorState {
+diff --git a/crates/engine/src/media_browser.rs b/crates/engine/src/media_browser.rs
+index b5a4d5da..253cf197 100644
+--- a/crates/engine/src/media_browser.rs
++++ b/crates/engine/src/media_browser.rs
+@@ -592,6 +592,10 @@ pub fn probe(s: &mut Session, path: &str) -> Option<MediaInfo> {
+     } else {
+         None
+     };
++    // A deferred Blob read is not an unreadable file. Let a later frame probe it again.
++    if info.is_none() && filmcraft_media::pending::is_set() {
++        return None;
++    }
+     s.browser.probes.insert(path.to_string(), info.clone());
+     info
+ }
+diff --git a/crates/ui-egui/src/lib.rs b/crates/ui-egui/src/lib.rs
+index 438112a2..7cc5cd71 100644
+--- a/crates/ui-egui/src/lib.rs
++++ b/crates/ui-egui/src/lib.rs
+@@ -111,6 +111,9 @@ pub struct AudioDevices {
+ /// Host hooks for native file dialogs etc.
+ #[derive(Default)]
+ pub struct HostHooks {
++    /// An asynchronous host may take ownership of one snapshotted Media Browser command.
++    /// `true` means queued, never imported/saved. Native hosts leave this unset.
++    pub defer_media_command: Option<Box<dyn FnMut(&str, &Value, u64) -> Result<bool, String>>>,
+     pub pick_files: Option<Box<dyn FnMut(&[&str]) -> Vec<String>>>,
+     /// The cursor in physical screen pixels. Where the windowing layer reports no pointer while files are dragged in from the OS (Windows), a drop is placed where this says it landed.
+     pub cursor_screen_position: Option<Box<dyn Fn() -> Option<(i32, i32)>>>,
+diff --git a/crates/ui-egui/src/menus.rs b/crates/ui-egui/src/menus.rs
+index f4871150..17e2b003 100644
+--- a/crates/ui-egui/src/menus.rs
++++ b/crates/ui-egui/src/menus.rs
+@@ -558,6 +558,25 @@ pub fn invoke(app: &mut FilmcraftApp, ctx: &egui::Context, id: &str, mut params:
+     {
+         return app.file_dialog(id, &params);
+     }
++    if matches!(id, "mediaBrowser.import" | "mediaBrowser.openInSource") {
++        // Freeze selection and image-sequence mode before yielding to an asynchronous host.
++        let paths = params.get("paths").and_then(Value::as_array).cloned().unwrap_or_else(|| {
++            params.get("path").and_then(Value::as_str).map(|p| vec![json!(p)])
++                .unwrap_or_else(|| app.session.browser.selection.iter().map(|p| json!(p)).collect())
++        });
++        let mut snapshot = params.clone();
++        if !snapshot.is_object() { snapshot = json!({}); }
++        snapshot["paths"] = json!(paths);
++        snapshot["imageSequence"] = json!(if id == "mediaBrowser.openInSource" { false } else {
++            params.get("imageSequence").and_then(Value::as_bool).unwrap_or(app.session.prefs.media_browser.import_as_image_sequence)
++        });
++        if let Some(host) = app.hooks.defer_media_command.as_mut()
++            && host(id, &snapshot, app.session.project_epoch)?
++        {
++            app.ui.status = "Loading media…".into();
++            return Ok(json!({"pending": true}));
++        }
++    }
+     let r = app.session.execute(id, params).map_err(|e| e.to_string());
+     if let Err(e) = &r {
+         app.ui.status = e.clone();

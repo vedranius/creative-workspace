@@ -12,6 +12,9 @@ export const originalUiPins={
   filmcraft:'4e2d0bc2d3646f9cf27ef7aa8b2095c6858c7efe',
   effectcraft:'9a7d3e76991d5372448033b473dc12c2480a6a04'
 };
+// Reviewed integration patches are explicit variants of the upstream pin, never new upstream commits.
+export const originalUiPatches={filmcraft:{id:'mkv-pending-v1',path:'engines/original-ui/filmcraft/mkv-pending.patch',sha256:'d13b72e23a3ae9b13c278144fe12f507d8fe07e2d2f41fa8cc98e7c3d77c897d'}};
+export const originalUiPackageId=id=>originalUiPins[id]+(originalUiPatches[id]?'-'+originalUiPatches[id].sha256.slice(0,12):'');
 const MAX_FILE=96*1024*1024,MAX_TOTAL=512*1024*1024;
 export function safeAssetName(name){return typeof name==='string'&&name.length<=1024&&!name.startsWith('/')&&!name.includes('\\')&&!name.includes('\0')&&name.split('/').every(part=>part&&part!=='.'&&part!=='..'&&!part.startsWith('.'));}
 const fail=(message,status)=>Object.assign(new Error(message),{status});
@@ -23,7 +26,7 @@ export function createOriginalUiRegistry(root){
   const pending=id=>({available:false,processing:'browser',serverIntegrated:false,sourceCommit:originalUiPins[id],message:'Original UI preview is not installed'});
   async function load(id){
     if(!Object.hasOwn(originalUiPins,id))throw fail('Unknown original application',404);
-    const directory=await realpath(path.join(root,id,originalUiPins[id]));
+    const directory=await realpath(path.join(root,id,originalUiPackageId(id)));
     const canonicalRoot=await realpath(root);
     if(!isWithin(canonicalRoot,directory))throw fail('Original UI directory escapes its installation root',403);
     const meta=await realpath(path.join(directory,'creative-workspace-ui.json'));
@@ -31,11 +34,15 @@ export function createOriginalUiRegistry(root){
     if((await stat(meta)).size>1024*1024)throw fail('Original UI manifest is too large',503);
     const manifest=JSON.parse(await readFile(meta,'utf8'));
     if(manifest.schemaVersion!==1||manifest.app!==id||manifest.commit!==originalUiPins[id]||manifest.repo!==`storytold/${id}`||manifest.processing!=='browser'||!Array.isArray(manifest.files)||manifest.files.length>4096)throw fail('Original UI manifest identity is invalid',503);
+    const patch=originalUiPatches[id];
+    if(patch&&(manifest.sourcePatch?.id!==patch.id||manifest.sourcePatch?.sha256!==patch.sha256))throw fail('Original UI source patch identity is invalid',503);
+    if(!patch&&manifest.sourcePatch)throw fail('Unexpected original UI source patch',503);
     const files=new Map();let total=0;
     for(const file of manifest.files){
       if(!safeAssetName(file.path)||files.has(file.path)||!Number.isSafeInteger(file.size)||file.size<0||file.size>MAX_FILE||!/^[a-f0-9]{64}$/.test(file.sha256))throw fail('Original UI asset manifest is invalid',503);
       files.set(file.path,file);total+=file.size;
     }
+    if(patch&&files.get('provenance/creative-workspace/source.patch')?.sha256!==patch.sha256)throw fail('Original UI patch provenance is missing',503);
     if(total>MAX_TOTAL||!files.has('index.html')||!files.has('LICENSE-MIT')||!files.has('LICENSE-APACHE')||!manifest.licenses?.includes('LICENSE-MIT')||!manifest.licenses?.includes('LICENSE-APACHE'))throw fail('Original UI package is incomplete',503);
     return {directory,files,notes:Array.isArray(manifest.notes)?manifest.notes.filter(note=>typeof note==='string'&&note.length<512).slice(0,16):[]};
   }
@@ -65,7 +72,7 @@ export function createOriginalUiRegistry(root){
   async function list(){
     const result={};
     for(const id of Object.keys(originalUiPins)){
-      try{await verifyPackage(id);const installed=await load(id);result[id]={available:true,url:`/original/${id}/`,processing:'browser',serverIntegrated:false,sourceCommit:originalUiPins[id],repo:`storytold/${id}`,notes:installed.notes};}
+      try{await verifyPackage(id);const installed=await load(id);result[id]={available:true,url:`/original/${id}/`,processing:'browser',serverIntegrated:false,sourceCommit:originalUiPins[id],sourcePatch:originalUiPatches[id]||null,repo:`storytold/${id}`,notes:installed.notes};}
       catch{result[id]=pending(id);}
     }
     return result;

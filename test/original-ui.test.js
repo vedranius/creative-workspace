@@ -6,7 +6,7 @@ import {once} from 'node:events';
 import os from 'node:os';
 import path from 'node:path';
 import {createWorkspaceServer} from '../src/server.js';
-import {originalUiPins} from '../src/original-ui.js';
+import {originalUiPins,originalUiPatches,originalUiPackageId} from '../src/original-ui.js';
 
 // Protocol fixtures; actual upstream UI browser acceptance is recorded separately.
 async function fixture(t){
@@ -61,4 +61,18 @@ test('original UI paths reject foreign origins and modifying methods',async t=>{
   const f=await fixture(t);
   assert.equal((await fetch(f.url+'/original/photocraft/',{headers:{...f.headers,Origin:'https://foreign.invalid'}})).status,403);
   assert.equal((await fetch(f.url+'/original/photocraft/',{method:'POST',headers:{...f.headers,'Content-Type':'application/json'},body:'{}'})).status,405);
+});
+
+test('reviewed FilmCraft variants require exact source patch identity and immutable provenance',async t=>{
+  const f=await fixture(t),id='filmcraft',patch=originalUiPatches[id];
+  const directory=path.join(f.root,'uis',id,originalUiPackageId(id));await mkdir(directory,{recursive:true});
+  const data={'index.html':'<html>FilmCraft fixture</html>','app.wasm':Buffer.from([0,97,115,109]),'LICENSE-MIT':'MIT fixture','LICENSE-APACHE':'Apache fixture','provenance/creative-workspace/source.patch':await readFile(new URL('../'+patch.path,import.meta.url))};
+  const files=[];for(const [name,bytes]of Object.entries(data)){await mkdir(path.dirname(path.join(directory,name)),{recursive:true});await writeFile(path.join(directory,name),bytes);files.push({path:name,size:Buffer.byteLength(bytes),sha256:createHash('sha256').update(bytes).digest('hex')});}
+  const manifest={schemaVersion:1,app:id,repo:'storytold/filmcraft',commit:originalUiPins[id],processing:'browser',sourcePatch:{id:patch.id,sha256:patch.sha256},licenses:['LICENSE-MIT','LICENSE-APACHE'],files};const meta=path.join(directory,'creative-workspace-ui.json');await writeFile(meta,JSON.stringify(manifest));
+  const roster=()=>fetch(f.url+'/api/original-uis',{headers:f.headers}).then(r=>r.json());
+  assert.equal((await roster()).filmcraft.available,true);assert.equal((await roster()).filmcraft.sourcePatch.sha256,patch.sha256);
+  manifest.sourcePatch.sha256='0'.repeat(64);await writeFile(meta,JSON.stringify(manifest));assert.equal((await roster()).filmcraft.available,false);
+  manifest.sourcePatch.sha256=patch.sha256;manifest.files=manifest.files.filter(file=>!file.path.endsWith('source.patch'));await writeFile(meta,JSON.stringify(manifest));assert.equal((await roster()).filmcraft.available,false);
+  // An old clean-pin package cannot silently masquerade as the reviewed variant.
+  assert.notEqual(originalUiPackageId(id),originalUiPins[id]);
 });

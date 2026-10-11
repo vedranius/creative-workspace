@@ -76,6 +76,64 @@ jobs:
           path: build/staged/${{ matrix.engine }}/
           if-no-files-found: error
           retention-days: 7
+  original-filmcraft:
+    needs: contract
+    runs-on: ubuntu-22.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - uses: dtolnay/rust-toolchain@1.99.0
+        with:
+          targets: wasm32-unknown-unknown
+      - uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            ~/.cargo/bin/wasm-bindgen
+            build/original-ui/target
+          key: filmcraft-original-wasm-rust199-bindgen129-${{ hashFiles('engines/original-ui/filmcraft/**') }}
+          restore-keys: filmcraft-original-wasm-rust199-bindgen129-
+      - run: npm ci
+      - name: Fetch only the contracted original source revision
+        shell: bash
+        run: |
+          mkdir -p build/original-ui/source-filmcraft
+          git -C build/original-ui/source-filmcraft init
+          git -C build/original-ui/source-filmcraft remote add origin https://github.com/storytold/filmcraft.git
+          git -C build/original-ui/source-filmcraft fetch --depth=1 origin 4e2d0bc2d3646f9cf27ef7aa8b2095c6858c7efe
+          git -C build/original-ui/source-filmcraft checkout --detach FETCH_HEAD
+          if ! wasm-bindgen --version | grep -q '^wasm-bindgen 0.2.129$'; then
+            cargo install wasm-bindgen-cli --version 0.2.129 --locked --force
+          fi
+      - name: Build and register reviewed original FilmCraft UI variant
+        run: npm run ui:filmcraft:build
+      - name: Original browser MKV pending-read regression
+        shell: bash
+        env:
+          CW_PLAYWRIGHT_MODULE: file://${{ github.workspace }}/build/browser-qa/node_modules/playwright/index.mjs
+          CW_ORIGINAL_UI_DIR: build/original-ui/packages
+        run: |
+          sudo apt-get update && sudo apt-get install -y ffmpeg
+          npm install --prefix build/browser-qa --no-audit --no-fund --save-exact playwright@1.64.0
+          (cd build/browser-qa && npx playwright install --with-deps chromium)
+          node scripts/smoke-filmcraft-mkv.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: filmcraft-original-ui-evidence
+          path: build/filmcraft-mkv-evidence/
+          if-no-files-found: warn
+          retention-days: 30
+      - uses: actions/upload-artifact@v4
+        with:
+          name: release-filmcraft-original-ui
+          path: dist/*
+          if-no-files-found: error
+          retention-days: 30
   bundle:
     needs: [contract, native]
     timeout-minutes: 20
@@ -115,7 +173,7 @@ jobs:
           if-no-files-found: error
           retention-days: 30
   publish:
-    needs: [contract, bundle]
+    needs: [contract, bundle, original-filmcraft]
     runs-on: ubuntu-22.04
     permissions:
       contents: write
@@ -134,14 +192,17 @@ jobs:
           node scripts/release.mjs notes release-notes.md
           cd dist
           sha256sum -c *.sha256
-          test "$(find . -name '*.sha256' | wc -l)" -eq 3
+          test "$(find . -name '*.sha256' | wc -l)" -eq 4
       - name: Publish verified alpha through GitHub Actions
         env:
           GH_TOKEN: ${{ github.token }}
           VERSION: ${{ needs.contract.outputs.version }}
         run: |
           gh release create "v$VERSION" dist/* --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" --draft --prerelease --title "Creative Workspace $VERSION (alpha)" --notes-file release-notes.md
-          test "$(gh release view "v$VERSION" --repo "$GITHUB_REPOSITORY" --json assets --jq '.assets | length')" -eq 6
+          test "$(gh release view "v$VERSION" --repo "$GITHUB_REPOSITORY" --json assets --jq '.assets | length')" -eq 8
+          # A draft release alone does not create its immutable Git tag.
+          git tag "v$VERSION" "$GITHUB_SHA"
+          git push origin "refs/tags/v$VERSION"
           if node -e "process.exit(JSON.parse(require('fs').readFileSync('release/config.json')).draftOnly ? 1 : 0)"; then
             gh release edit "v$VERSION" --repo "$GITHUB_REPOSITORY" --draft=false
           else

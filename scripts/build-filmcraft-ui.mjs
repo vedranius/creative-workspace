@@ -1,0 +1,36 @@
+import path from 'node:path';
+import {readFile,mkdir,writeFile,cp,access} from 'node:fs/promises';
+import {spawn} from 'node:child_process';
+import {createHash} from 'node:crypto';
+import {fileURLToPath} from 'node:url';
+import {originalUiPins,originalUiPatches,originalUiPackageId} from '../src/original-ui.js';
+const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..');
+const source=path.resolve(process.argv[2]||'build/original-ui/source-filmcraft');
+const target=path.resolve(process.env.CARGO_TARGET_DIR||'build/original-ui/target');
+const assets=path.resolve(process.argv[3]||'build/original-ui/assets-filmcraft');
+const packages=path.resolve(process.argv[4]||'build/original-ui/packages');
+const pkg=JSON.parse(await readFile(path.join(root,'package.json'),'utf8'));
+const pin=originalUiPins.filmcraft,patch=originalUiPatches.filmcraft;
+function run(command,args,options={}){return new Promise((resolve,reject)=>{let output='';const child=spawn(command,args,{cwd:source,env:{...process.env,CARGO_BUILD_JOBS:'1',CARGO_TARGET_DIR:target},stdio:options.capture?['ignore','pipe','inherit']:'inherit',...options});if(options.capture)child.stdout.on('data',bytes=>output+=bytes);child.on('error',reject);child.on('exit',code=>code===0?resolve(output):reject(Error(`${command} failed (${code})`)));});}
+await access(path.join(source,'.git'));
+if((await run('git',['rev-parse','HEAD'],{capture:true})).trim()!==pin)throw Error('FilmCraft source must be at its known original pin');
+const bytes=await readFile(path.join(root,patch.path));
+if(createHash('sha256').update(bytes).digest('hex')!==patch.sha256)throw Error('Reviewed source patch differs from its contract');
+let diff=await run('git',['diff','--binary','--no-color','--no-ext-diff','HEAD','--'],{capture:true});
+if(diff===''){await run('git',['apply','--check',path.join(root,patch.path)]);await run('git',['apply',path.join(root,patch.path)]);}
+else if(diff!==bytes.toString('utf8'))throw Error('Source has unrelated changes; use a separate clean pinned checkout');
+await run('cargo',['build','--locked',...(process.env.CW_UI_BUILD_OFFLINE==='1'?['--offline']:[]),'--release','--target','wasm32-unknown-unknown','-p','filmcraft-web']);
+await mkdir(assets,{recursive:true});
+const wasm=path.join(target,'wasm32-unknown-unknown/release/filmcraft_web.wasm');
+await run(process.env.CW_WASM_BINDGEN||'wasm-bindgen',['--target','web','--out-dir',assets,'--out-name','filmcraft_web',wasm]);
+await cp(path.join(source,'apps/filmcraft-web/web'),assets,{recursive:true});
+const version=createHash('sha256').update(await readFile(path.join(assets,'filmcraft_web_bg.wasm'))).digest('hex').slice(0,16);
+const html=path.join(assets,'index.html');await writeFile(html,(await readFile(html,'utf8')).replaceAll('__FC_BUILD__',version));
+await run(process.execPath,[path.join(root,'scripts/install-original-ui.mjs'),'filmcraft',source,assets],{env:{...process.env,CW_ORIGINAL_UI_DIR:packages}});
+await writeFile(path.join(packages,'INSTALL-FILMCRAFT.txt'),`Creative Workspace ${pkg.version}: original FilmCraft browser preview\n\nExtract this archive into a NEW original-UI package root. Start Creative Workspace with CW_ORIGINAL_UI_DIR pointing to that root, then open /original/filmcraft/. Preserve live pages and older package roots; no automatic migration. This is the original shared UI/engine at ${pin} plus reviewed patch ${patch.id} (${patch.sha256}). Processing is LOCAL in the browser; server/provider/save ACK/full parity and broad codec compatibility are pending. Other original UIs must be installed separately. See docs/filmcraft-mkv-import-handoff.md and docs/releases.md.\n`);
+await mkdir(path.join(root,'dist'),{recursive:true});
+const name=`creative-workspace-${pkg.version}-filmcraft-original-ui.tar.gz`;
+await run('tar',['-czf',path.join(root,'dist',name),'-C',packages,'filmcraft/'+originalUiPackageId('filmcraft'),'INSTALL-FILMCRAFT.txt']);
+const hash=createHash('sha256').update(await readFile(path.join(root,'dist',name))).digest('hex');
+await writeFile(path.join(root,'dist',name+'.sha256'),`${hash}  ${name}\n`);
+console.log(`Built original FilmCraft variant ${originalUiPackageId('filmcraft')}; browser processing preview.`);

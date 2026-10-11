@@ -2,6 +2,13 @@
 
 Each completed product update receives a new SemVer, changelog entry and immutable Actions-built release. Engine source versions remain independently pinned.
 
+## [0.2.0-alpha.9] — 2026-10-11 (draft candidate)
+
+- Fix deferred reads for single MKV/WebM Media Browser imports in the original FilmCraft UI: wait/retry, freeze the target path/bin, deduplicate repeated actions and cancel on project replacement. A queued response is explicitly pending, not import/save success.
+- Keep pending metadata probes retryable instead of permanently caching an unreadable result. Bound retries; report real read errors and preserve partial-import errors.
+- Register reviewed source patches as distinct immutable UI variants with exact pin/diff/SHA256 provenance; preserve original menus, tools and rendering. Existing live preview packages are not overwritten.
+- Add reproducible FilmCraft WASM build and separate Actions-built original-UI preview archive. Native-prototype OS bundles and original server/provider/save parity retain their existing limits; keep the release draft.
+
 ## [0.2.0-alpha.8] — 2026-10-11 (draft)
 
 - Make verified original upstream UI previews the studio's primary launchers, served on the same authenticated origin under `/original/<app>/`; keep limited legacy prototypes in collapsed links and preserve their routes/documents.

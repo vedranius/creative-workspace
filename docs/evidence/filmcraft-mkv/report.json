@@ -1,0 +1,332 @@
+{
+  "browser": "151.0.7922.34",
+  "processing": "browser-local original UI",
+  "realFilePickerPermissions": false,
+  "cases": [
+    {
+      "name": "delayed middle, duplicate action, pending metadata recovers",
+      "queued": {
+        "pending": true
+      },
+      "picker": {
+        "errors": [],
+        "items": [
+          1
+        ],
+        "paths": [
+          "/files/middle.mkv"
+        ]
+      },
+      "result": {
+        "task": {
+          "error": null,
+          "path": "/files/middle.mkv",
+          "result": {
+            "errors": [],
+            "items": [
+              1
+            ]
+          },
+          "state": "finished"
+        },
+        "project": {
+          "activeSequence": null,
+          "dirty": true,
+          "name": "MKV delayed middle",
+          "path": null,
+          "revision": 4,
+          "root": {
+            "children": [
+              {
+                "duration": 259350336000,
+                "item": 1,
+                "label": "Iris",
+                "name": "middle.mkv",
+                "type": "Movie"
+              }
+            ],
+            "id": 0,
+            "name": "MKV delayed middle"
+          },
+          "sourceItem": null
+        }
+      },
+      "readyProbe": {
+        "info": {
+          "audio_streams": [
+            {
+              "bits_per_sample": 32,
+              "channels": 1,
+              "codec": "AAC",
+              "sample_rate": 48000
+            }
+          ],
+          "container": "Matroska",
+          "duration": 259350336000,
+          "file_size": 222341177,
+          "kind": "Movie",
+          "name": "middle.mkv",
+          "start_timecode": null,
+          "video": {
+            "bitrate": 183145,
+            "codec": "H.264",
+            "color": {
+              "matrix": "Bt601",
+              "primaries": "Bt709",
+              "range": "Limited",
+              "transfer": "Bt709"
+            },
+            "frame_rate": {
+              "den": 1,
+              "num": 12
+            },
+            "has_alpha": false,
+            "height": 90,
+            "par": [
+              1,
+              1
+            ],
+            "pixel_format": "",
+            "width": 160
+          }
+        },
+        "media": true,
+        "path": "/files/middle.mkv"
+      }
+    },
+    {
+      "name": "delayed first read freezes selection and bin",
+      "result": {
+        "task": {
+          "error": null,
+          "path": "/files/bin.mkv",
+          "result": {
+            "errors": [],
+            "items": [
+              3
+            ]
+          },
+          "state": "finished"
+        },
+        "project": {
+          "activeSequence": null,
+          "dirty": true,
+          "name": "Frozen selection/bin",
+          "path": null,
+          "revision": 6,
+          "root": {
+            "children": [
+              {
+                "children": [
+                  {
+                    "children": [],
+                    "id": 2,
+                    "name": "Other"
+                  },
+                  {
+                    "duration": 259350336000,
+                    "item": 3,
+                    "label": "Iris",
+                    "name": "bin.mkv",
+                    "type": "Movie"
+                  }
+                ],
+                "id": 1,
+                "name": "Target"
+              }
+            ],
+            "id": 0,
+            "name": "Frozen selection/bin"
+          },
+          "sourceItem": null
+        }
+      }
+    },
+    {
+      "name": "Open in Source reuses an item in a nested bin",
+      "result": {
+        "task": {
+          "error": null,
+          "path": "/files/bin.mkv",
+          "result": {
+            "item": 3
+          },
+          "state": "finished"
+        },
+        "project": {
+          "activeSequence": null,
+          "dirty": true,
+          "name": "Frozen selection/bin",
+          "path": null,
+          "revision": 6,
+          "root": {
+            "children": [
+              {
+                "children": [
+                  {
+                    "children": [],
+                    "id": 2,
+                    "name": "Other"
+                  },
+                  {
+                    "duration": 259350336000,
+                    "item": 3,
+                    "label": "Iris",
+                    "name": "bin.mkv",
+                    "type": "Movie"
+                  }
+                ],
+                "id": 1,
+                "name": "Target"
+              }
+            ],
+            "id": 0,
+            "name": "Frozen selection/bin"
+          },
+          "sourceItem": 3
+        }
+      }
+    },
+    {
+      "name": "project replacement cancels without cross-project import",
+      "result": {
+        "task": {
+          "error": "Import cancelled: the project changed",
+          "path": "/files/cancel.mkv",
+          "result": null,
+          "state": "failed"
+        },
+        "project": {
+          "activeSequence": null,
+          "dirty": false,
+          "name": "New protected project",
+          "path": null,
+          "revision": 4,
+          "root": {
+            "children": [],
+            "id": 0,
+            "name": "New protected project"
+          },
+          "sourceItem": null
+        }
+      }
+    },
+    {
+      "name": "removed bin cancels instead of silently importing into root",
+      "result": {
+        "task": {
+          "error": "Import cancelled: the target bin was removed",
+          "path": "/files/removed.mkv",
+          "result": null,
+          "state": "failed"
+        },
+        "project": {
+          "activeSequence": null,
+          "dirty": true,
+          "name": "Removed target bin",
+          "path": null,
+          "revision": 5,
+          "root": {
+            "children": [],
+            "id": 0,
+            "name": "Removed target bin"
+          },
+          "sourceItem": null
+        }
+      }
+    },
+    {
+      "name": "pending read deadline is bounded (accelerated clock fixture)",
+      "result": {
+        "task": {
+          "error": "/files/deadline.mkv: timed out loading the file",
+          "path": "/files/deadline.mkv",
+          "result": null,
+          "state": "failed"
+        },
+        "project": {
+          "activeSequence": null,
+          "dirty": false,
+          "name": "Deadline",
+          "path": null,
+          "revision": 3,
+          "root": {
+            "children": [],
+            "id": 0,
+            "name": "Deadline"
+          },
+          "sourceItem": null
+        }
+      }
+    },
+    {
+      "name": "real read failure is reported",
+      "result": {
+        "task": {
+          "error": "/files/failed.mkv: /files/failed.mkv: file read failed: JsValue(Error: QA deliberate disk read failure\nError: QA deliberate disk read failure\n    at Blob.arrayBuffer (eval at evaluate (:370:30), <anonymous>:2:550))",
+          "path": "/files/failed.mkv",
+          "result": null,
+          "state": "failed"
+        },
+        "project": {
+          "activeSequence": null,
+          "dirty": false,
+          "name": "Real failure",
+          "path": null,
+          "revision": 3,
+          "root": {
+            "children": [],
+            "id": 0,
+            "name": "Real failure"
+          },
+          "sourceItem": null
+        }
+      }
+    },
+    {
+      "name": "normal import and Open in Source reuse item",
+      "imported": {
+        "errors": [],
+        "items": [
+          1
+        ],
+        "paths": [
+          "/files/normal.mkv"
+        ]
+      },
+      "result": {
+        "task": {
+          "error": null,
+          "path": "/files/normal.mkv",
+          "result": {
+            "item": 1
+          },
+          "state": "finished"
+        },
+        "project": {
+          "activeSequence": null,
+          "dirty": true,
+          "name": "Normal MKV/source",
+          "path": null,
+          "revision": 4,
+          "root": {
+            "children": [
+              {
+                "duration": 259350336000,
+                "item": 1,
+                "label": "Iris",
+                "name": "normal.mkv",
+                "type": "Movie"
+              }
+            ],
+            "id": 0,
+            "name": "Normal MKV/source"
+          },
+          "sourceItem": 1
+        }
+      }
+    }
+  ],
+  "ok": true,
+  "errors": []
+}
