@@ -47,4 +47,4 @@ Final browser runs had no page errors, console errors, failed requests or HTTP e
 
 PdfCraft's document state, annotation edit and render all ran locally inside the upstream browser WASM application. The static server only served files. The observed load route was a same-origin URL; open/save otherwise use the app's browser picker/download flows. No Creative Workspace server processing, gateway auth/Origin/session/root isolation, common provider mode, acknowledged save, real folder permission, native-to-browser parity, large/complex-PDF coverage, or product availability was established. Keep PdfCraft pending in the catalog.
 
-Next original UI preview: **ORG-LGT-UI** (LightCraft).
+Next original UI preview: **ORG-FIL-UI** (FilmCraft); LightCraft preview evidence is in [its handoff](lightcraft-original-ui-preview.md).

@@ -1,0 +1,47 @@
+{
+  "sourceCommit": "9e6c4c6fc9c7a7f192ce846c00ceb531e0f64dda",
+  "appVersion": "0.6.0",
+  "wasmSha256": "d60c279413f01512c36351330970e66ecedf5567e334f43d0435760b54df2d57",
+  "browser": "Chromium for Testing 151.0.7922.34",
+  "viewport": "1440x1000",
+  "url": "http://127.0.0.1:8817/",
+  "menuHeadings": [
+    "File",
+    "Edit",
+    "View",
+    "Photo",
+    "Window",
+    "Help"
+  ],
+  "fileMenuOpened": true,
+  "newAlbumDialogOpened": true,
+  "cropToolPanelAndOverlay": true,
+  "generatedLibrary": {
+    "photos": 24,
+    "albums": 7,
+    "seq": 1,
+    "persistent": true,
+    "path": "browser:opfs/library"
+  },
+  "exposureInteraction": {
+    "command": "develop.get",
+    "before": 0,
+    "after": 0.88,
+    "sequenceAfter": 1
+  },
+  "javascriptExceptions": [],
+  "failedRequests": [],
+  "optionalMissingFont": {
+    "url": "lightcraft_zh_hans.otf",
+    "httpStatus": 404,
+    "reason": "CRAFT_FONTS_DIR was not available; English UI is unaffected; upstream warns Chinese-only glyphs may display as boxes."
+  },
+  "screenshots": [
+    "lightcraft-original-ui-initial.png",
+    "lightcraft-original-ui-file-menu.png",
+    "lightcraft-original-ui-new-album-dialog.png",
+    "lightcraft-original-ui-crop-tool.png",
+    "lightcraft-original-ui-exposure-edit.png"
+  ],
+  "webgl2": "Original UI loaded and rendered in Chromium for Testing; Codex In-app Browser on this host reported WebGL is not supported."
+}
