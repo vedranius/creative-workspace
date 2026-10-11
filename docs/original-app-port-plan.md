@@ -41,7 +41,7 @@ Za svaku stavku `ORG-<APP>-UI`:
 
 ### B. Izvorni UI povezan sa serverom
 
-Referentni port je **DesignCraft PAR-03**, zatim PhotoCraft → VectorCraft → PdfCraft → LightCraft → FilmCraft → EffectCraft. Poslije prolaza A nastaviti nedovršeni konkretni [PAR-03a korak](par-03a-handoff.md), bez novog praznog audita.
+Referentni port je **DesignCraft PAR-03**, zatim PhotoCraft → VectorCraft → PdfCraft → LightCraft → FilmCraft → EffectCraft, kako je korisnik ponovno potvrdio. DesignCraft sample/read-model bridge je prvi djelomični korak; nakon njega dovršiti originalne command/state/edit/render/provider/save/reopen/recovery tokove prije prelaska na sljedeću aplikaciju. Nastaviti konkretni [PAR-03 handoff](par-03a-handoff.md), bez preview repriza, demo razvoja ili novog praznog audita.
 
 Zajednički gateway osigurava autentikaciju, Origin, sesiju, revizije, red komandi, datoteke i ograničenja resursa. Svaka aplikacija dobiva vlastiti backend za svoje izvorne komande, stanje, render i formate. Ne pretpostavljamo da jedan generički wrapper može zamijeniti različite engineove.
 
@@ -96,4 +96,4 @@ Svaka aplikacija ima odvojena stanja: **originalni UI source potvrđen → origi
 
 Jedna nova sesija po malom zadatku, jedan writer u checkoutu. Plan → implementacija → relevantne provjere → compact handoff → normalni commit/push → CI; produktne promjene uključuju verziju i Actions release. Čisti plan/evidence docs koriste docs-only gate bez ponovnog izdavanja iste verzije. Automatizacija čita ovaj redoslijed i posljednju primopredaju; ne otvara retry petlje niti ponavlja dovršene audite/buildove.
 
-**Prvi sljedeći zadatak: nastaviti DesignCraft PAR-03** iz konkretnog [PAR-03a handoffa](par-03a-handoff.md): implementirati usko ograničeni server-owned `file.newSample` operation i revisioned state/render u originalnom canvasu. ORG-FX-UI je samo WASM UI preview; nijedan preview nije time postao server-backed port.
+**Prvi sljedeći zadatak: nastaviti DesignCraft PAR-03** iz konkretnog [PAR-03 handoffa](par-03a-handoff.md): povezati jednu originalnu edit akciju s server-owned Session-om, očuvati pointer ordering i dokazati state revision/server render prije i nakon izmjene. The bounded `file.newSample` read-model slice is done; ORG-FX-UI and all other original previews remain browser-local WASM previews, not server-backed ports.

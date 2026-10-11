@@ -26,7 +26,7 @@ async function fixture(t,extra={}){const root=await mkdtemp(path.join(os.tmpdir(
 test('Design sample is created by the owned worker with the original command ID and a revisioned render',async t=>{
   const {project,design,engines,call}=await fixture(t),session=await design.create(project);
   const sampled=await call(session.id,'doc.sample');
-  const activeWorker=engines.find(engine=>!engine.closed);assert.equal(activeWorker?.sampleCommandId,'file.newSample');assert.equal(sampled.stateVersion,1);assert.equal(sampled.document.name,'Sample Document');assert.match(sampled.preview,/preview\.png\?v=1$/);assert.ok(design.preview(session.id,1).length>0);
+  const activeWorker=engines.find(engine=>!engine.closed);assert.equal(activeWorker?.sampleCommandId,'file.newSample');assert.equal(sampled.stateVersion,1);assert.equal(sampled.document.title,'Original sample');assert.equal(sampled.document.name,'Sample Document');assert.equal(sampled.document.pageCount,2);assert.equal(sampled.document.dirty,true);assert.match(sampled.preview,/preview\.png\?v=1$/);assert.ok(design.preview(session.id,1).length>0);
   await assert.rejects(call(session.id,'doc.sample'),/save and close/i);await design.close(session.id,{discard:true});
 });
 

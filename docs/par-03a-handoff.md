@@ -1,22 +1,19 @@
-# PAR-03a handoff — bounded server sample bridge verified
+# PAR-03 handoff — bounded server read-model slice verified
 
-Updated 2026-10-11 after the original UI/browser/native sample slice.
+Updated 2026-10-11 after the alpha.13 read-model browser/native slice.
 
 ## Completed slice
 
-The pinned original DesignCraft UI at `a127c6d5c3576972bbd60445f26d893db071eef3` now has an explicitly reviewed `par-03-server-sample-v1` variant. Its `?serverSample` browser bootstrap opens an owned same-origin server session, sends only the allowlisted `doc.sample` gateway operation, and displays the bounded server PNG over the original canvas presentation. The native worker executes the original upstream command ID `file.newSample`; state revision advances 0→1. It never forwards an arbitrary command ID.
+The pinned original DesignCraft UI at `a127c6d5c3576972bbd60445f26d893db071eef3` now has an explicitly reviewed `par-03-server-read-model-v2` variant. Its `?serverSample` bootstrap opens a same-origin session, sends only the allowlisted `doc.sample` operation, and presents server-owned document title, page count, dirty state and bounded PNG at the same revision over the original canvas. The owned native worker executes the exact upstream `file.newSample` command; revision advances 0→1. No arbitrary command ID is forwarded. The `DesignApp` local Session remains empty and other source action handlers remain unported.
 
-- Patch: `patches/designcraft/a127c6d5/par-03-server-sample.patch`; SHA-256 `02f187a6e89d4d531485693844da8c8de0aa17f3945d10d878a2990639d04f7c`.
+- Patch: `patches/designcraft/a127c6d5/par-03-server-sample.patch`; SHA-256 `a72bd8e7bb0302ddae7bd35ee8df6df6bb35ab8164b1c2973d436db99b87c3c2`.
 - Build: `npm run ui:designcraft:par03 -- <clean-pinned-checkout> <output-dir>`; Rust 1.99.0, `wasm32-unknown-unknown`, Trunk 0.21.14, low-impact build wrapper. Candidate WASM SHA-256 `a282fc2cd0528e0af4aa2c7316f733a0aedb09cdec3526f3f8fff42ea35026f8`.
-- Native and real-browser results, guard checks, checksums and remaining limits: [PAR-03 sample bridge evidence](designcraft-par03-sample-bridge.md) and [browser report](evidence/designcraft-par03-browser.json).
-- `npm run check`, `git diff --check`, all 45 Node tests, native worker smoke and one same-origin browser pass succeeded.
+- Native smoke reports the original `file.newSample`, 4-page document, 612×792 PNG, and digest `a0f4b28af9304e3d567037a2cd5ab305d08d14078848d6862d3d7cb0f3d981d5`. Browser reads title `Quarterly — Spring Issue`, 4 pages and `dirty:true`; invalid Origin/foreign session/stale revision return 403/404/409 with no browser errors. [Evidence and report](designcraft-par03-sample-bridge.md).
 
 ## Still incomplete
 
-This is not a server-backed original app. Only `file.newSample` is routed. The original `DesignApp` still owns its empty local `Session`; tool handlers, pointer ordering, panels/read-model, edits, save, provider acknowledgement, recovery and most rendering remain unported. The sample PNG is presented over the original canvas area; no broader UI state parity is implied. Keep DesignCraft planned. No OS bundle/browser/provider/full-parity claim.
+This is not a server-backed original app. Only `file.newSample` is routed and a few read-model fields reach the original canvas presentation. The original `DesignApp` still owns its empty local `Session`; tool handlers, pointer ordering, panels, edits, save, provider acknowledgement, recovery and most rendering remain unported. Keep DesignCraft planned. No OS bundle/browser/provider/full-parity claim.
 
 ## Next exact task
 
-First verify alpha.12 Actions run `38172661744` to completion, including the Actions-built draft assets and their checksums; its Windows/Linux/macOS Checks run `38172661790` passed. The earlier alpha.11 Checks failed on Windows, and its separate release workflow `38172459695` was still building when this handoff was written, so do not claim either release has downloadable assets until the release page and asset set are verified.
-
-After release verification, extend this pinned source bridge by connecting one original document read-model and one original user action to the owned server session while preserving the upstream action/command ID and serialized pointer ordering. Verify before/after state revisions and a new server render in the original browser UI, plus stale-revision, foreign-session and invalid-Origin rejection. Do not repeat the `file.newSample` proof, UI preview build, alpha.10 release verification, or edit `engines/filmcraft/`. Update availability only after original tools, save destination ACK, reopen/recovery and provider acceptance are independently evidenced.
+Next: implement one real original edit action against the server-owned DesignCraft Session. Preserve its upstream command ID and serialize pointer/tool events so stale reads cannot overwrite newer state. Show before/after revisions and a server render in the original UI. Continue to provider destination/retention and ACK/recovery, then complete DesignCraft before PhotoCraft → VectorCraft → PdfCraft → LightCraft → FilmCraft → EffectCraft. Do not touch `engines/filmcraft/` or claim availability before full original-function, provider, save/reopen and recovery acceptance.

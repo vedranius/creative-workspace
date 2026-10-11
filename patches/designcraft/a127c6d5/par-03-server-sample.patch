@@ -12,11 +12,11 @@ index b05be39367b0eeb780fc1759c79f61d53f196abf..441f58de395e6d02527ce1e42f0be4a5
  </html>
 diff --git a/apps/designcraft-web/server-bridge.js b/apps/designcraft-web/server-bridge.js
 new file mode 100644
-index 0000000000000000000000000000000000000000..3bcf76ebe2fa842a6143fe03ce07a780ee9d9be0
+index 0000000000000000000000000000000000000000..6e2c13aa4d25c53f3020cb2595301e4a511d318e
 --- /dev/null
 +++ b/apps/designcraft-web/server-bridge.js
-@@ -0,0 +1,43 @@
-+// PAR-03 bounded experiment: invoke one original command on the owned server worker.
+@@ -0,0 +1,46 @@
++// PAR-03 bounded experiment: send the original file.newSample action to the owned server worker.
 +// The original DesignApp remains the rendered shell; its local Session is not used for this sample.
 +const params = new URLSearchParams(location.search);
 +if (params.has("serverSample")) {
@@ -37,15 +37,18 @@ index 0000000000000000000000000000000000000000..3bcf76ebe2fa842a6143fe03ce07a780
 +      const session = await post("/api/designcraft/sessions", {});
 +      sessionId = session.id;
 +      const reply = await post(`/api/designcraft/sessions/${sessionId}/rpc`, {method:"doc.sample",params:{},requestId:crypto.randomUUID(),expectedVersion:0});
-+      if (reply.result?.commandId !== "file.newSample" || reply.stateVersion !== 1 || !reply.preview) throw new Error("Server response did not match the expected command and revision");
++      const model = reply.document;
++      if (reply.result?.commandId !== "file.newSample" || reply.stateVersion !== 1 || !reply.preview || !model || typeof model.title !== "string" || !Number.isSafeInteger(model.pageCount) || model.pageCount < 1 || typeof model.dirty !== "boolean") throw new Error("Server response did not match the expected command, read model, and revision");
 +      const image = document.createElement("img");
 +      image.id = "cw_server_render"; image.alt = `Server-rendered DesignCraft sample, revision ${reply.stateVersion}`;
-+      image.dataset.stateVersion = String(reply.stateVersion); image.dataset.commandId = reply.result.commandId; image.src = reply.preview;
++      image.dataset.stateVersion = String(reply.stateVersion); image.dataset.commandId = reply.result.commandId; image.dataset.documentTitle = model.title; image.dataset.pageCount = String(model.pageCount); image.dataset.dirty = String(model.dirty); image.src = reply.preview;
 +      Object.assign(image.style, {position:"fixed",left:"34%",top:"24%",width:"32%",height:"52%",objectFit:"contain",zIndex:"2",pointerEvents:"none",filter:"drop-shadow(0 2px 6px #0008)"});
 +      image.addEventListener("load", () => {
 +        image.dataset.width = String(image.naturalWidth); image.dataset.height = String(image.naturalHeight);
-+        banner.textContent = `Server sample • file.newSample • revision ${reply.stateVersion} • ${image.naturalWidth}×${image.naturalHeight}`;
++        banner.textContent = `${model.title} • ${model.pageCount} pages • ${model.dirty ? "unsaved" : "saved"} • revision ${reply.stateVersion} • ${image.naturalWidth}×${image.naturalHeight}`;
 +        banner.dataset.stateVersion = String(reply.stateVersion);
++        banner.dataset.pageCount = String(model.pageCount);
++        banner.dataset.dirty = String(model.dirty);
 +      }, {once:true});
 +      image.addEventListener("error", () => { banner.textContent = "Server render failed to load"; banner.style.background = "#6d2222"; }, {once:true});
 +      document.body.append(image);

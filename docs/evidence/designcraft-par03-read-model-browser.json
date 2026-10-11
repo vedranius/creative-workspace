@@ -1,0 +1,25 @@
+{
+  "url": "http://127.0.0.1:46241/original/designcraft/?serverSample&webgl",
+  "ownedRuntime": true,
+  "commandId": "file.newSample",
+  "stateVersion": 1,
+  "documentTitle": "Quarterly — Spring Issue",
+  "pageCount": 4,
+  "dirty": true,
+  "width": 612,
+  "height": 792,
+  "canvas": true,
+  "banner": "Quarterly — Spring Issue • 4 pages • unsaved • revision 1 • 612×792",
+  "renderSha256": "a0f4b28af9304e3d567037a2cd5ab305d08d14078848d6862d3d7cb0f3d981d5",
+  "foreignSessionStatus": 404,
+  "invalidOriginStatus": 403,
+  "staleRevisionStatus": 409,
+  "uncaughtBrowserErrors": 0,
+  "screenshot": "/home/vedran/Documents/Codex/2026-10-10/da-x20/outputs/creative-workspace/docs/evidence/designcraft-par03-read-model-original-ui.png",
+  "liveBrowserVisualCheck": {
+    "browser": "Codex In-app Browser",
+    "result": "original DesignCraft menu bar, tool rail and panels visible with the four-page server render and matching read-model banner",
+    "tabClosed": true,
+    "isolatedServerStopped": true
+  }
+}

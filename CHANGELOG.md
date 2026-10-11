@@ -2,6 +2,12 @@
 
 Each completed product update receives a new SemVer, changelog entry and immutable Actions-built release. Engine source versions remain independently pinned.
 
+## [0.2.0-alpha.13] — 2026-10-11 (draft candidate)
+
+- Bind the original DesignCraft canvas preview to the server-owned read model: display the upstream document title, page count and dirty state at the same state revision as the PNG.
+- Verify the original `file.newSample` command, four-page sample and 612×792 server render in a browser; stale revision, foreign session and invalid Origin requests return 409, 404 and 403. No full DesignCraft or other ArtCraft port is claimed; keep the release draft.
+- Add the hash-registered `par-03-server-read-model-v2` variant and one reproducible original UI build/browser evidence package.
+
 ## Documentation — 2026-10-11 (product version unchanged)
 
 - Expand the repository overview with current original UI/server scope, file modes, installation, releases and all upstream authors/licenses. Add an original CW logo/banner, 14 actual studio/application screenshots, capture provenance and `LICENSE.md`; preserve the existing AGPL terms.
@@ -10,7 +16,7 @@ Each completed product update receives a new SemVer, changelog entry and immutab
 ## [0.2.0-alpha.12] — 2026-10-11 (draft candidate)
 
 - Preserve the reviewed DesignCraft source patch bytes across Windows Git checkouts with an explicit LF attribute. Alpha.11 Linux/macOS checks passed locally/remotely, but its Windows test job exposed line-ending normalization in the new patch path.
-- Keep the original UI pin, patch SHA256 and immutable alpha.11 tag/release untouched. Re-run target checks and Actions-built assets under this fresh version; remain draft-only until all target/browser/provider acceptance is evidenced.
+- Keep the original UI pin and alpha.11 patch/tag/release untouched. Native and bundle jobs passed, but the original DesignCraft job failed exact reviewed-source diff registration after its WASM build (`Source differs from the exact reviewed integration patch`); `publish` was skipped. No alpha.12 tag or release exists, so it has no downloadable assets. Alpha.13 now regenerates the patch from the exact pinned source diff.
 
 ## [0.2.0-alpha.11] — 2026-10-11 (draft candidate)
 
