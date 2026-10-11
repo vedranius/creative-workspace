@@ -2,6 +2,11 @@
 
 Each completed product update receives a new SemVer, changelog entry and immutable Actions-built release. Engine source versions remain independently pinned.
 
+## [0.2.0-alpha.3] — 2026-10-11
+
+- Make the native PhotoCraft concurrent-version smoke accept either valid race winner while requiring exactly one mutation and a 409 for the stale request. Alpha.2's Linux/Windows checks and all native builds passed, but its macOS bundle smoke exposed an ordering assumption in the test; no alpha.2 release was published.
+- Repeat the real native PhotoCraft edit/undo race locally and preserve save/reopen verification.
+
 ## [0.2.0-alpha.2] — 2026-10-11
 
 - Normalize Windows CRLF Cargo lockfiles before adding our pinned shim package; preserve dependency pins and keep `--locked`. First native Actions attempt exposed VectorCraft/DesignCraft lockfile failures; alpha.1 was not released.

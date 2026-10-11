@@ -21,13 +21,23 @@ try{
   const created=await rpc('doc.new',{name:'Version proof',width:48,height:32,mode:'rgb',depth:8,background:'white'},{expectedVersion:empty.stateVersion});
   const layered=await rpc('engine.execute',{command:'layer.new.layer',params:{name:'Midtone proof'},wait:true},{expectedVersion:created.stateVersion});
   const original=await rpc('engine.execute',{command:'paint.stroke',params:{points:[[8,8,1],[40,24,1]],size:14,color:'#808080'},wait:true},{expectedVersion:layered.stateVersion});
-  const before=Buffer.from(await (await fetch(base+original.preview)).arrayBuffer());
+  let before=Buffer.from(await (await fetch(base+original.preview)).arrayBuffer());
   const commands=(await rpc('engine.commands')).result;const adjustment=commands.find(command=>command.id==='image.adjustments.brightnessContrast');assert.ok(adjustment);assert.ok(commands.some(command=>command.id==='edit.undo'));
-  const edit={method:'engine.execute',params:{command:adjustment.id,params:{brightness:-40,contrast:10},wait:true},requestId:randomUUID(),expectedVersion:original.stateVersion};
+  const makeEdit=expectedVersion=>({method:'engine.execute',params:{command:adjustment.id,params:{brightness:-40,contrast:10},wait:true},requestId:randomUUID(),expectedVersion});
+  let edit=makeEdit(original.stateVersion);
   const route=`/api/photocraft/sessions/${id}/rpc`;
   const results=await Promise.allSettled([api(route,'POST',edit),rpc('engine.execute',{command:'edit.undo',params:{},wait:true},{expectedVersion:original.stateVersion})]);
-  assert.equal(results[0].status,'fulfilled');assert.equal(results[1].status,'rejected');assert.equal(results[1].reason.status,409);assert.equal(results[1].reason.code,'STATE_VERSION_CONFLICT');
-  const edited=results[0].value;const after=Buffer.from(await (await fetch(base+edited.preview)).arrayBuffer());assert.notEqual(digest(before),digest(after));
+  const accepted=results.filter(result=>result.status==='fulfilled');assert.equal(accepted.length,1,'exactly one mutation may win the concurrent version race');
+  const stale=results.find(result=>result.status==='rejected');assert.equal(stale.reason.status,409);assert.equal(stale.reason.code,'STATE_VERSION_CONFLICT');
+  let edited;
+  if(results[0].status==='fulfilled')edited=results[0].value;
+  else{
+    // The undo can win the race too. Continue from its acknowledged version and
+    // compare against that preview instead of assuming scheduler ordering.
+    const concurrentUndo=results[1].value;before=Buffer.from(await (await fetch(base+concurrentUndo.preview)).arrayBuffer());
+    edit=makeEdit(concurrentUndo.stateVersion);edited=await api(route,'POST',edit);
+  }
+  const after=Buffer.from(await (await fetch(base+edited.preview)).arrayBuffer());assert.notEqual(digest(before),digest(after));
   const retry=await api(route,'POST',edit);assert.equal(retry.stateVersion,edited.stateVersion);assert.equal(retry.document.revision,edited.document.revision);
   const second=await rpc('doc.new',{name:'Other document',width:12,height:8,mode:'rgb',depth:8,background:'black'},{expectedVersion:edited.stateVersion});
   await assert.rejects(rpc('engine.execute',{command:adjustment.id,params:{brightness:10},wait:true},{expectedVersion:edited.stateVersion}),error=>error.status===409);

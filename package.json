@@ -1,6 +1,6 @@
 {
   "name": "creative-workspace",
-  "version": "0.2.0-alpha.2",
+  "version": "0.2.0-alpha.3",
   "private": true,
   "type": "module",
   "description": "Self-hosted creative workspace with native browser interfaces and server-side engines",

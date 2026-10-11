@@ -2,6 +2,10 @@ name: Build and release
 on:
   push:
     branches: [main]
+    paths-ignore:
+      - 'docs/**'
+      - 'README.md'
+      - 'CHANGELOG.md'
   workflow_dispatch:
 permissions:
   contents: read
