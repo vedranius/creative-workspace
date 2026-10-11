@@ -2,6 +2,14 @@
 
 Updated 2026-10-11 after the alpha.13 read-model browser/native slice.
 
+## Alpha.14 Actions outcome (2026-10-11)
+
+Checks `38184007149` passed on Windows, macOS and Linux. Build/release `38184007123` passed: all 12 target-native jobs, original FilmCraft browser regression, DesignCraft pinned UI build/registration, DesignCraft server-worker/browser verification, all three bundles and publish. The pinned DesignCraft patch was registered after Trunk without relaxing its exact SHA-256/diff check.
+
+Authenticated GitHub as `vedranius`. Immutable `v0.2.0-alpha.14` points to `95d04cead4eb30d8d34cb65cc2c453d0bccbdea9`. Draft prerelease release ID `RE_kwDOVDgEq84YcAK_` has five Actions-built archives and five SHA256 sidecars. Downloaded all ten assets and verified every archive with `sha256sum -c`. Keep the draft: full original app parity, providers, acknowledged save/reopen and recovery remain incomplete. [Release evidence](evidence/creative-workspace-alpha14-release.md).
+
+Next bounded DesignCraft PAR-03 action: connect one original edit operation to the server-owned Session; preserve upstream action ID and serialized pointer ordering; show before/after state revisions and server render in the original canvas. Then continue provider destination/retention and ACK/recovery. Do not claim DesignCraft availability.
+
 ## Alpha.14 release-fix candidate (2026-10-11)
 
 Alpha.13 Build/release `38178166864` failed after Trunk successfully compiled the pinned original DesignCraft UI. Cause: the reviewed patch adds untracked `server-bridge.js`, but plain `git diff HEAD` omits untracked files, so registration compared an incomplete diff and rejected it. The patch itself and SHA-256 were correct.

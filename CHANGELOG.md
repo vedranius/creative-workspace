@@ -6,7 +6,7 @@ Each completed product update receives a new SemVer, changelog entry and immutab
 
 - Fix the original UI exact-patch verifier to include new untracked files during comparison. The reviewed DesignCraft patch adds `server-bridge.js`; plain `git diff` omitted that file and caused alpha.13's Actions registration to fail after a successful Trunk build.
 - Temporarily mark untracked paths intent-to-add only for the canonical diff, then restore the index. The reviewed patch bytes and SHA-256 remain unchanged; unrelated/unreviewed source changes still fail exact equality.
-- Reproduced with checksum-pinned Trunk 0.21.14 on the exact DesignCraft pin. Low-impact optimized WASM build and original UI package registration succeeded after the fix. Actions must rebuild target assets; this local artifact is verification only.
+- Reproduced with checksum-pinned Trunk 0.21.14 on the exact DesignCraft pin. Low-impact optimized WASM build and original UI package registration succeeded after the fix. Alpha.14 Actions, browser/native smokes, draft release assets and uploaded checksums are verified; the draft remains unpublished pending full original-app/provider parity.
 
 ## [0.2.0-alpha.13] — 2026-10-11 (draft candidate)
 
