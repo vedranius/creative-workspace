@@ -2,7 +2,12 @@
 
 Each completed product update receives a new SemVer, changelog entry and immutable Actions-built release. Engine source versions remain independently pinned.
 
-## [0.2.0-alpha.1] — 2026-10-11
+## [0.2.0-alpha.2] — 2026-10-11
+
+- Normalize Windows CRLF Cargo lockfiles before adding our pinned shim package; preserve dependency pins and keep `--locked`. First native Actions attempt exposed VectorCraft/DesignCraft lockfile failures; alpha.1 was not released.
+- Include managed build scripts, release sources and tests in portable archives alongside the gateway and shim sources.
+
+## [0.2.0-alpha.1] — 2026-10-11 (not released; target build failed)
 
 ### Added
 

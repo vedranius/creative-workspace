@@ -6,7 +6,7 @@ on:
 permissions:
   contents: read
 concurrency:
-  group: release-${{ github.sha }}
+  group: creative-workspace-release
   cancel-in-progress: false
 jobs:
   contract:
@@ -60,6 +60,7 @@ jobs:
             ~/.cargo/git
             build/runtime/${{ matrix.engine }}/build
           key: native-${{ matrix.platform.target }}-${{ matrix.engine }}-${{ hashFiles('engines/**/manifest.json', 'engines/**/native/**', 'scripts/manage-*.mjs') }}-rust195
+          restore-keys: native-${{ matrix.platform.target }}-${{ matrix.engine }}-
       - run: npm ci
       - name: Build independently pinned native engine
         run: node scripts/release.mjs engine ${{ matrix.engine }}

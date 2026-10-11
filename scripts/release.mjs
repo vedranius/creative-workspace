@@ -53,7 +53,7 @@ else if(command==='engine'){
 else if(command==='bundle'){
   await validateRelease();if(!config.targets.includes(target))throw new Error('Unsupported release target');
   const bundle=path.resolve('build/bundle');await rm(bundle,{recursive:true,force:true});await mkdir(bundle,{recursive:true});
-  for(const name of ['src','public','docs','engines'])await cp(path.join(root,name),path.join(bundle,name),{recursive:true});
+  for(const name of ['src','public','docs','engines','scripts','release','test'])await cp(path.join(root,name),path.join(bundle,name),{recursive:true});
   for(const name of ['package.json','package-lock.json','README.md','CHANGELOG.md','LICENSE'])await copyFile(path.join(root,name),path.join(bundle,name));
   await cp(path.join(root,'node_modules/ws'),path.join(bundle,'node_modules/ws'),{recursive:true});
   await copyFile(path.join(root,'release/launcher.mjs'),path.join(bundle,'launcher.mjs'));

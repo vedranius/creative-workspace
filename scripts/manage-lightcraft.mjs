@@ -15,7 +15,7 @@ if(process.argv[2]==='install'){
   await cp(path.join(project,'engines/lightcraft/native'),path.join(source,'apps/cw-lightcraft-engine'),{recursive:true});
   // Extend the upstream lock with only our workspace package. Native library
   // versions and vendored patches remain pinned by the upstream Cargo.lock.
-  const lockFile=path.join(source,'Cargo.lock');let lock=await readFile(lockFile,'utf8');
+  const lockFile=path.join(source,'Cargo.lock');let lock=(await readFile(lockFile,'utf8')).replace(/\r\n/g,'\n');
   const entry='[[package]]\nname = "cw-lightcraft-engine"\nversion = "0.1.0"\ndependencies = [\n "lightcraft-catalog",\n "lightcraft-engine",\n "lightcraft-develop",\n "lightcraft-gpu",\n "serde_json",\n "sha2",\n]\n';
   const existing=/\[\[package\]\]\nname = "cw-lightcraft-engine"\n[\s\S]*?(?=\n\[\[package\]\]|$)/;
   lock=existing.test(lock)?lock.replace(existing,entry):lock.replace(/version = 4\n/,`version = 4\n\n${entry}`);await writeFile(lockFile,lock);
