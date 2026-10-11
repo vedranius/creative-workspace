@@ -4,7 +4,7 @@
 
 A self-hosted creative studio: native browser interfaces, server-side processing, and shared project files. No remote desktop or desktop-display transport. The LightCraft browser preview opens at `/apps/lightcraft/`; its status stays planned until real browser permission and FUSE/agent open/edit/save/reopen acceptance passes.
 
-**Original ArtCraft application ports: 0 complete.** PhotoCraft, PdfCraft, VectorCraft and DesignCraft have limited custom browser prototypes backed by independent server engines. The dashboard labels these as prototypes and keeps original application ports pending, regardless of engine readiness. PAR-03a is in progress: connect one representative original DesignCraft command and server-rendered canvas to its original browser UI. RapidRAW remains a separate integration. LightCraft remains a limited preview; FilmCraft and EffectCraft are pending.
+**Original ArtCraft application ports: 0 complete.** PhotoCraft, PdfCraft, VectorCraft and DesignCraft have limited custom browser prototypes backed by independent server engines. The dashboard labels these as prototypes and keeps original application ports pending, regardless of engine readiness. The original DesignCraft UI preview is runnable and user-approved; its server bridge remains incomplete. The [complete original-app port plan](docs/original-app-port-plan.md) schedules the other original UI previews, followed by server processing, laptop/server file acceptance, paired upstream UI/engine updates and Actions packaging. Next: original PhotoCraft UI. RapidRAW remains a separate integration; custom LightCraft preview and FilmCraft/EffectCraft integration remain pending.
 
 ## Goal and downloads
 
@@ -70,11 +70,11 @@ npm test
 
 ## Next milestones
 
-1. Installer/start controls in the control panel (managed CLI installers are implemented).
-2. Extend PhotoCraft tools/dialogs and harden reconnect, version conflicts and recovery.
-3. Shared adapter protocol and extension to PdfCraft, VectorCraft and DesignCraft.
-4. FilmCraft and EffectCraft: server preview jobs, proxy media, synchronized playback and exports.
-5. Multi-user identity, permissions, resumable file transfer, installation and verified upgrades.
+1. Build and verify the original PhotoCraft, VectorCraft, PdfCraft, LightCraft, FilmCraft and EffectCraft browser interfaces, following the original DesignCraft preview.
+2. Connect the original interfaces to server-owned sessions, commands and rendering, starting with DesignCraft; preserve the original full tool/workflow inventories.
+3. Verify every original app against shared server/laptop providers, acknowledged saves, reopen, conflicts and recovery.
+4. Stage original UI and engine updates together; accept Actions-built OS bundles and engine-enabled Docker only with their target evidence.
+5. Installer/start controls, multi-user identity and permissions, resumable transfer and verified upgrades. See the [complete port plan](docs/original-app-port-plan.md).
 
 See the [development roadmap](docs/roadmap.md), [AI/MCP integration plan](docs/ai-assistant.md) and [compact handoff](docs/development-state.md), as well as [architecture](docs/architecture.md), [adapter contract](docs/adapter-contract.md) and [validation](docs/validation.md).
 
