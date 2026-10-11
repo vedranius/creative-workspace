@@ -2,6 +2,12 @@
 
 Each completed product update receives a new SemVer, changelog entry and immutable Actions-built release. Engine source versions remain independently pinned.
 
+## [0.2.0-alpha.4] — 2026-10-11
+
+- Add the LightCraft server session gateway for explicitly selected source roots, bounded photo open/edit/undo/redo/export and private previews.
+- Add editable recipe save/load bound to the confined source-relative path, original SHA-256 and LightCraft 0.6.0 pin. Session version/dedup guards reject stale mutations; recipe save clears dirty state only after the chosen server or laptop destination acknowledges the new file. Image exports remain dirty.
+- This is gateway groundwork only: no LightCraft browser editor, portable-bundle engine, real browser picker/FUSE acceptance or availability claim.
+
 ## [0.2.0-alpha.3] — 2026-10-11
 
 - Make the native PhotoCraft concurrent-version smoke accept either valid race winner while requiring exactly one mutation and a 409 for the stale request. Alpha.2's Linux/Windows checks and all native builds passed, but its macOS bundle smoke exposed an ordering assumption in the test; no alpha.2 release was published.
