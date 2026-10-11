@@ -1,0 +1,122 @@
+[
+  {
+    "app": "studio",
+    "links": [
+      {
+        "text": "Open RapidRAW editor ↗",
+        "href": "/apps/rapidraw/"
+      },
+      {
+        "text": "Open original PhotoCraft ↗",
+        "href": "/original/photocraft/"
+      },
+      {
+        "text": "Open original VectorCraft ↗",
+        "href": "/original/vectorcraft/"
+      },
+      {
+        "text": "Open original FilmCraft ↗",
+        "href": "/original/filmcraft/"
+      },
+      {
+        "text": "Open original LightCraft ↗",
+        "href": "/original/lightcraft/"
+      },
+      {
+        "text": "Open original PdfCraft ↗",
+        "href": "/original/pdfcraft/"
+      },
+      {
+        "text": "Open original EffectCraft ↗",
+        "href": "/original/effectcraft/"
+      },
+      {
+        "text": "Open original DesignCraft ↗",
+        "href": "/original/designcraft/"
+      }
+    ],
+    "errors": [
+      "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    ],
+    "resources": []
+  },
+  {
+    "app": "photocraft",
+    "title": "PhotoCraft",
+    "url": "http://127.0.0.1:8793/original/photocraft/?webgl",
+    "canvas": 1,
+    "body": "",
+    "errors": [
+      "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    ],
+    "resources": [
+      {
+        "url": "http://127.0.0.1:8793/original/photocraft/fonts/manifest.txt",
+        "status": 404
+      }
+    ]
+  },
+  {
+    "app": "vectorcraft",
+    "title": "VectorCraft",
+    "url": "http://127.0.0.1:8793/original/vectorcraft/?webgl",
+    "canvas": 1,
+    "body": "",
+    "errors": [],
+    "resources": []
+  },
+  {
+    "app": "pdfcraft",
+    "title": "PdfCraft",
+    "url": "http://127.0.0.1:8793/original/pdfcraft/?file=sample.pdf",
+    "canvas": 1,
+    "body": "",
+    "errors": [],
+    "resources": []
+  },
+  {
+    "app": "designcraft",
+    "title": "DesignCraft",
+    "url": "http://127.0.0.1:8793/original/designcraft/?sample&webgl",
+    "canvas": 1,
+    "body": "",
+    "errors": [
+      "Connecting to 'ws://{{__trunk_address__}}{{__trunk_ws_base__}}.well-known/trunk/ws' violates the following Content Security Policy directive: \"connect-src 'self' blob:\". The action has been blocked."
+    ],
+    "resources": []
+  },
+  {
+    "app": "lightcraft",
+    "title": "LightCraft",
+    "url": "http://127.0.0.1:8793/original/lightcraft/?webgl",
+    "canvas": 1,
+    "body": "",
+    "errors": [
+      "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    ],
+    "resources": [
+      {
+        "url": "http://127.0.0.1:8793/original/lightcraft/lightcraft_zh_hans.otf",
+        "status": 404
+      }
+    ]
+  },
+  {
+    "app": "filmcraft",
+    "title": "FilmCraft",
+    "url": "http://127.0.0.1:8793/original/filmcraft/?webgl",
+    "canvas": 1,
+    "body": "",
+    "errors": [],
+    "resources": []
+  },
+  {
+    "app": "effectcraft",
+    "title": "EffectCraft",
+    "url": "http://127.0.0.1:8793/original/effectcraft/?webgl",
+    "canvas": 1,
+    "body": "",
+    "errors": [],
+    "resources": []
+  }
+]

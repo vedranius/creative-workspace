@@ -1,16 +1,24 @@
 # Releases and installation
 
-Creative Workspace aims to let a lightweight laptop access a powerful self-hosted creative server through native browser interfaces. Original documents remain under explicitly selected file-provider permissions; rendering/editing runs on the server. No remote desktop transport is used. The current published version is 0.2.0-alpha.6; 0.2.0-alpha.7 is an unpublished dashboard-scope correction until Actions and release assets are verified.
+Creative Workspace aims to let a lightweight laptop access a powerful self-hosted creative server through native browser interfaces. Original documents remain under explicitly selected file-provider permissions; rendering/editing runs on the server. No remote desktop transport is used. The current public release is 0.2.0-alpha.7. The new 0.2.0-alpha.8 candidate adds original UI registration/launching and is deliberately draft-only until original-UI asset packaging and target/browser evidence are complete.
 
-The current channel is **alpha**, for one user. Version 0.2.0-alpha.6 is published; Actions built the Linux x64, Windows x64 and Apple Silicon macOS bundles and passed all native bundle smokes. Each archive and its SHA256 sidecar is downloadable from [Releases](https://github.com/vedranius/creative-workspace/releases/tag/v0.2.0-alpha.6). Alpha.4 was not published because its macOS PhotoCraft smoke exposed a visual-change assertion race. Source archives automatically shown by GitHub are source code, not install bundles.
+The current channel is **alpha**, for one user. Version 0.2.0-alpha.7 is published; Actions built the Linux x64, Windows x64 and Apple Silicon macOS bundles and passed all native bundle smokes. Each archive and its SHA256 sidecar is downloadable from [Releases](https://github.com/vedranius/creative-workspace/releases/tag/v0.2.0-alpha.7). Alpha.4 was not published because its macOS PhotoCraft smoke exposed a visual-change assertion race. Source archives automatically shown by GitHub are source code, not install bundles.
 
-| Bundle | Requirements | Included working editors |
+| Bundle | Requirements | Included native prototype engines |
 | --- | --- | --- |
 | linux-x64 `.tar.gz` | Linux x64, glibc 2.35+ | PhotoCraft, PdfCraft, VectorCraft, DesignCraft |
 | win32-x64 `.zip` | Windows x64; Microsoft Visual C++ 2015–2022 x64 runtime | Same four editors |
 | darwin-arm64 `.tar.gz` | Apple Silicon, macOS 14+ | Same four editors |
 
-Support means the target Actions native smoke passed; broader format compatibility and manual browser picker acceptance remain unverified. Windows and macOS archives are unsigned. Intel Mac and Linux/Windows ARM builds are not yet offered. RapidRAW's own Linux build uses its separate CLI installer; it is not included or automatically attached by the portable launcher. LightCraft has a browser preview and gateway recipe groundwork, but no real browser/FUSE acceptance or bundled engine; FilmCraft/EffectCraft remain unavailable. This is not the complete planned suite.
+Support means the target Actions native smoke passed; broader format compatibility and manual browser picker acceptance remain unverified. Windows and macOS archives are unsigned. Intel Mac and Linux/Windows ARM builds are not yet offered. RapidRAW's own Linux build uses its separate CLI installer; it is not included or automatically attached by the portable launcher. Original UI previews for LightCraft, FilmCraft and EffectCraft are runnable, but their owned server/provider integrations remain pending and their engines are not bundled. Original WASM UI packages for all seven apps are separately registered, not included in these archives. This is not the complete planned suite.
+
+## Original UI previews in alpha.8
+
+Build the original pinned upstream browser app, then use `npm run ui:install -- <app> <clean-source-checkout> <static-output>` (or the bundled Node with `scripts/install-original-ui.mjs`). Set `CW_ORIGINAL_UI_DIR` to the registration root when starting the studio; the default is `DATA_DIR/original-ui`. The dashboard offers only packages that pass identity, hash and confinement checks. See [instructions and evidence](studio-original-uis.md). Registration does not clone/build/execute arbitrary repositories. It requires a known original pin and preserves its licensing.
+
+The original previews process locally in WASM; File Open/save/export use upstream browser host behavior. Shared server/laptop on-demand/hybrid/copy-first modes, destination-write acknowledgement and recovery are not integrated into these original UIs. A browser download or a preview's clean indicator is not evidence that the selected disk destination acknowledged a write. Keep original application availability pending until those paths pass acceptance.
+
+`release/config.json` marks alpha.8 `draftOnly`; Actions still builds/checks each native target and verifies archive/checksum assets, then retains the GitHub Release draft. Do not turn it into a public complete-suite claim while original UI packaging/parity evidence is missing.
 
 ## Start
 

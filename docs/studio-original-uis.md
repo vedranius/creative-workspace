@@ -1,0 +1,40 @@
+# STU-ORG-01 — original interfaces launched from the studio
+
+Creative Workspace `0.2.0-alpha.8` changes the studio's primary launchers to the original upstream browser applications. This is original UI hosting/launch integration, not original server-processing or full-functionality acceptance.
+
+## What opens
+
+Registered PhotoCraft, VectorCraft, PdfCraft, DesignCraft, LightCraft, FilmCraft and EffectCraft packages open at `/original/<app>/` on the same studio origin. They use their shared original upstream Rust/egui UI and WASM engine. The dashboard does not replace an unavailable original package with a limited HTML editor. Existing prototype routes remain for old work, behind collapsed legacy links.
+
+On the development host, the corrected studio is [http://127.0.0.1:8793/](http://127.0.0.1:8793/). Old `8792` remains alive because four existing native editing sessions were found there. It is not the original-UI launch portal. Original clients currently execute document processing locally in WASM; the control panel clearly says so.
+
+## Register an original build
+
+1. Build the corresponding original upstream web entry from its exact clean pinned source. Pins are in `src/original-ui.js`; build recipes and proof are in each `*-original-ui-preview.md`. Do not register shared output after a different app has replaced it. Keep an independent static directory per app. For LightCraft, include its runtime `index.html`, JS, WASM and `worker.js`; Cargo intermediate directories are not publication assets.
+2. Run `npm run ui:install -- photocraft /path/to/clean/photocraft /path/to/photocraft/static-output`. On Windows use the bundled Node or a Node installation with the same script. Set `CW_ORIGINAL_UI_DIR` to the intended registration root; default is `DATA_DIR/original-ui` (or `data/original-ui`). Git is required only by the explicit registration step to check the original source pin and clean tracked source.
+3. Start the studio with that same `CW_ORIGINAL_UI_DIR`. `/api/original-uis` reports each installed preview's URL, original source revision and `processing: browser`, `serverIntegrated: false`. Missing, mismatched or corrupt packages stay unavailable.
+
+The registrar never clones/builds/runs arbitrary repositories. An administrator must supply a build from a known pin. It checks the source revision, clean tracked source and application title; this prevents known shared-output mixups but does not constitute a reproducible CI attestation of arbitrary supplied bytes. Live acceptance here used the builds recorded in upstream UI proof documents.
+
+Registration stages assets and source license/notice/attribution files into a separate immutable app/pin directory. It refuses overwriting an existing installed pin. Asset names, canonical roots, symlinks, SHA256, size and file-count budgets are enforced. The loader verifies complete package integrity, caches validation against file metadata and checks requested asset bytes again. Limits: 96 MiB per file, 512 MiB per package, 4096 assets and 1 MiB manifest.
+
+Only host metadata changes are made: remove an unresolved Trunk development-reloader script when it is separate from the app bootstrap, and supply an empty optional PhotoCraft served-font catalogue if absent. Original UI/engine bytecode is retained. These changes are recorded in the package manifest. LightCraft's optional Chinese font is absent in the current build and remains a visible limitation; no fake font is supplied.
+
+## Security and behavior
+
+The existing studio auth applies to the roster, HTML, JS, WASM and resources. Foreign Origin requests, invalid paths, undeclared files and escaping symlinks are refused. Original UI routes use scoped WASM/inline-script-hash/worker CSP and COOP/COEP/CORP headers; the rest of the gateway keeps its existing policy. This permits FilmCraft's isolated browser workers without exposing server workspaces as static UI files. UI packages are separate from workspace/provider roots.
+
+The original previews retain upstream browser file-picker/download/OPFS behavior. Common server/on-demand/hybrid/copy-first providers and destination-write acknowledgement/recovery are NOT connected to these UIs. A download or a preview's clean indicator is not proof of disk write acknowledgement. Original application completion and server integration stay pending until real provider/save/reopen acceptance passes. Upstream UI and engine revisions must still be staged and checked together on future upgrades; auto activation/rollback is not implemented by this registrar.
+
+## Evidence
+
+- Gateway fixtures verify authenticated roster/HTML/WASM, correct MIME and HEAD behavior, scoped script hashes and isolation headers, byte tamper, unknown files/apps, path/symlink escape, manifest identity/budgets, foreign Origin and modifying-method rejection. These are protocol/security fixtures, not real folder-permission tests.
+- Actual Chrome for Testing `151.0.7922.34`, 1600×1000, one isolated context: the studio offered seven `Open original…` links under its own origin. Each loaded its original menus/panels/canvas. Screenshots cover PhotoCraft's original shell, VectorCraft's original welcome/tool panels, the generated PdfCraft page, DesignCraft's upstream sample, LightCraft Develop, FilmCraft demo timeline/program and EffectCraft intro composition/timeline.
+- [Browser report](evidence/studio-original-ui/report.json) and [studio screenshot](evidence/studio-original-ui/studio.png). Individual app screenshots are in that same evidence directory. This is focused launch/render evidence, not exhaustive native/browser parity, camera/codec coverage, OS acceptance or acknowledged file saving.
+- Initial checks exposed missing PhotoCraft optional font metadata and an unresolved uppercase DesignCraft Trunk development reloader; registration now normalizes those host-only cases, with a standalone DesignCraft browser follow-up confirming the reloader no longer connects. The initial/default-route reports retain the pre-fix console observations rather than hiding them. LightCraft's optional CJK font 404 remains documented. The separate EffectCraft headless GPU-worker smoke failure remains in its original proof document; a rendered demo screenshot does not erase that failure.
+
+## Release and next step
+
+Alpha.8 is intentionally draft-only. GitHub Actions builds target native-prototype archives and checksums, but the original WASM UI assets are not included in those OS bundles yet. Do not describe these archives as complete original creative suites or upload locally built assets as Actions builds. Original UI asset packaging, cross-browser/target evidence, full parity and server/provider integration remain future acceptance tasks.
+
+Next: resume the preserved incomplete PAR-03 native sample slice, run its tests with scoped local-socket permission (the default Node sandbox assertion is not a code result), rebuild only its changed owned native worker, and wire an original DesignCraft action/read model/server render into the original UI. Save the portability/backend patch set in the repo. Preserve existing old sessions and original UI documents, and keep the server as authoritative processor before any server-backed claim.

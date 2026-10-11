@@ -142,4 +142,8 @@ jobs:
         run: |
           gh release create "v$VERSION" dist/* --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" --draft --prerelease --title "Creative Workspace $VERSION (alpha)" --notes-file release-notes.md
           test "$(gh release view "v$VERSION" --repo "$GITHUB_REPOSITORY" --json assets --jq '.assets | length')" -eq 6
-          gh release edit "v$VERSION" --repo "$GITHUB_REPOSITORY" --draft=false
+          if node -e "process.exit(JSON.parse(require('fs').readFileSync('release/config.json')).draftOnly ? 1 : 0)"; then
+            gh release edit "v$VERSION" --repo "$GITHUB_REPOSITORY" --draft=false
+          else
+            echo "Release assets verified; draft retained pending original-UI bundle evidence."
+          fi

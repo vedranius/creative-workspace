@@ -6,6 +6,7 @@ import {createReadStream} from 'node:fs';
 import {pipeline} from 'node:stream/promises';
 import {timingSafeEqual} from 'node:crypto';
 import {catalog} from './catalog.js';
+import {createOriginalUiRegistry} from './original-ui.js';
 import {readState,writeState,isWithin,listFiles,resolveWorkspace} from './storage.js';
 import {receiveFile,importSegments} from './transfers.js';
 import {checkRelease} from './updates.js';
@@ -23,9 +24,11 @@ function error(message,status=400){return Object.assign(new Error(message),{stat
 async function body(req,limit=16384){let data='';for await(const chunk of req){data+=chunk;if(Buffer.byteLength(data)>limit)throw error('Request too large',413);}try{return JSON.parse(data||'{}');}catch{throw error('Invalid JSON');}}
 function secretEquals(a,b){const x=Buffer.from(a),y=Buffer.from(b);return x.length===y.length&&timingSafeEqual(x,y);}
 
-export async function createWorkspaceServer({dataDir=process.env.DATA_DIR||path.join(base,'../data'),allowedRoots=(process.env.WORKSPACE_ROOTS||path.join(base,'../workspaces')).split(path.delimiter),auth=process.env.WORKSPACE_AUTH,fetcher=fetch,rapidrawUrl,photocraftOptions={},pdfcraftOptions={},vectorcraftOptions={},designcraftOptions={},lightcraftOptions={},studioContext=null,maxUploadBytes=Number(process.env.MAX_UPLOAD_BYTES||2147483648)}={}){
+export async function createWorkspaceServer({dataDir=process.env.DATA_DIR||path.join(base,'../data'),allowedRoots=(process.env.WORKSPACE_ROOTS||path.join(base,'../workspaces')).split(path.delimiter),auth=process.env.WORKSPACE_AUTH,fetcher=fetch,rapidrawUrl,photocraftOptions={},pdfcraftOptions={},vectorcraftOptions={},designcraftOptions={},lightcraftOptions={},studioContext=null,originalUiRoot=process.env.CW_ORIGINAL_UI_DIR||path.join(dataDir,'original-ui'),maxUploadBytes=Number(process.env.MAX_UPLOAD_BYTES||2147483648)}={}){
   if(!Number.isSafeInteger(maxUploadBytes)||maxUploadBytes<=0)throw new Error('Invalid MAX_UPLOAD_BYTES');
+  const product=JSON.parse(await readFile(path.join(base,'../package.json'),'utf8'));
   let state=await readState(dataDir);
+  const originalUis=createOriginalUiRegistry(originalUiRoot);
   const rapidraw=createRapidRaw({url:rapidrawUrl});
   const photocraft=createPhotoCraft({binary:process.env.CW_PHOTOCRAFT_BINARY||path.join(dataDir,'engines/photocraft/build/release/photocraft-cli'+(process.platform==='win32'?'.exe':'')),stateDir:path.join(dataDir,'engines/photocraft/sessions'),...photocraftOptions});
   const pdfcraft=createPdfCraft({binary:process.env.CW_PDFCRAFT_BINARY||path.join(dataDir,'engines/pdfcraft/build/release/cw-pdfcraft-engine'+(process.platform==='win32'?'.exe':'')),stateDir:path.join(dataDir,'engines/pdfcraft/sessions'),settleOutput:(id,relative)=>storage.settle(id,relative),...pdfcraftOptions});
@@ -81,7 +84,9 @@ export async function createWorkspaceServer({dataDir=process.env.DATA_DIR||path.
         const binary=['/api/files/upload','/api/storage/put'].includes(url.pathname)&&req.method==='PUT';
         if(binary?req.headers['content-type']!=='application/octet-stream':!req.headers['content-type']?.startsWith('application/json'))throw error('Unsupported content type',415);
       }
-      if(url.pathname==='/api/health'&&req.method==='GET')return json({status:'ok',version:'0.1.0'});
+      if(url.pathname==='/api/original-uis'&&req.method==='GET')return json(await originalUis.list());
+      if(url.pathname.startsWith('/original/')){if(req.headers.origin&&new URL(req.headers.origin).host!==req.headers.host)throw error('Origin mismatch',403);if(await originalUis.serve(req,res,url.pathname))return;}
+      if(url.pathname==='/api/health'&&req.method==='GET')return json({status:'ok',version:product.version});
       if(url.pathname==='/api/engines/rapidraw'&&req.method==='GET')return json(await rapidraw.status());
       if(url.pathname==='/api/engines/photocraft'&&req.method==='GET')return json(await photocraft.status());
       if(url.pathname==='/api/engines/pdfcraft'&&req.method==='GET')return json(await pdfcraft.status());
@@ -204,7 +209,7 @@ export async function createWorkspaceServer({dataDir=process.env.DATA_DIR||path.
         throw error('Method not allowed',405);
       }
       if(url.pathname==='/api/apps'&&req.method==='GET')return json(catalog.map(app=>({...app,configuration:state.apps[app.id]||{},update:state.updates[app.id]||{status:'unchecked'}})));
-      if(url.pathname==='/api/settings'&&req.method==='GET')return json({allowedRoots,authentication:!!auth,mode:'single-user',updateIntervalHours:24,maxUploadBytes,studioContext});
+      if(url.pathname==='/api/settings'&&req.method==='GET')return json({version:product.version,allowedRoots,authentication:!!auth,mode:'single-user',updateIntervalHours:24,maxUploadBytes,studioContext});
       if(url.pathname==='/api/imports/prepare'&&req.method==='POST'){
         const input=await body(req);
         if(!catalog.some(app=>app.id===input.app))throw error('Unknown application',404);
@@ -252,10 +257,10 @@ export async function createWorkspaceServer({dataDir=process.env.DATA_DIR||path.
       }
       if(url.pathname.startsWith('/api/'))throw error('Endpoint not found',404);
       if(req.method!=='GET'&&req.method!=='HEAD')throw error('Method not allowed',405);
-      const assets={'/':'index.html','/app.js':'app.js','/style.css':'style.css','/apps/photocraft/':'photocraft/index.html','/apps/photocraft/app.js':'photocraft/app.js','/apps/photocraft/style.css':'photocraft/style.css','/apps/designcraft/':'designcraft/index.html','/apps/designcraft/app.js':'designcraft/app.js','/apps/designcraft/style.css':'designcraft/style.css','/apps/vectorcraft/':'vectorcraft/index.html','/apps/vectorcraft/app.js':'vectorcraft/app.js','/apps/vectorcraft/style.css':'vectorcraft/style.css','/apps/pdfcraft/':'pdfcraft/index.html','/apps/pdfcraft/app.js':'pdfcraft/app.js','/apps/pdfcraft/style.css':'pdfcraft/style.css','/apps/lightcraft/':'lightcraft/index.html','/apps/lightcraft/app.js':'lightcraft/app.js','/apps/lightcraft/style.css':'lightcraft/style.css','/storage/agent.js':'storage/agent.js','/storage/folders.js':'storage/folders.js','/storage/recovery.js':'storage/recovery.js','/storage/recovery.css':'storage/recovery.css'};
+      const assets={'/':'index.html','/favicon.ico':'favicon.svg','/favicon.svg':'favicon.svg','/app.js':'app.js','/style.css':'style.css','/apps/photocraft/':'photocraft/index.html','/apps/photocraft/app.js':'photocraft/app.js','/apps/photocraft/style.css':'photocraft/style.css','/apps/designcraft/':'designcraft/index.html','/apps/designcraft/app.js':'designcraft/app.js','/apps/designcraft/style.css':'designcraft/style.css','/apps/vectorcraft/':'vectorcraft/index.html','/apps/vectorcraft/app.js':'vectorcraft/app.js','/apps/vectorcraft/style.css':'vectorcraft/style.css','/apps/pdfcraft/':'pdfcraft/index.html','/apps/pdfcraft/app.js':'pdfcraft/app.js','/apps/pdfcraft/style.css':'pdfcraft/style.css','/apps/lightcraft/':'lightcraft/index.html','/apps/lightcraft/app.js':'lightcraft/app.js','/apps/lightcraft/style.css':'lightcraft/style.css','/storage/agent.js':'storage/agent.js','/storage/folders.js':'storage/folders.js','/storage/recovery.js':'storage/recovery.js','/storage/recovery.css':'storage/recovery.css'};
       if(!assets[url.pathname])throw error('Not found',404);
       const buffer=await readFile(path.join(publicRoot,assets[url.pathname]));
-      const type=url.pathname.endsWith('.js')?'text/javascript':url.pathname.endsWith('.css')?'text/css':'text/html';
+      const type=assets[url.pathname].endsWith('.svg')?'image/svg+xml':url.pathname.endsWith('.js')?'text/javascript':url.pathname.endsWith('.css')?'text/css':'text/html';
       res.writeHead(200,{'Content-Type':`${type}; charset=utf-8`,'Cache-Control':'no-cache'});res.end(req.method==='HEAD'?undefined:buffer);
     }catch(e){if(res.headersSent){res.destroy();return;}req.resume();json({error:e.status?e.message:'Operation failed; check the directory and server configuration',...(e.status&&['STATE_VERSION_CONFLICT','OUTPUT_EXISTS','SOURCE_HASH_CONFLICT'].includes(e.code)?{code:e.code}:{})},e.status||400);}
   });

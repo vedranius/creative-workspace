@@ -1,7 +1,7 @@
 data/
 workspaces/
 .env
-node_modules/
+node_modules
 *.log
 build/
 dist/

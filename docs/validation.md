@@ -118,3 +118,8 @@ Published alpha.6 Actions acceptance:
 
 - Checks [38115244155](https://github.com/vedranius/creative-workspace/actions/runs/38115244155) and Build and release [38115244135](https://github.com/vedranius/creative-workspace/actions/runs/38115244135) succeeded for commit `82a98491bcfc7ca3d1310117622c72bd1ff66b43`.
 - All twelve target-specific native builds and three OS open/edit/save/reopen plus archive smokes passed. The Linux x64, Windows x64 and Apple Silicon macOS archives and their three SHA256 sidecars were published; all six URLs returned HTTP 200 and the sidecar values match GitHub's asset digests.
+
+
+## STU-ORG-01 — original UI launch integration
+
+See [original UI studio proof](studio-original-uis.md). Seven pinned original UI packages launch through same-origin studio routes, with auth/integrity/confinement fixtures and Chrome screenshots. The 41-test gateway suite passes outside the default socket sandbox. Local-WASM processing, missing optional LightCraft CJK font and separate EffectCraft headless worker/GPU failure remain explicit. This is not full native parity, provider/save acknowledgement, server processing or cross-platform bundle acceptance.

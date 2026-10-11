@@ -4,6 +4,8 @@ Ovaj dokument određuje redoslijed razvoja. [Stanje razvoja](development-state.m
 
 **Aktualni redoslijed nakon korisnikove potvrde originalnog DesignCraft UI-ja:** [cjeloviti plan portanja originalnih aplikacija](original-app-port-plan.md). Originalni UI previewi svih sedam ArtCraft aplikacija su izgrađeni; sljedeći je konkretni DesignCraft PAR-03 server seam, zatim server/provider integracije ostalih originalnih aplikacija. Raniji dovršeni HTML subset prototipovi niže povijesna su evidencija, ne prihvaćeni originalni portovi. Jedna kratka sesija i jedan writer po zadatku.
 
+**STU-ORG-01 — izvorni UI iz studija:** glavni launch gumbi sada koriste registrirane originalne UI pakete na istoj adresi servera. Lokalni novi studio je `8793`; `8792` čuva četiri stare sesije. [Upute i dokazi](studio-original-uis.md). Ovo ne dovršava server obradu niti provider/save ACK; sljedeći korak ostaje konkretni DesignCraft PAR-03 backend/UI spoj.
+
 ## Cilj i pravila proizvoda
 
 **Obvezna korisnička specifikacija:** [izvorne aplikacije 1:1 i njihove nadogradnje](original-app-requirements.md). ArtCraft UI, alati, dijalozi, shortcuti i funkcije moraju odgovarati izvornoj native verziji. Nadogradnja prenosi zajedno originalni UI i engine te provjerava parity i kompatibilnost. Ograničeni vlastiti editor nije prihvatljiv dovršeni port.

@@ -2,10 +2,18 @@
 
 Each completed product update receives a new SemVer, changelog entry and immutable Actions-built release. Engine source versions remain independently pinned.
 
-## [0.2.0-alpha.7] — 2026-10-11 (unpublished)
+## [0.2.0-alpha.8] — 2026-10-11 (draft)
+
+- Make verified original upstream UI previews the studio's primary launchers, served on the same authenticated origin under `/original/<app>/`; keep limited legacy prototypes in collapsed links and preserve their routes/documents.
+- Add explicit clean-source/pin registration, immutable per-app asset packages, checksum/path/symlink/budget checks, source licenses/attributions, scoped WASM/worker security headers and preview identity independent of native-engine health.
+- Prevent shared build-output reuse from silently switching an application. Normalize only unresolved Trunk development reload metadata and PhotoCraft's optional empty served-font catalogue; retain original UI/engine code and expose LightCraft's missing optional Chinese font.
+- Report the actual product version in health/settings and the studio. Original UI processing remains local WASM; original server/provider/save-ack parity is pending.
+- Actions builds target assets but leaves alpha.8 draft: original WASM UI assets are not yet bundled/accepted on all targets. This is not a complete creative-suite release.
+
+## [0.2.0-alpha.7] — 2026-10-11
 
 - Correct the dashboard to distinguish original ArtCraft application ports from limited custom prototypes. Engine readiness no longer counts as original UI or full-functionality completion.
-- PAR-03a original DesignCraft UI/server command and render bridge remains incomplete; this version is not a DesignCraft port or parity release. Publish only after normal CI and Actions-built assets are verified.
+- PAR-03a original DesignCraft UI/server command and render bridge remains incomplete; this version is not a DesignCraft port or parity release. Published after the target CI and Actions asset checks passed; full original UI/server parity remains pending.
 
 ## [0.2.0-alpha.6] — 2026-10-11
 
