@@ -100,8 +100,13 @@ The adapter is a working browser prototype, with core tools and a discoverable c
 - Two native regression/contract tests passed, plus scoped fmt/clippy, locked installer and JS syntax checks. Existing gateway code is unchanged; 32-test CI baseline remains. Report outside the repo: `outputs/lightcraft-native-foundation-proof.json`. This does not prove broad camera RAW calibration, native Windows/macOS, browser permissions or on-demand saving.
 - Five existing apps remain available on 8792; no live service was restarted. The gateway foundation is implemented; browser UI plus native/FUSE/browser evidence are still required before marking LightCraft available.
 - Gateway fixture validation: open a selected source; edit; export while retaining dirty state; persist an editable recipe; reopen it from the selected destination while resolving its original beneath the selected source root; reject changed source bytes and destination collisions. A successful recipe write calls `mark_saved` only after destination ACK. This is protocol-fixture evidence, not a real browser permission or FUSE test.
-## LGT-01b browser preview (0.2.0-alpha.6 candidate)
+## LGT-01b browser preview (0.2.0-alpha.6)
 
 - Added browser asset/API fixture coverage for the LightCraft preview and the pinned engine's control-range metadata. Gateway fixture coverage also verifies hash-bound recipe load/save, server ACK behavior, stale source rejection, auth/Origin and failed laptop ACK.
 - The UI supports selected folder modes, photo/recipe browsing, native controls, undo/redo, recipe save and image-copy export. In an isolated real-browser run against the existing workspace-owned Linux worker, a generated PNG opened, a control edit changed the preview, recipe save ACK cleared dirty, recipe reopen restored the value, and JPEG export kept later edits dirty. This was server-workspace browser evidence, not a real browser permission or FUSE acceptance.
 - Real browser permission, Linux FUSE/agent open/edit/save/reopen and reconnect/recovery checks remain required before LightCraft can be marked available.
+
+Published alpha.6 Actions acceptance:
+
+- Checks [38115244155](https://github.com/vedranius/creative-workspace/actions/runs/38115244155) and Build and release [38115244135](https://github.com/vedranius/creative-workspace/actions/runs/38115244135) succeeded for commit `82a98491bcfc7ca3d1310117622c72bd1ff66b43`.
+- All twelve target-specific native builds and three OS open/edit/save/reopen plus archive smokes passed. The Linux x64, Windows x64 and Apple Silicon macOS archives and their three SHA256 sidecars were published; all six URLs returned HTTP 200 and the sidecar values match GitHub's asset digests.

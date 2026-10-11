@@ -6,7 +6,12 @@ Each completed product update receives a new SemVer, changelog entry and immutab
 
 - Add a native browser preview for the existing LightCraft gateway: browse the selected source, open photos and hash-bound recipes, edit using ranges exposed by the pinned engine, undo/redo, save editable recipes and export image copies.
 - Keep LightCraft planned and excluded from portable bundles until real browser permission and Linux FUSE/agent open/edit/save/reopen acceptance passes. Recipe save ACK and export dirty-state behavior remain enforced by the gateway.
-- Release candidate only; platform assets and checksums are available only after the Actions release workflow succeeds.
+- Published as an immutable prerelease after all target native builds, smoke checks and bundle archive checks succeeded. Linux, Windows and macOS assets each include a SHA256 sidecar.
+
+## [0.2.0-alpha.5] — 2026-10-11
+
+- Make the native PhotoCraft version smoke compare a known paint stroke against the preview after either valid concurrent edit/undo winner. Stale-version rejection and exactly one concurrent winner remain required.
+- Reissue the unpublished LightCraft gateway update under a fresh immutable version; the earlier alpha.4 candidate was not tagged or published.
 
 ## [0.2.0-alpha.4] — 2026-10-11
 
@@ -14,11 +19,6 @@ Each completed product update receives a new SemVer, changelog entry and immutab
 - Add editable recipe save/load bound to the confined source-relative path, original SHA-256 and LightCraft 0.6.0 pin. Session version/dedup guards reject stale mutations; recipe save clears dirty state only after the chosen server or laptop destination acknowledges the new file. Image exports remain dirty.
 - This is gateway groundwork only: no LightCraft browser editor, portable-bundle engine, real browser picker/FUSE acceptance or availability claim.
 - Not released: macOS Actions smoke found a nondeterministic visual-change assertion after the valid concurrent undo winner. No alpha.4 tag or assets were published.
-
-## [0.2.0-alpha.5] — 2026-10-11
-
-- Make the native PhotoCraft version smoke compare a known paint stroke against the preview after either valid concurrent edit/undo winner. Stale-version rejection and exactly one concurrent winner remain required.
-- Reissue the unpublished LightCraft gateway update under a fresh immutable version; the earlier alpha.4 candidate was not tagged or published.
 
 ## [0.2.0-alpha.3] — 2026-10-11
 
