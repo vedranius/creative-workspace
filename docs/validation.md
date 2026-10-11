@@ -106,6 +106,14 @@ The adapter is a working browser prototype, with core tools and a discoverable c
 - The UI supports selected folder modes, photo/recipe browsing, native controls, undo/redo, recipe save and image-copy export. In an isolated real-browser run against the existing workspace-owned Linux worker, a generated PNG opened, a control edit changed the preview, recipe save ACK cleared dirty, recipe reopen restored the value, and JPEG export kept later edits dirty. This was server-workspace browser evidence, not a real browser permission or FUSE acceptance.
 - Real browser permission, Linux FUSE/agent open/edit/save/reopen and reconnect/recovery checks remain required before LightCraft can be marked available.
 
+## LGT-01c — isolated server-workspace browser QA; laptop/FUSE gate open
+
+- Ran an isolated preview at `http://127.0.0.1:8812/apps/lightcraft/` with separate temporary data/workspaces under `/tmp/cw-lightcraft-qa`; no live studio was restarted. The only photo was generated QA data, alongside an unrelated 1 MiB fixture.
+- In the browser, opened `qa-generated.jpg` (640 × 480), changed exposure to `0.01`, saved `Developed.lightcraft.json`, closed the image and reopened the recipe. UI returned the same photo and `0.01` value. A subsequent change to `0.02` followed by JPEG export left the recipe visibly dirty and reported that it still needed saving.
+- The saved envelope binds to engine `0.6.0`, the selected relative path and SHA-256 `553ebeffd9d8c95feee20e4ac48b5a756b65ac640d9431462c2a9c3285d6de5e`. The generated original and unrelated fixture hashes remained available for checking; this server-workspace run did not instrument file reads and cannot prove the unrelated file was never read. The save destination exercised here was the server workspace only.
+- `npm run check` and `node --test test/lightcraft.test.js test/lightcraft-recipe.test.js test/storage-provider.test.js test/storage-recovery.test.js` passed (13 tests). Existing tests cover protocol fixtures for ownership, ACK failure and recovery behavior; those are not FUSE or browser-permission evidence.
+- This host has no `/dev/fuse`, so the owned filesystem helper could not perform a real mount. No laptop output ACK, reconnect after lost browser permission, or uncertain-save recovery was established with the real engine. The IAB picker was not granted a directory. Keep LightCraft planned and outside bundles. Next: user manually grants the generated QA folder in the visible preview browser; separately rerun the full laptop path on a Linux host with working FUSE, including byte-read audit, ACK-before-clean, reconnect and newer-local-bytes recovery conflict.
+
 Published alpha.6 Actions acceptance:
 
 - Checks [38115244155](https://github.com/vedranius/creative-workspace/actions/runs/38115244155) and Build and release [38115244135](https://github.com/vedranius/creative-workspace/actions/runs/38115244135) succeeded for commit `82a98491bcfc7ca3d1310117622c72bd1ff66b43`.
