@@ -2,6 +2,12 @@
 
 Each completed product update receives a new SemVer, changelog entry and immutable Actions-built release. Engine source versions remain independently pinned.
 
+## [0.2.0-alpha.14] — 2026-10-11 (draft candidate)
+
+- Fix the original UI exact-patch verifier to include new untracked files during comparison. The reviewed DesignCraft patch adds `server-bridge.js`; plain `git diff` omitted that file and caused alpha.13's Actions registration to fail after a successful Trunk build.
+- Temporarily mark untracked paths intent-to-add only for the canonical diff, then restore the index. The reviewed patch bytes and SHA-256 remain unchanged; unrelated/unreviewed source changes still fail exact equality.
+- Reproduced with checksum-pinned Trunk 0.21.14 on the exact DesignCraft pin. Low-impact optimized WASM build and original UI package registration succeeded after the fix. Actions must rebuild target assets; this local artifact is verification only.
+
 ## [0.2.0-alpha.13] — 2026-10-11 (draft candidate)
 
 - Bind the original DesignCraft canvas preview to the server-owned read model: display the upstream document title, page count and dirty state at the same state revision as the PNG.

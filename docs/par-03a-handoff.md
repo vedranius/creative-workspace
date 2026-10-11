@@ -2,6 +2,14 @@
 
 Updated 2026-10-11 after the alpha.13 read-model browser/native slice.
 
+## Alpha.14 release-fix candidate (2026-10-11)
+
+Alpha.13 Build/release `38178166864` failed after Trunk successfully compiled the pinned original DesignCraft UI. Cause: the reviewed patch adds untracked `server-bridge.js`, but plain `git diff HEAD` omits untracked files, so registration compared an incomplete diff and rejected it. The patch itself and SHA-256 were correct.
+
+`scripts/original-ui-source.mjs` now marks untracked paths intent-to-add only while collecting the canonical diff, then resets those intent entries. `install-original-ui.mjs` and the DesignCraft build script use this shared exact-diff helper. A regression test confirms the new file is included and remains untracked afterward. Reproduced the full optimized WASM build and original UI packaging locally with checksum-verified Trunk 0.21.14 through `low-impact-build.py`; package registration succeeded and the patch hash stayed `a72bd8e7bb0302ddae7bd35ee8df6df6bb35ab8164b1c2973d436db99b87c3c2`. This local artifact is not a release asset.
+
+Alpha.14 must run through Actions. Verify Checks and all build jobs, then confirm the actual immutable tag, draft prerelease, ten target archive/checksum assets, and checksums. Keep the release draft; only then continue the next original DesignCraft edit action. DesignCraft remains planned.
+
 ## Alpha.13 Actions outcome (checked 2026-10-11 22:32 UTC)
 
 GitHub Checks run `38178166902` succeeded on Ubuntu, macOS and Windows. Build/release run `38178166864` completed with failure in `original-designcraft` only: the pinned UI compiled successfully, then `scripts/install-original-ui.mjs` rejected the source diff as different from the reviewed patch (`Source differs from the exact reviewed integration patch`, `scripts/install-original-ui.mjs:24`). Its native and other original UI jobs completed successfully. GitHub identity was verified as `vedranius`; no `v0.2.0-alpha.13` tag/ref or release exists, and the latest release remains the `v0.2.0-alpha.10` draft. Do not claim an alpha.13 asset or publication.

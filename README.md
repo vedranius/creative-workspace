@@ -2,7 +2,7 @@
 
 # Creative Workspace
 
-**Version: 0.2.0-alpha.13** — open-source, self-hosted, single-user prototype.
+**Version: 0.2.0-alpha.14** — open-source, self-hosted, single-user prototype.
 
 Bring your creative tools together in one browser studio. Choose an application, select your files, and access your own server from a lightweight laptop. The goal is **the original application interfaces and tools in the browser, with the server doing the heavy work**: photography, image editing, illustration, PDF, publishing, video and motion graphics. Browser controls run locally; document commands, data and previews travel to the server. No VNC or remote desktop is involved.
 
@@ -15,10 +15,10 @@ Bring your creative tools together in one browser studio. Choose an application,
 - **Original interfaces from one studio:** registered PhotoCraft, VectorCraft, PdfCraft, DesignCraft, LightCraft, FilmCraft and EffectCraft launch on the studio's own origin at `/original/<app>/`. Invalid or missing packages stay unavailable. [Installation and browser evidence](docs/studio-original-uis.md).
 - **FilmCraft MKV/WebM import fix:** a reviewed patch to the original media browser handles pending reads, duplicate requests, selection/bin changes, cancellation and metadata retry. Eight isolated browser cases passed; this is not a claim that every codec or video export works. [Fix and evidence](docs/filmcraft-mkv-import-handoff.md).
 - **DesignCraft PAR-03 read-model slice:** `file.newSample` still executes in the owned native worker; the original canvas receives its revisioned document title, page count and dirty state with the 612×792 server PNG. Browser evidence covers stale-revision, foreign-session and invalid-Origin rejection. Other commands, editing, provider/save ACK and recovery are pending. [Bridge scope](docs/designcraft-par03-sample-bridge.md).
-- **Release foundations:** GitHub Actions builds Linux x64, Windows x64 and Apple Silicon macOS native-prototype bundles with an embedded Node 24 runtime, licenses, manifests, native smokes and checksums. FilmCraft and DesignCraft preview archives have separate build jobs. Alpha.12 native/bundle jobs passed, but DesignCraft failed exact patch registration, so no alpha.12 tag or release exists; alpha.13 has not yet passed Actions.
+- **Release foundations:** GitHub Actions builds Linux x64, Windows x64 and Apple Silicon macOS native-prototype bundles with an embedded Node 24 runtime, licenses, manifests, native smokes and checksums. FilmCraft and DesignCraft preview archives have separate build jobs. Alpha.13 failed because plain Git diff omitted the reviewed patch's new file after Trunk compiled; alpha.14 fixes exact diff collection and passed an isolated Trunk/package reproduction. Actions and downloadable assets remain unverified.
 - **A visual project guide:** real screenshots of the studio and all eight applications, an original CW logo, installation instructions and explicit source/license attribution.
 
-The latest verified **public** download is [v0.2.0-alpha.7](https://github.com/vedranius/creative-workspace/releases/tag/v0.2.0-alpha.7). Alpha.10's eight assets were verified in a **draft** release; they are not public downloads. Alpha.11/12 builds are not proof of downloadable assets. Alpha.13 is the read-model candidate and awaits its immutable tag and Actions verification. Every new product feature/fix receives its own version and changelog; documentation-only updates retain the product version. [Release requirements and upgrade guide](docs/releases.md).
+The latest verified **public** download is [v0.2.0-alpha.7](https://github.com/vedranius/creative-workspace/releases/tag/v0.2.0-alpha.7). Alpha.10's eight assets were verified in a **draft** release; they are not public downloads. Alpha.11–13 did not create releases. Alpha.14 is a release-fix candidate and awaits its immutable tag and Actions verification. Every new product feature/fix receives its own version and changelog; documentation-only updates retain the product version. [Release requirements and upgrade guide](docs/releases.md).
 
 ## Applications and current status
 

@@ -1,2 +1,19 @@
+import {execFile} from 'node:child_process';
+import {promisify} from 'node:util';
+
+const exec=promisify(execFile);
 // Stable reviewed-patch bytes in full/shallow checkouts and across Git formatting settings.
 export const originalUiDiffArgs=['-c','core.fsmonitor=false','diff','--binary','--full-index','--no-color','--no-ext-diff','--no-textconv','--no-renames','--src-prefix=a/','--dst-prefix=b/','--unified=3','--diff-algorithm=myers','--indent-heuristic','HEAD','--'];
+
+// `git diff HEAD` omits untracked files, including new files in an applied reviewed patch.
+// Temporarily mark those paths intent-to-add so their bytes participate in the exact diff,
+// then restore the original index state even when Git rejects the comparison.
+export async function originalUiSourceDiff(source){
+  const options={maxBuffer:8*1024*1024};
+  const git=async(args,extra={})=>(await exec('git',['-C',source,...args],{...options,...extra})).stdout;
+  const untracked=(await git(['ls-files','--others','--exclude-standard','-z'])).split('\0').filter(Boolean);
+  if(untracked.length>4096||untracked.reduce((size,name)=>size+Buffer.byteLength(name),0)>1024*1024)throw new Error('Original UI source has too many untracked paths');
+  if(untracked.length)await git(['add','--intent-to-add','--',...untracked]);
+  try{return await git(originalUiDiffArgs);}
+  finally{if(untracked.length)await git(['reset','--quiet','--',...untracked]);}
+}

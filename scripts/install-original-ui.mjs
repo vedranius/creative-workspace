@@ -1,5 +1,5 @@
 import path from 'node:path';
-import {originalUiDiffArgs} from './original-ui-source.mjs';
+import {originalUiSourceDiff} from './original-ui-source.mjs';
 import {readdir,readFile,writeFile,mkdir,realpath,stat,copyFile,rename,rm,access} from 'node:fs/promises';
 import {execFile} from 'node:child_process';
 import {promisify} from 'node:util';
@@ -20,7 +20,7 @@ const patch=originalUiPatches[id];let patchBytes;
 if(patch){
   patchBytes=await readFile(new URL('../'+patch.path,import.meta.url));
   if(createHash('sha256').update(patchBytes).digest('hex')!==patch.sha256)throw new Error('Reviewed source patch checksum mismatch');
-  const diff=(await git('git',['-C',source,...originalUiDiffArgs],{maxBuffer:2*1024*1024})).stdout;
+  const diff=await originalUiSourceDiff(source);
   if(diff!==patchBytes.toString('utf8'))throw new Error('Source differs from the exact reviewed integration patch');
 }else await git('git',['-C',source,'-c','core.fsmonitor=false','diff','--no-ext-diff','--quiet','HEAD','--']);
 const root=path.resolve(process.env.CW_ORIGINAL_UI_DIR||path.join(process.env.DATA_DIR||'data','original-ui'));

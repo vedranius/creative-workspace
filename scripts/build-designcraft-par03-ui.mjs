@@ -3,7 +3,7 @@ import {readFile,writeFile,mkdir,cp,access} from 'node:fs/promises';
 import {spawn} from 'node:child_process';
 import {createHash} from 'node:crypto';
 import {fileURLToPath} from 'node:url';
-import {originalUiDiffArgs} from './original-ui-source.mjs';
+import {originalUiSourceDiff} from './original-ui-source.mjs';
 import {originalUiPins,originalUiPatches,originalUiPackageId} from '../src/original-ui.js';
 const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..');
 const source=path.resolve(process.argv[2]||'build/original-ui/source-designcraft');
@@ -15,7 +15,7 @@ if(!patch||patch.id!=='par-03-server-read-model-v2')throw new Error('DesignCraft
 await access(path.join(source,'.git'));
 if((await run('git',['rev-parse','HEAD'],{cwd:source,capture:true})).trim()!==pin)throw new Error('DesignCraft source must be at its pinned upstream revision');
 const bytes=await readFile(path.join(root,patch.path));if(createHash('sha256').update(bytes).digest('hex')!==patch.sha256)throw new Error('PAR-03 patch checksum mismatch');
-const diff=await run('git',originalUiDiffArgs,{cwd:source,capture:true});
+const diff=await originalUiSourceDiff(source);
 if(diff===''){await run('git',['apply','--check',path.join(root,patch.path)],{cwd:source});await run('git',['apply',path.join(root,patch.path)],{cwd:source});}
 else if(diff!==bytes.toString('utf8'))throw new Error('Pinned checkout has unrelated or changed source edits');
 await mkdir(assets,{recursive:true});
