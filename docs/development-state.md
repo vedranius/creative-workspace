@@ -4,6 +4,8 @@ Updated: 2026-10-11. Read this file, `../AGENTS.md`, and the relevant roadmap ro
 
 ## Current milestone
 
+- **Autonomous continuation reaffirmed (2026-10-11):** user explicitly requests continuing without repeated “dalje” prompts. Existing standalone project automation remains ACTIVE, now every 30 minutes. Check recorded feature owner directly before any duplicate build/QA; active owner means immediate quiet deferral. Completed task handoff selects the next scheduled task without asking to continue. Original VectorCraft UI proof is complete; next is ORG-PDF-UI. Preserve actual permission/usage blockers with exact next steps rather than retry loops.
+
 - **Mandatory latest user requirement: 1:1 original ArtCraft UI AND complete functionality, including upstream updates.** Read `original-app-requirements.md` before further implementation. UI/engine must track the same verified original revision and update together, with parity/compatibility checks, protected unsaved sessions and rollback. Custom subset editors or an unchanged custom UI with a newer original engine cannot fulfill the request. This requirement overrides old subset/availability language below.
 
 - **User correction / priority PAR-01 (2026-10-11): preserve and port ORIGINAL application interfaces and tools, with server processing.** The ArtCraft prototypes use genuine upstream engines/libraries, but their browser frontends were written for this workspace and expose only subsets. They are not the original applications ported to the web and do not fulfill UI/functional parity. Stop expanding replacement frontends as the product goal. Keep working prototypes and unsaved documents intact. RapidRAW remains the separate integration of its upstream web fork.
