@@ -22,6 +22,8 @@ RapidRAW ima zaseban Linux engine i browser editor. PhotoCraft ima zaseban Rust 
 
 **REL-01 dovršen:** Creative Workspace 0.2.0-alpha.6 objavljen je kao prerelease s tri Actions-built bundlea i SHA256 sidecarima; svi native targeti i smoke provjere prošli su. Linux x64, Windows x64 i Apple Silicon macOS podrška odnosi se na ove bundle acceptance smokeove, ne na LightCraft ili svaki adapter. RapidRAW, mount helper, Intel Mac i engine-enabled Docker ostaju zasebni packaging zadaci; realni browser picker/šira format podrška nisu potvrđeni. Svaka feature/fix verzija dobiva SemVer bump, changelog, overview/goal/install/release-doc update, normalan push i novu Actions prerelease; ne prepisivati objavljene tagove. Detalji u [release vodiču](releases.md).
 
+**Prioritet PAR-01 — korekcija korisnika, 11. listopada:** cilj su originalne aplikacije i njihov izvorni UI/funkcije u browseru, uz obradu na serveru. Dosadašnji ArtCraft prototipovi koriste izvorne engineove, ali vlastita ograničena sučelja; nisu portovi originalnih aplikacija. Sljedeće auditirati pinned izvorne frontendove, postojeći WASM support, alate/dijaloge i engine/backend veze, zatim portati originalni UI kod uz server backend. Ne nastavljati zamjenske editore niti obećavati punu funkcionalnost prije source inventara i dokaza. Ovaj prioritet prethodi ranijem LGT/FIL/FX redoslijedu.
+
 ## Redoslijed i kriteriji dovršenosti
 
 | Faza | Rezultat za korisnika | Zadaci i provjera |

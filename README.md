@@ -12,6 +12,8 @@ A lightweight laptop should be able to access a powerful self-hosted creative se
 
 [GitHub Releases](https://github.com/vedranius/creative-workspace/releases) is the download location. The Actions pipeline builds portable Linux x64, Windows x64 and Apple Silicon macOS bundles with Node 24 and PhotoCraft/PdfCraft/VectorCraft/DesignCraft; publication waits for every target native smoke. The PhotoCraft version-race smoke allows either concurrent request to win while requiring stale-version rejection. LightCraft is not included in those bundles yet. RapidRAW and the native mount helper are not bundled. A pipeline run in progress is not an available release. See [installation, requirements and upgrades](docs/releases.md) and [changelog](CHANGELOG.md).
 
+**Frontend scope:** the current ArtCraft integrations use original upstream native engines, but their browser interfaces were written for Creative Workspace and expose limited subsets. They are prototypes, not the original ArtCraft applications ported with their full interfaces/toolsets. The next priority is porting the original UI source with server-side processing; see PAR-01 in the roadmap. Existing download bundles have this prototype scope.
+
 ## Implemented
 
 - Responsive application catalog for RapidRAW and seven ArtCraft creative apps.
