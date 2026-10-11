@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="440" viewBox="0 0 1280 440" role="img" aria-labelledby="title desc">
+<title id="title">Creative Workspace — your studio, everywhere</title><desc id="desc">Original CW identity in blue, orange and cream. Independent tools. One creative home.</desc>
+<rect width="1280" height="440" rx="24" fill="#f5f2eb"/>
+<g stroke="#dfdcd5" stroke-width="1"><path d="M940 0v440M1020 0v440M1100 0v440M1180 0v440M860 0v440M780 0v440M780 80h500M780 160h500M780 240h500M780 320h500M780 400h500"/></g>
+<g transform="translate(56 64) scale(.42)"><rect width="256" height="256" rx="52" fill="#fffdf8"/><path d="M128 64H83a40 40 0 0 0-40 40v48a40 40 0 0 0 40 40h45v-28H83a12 12 0 0 1-12-12v-48a12 12 0 0 1 12-12h45Z" fill="#2854e8"/><path d="m106 110 23 82h27l20-42 19 42h25l25-109h-29l-14 67-15-40h-24l-21 42-10-42Z" fill="#171717"/><path d="M164 38h53v53h-24V79l-36 36-17-17 36-36h-12Z" fill="#ff7544"/></g>
+<text x="190" y="99" font-family="Arial,Helvetica,sans-serif" font-size="19" letter-spacing="2" fill="#171717">CREATIVE WORKSPACE</text>
+<text x="56" y="246" font-family="Arial,Helvetica,sans-serif" font-weight="700" font-size="68" letter-spacing="-3" fill="#171717">Your studio,</text>
+<text x="56" y="322" font-family="Arial,Helvetica,sans-serif" font-weight="700" font-size="68" letter-spacing="-3" fill="#2854e8">everywhere.</text>
+<text x="58" y="383" font-family="Arial,Helvetica,sans-serif" font-size="17" fill="#555">Independent tools. One creative home.</text>
+<rect x="860" y="111" width="217" height="217" fill="#2854e8" transform="rotate(-12 968 219)"/>
+<circle cx="1098" cy="133" r="90" fill="#ff7544"/>
+<circle cx="1095" cy="274" r="99" fill="none" stroke="#f5f2eb" stroke-width="27"/>
+<text x="834" y="413" font-family="monospace" font-size="12" letter-spacing="1" fill="#555">SELF-HOSTED / OPEN SOURCE / NATIVE BROWSER UI</text>
+</svg>

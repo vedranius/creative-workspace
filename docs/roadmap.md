@@ -8,6 +8,8 @@ Ovaj dokument određuje redoslijed razvoja. [Stanje razvoja](development-state.m
 
 **STU-ORG-01 — izvorni UI iz studija:** glavni launch gumbi sada koriste registrirane originalne UI pakete na istoj adresi servera. Lokalni novi studio je `8793`; `8792` čuva četiri stare sesije. [Upute i dokazi](studio-original-uis.md). Ovo ne dovršava server obradu niti provider/save ACK; sljedeći korak ostaje konkretni DesignCraft PAR-03 backend/UI spoj.
 
+**DOCS-SUMMARY-01:** README overview, instalacija, 14 stvarnih screenshotova, CW logo i objašnjenje licence/izvornih autora. [Primopredaja](summary-handoff.md). Dokumentacija ne mijenja stanje prihvaćenosti aplikacija.
+
 ## Cilj i pravila proizvoda
 
 **Obvezna korisnička specifikacija:** [izvorne aplikacije 1:1 i njihove nadogradnje](original-app-requirements.md). ArtCraft UI, alati, dijalozi, shortcuti i funkcije moraju odgovarati izvornoj native verziji. Nadogradnja prenosi zajedno originalni UI i engine te provjerava parity i kompatibilnost. Ograničeni vlastiti editor nije prihvatljiv dovršeni port.

@@ -6,6 +6,7 @@ on:
       - 'docs/**'
       - 'evidence/**'
       - 'README.md'
+      - 'LICENSE.md'
       - 'CHANGELOG.md'
       - '.github/workflows/release.yaml'
   workflow_dispatch:

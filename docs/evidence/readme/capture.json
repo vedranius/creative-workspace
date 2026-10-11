@@ -1,0 +1,83 @@
+{
+  "captureDate": "2026-10-11",
+  "productVersion": "0.2.0-alpha.12",
+  "content": "Generated gateway demo workspace; original upstream RapidRAW welcome artwork; no user documents",
+  "screenshots": [
+    {
+      "file": "studio.png",
+      "surface": "/"
+    },
+    {
+      "file": "server-files.png",
+      "surface": "/"
+    },
+    {
+      "file": "laptop-import.png",
+      "surface": "/"
+    },
+    {
+      "file": "updates.png",
+      "surface": "/"
+    },
+    {
+      "file": "settings.png",
+      "surface": "/"
+    },
+    {
+      "file": "save-recovery.png",
+      "surface": "/"
+    },
+    {
+      "file": "rapidraw.png",
+      "surface": "/apps/rapidraw/"
+    }
+  ],
+  "originalUiAvailability": {
+    "photocraft": {
+      "available": true,
+      "sourcePatch": null
+    },
+    "vectorcraft": {
+      "available": true,
+      "sourcePatch": null
+    },
+    "pdfcraft": {
+      "available": true,
+      "sourcePatch": null
+    },
+    "designcraft": {
+      "available": true,
+      "sourcePatch": {
+        "id": "par-03-server-sample-v1",
+        "path": "patches/designcraft/a127c6d5/par-03-server-sample.patch",
+        "sha256": "02f187a6e89d4d531485693844da8c8de0aa17f3945d10d878a2990639d04f7c"
+      }
+    },
+    "lightcraft": {
+      "available": true,
+      "sourcePatch": null
+    },
+    "filmcraft": {
+      "available": true,
+      "sourcePatch": {
+        "id": "mkv-pending-v1",
+        "path": "engines/original-ui/filmcraft/mkv-pending.patch",
+        "sha256": "8aee3cdf5acc1380564965329472b92f9a02207e6e11a63bb4983f54ef5688bc"
+      }
+    },
+    "effectcraft": {
+      "available": true,
+      "sourcePatch": null
+    }
+  },
+  "browser": {
+    "name": "Chrome for Testing",
+    "version": "151.0.7922.34",
+    "viewport": {
+      "width": 1600,
+      "height": 1000
+    },
+    "contexts": 1,
+    "closedAfterCapture": true
+  }
+}

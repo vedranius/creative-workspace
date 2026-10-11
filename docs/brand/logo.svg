@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256" role="img" aria-labelledby="title desc">
+<title id="title">Creative Workspace</title><desc id="desc">An open blue frame and an orange rising stroke form a CW monogram.</desc>
+<rect width="256" height="256" rx="52" fill="#f5f2eb"/>
+<path d="M128 64H83a40 40 0 0 0-40 40v48a40 40 0 0 0 40 40h45v-28H83a12 12 0 0 1-12-12v-48a12 12 0 0 1 12-12h45Z" fill="#2854e8"/>
+<path d="m106 110 23 82h27l20-42 19 42h25l25-109h-29l-14 67-15-40h-24l-21 42-10-42Z" fill="#171717"/>
+<path d="M164 38h53v53h-24V79l-36 36-17-17 36-36h-12Z" fill="#ff7544"/>
+</svg>

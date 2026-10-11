@@ -2,6 +2,11 @@
 
 Each completed product update receives a new SemVer, changelog entry and immutable Actions-built release. Engine source versions remain independently pinned.
 
+## Documentation — 2026-10-11 (product version unchanged)
+
+- Expand the repository overview with current original UI/server scope, file modes, installation, releases and all upstream authors/licenses. Add an original CW logo/banner, 14 actual studio/application screenshots, capture provenance and `LICENSE.md`; preserve the existing AGPL terms.
+- Record the About description/topics for discovery; GitHub administration is unavailable to the current content-publication token.
+
 ## [0.2.0-alpha.12] — 2026-10-11 (draft candidate)
 
 - Preserve the reviewed DesignCraft source patch bytes across Windows Git checkouts with an explicit LF attribute. Alpha.11 Linux/macOS checks passed locally/remotely, but its Windows test job exposed line-ending normalization in the new patch path.
