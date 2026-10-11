@@ -1,0 +1,28 @@
+{
+  "verifiedAt": "2026-10-11T12:00:15.954Z",
+  "url": "http://127.0.0.1:8815/",
+  "sourceRevision": "96344f07617edb24ab22fa08430ad1389042811d",
+  "viewport": "1440x800",
+  "deviceScaleFactor": 1,
+  "browser": "Chromium for Testing 151.0.7922.34",
+  "checks": [
+    "original welcome screen",
+    "File menu with New/Open/Save/Export/Document Setup/Print",
+    "New Document presets and document creation",
+    "Document Setup dialog from Properties",
+    "Pen Tool, Add Anchor Point Tool, Delete Anchor Point Tool, Anchor Point Tool flyout",
+    "Rectangle tool drag changed the original document canvas and Properties panel"
+  ],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failedResources": [],
+  "screenshots": [
+    "vectorcraft-original-ui-initial.png",
+    "vectorcraft-original-ui-file-menu.png",
+    "vectorcraft-original-ui-new-document.png",
+    "vectorcraft-original-ui-document-setup.png",
+    "vectorcraft-original-ui-pen-tools.png",
+    "vectorcraft-original-ui-canvas-edit.png"
+  ],
+  "scope": "isolated original WASM UI preview; server/provider/browser-permission/native parity not verified"
+}

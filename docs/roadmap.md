@@ -2,7 +2,7 @@
 
 Ovaj dokument određuje redoslijed razvoja. [Stanje razvoja](development-state.md) sadrži kratku primopredaju za sljedeću sesiju. Plan se mijenja kada stvarni engine ili provjera pokaže drukčije mogućnosti; stavka je dovršena tek uz kod i dokaz rada.
 
-**Aktualni redoslijed nakon korisnikove potvrde originalnog DesignCraft UI-ja:** [cjeloviti plan portanja originalnih aplikacija](original-app-port-plan.md). Prvo originalni PhotoCraft → VectorCraft → PdfCraft → LightCraft → FilmCraft → EffectCraft UI previewi; zatim DesignCraft server seam i server/provider integracije ostalih originalnih aplikacija. Raniji dovršeni HTML subset prototipovi niže povijesna su evidencija, ne prihvaćeni originalni portovi. Jedna kratka sesija i jedan writer po zadatku.
+**Aktualni redoslijed nakon korisnikove potvrde originalnog DesignCraft UI-ja:** [cjeloviti plan portanja originalnih aplikacija](original-app-port-plan.md). Originalni PhotoCraft i VectorCraft UI previewi su dovršeni; slijede PdfCraft → LightCraft → FilmCraft → EffectCraft; zatim DesignCraft server seam i server/provider integracije ostalih originalnih aplikacija. Raniji dovršeni HTML subset prototipovi niže povijesna su evidencija, ne prihvaćeni originalni portovi. Jedna kratka sesija i jedan writer po zadatku.
 
 ## Cilj i pravila proizvoda
 

@@ -16,7 +16,7 @@ Izvori su provjereni na navedenim revizijama; to nisu tvrdnje da su njihove brow
 | --- | --- | --- | --- |
 | [DesignCraft — storytold](https://github.com/storytold/designcraft) | `a127c6d5c3576972bbd60445f26d893db071eef3` | `apps/designcraft-web`, zajednički `DesignApp` | Originalni UI izgrađen i pregledan u browseru; server veza nedovršena |
 | [PhotoCraft — storytold](https://github.com/storytold/photocraft) | `29d5f791d52cd54e411611a609fbc56949e0c653` | `apps/photocraft-web`, zajednički `PhotocraftApp` | Originalni WASM UI izgrađen i provjeren na `127.0.0.1:8814`; server obrada/provider integracija slijede — [dokaz](photocraft-original-ui-preview.md) |
-| [VectorCraft — storytold](https://github.com/storytold/vectorcraft) | `96344f07617edb24ab22fa08430ad1389042811d` | `apps/vectorcraft-web`, zajednički `VectorcraftApp` | Browser ulaz i originalni UI kod postoje; originalni build/provjera slijede |
+| [VectorCraft — storytold](https://github.com/storytold/vectorcraft) | `96344f07617edb24ab22fa08430ad1389042811d` | `apps/vectorcraft-web`, zajednički `VectorcraftApp` | Originalni WASM UI izgrađen i provjeren na `127.0.0.1:8815`; server obrada/provider integracija slijede — [dokaz](vectorcraft-original-ui-preview.md) |
 | [PdfCraft — storytold](https://github.com/storytold/pdfcraft) | `9ccf77bdf685bc3cb0f545865c9f9b3e97ab5025` | `apps/pdfcraft-web`, zajednički `PdfCraftApp` | Browser ulaz i originalni UI kod postoje; originalni build/provjera slijede |
 | [LightCraft — storytold](https://github.com/storytold/lightcraft) | `9e6c4c6fc9c7a7f192ce846c00ceb531e0f64dda` | `apps/lightcraft-web`, zajednički `lightcraft-ui-egui` | Izvorni browser host postoji; njegov originalni build/provjera slijede |
 | [FilmCraft — storytold](https://github.com/storytold/filmcraft) | `4e2d0bc2d3646f9cf27ef7aa8b2095c6858c7efe` | `apps/filmcraft-web`, zajednički `FilmcraftApp` | Izvorni browser host postoji; originalni build i owned server engine nisu prihvaćeni |
@@ -29,7 +29,7 @@ PhotoCraft/PdfCraft/VectorCraft/DesignCraft trenutno imaju i vlastite ograničen
 
 ### A. Originalna sučelja za pregled
 
-**DesignCraft PAR-02 i PhotoCraft ORG-PC-UI su dovršeni. Slijede VectorCraft → PdfCraft → LightCraft → FilmCraft → EffectCraft**, svaki u zasebnoj kratkoj razvojnoj sesiji i s jednim aktivnim writerom. Ovaj prolaz korisniku rano omogućuje pregled izvornog izgleda svih aplikacija. Svaki preview jasno navodi koristi li lokalnu obradu; preview ne postaje dostupna server aplikacija samim buildom.
+**DesignCraft PAR-02, PhotoCraft ORG-PC-UI i VectorCraft ORG-VC-UI su dovršeni. Slijede PdfCraft → LightCraft → FilmCraft → EffectCraft**, svaki u zasebnoj kratkoj razvojnoj sesiji i s jednim aktivnim writerom. Ovaj prolaz korisniku rano omogućuje pregled izvornog izgleda svih aplikacija. Svaki preview jasno navodi koristi li lokalnu obradu; preview ne postaje dostupna server aplikacija samim buildom.
 
 Za svaku stavku `ORG-<APP>-UI`:
 
