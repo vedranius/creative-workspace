@@ -4,8 +4,10 @@ on:
     branches: [main]
     paths-ignore:
       - 'docs/**'
+      - 'evidence/**'
       - 'README.md'
       - 'CHANGELOG.md'
+      - '.github/workflows/release.yaml'
   workflow_dispatch:
 permissions:
   contents: read
