@@ -1,0 +1,8 @@
+{
+  "source": "https://github.com/storytold/lightcraft.git",
+  "commit": "9e6c4c6fc9c7a7f192ce846c00ceb531e0f64dda",
+  "version": "0.6.0",
+  "binary": "cw-lightcraft-engine",
+  "license": "MIT OR Apache-2.0",
+  "runtimeId": "creative-workspace-lightcraft-v1"
+}
