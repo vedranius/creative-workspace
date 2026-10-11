@@ -1,8 +1,8 @@
 # Releases and installation
 
-Creative Workspace aims to let a lightweight laptop access a powerful self-hosted creative server through native browser interfaces. Original documents remain under explicitly selected file-provider permissions; rendering/editing runs on the server. No remote desktop transport is used. The current product version is 0.2.0-alpha.3; it remains an alpha until its target builds, bundled launchers and native document smokes pass and Actions publishes the assets.
+Creative Workspace aims to let a lightweight laptop access a powerful self-hosted creative server through native browser interfaces. Original documents remain under explicitly selected file-provider permissions; rendering/editing runs on the server. No remote desktop transport is used. The current product version is 0.2.0-alpha.3, published as a single-user alpha after the target builds, bundled launchers and native document smokes passed.
 
-The current channel is **alpha**, for one user. GitHub Actions builds the release assets on their target OS, embeds Node 24 and four independently pinned native engines, then performs native open/edit/save/reopen and bundle startup checks. Source archives automatically shown by GitHub are source code, not install bundles. Download an OS-labelled asset and its adjacent `.sha256` file from [Releases](https://github.com/vedranius/creative-workspace/releases).
+The current channel is **alpha**, for one user. Version 0.2.0-alpha.3 is published; GitHub Actions built its assets on each target OS, embedded Node 24 and four independently pinned native engines, then passed native open/edit/save/reopen, bundle startup and archive checks. Source archives automatically shown by GitHub are source code, not install bundles. Download an OS-labelled asset and its adjacent `.sha256` file from [Releases](https://github.com/vedranius/creative-workspace/releases).
 
 | Bundle | Requirements | Included working editors |
 | --- | --- | --- |
