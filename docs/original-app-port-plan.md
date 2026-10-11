@@ -15,7 +15,7 @@ Izvori su provjereni na navedenim revizijama; to nisu tvrdnje da su njihove brow
 | Aplikacija / originalni projekt | Kandidat revizije | Izvorni browser ulaz | Trenutni dokaz |
 | --- | --- | --- | --- |
 | [DesignCraft — storytold](https://github.com/storytold/designcraft) | `a127c6d5c3576972bbd60445f26d893db071eef3` | `apps/designcraft-web`, zajednički `DesignApp` | Originalni UI izgrađen i pregledan u browseru; server veza nedovršena |
-| [PhotoCraft — storytold](https://github.com/storytold/photocraft) | `29d5f791d52cd54e411611a609fbc56949e0c653` | `apps/photocraft-web`, zajednički `PhotocraftApp` | Browser ulaz i originalni UI kod postoje; originalni build/provjera slijede |
+| [PhotoCraft — storytold](https://github.com/storytold/photocraft) | `29d5f791d52cd54e411611a609fbc56949e0c653` | `apps/photocraft-web`, zajednički `PhotocraftApp` | Originalni WASM UI izgrađen i provjeren na `127.0.0.1:8814`; server obrada/provider integracija slijede — [dokaz](photocraft-original-ui-preview.md) |
 | [VectorCraft — storytold](https://github.com/storytold/vectorcraft) | `96344f07617edb24ab22fa08430ad1389042811d` | `apps/vectorcraft-web`, zajednički `VectorcraftApp` | Browser ulaz i originalni UI kod postoje; originalni build/provjera slijede |
 | [PdfCraft — storytold](https://github.com/storytold/pdfcraft) | `9ccf77bdf685bc3cb0f545865c9f9b3e97ab5025` | `apps/pdfcraft-web`, zajednički `PdfCraftApp` | Browser ulaz i originalni UI kod postoje; originalni build/provjera slijede |
 | [LightCraft — storytold](https://github.com/storytold/lightcraft) | `9e6c4c6fc9c7a7f192ce846c00ceb531e0f64dda` | `apps/lightcraft-web`, zajednički `lightcraft-ui-egui` | Izvorni browser host postoji; njegov originalni build/provjera slijede |
@@ -29,7 +29,7 @@ PhotoCraft/PdfCraft/VectorCraft/DesignCraft trenutno imaju i vlastite ograničen
 
 ### A. Originalna sučelja za pregled
 
-**DesignCraft PAR-02 je dovršen. Slijede PhotoCraft → VectorCraft → PdfCraft → LightCraft → FilmCraft → EffectCraft**, svaki u zasebnoj kratkoj razvojnoj sesiji i s jednim aktivnim writerom. Ovaj prolaz korisniku rano omogućuje pregled izvornog izgleda svih aplikacija. Svaki preview jasno navodi koristi li lokalnu obradu; preview ne postaje dostupna server aplikacija samim buildom.
+**DesignCraft PAR-02 i PhotoCraft ORG-PC-UI su dovršeni. Slijede VectorCraft → PdfCraft → LightCraft → FilmCraft → EffectCraft**, svaki u zasebnoj kratkoj razvojnoj sesiji i s jednim aktivnim writerom. Ovaj prolaz korisniku rano omogućuje pregled izvornog izgleda svih aplikacija. Svaki preview jasno navodi koristi li lokalnu obradu; preview ne postaje dostupna server aplikacija samim buildom.
 
 Za svaku stavku `ORG-<APP>-UI`:
 
@@ -96,4 +96,4 @@ Svaka aplikacija ima odvojena stanja: **originalni UI source potvrđen → origi
 
 Jedna nova sesija po malom zadatku, jedan writer u checkoutu. Plan → implementacija → relevantne provjere → compact handoff → normalni commit/push → CI; produktne promjene uključuju verziju i Actions release. Čisti plan/evidence docs koriste docs-only gate bez ponovnog izdavanja iste verzije. Automatizacija čita ovaj redoslijed i posljednju primopredaju; ne otvara retry petlje niti ponavlja dovršene audite/buildove.
 
-**Prvi sljedeći zadatak: ORG-PC-UI — izgraditi i u browseru provjeriti originalni PhotoCraft na izoliranom portu, po uzoru na DesignCraft PAR-02.** Sljedeća sesija uzima VectorCraft UI, zatim gore navedeni redoslijed. DesignCraft PAR-03 server seam ostaje otvoren i nastavlja se u prolazu B; ne predstavlja dovršen port.
+**Prvi sljedeći zadatak: ORG-VC-UI — izgraditi i u browseru provjeriti originalni VectorCraft na izoliranom portu.** Zatim PdfCraft → LightCraft → FilmCraft → EffectCraft. DesignCraft PAR-03 server seam ostaje otvoren i nastavlja se u prolazu B; PhotoCraftov originalni UI preview ne predstavlja dovršen server-backed port.
