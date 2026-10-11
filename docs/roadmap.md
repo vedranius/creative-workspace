@@ -66,3 +66,5 @@ Repo je spremljen kao lokalni Codex projekt. Korisnik je 11. listopada izričito
 Svaka primopredaja ima: broj zadatka, završni commit, promijenjeno ponašanje, rezultate provjera, konkretno nedovršeno, prvi sljedeći korak. Korisniku javiti značajan dovršeni rezultat, kvar ili potrebno odlučivanje; ne proizvoditi poruke za nepromijenjeno stanje.
 
 Lokalni raspored ovisi o uključenom računalu, pokrenutoj desktop aplikaciji, dostupnom repozitoriju i dopuštenjima za potrebne alate. Raspored razvoja je razvojna automatizacija; provjera GitHub ažuriranja za krajnje korisnike ostaje zasebna funkcija Creative Workspace servera.
+
+Nakon prijavljenog usporavanja i restarta lokalne buildove pokretati jednim Cargo poslom, na najviše dva CPU-a i nižem prioritetu; koristiti postojeći cache bez izmjene optimizacijskih flagova. Samo jedan QA browser kontekst odjednom, zatvoriti vlastiti QA browser po provjeri. Postojeće previewe vraćati iz build artefakata bez ponovnog kompajliranja i ne otvarati ih sve automatski. Prije builda koji koristi zajednički output sačuvati prethodni preview u njegovu zasebnu static mapu.
