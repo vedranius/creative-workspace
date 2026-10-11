@@ -1,0 +1,23 @@
+{
+  "health": {
+    "status": "ok",
+    "version": "0.2.0-alpha.9"
+  },
+  "own": {
+    "ready": true,
+    "url": "/apps/rapidraw/",
+    "singleSession": true,
+    "ownedRuntime": true
+  },
+  "originalLinks": 7,
+  "syntheticImport": {
+    "errors": [],
+    "items": [
+      1
+    ],
+    "paths": [
+      "/files/qa-generated.mkv"
+    ]
+  },
+  "pageErrors": []
+}

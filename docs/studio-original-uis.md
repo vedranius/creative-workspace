@@ -6,7 +6,7 @@ Creative Workspace `0.2.0-alpha.8` introduced the studio's primary launchers to 
 
 Registered PhotoCraft, VectorCraft, PdfCraft, DesignCraft, LightCraft, FilmCraft and EffectCraft packages open at `/original/<app>/` on the same studio origin. They use their shared original upstream Rust/egui UI and WASM engine. The dashboard does not replace an unavailable original package with a limited HTML editor. Existing prototype routes remain for old work, behind collapsed legacy links.
 
-On the development host, the corrected studio is [http://127.0.0.1:8793/](http://127.0.0.1:8793/). Old `8792` remains alive because four existing native editing sessions were found there. It is not the original-UI launch portal. Original clients currently execute document processing locally in WASM; the control panel clearly says so.
+On the development host, the alpha.9 candidate with the FilmCraft MKV fix is [http://127.0.0.1:8794/](http://127.0.0.1:8794/). The previous original studio [8793](http://127.0.0.1:8793/) stays running to protect existing browser documents. Old `8792` remains alive because four existing native editing sessions were found there. It is not the original-UI launch portal. Original clients currently execute document processing locally in WASM; the control panel clearly says so.
 
 ## Register an original build
 

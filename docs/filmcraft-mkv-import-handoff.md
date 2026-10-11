@@ -1,6 +1,6 @@
 # FIL-MKV-01 — original FilmCraft pending import fix
 
-2026-10-11. Implemented and isolated browser regression verified; Creative Workspace **0.2.0-alpha.9** candidate. Publication and candidate deployment must be verified separately before claiming availability.
+2026-10-11. Implemented and isolated browser regression verified; Creative Workspace **0.2.0-alpha.9** candidate. Feature commit `1348d4b62aba016e498b654bd5745975f549768b` is pushed. The isolated development candidate is verified at [studio 8794](http://127.0.0.1:8794/) / [original FilmCraft](http://127.0.0.1:8794/original/filmcraft/?webgl). [Publication status](filmcraft-mkv-release-state.md) tracks Actions separately; release downloads are not yet claimed.
 
 ## Changed behavior
 
