@@ -1,10 +1,10 @@
 # Creative Workspace
 
-**Version: 0.2.0-alpha.6** — single-user creative prototype.
+**Version: 0.2.0-alpha.7** — single-user creative prototype.
 
 A self-hosted creative studio: native browser interfaces, server-side processing, and shared project files. No remote desktop or desktop-display transport. The LightCraft browser preview opens at `/apps/lightcraft/`; its status stays planned until real browser permission and FUSE/agent open/edit/save/reopen acceptance passes.
 
-**Status: five working Linux creative integrations.** RapidRAW has a separately built, workspace-owned engine and functioning browser editor. PhotoCraft, PdfCraft, VectorCraft and DesignCraft have independent Rust server engines and native browser adapter prototypes, including laptop-folder modes. LightCraft now has a guarded session/recipe gateway and browser preview, but no real browser/FUSE acceptance or packaged engine; it remains planned alongside FilmCraft and EffectCraft. The dashboard lists available editors first and separates them from repository entries.
+**Original ArtCraft application ports: 0 complete.** PhotoCraft, PdfCraft, VectorCraft and DesignCraft have limited custom browser prototypes backed by independent server engines. The dashboard labels these as prototypes and keeps original application ports pending, regardless of engine readiness. PAR-03a is in progress: connect one representative original DesignCraft command and server-rendered canvas to its original browser UI. RapidRAW remains a separate integration. LightCraft remains a limited preview; FilmCraft and EffectCraft are pending.
 
 ## Goal and downloads
 
@@ -12,7 +12,7 @@ A lightweight laptop should be able to access a powerful self-hosted creative se
 
 [GitHub Releases](https://github.com/vedranius/creative-workspace/releases) is the download location. The Actions pipeline builds portable Linux x64, Windows x64 and Apple Silicon macOS bundles with Node 24 and PhotoCraft/PdfCraft/VectorCraft/DesignCraft; publication waits for every target native smoke. The PhotoCraft version-race smoke allows either concurrent request to win while requiring stale-version rejection. LightCraft is not included in those bundles yet. RapidRAW and the native mount helper are not bundled. A pipeline run in progress is not an available release. See [installation, requirements and upgrades](docs/releases.md) and [changelog](CHANGELOG.md).
 
-**Frontend scope:** the current ArtCraft integrations use original upstream native engines, but their browser interfaces were written for Creative Workspace and expose limited subsets. They are prototypes, not the original ArtCraft applications ported with their full interfaces/toolsets. The next priority is porting the original UI source with server-side processing; see PAR-01 in the roadmap. Existing download bundles have this prototype scope.
+**Frontend scope:** the current ArtCraft integrations use original upstream native engines, but their browser interfaces were written for Creative Workspace and expose limited subsets. They are prototypes, not the original ArtCraft applications ported with their full interfaces/toolsets. The original DesignCraft UI is built and previewed from upstream source; its session, commands and rendering are not yet server-backed. See PAR-03a in the roadmap. Existing download bundles have prototype scope.
 
 ## Implemented
 

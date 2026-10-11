@@ -1,6 +1,6 @@
 {
   "name": "creative-workspace",
-  "version": "0.2.0-alpha.6",
+  "version": "0.2.0-alpha.7",
   "private": true,
   "type": "module",
   "description": "Self-hosted creative workspace with native browser interfaces, server engines, and a LightCraft preview adapter",

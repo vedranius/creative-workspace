@@ -2,6 +2,11 @@
 
 Each completed product update receives a new SemVer, changelog entry and immutable Actions-built release. Engine source versions remain independently pinned.
 
+## [0.2.0-alpha.7] — 2026-10-11 (unpublished)
+
+- Correct the dashboard to distinguish original ArtCraft application ports from limited custom prototypes. Engine readiness no longer counts as original UI or full-functionality completion.
+- PAR-03a original DesignCraft UI/server command and render bridge remains incomplete; this version is not a DesignCraft port or parity release. Publish only after normal CI and Actions-built assets are verified.
+
 ## [0.2.0-alpha.6] — 2026-10-11
 
 - Add a native browser preview for the existing LightCraft gateway: browse the selected source, open photos and hash-bound recipes, edit using ranges exposed by the pinned engine, undo/redo, save editable recipes and export image copies.

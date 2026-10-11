@@ -13,19 +13,19 @@ function renderApps(){
   const query=$('search').value.toLowerCase();
   const list=apps.filter(app=>(category==='All tools'||app.category===category)&&`${app.name} ${app.category} ${app.description}`.toLowerCase().includes(query)).sort((a,b)=>Number(!!engines()[b.id]?.ready)-Number(!!engines()[a.id]?.ready));
   $('app-count').textContent=list.length;
-  const ready=apps.filter(app=>engines()[app.id]?.ready).length;$('availability').textContent=`${ready} available · ${apps.length-ready} planned`;
+  const originals=apps.filter(app=>app.originalPort);const complete=originals.filter(app=>app.originalPort==='complete').length;$('availability').textContent=`Original application ports: ${complete} complete · ${originals.length-complete} pending`;
   $('apps').replaceChildren(...list.map(app=>{
     const card=element('article',`app-card ${app.id}`);
     const top=element('div','card-top');top.append(element('div','app-icon',app.symbol),element('span','category-label',app.category));
     const art=element('div','app-art');art.setAttribute('aria-hidden','true');art.append(element('span','art-orbit'),element('span','art-grid'),element('span','art-symbol',app.symbol),element('span','art-index',String(apps.indexOf(app)+1).padStart(2,'0')));
     card.append(art,top,element('h3','',app.name),element('p','description',app.description));
     card.append(attribution(app));
-    const engine=engines()[app.id];const state=element('div','adapter-state',app.id==='lightcraft'?'Planned · browser preview adapter; acceptance pending':engine?.ready?(app.id==='rapidraw'?'Available · one shared editing session':'Available · native browser adapter prototype'):'Planned · browser adapter not implemented');card.append(state);
+    const engine=engines()[app.id];const state=element('div','adapter-state',app.originalPort==='pending'?(engine?.ready?'Limited custom prototype · original application port pending':'Original application port pending · custom prototype unavailable'):app.id==='lightcraft'?'Limited custom prototype · original application port pending':engine?.ready?(app.id==='rapidraw'?'Connected · one shared editing session':'Engine ready'):'Planned · application not implemented');card.append(state);
     if(app.id==='rapidraw'&&rapidrawEngine.ready){const open=element('a','editor-launch','Open RapidRAW editor ↗');open.href=rapidrawEngine.url;open.target='_blank';open.rel='noopener';card.append(open);}
-    if(app.id==='photocraft'&&photocraftEngine.ready){const open=element('a','editor-launch','Open PhotoCraft prototype ↗');open.href=photocraftEngine.url;open.target='_blank';open.rel='noopener';card.append(open);}
-    if(app.id==='pdfcraft'&&pdfcraftEngine.ready){const open=element('a','editor-launch','Open PdfCraft editor ↗');open.href=pdfcraftEngine.url;open.target='_blank';open.rel='noopener';card.append(open);}
-    if(app.id==='vectorcraft'&&vectorcraftEngine.ready){const open=element('a','editor-launch','Open VectorCraft editor ↗');open.href=vectorcraftEngine.url;open.target='_blank';open.rel='noopener';card.append(open);}
-    if(app.id==='designcraft'&&designcraftEngine.ready){const open=element('a','editor-launch','Open DesignCraft editor ↗');open.href=designcraftEngine.url;open.target='_blank';open.rel='noopener';card.append(open);}
+    if(app.id==='photocraft'&&photocraftEngine.ready){const open=element('a','editor-launch','Open limited PhotoCraft prototype ↗');open.href=photocraftEngine.url;open.target='_blank';open.rel='noopener';card.append(open);}
+    if(app.id==='pdfcraft'&&pdfcraftEngine.ready){const open=element('a','editor-launch','Open limited PdfCraft prototype ↗');open.href=pdfcraftEngine.url;open.target='_blank';open.rel='noopener';card.append(open);}
+    if(app.id==='vectorcraft'&&vectorcraftEngine.ready){const open=element('a','editor-launch','Open limited VectorCraft prototype ↗');open.href=vectorcraftEngine.url;open.target='_blank';open.rel='noopener';card.append(open);}
+    if(app.id==='designcraft'&&designcraftEngine.ready){const open=element('a','editor-launch','Open limited DesignCraft prototype ↗');open.href=designcraftEngine.url;open.target='_blank';open.rel='noopener';card.append(open);}
     if(app.id==='lightcraft'){const open=element('a','editor-launch','Open LightCraft preview ↗');open.href='/apps/lightcraft/';card.append(open);}
     const folder=element('div','workspace-path',app.configuration.workspace||'No workspace assigned');folder.title=folder.textContent;card.append(folder);
     const bottom=element('div','card-bottom');const configure=element('button','secondary',app.configuration.workspace?'Server folder':'Set server folder');configure.onclick=()=>showWorkspace(app);if(engine?.ready){const local=element('button','primary','Import from laptop');local.onclick=()=>showImport(app.id);bottom.append(local);}else bottom.append(githubLink(app));bottom.append(configure);card.append(bottom);return card;
