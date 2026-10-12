@@ -1,10 +1,17 @@
 # Changelog
 
+## [0.2.0-alpha.23] — 2026-10-12 (build-isolation candidate)
+
+- Isolate the original DesignCraft optimized Trunk build in a disposable copy of the exact reviewed upstream source. The CI failure showed that the build could change its input checkout before the post-build guard; the guard remains byte-exact and checks the canonical checkout after the build.
+- Add a regression that mutates generated lock metadata in the temporary copy and proves the reviewed source remains unchanged. Local Trunk release build and original A4/Rectangle/Undo Chromium smoke pass; Actions-built release assets still require verification.
+- Alpha.22 Actions failed in `original-designcraft` after the optimized UI compile at the post-build source assertion; publish was skipped and no alpha.22 tag/release exists. No upstream patch bytes, UI behavior, engine, or live session changed.
+- DesignCraft remains planned pending original file-provider/save destination ACK, save/reopen/recovery, and full original application parity.
+
 ## [0.2.0-alpha.22] — 2026-10-12 (build-fix candidate)
 
 - Regenerate the reviewed DesignCraft edit/Undo patch with canonical full Git blob IDs. The source files are byte-identical to alpha.21; only patch index-header formatting and its provenance digest change.
 - Check applied source against the exact approved patch before expensive compilation and again after it. Regression tests reject abbreviated patch headers, unreviewed edits and new untracked source files; no comparison is weakened.
-- Reproduced alpha.21's mismatch before compilation in a clean pinned checkout; locked offline Cargo metadata leaves the canonical source diff unchanged. Local checks pass; actual Actions assets/tag/release verification remains pending.
+- Alpha.22 Actions compile the optimized UI then fail post-build source verification in CI; publish is skipped. The source patch itself is still byte-exact before compilation.
 - No engine/UI behavior or installed live session changed. DesignCraft remains planned pending provider/save/reopen/recovery and full parity.
 
 ## [0.2.0-alpha.21] — 2026-10-12 (draft candidate)

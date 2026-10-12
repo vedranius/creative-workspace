@@ -34,7 +34,7 @@ Run `scripts/smoke-designcraft-frame-undo-candidate.mjs` with `CW_DESIGNCRAFT_UI
 
 ## Installation and release scope
 
-Alpha.21 Actions builds and browser-verifies an additional `designcraft-host-canvas-candidate.tar.gz` archive and SHA256 sidecar for A4, frame creation and Undo. This is a review/verification artifact, not a registered editor or a complete cross-platform creative bundle. Do not copy it over a running original-UI installation. Product alpha.21 remains draft until its actual Actions artifacts are checked; the earlier three native prototype bundles and two original UI previews retain their documented limitations. Six archives and six sidecars are expected for this draft. The candidate remains unregistered and does not make DesignCraft available.
+Alpha.23 Actions builds and browser-verifies an additional `designcraft-host-canvas-candidate.tar.gz` archive and SHA256 sidecar for A4, frame creation and Undo. This is a review/verification artifact, not a registered editor or a complete cross-platform creative bundle. Do not copy it over a running original-UI installation. Product alpha.23 remains draft until its actual Actions artifacts are checked; the earlier three native prototype bundles and two original UI previews retain their documented limitations. Six archives and six sidecars are expected for this draft. The candidate remains unregistered and does not make DesignCraft available.
 
 Local build/QA uses a disk-backed temporary directory and the host low-impact wrapper (one Cargo job, at most two CPUs, nice 10). Previously downloaded release archives were preserved on disk to free about 1.1 GB of `/tmp` tmpfs. Protected application services and documents were not restarted.
 

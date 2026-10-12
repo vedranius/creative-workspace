@@ -1,9 +1,9 @@
 import path from 'node:path';
-import {readFile,writeFile,mkdir,cp,readdir} from 'node:fs/promises';
+import {readFile,writeFile,mkdir,cp,readdir,rm} from 'node:fs/promises';
 import {createHash} from 'node:crypto';
 import {spawn} from 'node:child_process';
 import {fileURLToPath} from 'node:url';
-import {originalUiSourceDiff,assertOriginalUiSource} from './original-ui-source.mjs';
+import {originalUiSourceDiff,assertOriginalUiSource,createOriginalUiBuildCopy} from './original-ui-source.mjs';
 const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..');
 const config=JSON.parse(await readFile(path.join(root,'engines/original-ui/designcraft/host-canvas.json')));
 const source=path.resolve(process.argv[2]||'build/original-ui/source-designcraft-host');
@@ -18,7 +18,11 @@ else if(diff!==patch.toString())throw new Error('Host canvas source contains unr
 await assertOriginalUiSource(source,patch,'before host-canvas build');
 await mkdir(assets,{recursive:true});
 const env={...process.env,CARGO_BUILD_JOBS:'1',CARGO_TARGET_DIR:process.env.CARGO_TARGET_DIR||path.join(root,'build/original-ui/target')};delete env.NO_COLOR;
-await run('trunk',['build','--release','--dist',assets],{cwd:path.join(source,'apps/designcraft-web'),env});
+const buildCopy=await createOriginalUiBuildCopy(source,path.dirname(source));
+try{
+ await assertOriginalUiSource(buildCopy.source,patch,'before isolated host-canvas build');
+ await run('trunk',['build','--release','--dist',assets],{cwd:path.join(buildCopy.source,'apps/designcraft-web'),env});
+}finally{await rm(buildCopy.directory,{recursive:true,force:true});}
 await assertOriginalUiSource(source,patch,'after host-canvas build');
 for(const name of ['LICENSE-MIT','LICENSE-APACHE'])await cp(path.join(source,name),path.join(assets,name));
 async function licenses(relative=''){

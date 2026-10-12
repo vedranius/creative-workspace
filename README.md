@@ -2,7 +2,7 @@
 
 # Creative Workspace
 
-**Version: 0.2.0-alpha.22** — open-source, self-hosted, single-user prototype; draft candidate, Actions verification pending.
+**Version: 0.2.0-alpha.23** — open-source, self-hosted, single-user prototype; draft candidate, Actions verification pending.
 
 Bring your creative tools together in one browser studio. Choose an application, select your files, and access your own server from a lightweight laptop. The goal is **the original application interfaces and tools in the browser, with the server doing the heavy work**: photography, image editing, illustration, PDF, publishing, video and motion graphics. Browser controls run locally; document commands, data and previews travel to the server. No VNC or remote desktop is involved.
 
@@ -10,7 +10,7 @@ Bring your creative tools together in one browser studio. Choose an application,
 
 > **Current scope:** RapidRAW has an independently owned browser/server integration. All seven ArtCraft original interfaces have been built and browser-verified as previews. DesignCraft has isolated, unregistered pinned-source candidates for A4 creation, original Rectangle Tool `frame.create`, and original Ctrl+Z / `edit.undo` through ordered server ACKs; the original canvas shows the ACKed server PNG. The candidates are not active in the studio. Other tools/actions, provider ACK/recovery and full parity remain pending. **No complete server-backed original ArtCraft port is accepted yet.**
 
-Alpha.22 corrects the candidate build provenance guard: reviewed patch bytes use canonical full Git IDs, and applied source is checked before compilation as well as afterward. Original edit/Undo behavior is unchanged; Actions/release assets still require verification.
+Alpha.23 builds the DesignCraft candidate from a disposable copy of the exact reviewed source so Trunk build mutations cannot invalidate the post-build source guard. Original edit/Undo behavior is unchanged; Actions/release assets still require verification.
 
 ## What is new
 

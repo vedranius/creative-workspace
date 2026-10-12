@@ -1,3 +1,6 @@
+import {cp,mkdtemp,rm} from 'node:fs/promises';
+import os from 'node:os';
+import path from 'node:path';
 import {execFile} from 'node:child_process';
 import {promisify} from 'node:util';
 
@@ -23,5 +26,19 @@ export async function originalUiSourceDiff(source){
 export async function assertOriginalUiSource(source,reviewedPatch,phase='verification'){
   if(await originalUiSourceDiff(source)!==reviewedPatch.toString('utf8')){
     throw new Error(`Original UI source differs from the exact reviewed patch (${phase})`);
+  }
+}
+
+// Cargo/Trunk may update generated metadata in the checkout while building.
+// Compile a disposable copy so those mutations cannot invalidate the reviewed source.
+export async function createOriginalUiBuildCopy(source,parentDirectory=os.tmpdir()){
+  const directory=await mkdtemp(path.join(parentDirectory,'cw-original-ui-build-'));
+  const buildSource=path.join(directory,'source');
+  try{
+    await cp(source,buildSource,{recursive:true,verbatimSymlinks:true});
+    return {directory,source:buildSource};
+  }catch(error){
+    await rm(directory,{recursive:true,force:true});
+    throw error;
   }
 }

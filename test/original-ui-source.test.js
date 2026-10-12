@@ -1,9 +1,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {mkdtemp,writeFile,rm} from 'node:fs/promises';
+import {mkdtemp,mkdir,writeFile,readFile,rm} from 'node:fs/promises';
 import os from 'node:os';import path from 'node:path';
 import {execFile} from 'node:child_process';import {promisify} from 'node:util';
-import {originalUiDiffArgs,originalUiSourceDiff,assertOriginalUiSource} from '../scripts/original-ui-source.mjs';
+import {originalUiDiffArgs,originalUiSourceDiff,assertOriginalUiSource,createOriginalUiBuildCopy} from '../scripts/original-ui-source.mjs';
 const exec=promisify(execFile);
 test('reviewed patch identity survives abbreviated Git IDs and formatting config',async()=>{
  const root=await mkdtemp(path.join(os.tmpdir(),'cw-source-diff-'));
@@ -45,4 +45,17 @@ test('pre-build source check rejects short patch headers and unreviewed edits',a
   await assert.rejects(assertOriginalUiSource(root,canonical,'before build'),/exact reviewed patch/);
   assert.equal(await git(['ls-files','--others','--exclude-standard']),'unexpected.rs\n');
  }finally{await rm(root,{recursive:true,force:true});}
+});
+
+test('build mutations stay in a disposable copy of reviewed upstream source',async()=>{
+ const parent=await mkdtemp(path.join(os.tmpdir(),'cw-source-build-copy-'));
+ const source=path.join(parent,'source');
+ await mkdir(source);
+ await writeFile(path.join(source,'Cargo.lock'),'reviewed lock\n');
+ const buildCopy=await createOriginalUiBuildCopy(source,parent);
+ try{
+  assert.equal(await readFile(path.join(buildCopy.source,'Cargo.lock'),'utf8'),'reviewed lock\n');
+  await writeFile(path.join(buildCopy.source,'Cargo.lock'),'Cargo changed generated lock\n');
+  assert.equal(await readFile(path.join(source,'Cargo.lock'),'utf8'),'reviewed lock\n');
+ }finally{await rm(buildCopy.directory,{recursive:true,force:true});await rm(parent,{recursive:true,force:true});}
 });
