@@ -33,3 +33,5 @@ Alpha.25 requires Actions builds, all OS checks, the original Open browser job, 
 Next after release verification: source/provider selection in the original host workflow, separate destination/retention, original save-copy with destination ACK, then reopen/recovery and full parity. Keep provider and upstream-update gates intact.
 
 The initial alpha.24 macOS fixture compared the uncanonicalized temporary-directory alias with the correctly canonicalized engine input. Alpha.25 uses `realpath` in that assertion. Application behavior/source patch/WASM/browser evidence are unchanged; final three-OS Checks and draft assets remain pending.
+
+Publication checkpoint 2026-10-13: commits `8f3fcdd` (feature) and `83276a9` (alpha.25 canonical macOS verification) are pushed; [Checks 38314679443](https://github.com/vedranius/creative-workspace/actions/runs/38314679443) passed all three OS. [Alpha.25 build/release 38314678319](https://github.com/vedranius/creative-workspace/actions/runs/38314678319) is pending behind alpha.24. Final tag/draft/download assets remain unverified.
