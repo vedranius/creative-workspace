@@ -11,7 +11,7 @@ const assets=path.resolve(process.argv[3]||'build/original-ui/assets-designcraft
 const packages=path.resolve(process.argv[4]||'build/original-ui/packages');
 const pin=originalUiPins.designcraft,patch=originalUiPatches.designcraft;
 const run=(cmd,args,options={})=>new Promise((resolve,reject)=>{let out='';const child=spawn(cmd,args,{cwd:root,stdio:options.capture?['ignore','pipe','inherit']:'inherit',...options});if(options.capture)child.stdout.on('data',b=>out+=b);child.on('error',reject);child.on('exit',code=>code===0?resolve(out):reject(new Error(`${cmd} failed (${code})`)));});
-if(!patch||patch.id!=='par-03-server-read-model-v2')throw new Error('DesignCraft PAR-03 patch is not registered');
+if(!patch||patch.id!=='par-03-server-edit-v1')throw new Error('DesignCraft PAR-03 patch is not registered');
 await access(path.join(source,'.git'));
 if((await run('git',['rev-parse','HEAD'],{cwd:source,capture:true})).trim()!==pin)throw new Error('DesignCraft source must be at its pinned upstream revision');
 const bytes=await readFile(path.join(root,patch.path));if(createHash('sha256').update(bytes).digest('hex')!==patch.sha256)throw new Error('PAR-03 patch checksum mismatch');
