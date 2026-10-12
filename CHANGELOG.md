@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.2.0-alpha.22] — 2026-10-12 (build-fix candidate)
+
+- Regenerate the reviewed DesignCraft edit/Undo patch with canonical full Git blob IDs. The source files are byte-identical to alpha.21; only patch index-header formatting and its provenance digest change.
+- Check applied source against the exact approved patch before expensive compilation and again after it. Regression tests reject abbreviated patch headers, unreviewed edits and new untracked source files; no comparison is weakened.
+- Reproduced alpha.21's mismatch before compilation in a clean pinned checkout; locked offline Cargo metadata leaves the canonical source diff unchanged. Local checks pass; actual Actions assets/tag/release verification remains pending.
+- No engine/UI behavior or installed live session changed. DesignCraft remains planned pending provider/save/reopen/recovery and full parity.
+
 ## [0.2.0-alpha.21] — 2026-10-12 (draft candidate)
 
 - Extend the pinned original DesignCraft A4 → server mirror candidate with original Rectangle Tool `frame.create` and original Ctrl+Z / `edit.undo`, using the existing ordered server ACK and canonical snapshot/render refresh.

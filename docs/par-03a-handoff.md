@@ -1,5 +1,13 @@
 # PAR-03 handoff — bounded server read-model slice verified
 
+## Alpha.22 canonical patch build fix (2026-10-12)
+
+The alpha.21 mismatch exists immediately after patch application, before Cargo/Trunk runs. Only Git `index` header formatting differs: abbreviated IDs in the reviewed patch versus full IDs in the verifier. Source body/context bytes are identical. Regenerated the patch using `originalUiSourceDiff` and updated both host/Undo manifests to SHA256 `e86632a24c2966d9f618973b254ef17cde4b60f86f58e8210d532c35487701e7`. The build now checks exact applied bytes before compilation and afterward; it never strips headers or excludes source edits during verification.
+
+Clean pinned-source comparison and locked offline Cargo metadata leave source unchanged. Three targeted regressions reject short-header patches, unreviewed modifications and extra untracked files. `npm run check`, 49 Node tests and Chromium A4/Rectangle/Undo/failed-preview regression pass using existing proven binaries because source file bytes did not change. [Repair evidence](evidence/designcraft-alpha22-build-fix.json), [browser regression](evidence/designcraft-alpha22-undo-regression.json).
+
+Next: verify alpha.22 Actions, immutable tag, draft and six archives/six checksum sidecars. Keep draft/catalog planned. If a build still changes source, inspect the exact diff without weakening the guard. After verification, implement original `file.open` through common provider/server-owned Session and destination ACK/save/reopen/recovery. Do not repeat unrelated native/UI builds locally or touch protected services.
+
 ## Alpha.21 Actions failure and next step (2026-10-12)
 
 Run [38294207900](https://github.com/vedranius/creative-workspace/actions/runs/38294207900) on `a96abeb9ee559f37c7044c5528545d9841f1308e` completed with contract, original FilmCraft, native matrix and three OS bundle jobs successful. The DesignCraft host UI build succeeded, then `scripts/build-designcraft-host-ui.mjs:21` failed its post-build exact-source-diff assertion (`Host canvas source changed during build`). The original DesignCraft worker browser step earlier passed. Publish was skipped; verified GitHub identity is `vedranius`, but no `v0.2.0-alpha.21` tag or release exists. Thus there are no candidate release archives/checksum sidecars to verify, and alpha.20 remains the latest verified immutable draft. Do not retry publication or create a replacement tag.

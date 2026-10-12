@@ -17,3 +17,11 @@ export async function originalUiSourceDiff(source){
   try{return await git(originalUiDiffArgs);}
   finally{if(untracked.length)await git(['reset','--quiet','--',...untracked]);}
 }
+
+// Check applied bytes before an expensive build as well as after it. Patch
+// producers must use originalUiDiffArgs; comparison never normalizes away edits.
+export async function assertOriginalUiSource(source,reviewedPatch,phase='verification'){
+  if(await originalUiSourceDiff(source)!==reviewedPatch.toString('utf8')){
+    throw new Error(`Original UI source differs from the exact reviewed patch (${phase})`);
+  }
+}

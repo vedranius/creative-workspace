@@ -1,0 +1,18 @@
+{
+  "task": "PAR-03 alpha21 build guard repair",
+  "upstreamCommit": "a127c6d5c3576972bbd60445f26d893db071eef3",
+  "cause": "Reviewed Undo patch used abbreviated Git index headers; verifier emits canonical full blob IDs. Mismatch reproduced before compilation.",
+  "sourceFilesChanged": false,
+  "patchChanges": "Only nine index-header lines expanded to full blob IDs; all other patch bytes identical.",
+  "oldPatchSha256": "ec504f9c8cf0e719f2ccecb7a1e157338d204d08b019dd0bb4b0b0bf5d20727b",
+  "canonicalPatchSha256": "e86632a24c2966d9f618973b254ef17cde4b60f86f58e8210d532c35487701e7",
+  "lockedCargoMetadata": "offline wasm-platform metadata succeeded and source diff stayed unchanged",
+  "sourceGuards": "Exact reviewed bytes checked before and after build; no excluded/normalized source edits.",
+  "focusedSourceTests": "3/3 passed, including abbreviated-header rejection and modified/untracked file rejection",
+  "repositoryTests": "49/49 passed",
+  "npmRunCheck": "passed",
+  "browserRegression": "Original A4 file.new rev1, Rectangle Tool frame.create rev2, Ctrl+Z edit.undo rev3 restoring snapshot/PNG; existing UI/native artifacts reused because source-file bytes unchanged.",
+  "browserReport": "designcraft-alpha22-undo-regression.json",
+  "release": "Alpha22 candidate; Actions/tag/draft/12 assets pending; no availability claim",
+  "protectedSessions": "No live studio or user document replaced"
+}
