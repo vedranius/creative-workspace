@@ -2,19 +2,21 @@
   "schemaVersion": 1,
   "app": "designcraft",
   "commit": "a127c6d5c3576972bbd60445f26d893db071eef3",
-  "id": "par-03-original-host-canvas-v1",
-  "patch": "patches/designcraft/a127c6d5/par-03-host-canvas-candidate.patch",
-  "sha256": "05d351e628fd90ebf657087b8d3a7cf0cf49473516c05eb9f4b198ca9b5c04fb",
+  "id": "par-03-original-frame-create-undo-v1",
+  "patch": "patches/designcraft/a127c6d5/par-03-frame-create-undo-candidate.patch",
+  "sha256": "ec504f9c8cf0e719f2ccecb7a1e157338d204d08b019dd0bb4b0b0bf5d20727b",
   "status": "bounded-candidate; catalog planned",
   "scope": [
-    "Original A4 preset caller",
-    "Server ACK and canonical mirror hydration",
-    "Bounded server PNG inside original canvas",
-    "Fail-closed unbridged commands and pointer gestures"
+    "Original A4 file.new pending/ACK",
+    "Original Rectangle Tool M drag frame.create pending/ACK",
+    "Original Edit > Undo (edit.undo) pending/ACK",
+    "Undo changes the canonical server snapshot and PNG only after worker success",
+    "Server mirror stages undo without a local mutation"
   ],
   "limitations": [
-    "Other original editing actions and file providers are not bridged",
-    "No save/reopen/recovery parity",
-    "Not activated in an existing studio"
+    "Other original commands/tools remain fail-closed",
+    "Undo availability is enabled for an open server mirror; worker rejects empty history",
+    "No common file provider, destination ACK, save/reopen or recovery",
+    "Not registered in a studio package and not activated in a live session"
   ]
 }

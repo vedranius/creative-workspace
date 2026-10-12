@@ -2,13 +2,13 @@
 
 # Creative Workspace
 
-**Version: 0.2.0-alpha.20** — open-source, self-hosted, single-user prototype; draft candidate, Actions verification pending.
+**Version: 0.2.0-alpha.21** — open-source, self-hosted, single-user prototype; draft candidate, Actions verification pending.
 
 Bring your creative tools together in one browser studio. Choose an application, select your files, and access your own server from a lightweight laptop. The goal is **the original application interfaces and tools in the browser, with the server doing the heavy work**: photography, image editing, illustration, PDF, publishing, video and motion graphics. Browser controls run locally; document commands, data and previews travel to the server. No VNC or remote desktop is involved.
 
 [Download releases](https://github.com/vedranius/creative-workspace/releases) · [Install](#installation) · [Screenshots](#screenshots) · [Changelog](CHANGELOG.md) · [Roadmap](docs/original-app-port-plan.md) · [License](LICENSE.md) · [Original projects](#original-projects-and-authors)
 
-> **Current scope:** RapidRAW has an independently owned browser/server integration. All seven ArtCraft original interfaces have been built and browser-verified as previews. DesignCraft's owned server worker returns a canonical `Document` snapshot (capped at 16 MiB) beside its revisioned read model/render, and the gateway validates and forwards it. The original `DesignApp` caller still does not consume this snapshot; its local session remains unsynchronized. Other tools/actions, provider ACK/recovery and full parity remain pending. **No complete server-backed original ArtCraft port is accepted yet.**
+> **Current scope:** RapidRAW has an independently owned browser/server integration. All seven ArtCraft original interfaces have been built and browser-verified as previews. DesignCraft has isolated, unregistered pinned-source candidates for A4 creation, original Rectangle Tool `frame.create`, and original Ctrl+Z / `edit.undo` through ordered server ACKs; the original canvas shows the ACKed server PNG. The candidates are not active in the studio. Other tools/actions, provider ACK/recovery and full parity remain pending. **No complete server-backed original ArtCraft port is accepted yet.**
 
 ## What is new
 
@@ -21,7 +21,7 @@ Bring your creative tools together in one browser studio. Choose an application,
 - **Release foundations:** GitHub Actions builds Linux x64, Windows x64 and Apple Silicon macOS native-prototype bundles with an embedded Node 24 runtime, licenses, manifests, native smokes and checksums. FilmCraft and DesignCraft preview archives have separate build jobs. Alpha.18 Actions built and verified all target bundles, previews, ten release assets and checksums; keep it draft because original DesignApp state, provider and full parity are pending. [Alpha.18 release evidence](docs/evidence/creative-workspace-alpha18-release.md).
 - **A visual project guide:** real screenshots of the studio and all eight applications, an original CW logo, installation instructions and explicit source/license attribution.
 
-The latest verified **public** download is [v0.2.0-alpha.7](https://github.com/vedranius/creative-workspace/releases/tag/v0.2.0-alpha.7). Alpha.14–alpha.18 are verified **draft** releases; alpha.18 has five Actions-built archives and five verified SHA256 sidecars. Original DesignApp state and provider/save parity remain incomplete. Every new product feature/fix receives its own version and changelog; documentation-only updates retain the product version. [Alpha.18 release verification](docs/evidence/creative-workspace-alpha18-release.md) · [Release requirements and upgrade guide](docs/releases.md).
+Alpha.21 is a draft candidate pending Actions/tag/asset verification; the latest verified **public** download is [v0.2.0-alpha.7](https://github.com/vedranius/creative-workspace/releases/tag/v0.2.0-alpha.7). Alpha.14–alpha.18 are verified **draft** releases; alpha.18 has five Actions-built archives and five verified SHA256 sidecars. Original DesignApp state and provider/save parity remain incomplete. Every new product feature/fix receives its own version and changelog; documentation-only updates retain the product version. [Alpha.18 release verification](docs/evidence/creative-workspace-alpha18-release.md) · [Release requirements and upgrade guide](docs/releases.md).
 
 ## Applications and current status
 

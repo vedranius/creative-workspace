@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.2.0-alpha.21] — 2026-10-12 (draft candidate)
+
+- Extend the pinned original DesignCraft A4 → server mirror candidate with original Rectangle Tool `frame.create` and original Ctrl+Z / `edit.undo`, using the existing ordered server ACK and canonical snapshot/render refresh.
+- Preserve exact upstream UI/engine source pinning, fail-closed unbridged actions, the dedicated read-only mirror test and Chromium evidence. Actions builds a separate candidate archive and checksum; this does not register or activate the editor.
+- Keep DesignCraft planned: remaining original tools/actions, common provider selection, separate save destination/retention, laptop write ACK, save/reopen, recovery and complete UI/function parity are not accepted. No complete creative-suite or cross-platform original-app claim.
+
 Each completed product update receives a new SemVer, changelog entry and immutable Actions-built release. Engine source versions remain independently pinned.
 
 ## [0.2.0-alpha.20] — 2026-10-12 (draft packaging candidate)
