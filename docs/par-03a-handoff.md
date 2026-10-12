@@ -6,7 +6,7 @@ The alpha.21 mismatch exists immediately after patch application, before Cargo/T
 
 Clean pinned-source comparison and locked offline Cargo metadata leave source unchanged. Three targeted regressions reject short-header patches, unreviewed modifications and extra untracked files. `npm run check`, 49 Node tests and Chromium A4/Rectangle/Undo/failed-preview regression pass using existing proven binaries because source file bytes did not change. [Repair evidence](evidence/designcraft-alpha22-build-fix.json), [browser regression](evidence/designcraft-alpha22-undo-regression.json).
 
-Next: verify alpha.22 Actions, immutable tag, draft and six archives/six checksum sidecars. Keep draft/catalog planned. If a build still changes source, inspect the exact diff without weakening the guard. After verification, implement original `file.open` through common provider/server-owned Session and destination ACK/save/reopen/recovery. Do not repeat unrelated native/UI builds locally or touch protected services.
+Commit `1b5a42b0de1a766ea3cba506e3b233b8e806d098` is pushed; Checks `38301345510` passed all three OS. Build/release `38301345701` is in progress. Next: verify its complete outcome, immutable `v0.2.0-alpha.22` tag at that commit, draft and six archives/six checksum sidecars. Keep draft/catalog planned. If a build still changes source, inspect the exact diff without weakening the guard. After verification, implement original `file.open` through common provider/server-owned Session and destination ACK/save/reopen/recovery. Do not repeat unrelated native/UI builds locally or touch protected services.
 
 ## Alpha.21 Actions failure and next step (2026-10-12)
 
