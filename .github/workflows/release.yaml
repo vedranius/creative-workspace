@@ -203,6 +203,18 @@ jobs:
           (cd build/browser-qa && npx playwright install --with-deps chromium)
           node scripts/smoke-designcraft-file-new-browser.mjs
           node scripts/smoke-designcraft-par03-browser.mjs
+      - name: Build and prove the original preset/server-canvas candidate
+        env:
+          CW_DESIGNCRAFT_BINARY: ${{ github.workspace }}/build/staged/designcraft/cw-designcraft-engine
+          CW_DESIGNCRAFT_UI_ASSETS: ${{ github.workspace }}/build/original-ui/assets-designcraft-host
+          CW_PLAYWRIGHT_MODULE: ${{ github.workspace }}/build/browser-qa/node_modules/playwright/index.mjs
+          CW_PAR03_SCREENSHOT: ${{ github.workspace }}/build/designcraft-par03-evidence/host-canvas.png
+          CW_PAR03_REPORT: ${{ github.workspace }}/build/designcraft-par03-evidence/host-canvas.json
+        run: |
+          git clone --shared --no-checkout build/original-ui/source-designcraft build/original-ui/source-designcraft-host
+          git -C build/original-ui/source-designcraft-host checkout --detach a127c6d5c3576972bbd60445f26d893db071eef3
+          node scripts/build-designcraft-host-ui.mjs
+          node scripts/smoke-designcraft-host-canvas.mjs
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -274,14 +286,14 @@ jobs:
           node scripts/release.mjs notes release-notes.md
           cd dist
           sha256sum -c *.sha256
-          test "$(find . -name '*.sha256' | wc -l)" -eq 5
+          test "$(find . -name '*.sha256' | wc -l)" -eq 6
       - name: Publish verified alpha through GitHub Actions
         env:
           GH_TOKEN: ${{ github.token }}
           VERSION: ${{ needs.contract.outputs.version }}
         run: |
           gh release create "v$VERSION" dist/* --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" --draft --prerelease --title "Creative Workspace $VERSION (alpha)" --notes-file release-notes.md
-          test "$(gh release view "v$VERSION" --repo "$GITHUB_REPOSITORY" --json assets --jq '.assets | length')" -eq 10
+          test "$(gh release view "v$VERSION" --repo "$GITHUB_REPOSITORY" --json assets --jq '.assets | length')" -eq 12
           # A draft release alone does not create its immutable Git tag.
           git tag "v$VERSION" "$GITHUB_SHA"
           git push origin "refs/tags/v$VERSION"

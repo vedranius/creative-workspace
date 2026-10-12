@@ -1,0 +1,25 @@
+{
+  "status": "bounded-candidate-browser-proof",
+  "originalPresetClick": [
+    778,
+    467
+  ],
+  "commandId": "file.new",
+  "preset": "A4",
+  "stateVersion": 1,
+  "canonicalSnapshotBytes": 6873,
+  "serverPngDimensions": [
+    595,
+    842
+  ],
+  "serverPngSha256": "40402e053fbcda7f6379931420bdbea7192004fd1973c890cafb6cd40efdc273",
+  "originalCanvasServerTexture": true,
+  "visibleCanvas": {
+    "brightPixels": 524966,
+    "distinctColorsAtLeast": 64
+  },
+  "unbridgedGesturesAndShortcutsBlocked": true,
+  "uncaughtBrowserErrors": [],
+  "previewFailureLeavesMirrorUnhydrated": true,
+  "availability": "planned; edit/save/provider/reopen parity pending"
+}

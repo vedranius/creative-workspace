@@ -2,6 +2,14 @@
 
 Each completed product update receives a new SemVer, changelog entry and immutable Actions-built release. Engine source versions remain independently pinned.
 
+## [0.2.0-alpha.19] — 2026-10-12 (draft candidate)
+
+- Added the original DesignCraft A4 preset → owned server worker → acknowledged canonical mirror → server PNG in the original canvas candidate.
+- Blocked unbridged local command execution, canvas pointer/tool processing, shortcuts and file imports; native workers retain normal behavior. Preserved the acknowledged dirty state in the read-only mirror.
+- Added exact source-patch/digest build verification, an isolated actual-preset Chromium smoke and an Actions-built candidate archive/checksum. Six archives and six sidecars are expected; publication must be verified before download claims.
+- Local tmpfs pressure was reduced by preserving downloaded release packages on disk; builds use disk-backed temporary storage. Protected services were not restarted.
+- DesignCraft remains planned: original editing actions, providers, save destination ACK, reopen/recovery and complete parity remain pending. No complete-suite/OS acceptance claim.
+
 ## [0.2.0-alpha.18] — 2026-10-12 (draft release verified)
 
 - Return the server-owned DesignCraft `Document` as a bounded canonical snapshot alongside its revisioned read model and render. The gateway rejects missing or oversized snapshots and keeps the snapshot separate from display metadata.

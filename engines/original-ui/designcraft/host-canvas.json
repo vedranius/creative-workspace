@@ -1,0 +1,20 @@
+{
+  "schemaVersion": 1,
+  "app": "designcraft",
+  "commit": "a127c6d5c3576972bbd60445f26d893db071eef3",
+  "id": "par-03-original-host-canvas-v1",
+  "patch": "patches/designcraft/a127c6d5/par-03-host-canvas-candidate.patch",
+  "sha256": "05d351e628fd90ebf657087b8d3a7cf0cf49473516c05eb9f4b198ca9b5c04fb",
+  "status": "bounded-candidate; catalog planned",
+  "scope": [
+    "Original A4 preset caller",
+    "Server ACK and canonical mirror hydration",
+    "Bounded server PNG inside original canvas",
+    "Fail-closed unbridged commands and pointer gestures"
+  ],
+  "limitations": [
+    "Other original editing actions and file providers are not bridged",
+    "No save/reopen/recovery parity",
+    "Not activated in an existing studio"
+  ]
+}

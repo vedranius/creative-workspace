@@ -1,5 +1,11 @@
 # PAR-03 handoff — bounded server read-model slice verified
 
+## Original canvas candidate (2026-10-12, alpha.19)
+
+See [the bounded original-preset/server-canvas implementation and reproduction guide](designcraft-host-canvas.md). It supersedes the earlier hydration-only candidate for the next implementation. The original A4 caller queues to the owned worker; only an acknowledged canonical mirror/server PNG becomes visible. Local command execution and unbridged pointer/tool processing are blocked. Metadata, source-digest checks, optimized Trunk build and actual-preset browser proof pass. [Browser report](evidence/designcraft-par03-host-canvas.json) and [screenshot](evidence/designcraft-par03-host-canvas.png). Actions/immutable tag/draft assets still require verification. No registered studio package or live session was replaced. Keep DesignCraft planned and all release claims pending actual evidence.
+
+The old missing-tool conclusion was an execution-context limitation: scoped host execution finds the pinned Trunk and Chromium binaries. Three known downloaded release scratch folders were moved intact from tmpfs to ignored disk-backed build storage, freeing about 1.1 GB. New build/QA scratch uses disk-backed TMPDIR. Do not remove user documents, kill browsers, or clear unrelated temporary directories.
+
 ## Original host-action hydration candidate (2026-10-12, not accepted)
 
 A disposable checkout at pinned source `a127c6d5c3576972bbd60445f26d893db071eef3` now has a candidate source diff for the original `DesignApp::run("file.new", preset)` caller. The web host queues that original command and parameters, sends it to the owned server worker, checks the acknowledged command/revision/snapshot, and installs the deserialized upstream `Document` into the original UI Session only after ACK. Requests are serialized and failure updates app status. Candidate patch: [par-03-host-action-hydration-candidate.patch](../patches/designcraft/a127c6d5/par-03-host-action-hydration-candidate.patch), SHA-256 `0d8c4986dba9fa5bd7631ed026c0d091a00556fc67d652a978a13abaefb57c52`.

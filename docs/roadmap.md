@@ -10,6 +10,8 @@ Ovaj dokument određuje redoslijed razvoja. [Stanje razvoja](development-state.m
 
 **DOCS-SUMMARY-01:** README overview, instalacija, 14 stvarnih screenshotova, CW logo i objašnjenje licence/izvornih autora. [Primopredaja](summary-handoff.md). Dokumentacija ne mijenja stanje prihvaćenosti aplikacija.
 
+**PAR-03 originalni canvas, alpha.19 kandidat:** stvarna A4 preset kartica → server `file.new` → ACK/canonical mirror → server PNG u izvornom canvasu. Nepovezane lokalne radnje blokirane; postojeći studio nije zamijenjen. [Opseg i provjera](designcraft-host-canvas.md). Prije nastavka provjeriti build/browser/Actions i stvarne draft artefakte; zatim spojiti stvarnu originalnu edit radnju, pa provider/save ACK/reopen/recovery.
+
 ## Cilj i pravila proizvoda
 
 **Obvezna korisnička specifikacija:** [izvorne aplikacije 1:1 i njihove nadogradnje](original-app-requirements.md). ArtCraft UI, alati, dijalozi, shortcuti i funkcije moraju odgovarati izvornoj native verziji. Nadogradnja prenosi zajedno originalni UI i engine te provjerava parity i kompatibilnost. Ograničeni vlastiti editor nije prihvatljiv dovršeni port.
