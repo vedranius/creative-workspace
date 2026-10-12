@@ -1,0 +1,57 @@
+{
+  "status": "bounded-source-candidate-verified",
+  "upstreamCommit": "a127c6d5c3576972bbd60445f26d893db071eef3",
+  "candidate": "par-03-original-frame-create-undo-v1",
+  "patchSha256": "ec504f9c8cf0e719f2ccecb7a1e157338d204d08b019dd0bb4b0b0bf5d20727b",
+  "patchAppliesToCleanPinnedSource": true,
+  "optimizedTrunkBuild": {
+    "status": "passed",
+    "wasmSha256": "ee7fffc4c3838aa98128492292e251220c4331bd156ceb019ba8f3d2cd1d27d9",
+    "command": "trunk build --release",
+    "runner": "low-impact-build.py; cargo jobs=1; max two CPUs; nice 10"
+  },
+  "nativeWorker": {
+    "status": "built-from-same-pinned-source-candidate",
+    "sha256": "6b49f867b1b84369bf01e92c630b28021018576fdff11234da1ab9243f86ede1",
+    "command": "cargo build -p cw-designcraft-engine --release",
+    "runner": "low-impact-build.py; cargo jobs=1; max two CPUs; nice 10"
+  },
+  "focusedNativeUnit": {
+    "status": "passed",
+    "tests": 1,
+    "name": "tests::server_mirror_stages_undo_without_mutating_local_document"
+  },
+  "browser": {
+    "status": "passed",
+    "report": "designcraft-par03-frame-create-undo-browser.json",
+    "screenshot": "designcraft-par03-frame-create-undo-browser.png",
+    "actions": [
+      {
+        "id": "file.new",
+        "revision": 1
+      },
+      {
+        "id": "frame.create",
+        "revision": 2,
+        "expectedVersion": 1
+      },
+      {
+        "id": "edit.undo",
+        "revision": 3,
+        "expectedVersion": 2,
+        "snapshotRestored": true,
+        "serverRenderRestored": true
+      }
+    ],
+    "visibleCanvas": true,
+    "unbridgedCommandsBlocked": true,
+    "previewFailureDoesNotHydrateMirror": true,
+    "uncaughtBrowserErrors": 0
+  },
+  "repositoryChecks": {
+    "npmRunCheck": "passed",
+    "npmTest": "passed; 48/48"
+  },
+  "scope": "isolated disposable worker, browser and upstream source tree; no registered package or live service changed",
+  "availability": "DesignCraft remains planned; providers, destination/write acknowledgement, save/reopen, recovery and full original-app parity pending"
+}
