@@ -8,6 +8,12 @@ Therefore an async RPC wrapper at the existing `run()` boundary would either blo
 
 The prior native candidate at `/tmp/par03-designcraft-candidate/build/release/cw-designcraft-engine` is available, while its pinned upstream checkout `/home/vedran/Documents/Codex/2026-10-10/da-x20/work/designcraft` has pre-existing dirty `Cargo.lock` and untracked `apps/cw-designcraft-engine/`; preserve both. Do not rebuild or reset that checkout. This boundary note is evidence/planning only; it does not advance DesignCraft availability or replace the pending implementation.
 
+### Next implementation boundary — actual original caller
+
+The smallest real UI entry point identified for a server-owned document is the preset-card click in `crates/ui-egui/src/chrome.rs` (the New Document view, currently `app.run("file.new", {"preset": p.name})`). It goes through the documented `DesignApp::run` entry point, which immediately calls local `self.session.execute`; other surfaces still call `session.execute` directly. The native worker is a newline-delimited JSON request/response process with a 64 KB request limit and 32 MB response limit; its adapter exposes `new` and the real `frame.create` command, while the workspace gateway already serializes RPC requests and ACKs with state revisions.
+
+Do not wire only the preset click to an async fetch and leave the original app showing an empty local document. The first acceptable source patch must establish an explicit asynchronous host-action lifecycle at the UI/session boundary (pending, acknowledged response, error), route the original `file.new` ID and preset params to the owned server worker, and make the original UI consume the returned document/read-model without executing a duplicate local mutation. Keep the current worker request bounds, session/Origin guards, ordering and expected-revision checks. Add a focused native assertion that the request retains `file.new` and its preset, plus browser evidence that the original preset card causes the worker ACK and that the original UI shows the acknowledged document. Preserve the pinned checkout's dirty files; build only in a disposable clean checkout with the low-impact wrapper.
+
 ## Alpha.16 server response/read-model refresh candidate (2026-10-12)
 
 Patch variant `par-03-server-read-model-v3` applies the complete response after `frame.create`: source command ID, server state revision, document title, page count, dirty state, and server preview URL are refreshed together. The canvas image metadata and status banner now reflect the same latest revision after edits.
