@@ -2,6 +2,17 @@
 
 Updated 2026-10-11 for alpha.13. This is a verified experimental vertical slice, not a server-backed DesignCraft port.
 
+## Alpha.15 bounded edit bridge (2026-10-12)
+
+The reviewed variant now also routes a fresh `file.new` document and pointer-drawn text frames through the server-owned native session. It forwards only the known `frame.create` method, maps page coordinates, reads the current revision inside a serialized browser queue, and shows the server PNG at the acknowledged revision.
+
+- Reviewed patch variant: `par-03-server-edit-v1`; source pin `a127c6d5c3576972bbd60445f26d893db071eef3`; patch SHA-256 `17a1967cd6834bc8f73c4250512af97b2e61b65aa8af4e689a49d134442d99a8`.
+- Native evidence: [report](evidence/designcraft-par03-server-edit-native.json): owned runtime; `file.new` revision 1; `frame.create` revision 2; 612×792 render digest changes.
+- Browser evidence: [report](evidence/designcraft-par03-server-edit.json) and [screenshot](evidence/designcraft-par03-server-edit.png): two rapid gestures serialize to revision 3 and refresh the server render, with no uncaught browser errors. Foreign session/invalid Origin/stale revision return 404/403/409.
+- Build used the pinned original UI through `low-impact-build.py` (Cargo jobs 1, two-CPU affinity, nice 10). WASM SHA-256 `a282fc2cd0528e0af4aa2c7316f733a0aedb09cdec3526f3f8fff42ea35026f8`; native candidate SHA-256 `0144df33abe4c89519d03bc564c740c4a28e47307a465ec1b136b82c75a505e8`.
+
+This remains a bridge experiment. The screenshot shows the upstream local `DesignApp` still on its welcome screen with “No document open”; the server PNG is displayed over the original UI shell and local panel state is not synchronized. Pointer gestures create fixed demo story text; they do not yet follow the original tool-selection workflow. A freshly compiled native candidate also rejected `doc.sample` with `Unsupported workspace layout method`, so this edit path starts with verified `file.new`; investigate the sample discrepancy before restoring that flow. Keep DesignCraft planned. Full action/state parity, save destination/retention, write ACK, reopen and recovery remain required.
+
 ## Source and build
 
 - Original source: `storytold/designcraft` commit `a127c6d5c3576972bbd60445f26d893db071eef3` (UI and engine use the same pin).

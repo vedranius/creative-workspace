@@ -2,23 +2,23 @@
 
 # Creative Workspace
 
-**Version: 0.2.0-alpha.14** — open-source, self-hosted, single-user prototype.
+**Version: 0.2.0-alpha.15** — open-source, self-hosted, single-user prototype.
 
 Bring your creative tools together in one browser studio. Choose an application, select your files, and access your own server from a lightweight laptop. The goal is **the original application interfaces and tools in the browser, with the server doing the heavy work**: photography, image editing, illustration, PDF, publishing, video and motion graphics. Browser controls run locally; document commands, data and previews travel to the server. No VNC or remote desktop is involved.
 
 [Download releases](https://github.com/vedranius/creative-workspace/releases) · [Install](#installation) · [Screenshots](#screenshots) · [Changelog](CHANGELOG.md) · [Roadmap](docs/original-app-port-plan.md) · [License](LICENSE.md) · [Original projects](#original-projects-and-authors)
 
-> **Current scope:** RapidRAW has an independently owned browser/server integration. All seven ArtCraft original interfaces have been built and browser-verified as previews. DesignCraft now presents a revisioned server-owned document read model and PNG in the original canvas for one sample command; its other commands and editing remain local/unported. **No complete server-backed original ArtCraft port is accepted yet.** Shared providers, acknowledged saves and full functional parity remain to be connected to those original interfaces. The older limited HTML editors are explicitly labeled legacy prototypes.
+> **Current scope:** RapidRAW has an independently owned browser/server integration. All seven ArtCraft original interfaces have been built and browser-verified as previews. DesignCraft's bounded PAR-03 edit bridge sends `file.new` and pointer-created `frame.create` actions to the owned server worker, then displays its revisioned PNG over the original UI shell. The original local `DesignApp` still reports no open document; other tools/actions, provider ACK/recovery and full parity remain pending. **No complete server-backed original ArtCraft port is accepted yet.**
 
 ## What is new
 
 - **Original interfaces from one studio:** registered PhotoCraft, VectorCraft, PdfCraft, DesignCraft, LightCraft, FilmCraft and EffectCraft launch on the studio's own origin at `/original/<app>/`. Invalid or missing packages stay unavailable. [Installation and browser evidence](docs/studio-original-uis.md).
 - **FilmCraft MKV/WebM import fix:** a reviewed patch to the original media browser handles pending reads, duplicate requests, selection/bin changes, cancellation and metadata retry. Eight isolated browser cases passed; this is not a claim that every codec or video export works. [Fix and evidence](docs/filmcraft-mkv-import-handoff.md).
-- **DesignCraft PAR-03 read-model slice:** `file.newSample` still executes in the owned native worker; the original canvas receives its revisioned document title, page count and dirty state with the 612×792 server PNG. Browser evidence covers stale-revision, foreign-session and invalid-Origin rejection. Other commands, editing, provider/save ACK and recovery are pending. [Bridge scope](docs/designcraft-par03-sample-bridge.md).
-- **Release foundations:** GitHub Actions builds Linux x64, Windows x64 and Apple Silicon macOS native-prototype bundles with an embedded Node 24 runtime, licenses, manifests, native smokes and checksums. FilmCraft and DesignCraft preview archives have separate build jobs. Alpha.14 fixes the new-file exact-diff check; all target builds, server-worker/browser verification, ten draft assets and archive checksums passed. The release remains draft because full original-app/provider parity is still pending.
+- **DesignCraft PAR-03 edit slice:** the original UI shell sends allowlisted `file.new` and serialized pointer-created `frame.create` actions to the owned native worker. Chromium verified revision 1→3, changed 612×792 server renders, and stale-revision, foreign-session and invalid-Origin rejection. The local `DesignApp` remains unsynchronized; other tools, providers, save ACK and recovery are pending. [Bridge scope and evidence](docs/designcraft-par03-sample-bridge.md).
+- **Release foundations:** GitHub Actions builds Linux x64, Windows x64 and Apple Silicon macOS native-prototype bundles with an embedded Node 24 runtime, licenses, manifests, native smokes and checksums. FilmCraft and DesignCraft preview archives have separate build jobs. Alpha.15 adds an original DesignCraft edit bridge candidate; its Actions builds/assets are pending. Keep the release draft because original DesignApp state, provider and full parity are pending.
 - **A visual project guide:** real screenshots of the studio and all eight applications, an original CW logo, installation instructions and explicit source/license attribution.
 
-The latest verified **public** download is [v0.2.0-alpha.7](https://github.com/vedranius/creative-workspace/releases/tag/v0.2.0-alpha.7). Alpha.10's eight assets were verified in a draft, and alpha.14's ten assets/checksums are verified in a **draft** release; neither is a public download. Alpha.11–13 did not create releases. Alpha.14 tag and Actions build are verified. Every new product feature/fix receives its own version and changelog; documentation-only updates retain the product version. [Release requirements and upgrade guide](docs/releases.md).
+The latest verified **public** download is [v0.2.0-alpha.7](https://github.com/vedranius/creative-workspace/releases/tag/v0.2.0-alpha.7). Alpha.14's ten assets/checksums are verified in a **draft** release; alpha.15 is the current edit-bridge candidate pending Actions verification. Neither draft is a public download. Every new product feature/fix receives its own version and changelog; documentation-only updates retain the product version. [Release requirements and upgrade guide](docs/releases.md).
 
 ## Applications and current status
 
@@ -28,7 +28,7 @@ The latest verified **public** download is [v0.2.0-alpha.7](https://github.com/v
 | **PhotoCraft** | Images, layers, masks and retouching | Original UI preview verified. Original server/provider integration pending; limited native prototype also exists. |
 | **VectorCraft** | Vectors, shapes, paths and illustration | Original UI preview verified. Original server/provider integration pending; limited native prototype also exists. |
 | **PdfCraft** | PDF viewing, page organisation and annotation | Original UI preview verified. Original server/provider integration pending; limited native prototype also exists. |
-| **DesignCraft** | Page layout, typography and publications | Original UI preview and one experimental server sample/render operation verified. Full edit/save integration pending. |
+| **DesignCraft** | Page layout, typography and publications | Original UI preview plus limited server `file.new`/`frame.create` render bridge verified. Original document state, full edit/save integration pending. |
 | **LightCraft** | Photo library and RAW development | Original UI preview and separate native CPU/recipe groundwork. Original server/provider acceptance pending; not bundled. |
 | **FilmCraft** | Video timeline, colour and audio | Original UI preview with reviewed MKV/WebM import fix. Server media/proxy/render/provider integration pending. |
 | **EffectCraft** | Motion graphics, composition and VFX | Original UI/demo preview verified. Server/GPU/render/provider integration pending; headless GPU-worker limits documented. |

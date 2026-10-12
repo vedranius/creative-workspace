@@ -1,0 +1,25 @@
+{
+  "url": "http://127.0.0.1:34187/original/designcraft/?serverEdit&webgl",
+  "ownedRuntime": true,
+  "commandId": "file.new",
+  "stateVersion": 1,
+  "documentTitle": "Server Edit Test",
+  "pageCount": 1,
+  "dirty": true,
+  "width": 612,
+  "height": 792,
+  "canvas": true,
+  "banner": "Server Edit Test • 1 pages • unsaved • revision 1 • 612×792",
+  "editCommand": "frame.create",
+  "afterEditRevision": 3,
+  "afterEditDimensions": [
+    612,
+    792
+  ],
+  "renderSha256": "d191113ef93be3dceee7b85e08509124288e29a2b90244083dd8c6433da5b1ea",
+  "foreignSessionStatus": 404,
+  "invalidOriginStatus": 403,
+  "staleRevisionStatus": 409,
+  "uncaughtBrowserErrors": 0,
+  "screenshot": "/home/vedran/Documents/Codex/2026-10-10/da-x20/outputs/creative-workspace/docs/evidence/designcraft-par03-server-edit.png"
+}

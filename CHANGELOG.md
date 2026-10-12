@@ -2,6 +2,12 @@
 
 Each completed product update receives a new SemVer, changelog entry and immutable Actions-built release. Engine source versions remain independently pinned.
 
+## [0.2.0-alpha.15] — 2026-10-12 (draft candidate)
+
+- Extend the pinned original DesignCraft PAR-03 bridge with `file.new` and `frame.create`; the original worker owns document creation, pointer edit ordering, state revisions and PNG rendering.
+- Verify two rapid original-canvas gestures in Chromium (revision 1→3), changed server render digests, native worker execution, and session/Origin/stale-revision guards.
+- Keep DesignCraft planned: its upstream local `DesignApp` state is not synchronized, and full tools, providers, acknowledged save/reopen and recovery remain incomplete. Keep the Actions-built cross-platform release as a draft.
+
 ## [0.2.0-alpha.14] — 2026-10-11 (draft candidate)
 
 - Fix the original UI exact-patch verifier to include new untracked files during comparison. The reviewed DesignCraft patch adds `server-bridge.js`; plain `git diff` omitted that file and caused alpha.13's Actions registration to fail after a successful Trunk build.

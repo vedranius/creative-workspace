@@ -8,14 +8,14 @@ import {createWorkspaceServer} from '../src/server.js';
 
 // Protocol fixture only. Actual parsing/rendering/export is verified by smoke-designcraft.mjs.
 class DesignFixture{
-  constructor(){this.closed=false;this.doc=null;this.edits=0;this.sampleCommandId=null;}
+  constructor(){this.closed=false;this.doc=null;this.edits=0;this.sampleCommandId=null;this.commands=[];}
   async call(method,p={}){
     if(method==='__cw_identity')return {runtimeId:'creative-workspace-designcraft-v1',version:'fixture'};
     if(method==='state')return this.doc?structuredClone(this.doc):null;
     if(method==='new'||method==='open'){this.doc={title:'Fixture',dirty:method==='new',pageCount:1,spreads:[{index:0,pages:[{index:0,name:'1',bounds:[0,0,800,600]}],items:[]}],stories:[],layers:[],selection:{items:[]},history:{undo:[],redo:[]}};return {};}
     if(method==='sample'){this.sampleCommandId='file.newSample';this.doc={title:'Original sample',dirty:true,pageCount:2,spreads:[{index:0,pages:[{index:0,name:'1',bounds:[0,0,800,600]}],items:[]}],stories:[],layers:[],selection:{items:[]},history:{undo:[],redo:[]}};return {commandId:this.sampleCommandId};}
     if(method==='render'){const png=Buffer.alloc(24);Buffer.from([137,80,78,71,13,10,26,10]).copy(png);png.writeUInt32BE(13,8);png.write('IHDR',12);png.writeUInt32BE(800,16);png.writeUInt32BE(600,20);return {pngBase64:png.toString('base64')};}
-    if(method==='command'){this.edits++;this.doc.dirty=true;return {id:1};}
+    if(method==='command'){this.edits++;this.commands.push(p.command);this.doc.dirty=true;return {id:1};}
     if(method==='export'){await writeFile(p.path,'fixture design copy');return {warnings:[]};}
     if(method==='mark_saved'){this.doc.dirty=false;return {saved:true};}throw new Error('Unsupported fixture method');
   }
@@ -34,7 +34,8 @@ test('Design sessions isolate state, deduplicate edits and refuse stale/collidin
   const {project,design,engines,call}=await fixture(t,{maxSessions:2});await writeFile(path.join(project,'original.designcraft'),'fixture native original');
   const [a,b]=await Promise.all([design.create(project),design.create(project)]);const opened=await call(a.id,'doc.open',{path:'original.designcraft'});assert.equal(opened.document.dirty,false);assert.equal((await call(b.id,'state')).document,null);
   const edit={method:'frame.create',params:{rect:[10,10,90,60],content:'text',text:'Fixture story'},requestId:'design-edit-request',expectedVersion:opened.stateVersion};
-  await Promise.all([design.execute(a.id,edit),design.execute(a.id,edit)]);assert.equal(engines.reduce((n,e)=>n+e.edits,0),1);
+  const [edited,duplicate]=await Promise.all([design.execute(a.id,edit),design.execute(a.id,edit)]);assert.equal(engines.reduce((n,e)=>n+e.edits,0),1);assert.equal(edited.stateVersion,opened.stateVersion+1);assert.equal(edited.result.commandId,'frame.create');assert.equal(duplicate.stateVersion,edited.stateVersion);assert.deepEqual(engines.find(engine=>!engine.closed).commands,['frame.create']);
+  const next=await call(a.id,'frame.create',{rect:[100,10,180,60],content:'text',text:'Second story'},{expectedVersion:edited.stateVersion});assert.equal(next.stateVersion,edited.stateVersion+1);assert.deepEqual(engines.find(engine=>!engine.closed).commands,['frame.create','frame.create']);
   await assert.rejects(call(a.id,'edit.undo',{},{expectedVersion:opened.stateVersion}),e=>e.code==='STATE_VERSION_CONFLICT');await assert.rejects(design.execute(a.id,{...edit,params:{x:0}}),e=>e.status===409);
   await assert.rejects(call(a.id,'doc.save',{path:'original.designcraft'}),e=>e.status===409);assert.equal(await readFile(path.join(project,'original.designcraft'),'utf8'),'fixture native original');
   const exported=await call(a.id,'doc.save',{path:'view.pdf'});assert.equal(exported.document.dirty,true);assert.equal(exported.result.savedDocument,false);

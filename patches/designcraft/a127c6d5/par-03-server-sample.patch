@@ -12,20 +12,22 @@ index b05be39367b0eeb780fc1759c79f61d53f196abf..441f58de395e6d02527ce1e42f0be4a5
  </html>
 diff --git a/apps/designcraft-web/server-bridge.js b/apps/designcraft-web/server-bridge.js
 new file mode 100644
-index 0000000000000000000000000000000000000000..6e2c13aa4d25c53f3020cb2595301e4a511d318e
+index 0000000000000000000000000000000000000000..c22e5777ab7191782dbc90ae859a782014d5f9d0
 --- /dev/null
 +++ b/apps/designcraft-web/server-bridge.js
-@@ -0,0 +1,46 @@
-+// PAR-03 bounded experiment: send the original file.newSample action to the owned server worker.
-+// The original DesignApp remains the rendered shell; its local Session is not used for this sample.
+@@ -0,0 +1,66 @@
++// PAR-03 bounded experiment: invoke one original command on the owned server worker.
++// The original DesignApp remains the shell; this bounded edit demonstration owns state only on the server.
 +const params = new URLSearchParams(location.search);
-+if (params.has("serverSample")) {
++if (params.has("serverEdit")) {
 +  const banner = document.createElement("div");
 +  banner.id = "cw_server_status";
 +  Object.assign(banner.style, {position:"fixed",right:"12px",bottom:"12px",zIndex:"20",padding:"8px 12px",borderRadius:"4px",background:"#173b32",color:"#e8fff6",font:"12px system-ui",boxShadow:"0 2px 8px #0008"});
-+  banner.textContent = "Connecting to server-owned DesignCraft sample…";
++  banner.textContent = "Connecting to server-owned DesignCraft document…";
 +  document.body.append(banner);
 +  let sessionId = null;
++  let stateVersion = 0;
++  let actionQueue = Promise.resolve();
 +  const post = async (url, body) => {
 +    const response = await fetch(url, {method:"POST",credentials:"same-origin",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)});
 +    const value = await response.json();
@@ -36,19 +38,37 @@ index 0000000000000000000000000000000000000000..6e2c13aa4d25c53f3020cb2595301e4a
 +    try {
 +      const session = await post("/api/designcraft/sessions", {});
 +      sessionId = session.id;
-+      const reply = await post(`/api/designcraft/sessions/${sessionId}/rpc`, {method:"doc.sample",params:{},requestId:crypto.randomUUID(),expectedVersion:0});
++      const reply = await post(`/api/designcraft/sessions/${sessionId}/rpc`, {method:"doc.new",params:{name:"Server Edit Test",width:612,height:792,pages:1},requestId:crypto.randomUUID(),expectedVersion:0});
 +      const model = reply.document;
-+      if (reply.result?.commandId !== "file.newSample" || reply.stateVersion !== 1 || !reply.preview || !model || typeof model.title !== "string" || !Number.isSafeInteger(model.pageCount) || model.pageCount < 1 || typeof model.dirty !== "boolean") throw new Error("Server response did not match the expected command, read model, and revision");
++      stateVersion = reply.stateVersion;
++      if (reply.result?.commandId !== "file.new" || reply.stateVersion !== 1 || !reply.preview || !model || typeof model.title !== "string" || !Number.isSafeInteger(model.pageCount) || typeof model.dirty !== "boolean") throw new Error("Server response did not match the expected new-document command, read model, and revision");
 +      const image = document.createElement("img");
-+      image.id = "cw_server_render"; image.alt = `Server-rendered DesignCraft sample, revision ${reply.stateVersion}`;
++      image.id = "cw_server_render"; image.alt = `Server-rendered DesignCraft page, revision ${reply.stateVersion}`;
 +      image.dataset.stateVersion = String(reply.stateVersion); image.dataset.commandId = reply.result.commandId; image.dataset.documentTitle = model.title; image.dataset.pageCount = String(model.pageCount); image.dataset.dirty = String(model.dirty); image.src = reply.preview;
-+      Object.assign(image.style, {position:"fixed",left:"34%",top:"24%",width:"32%",height:"52%",objectFit:"contain",zIndex:"2",pointerEvents:"none",filter:"drop-shadow(0 2px 6px #0008)"});
++      Object.assign(image.style, {position:"fixed",left:"34%",top:"24%",width:"32%",height:"52%",objectFit:"contain",zIndex:"2",pointerEvents:"auto",touchAction:"none",filter:"drop-shadow(0 2px 6px #0008)"});
++      let dragStart = null;
++      image.addEventListener("pointerdown", event => { if (!image.naturalWidth) return; event.preventDefault(); event.stopPropagation(); image.setPointerCapture(event.pointerId); dragStart = {x:event.offsetX, y:event.offsetY}; });
++      image.addEventListener("pointerup", event => {
++        if (!dragStart || !sessionId) return;
++        event.preventDefault(); event.stopPropagation();
++        const start = dragStart; dragStart = null;
++        const scale = Math.min(image.clientWidth / 612, image.clientHeight / 792), left = (image.clientWidth - 612 * scale) / 2, top = (image.clientHeight - 792 * scale) / 2;
++        const x1 = Math.max(0, Math.min(612, (start.x-left) / scale)), y1 = Math.max(0, Math.min(792, (start.y-top) / scale));
++        const x2 = Math.max(0, Math.min(612, (event.offsetX-left) / scale)), y2 = Math.max(0, Math.min(792, (event.offsetY-top) / scale));
++        if (Math.abs(x2-x1)<4 || Math.abs(y2-y1)<4) return;
++        actionQueue = actionQueue.then(async () => {
++          const expectedVersion = stateVersion;
++          const result = await post(`/api/designcraft/sessions/${sessionId}/rpc`, {method:"frame.create",params:{rect:[Math.min(x1,x2),Math.min(y1,y2),Math.max(x1,x2),Math.max(y1,y2)],content:"text",text:"Server edited story"},requestId:crypto.randomUUID(),expectedVersion});
++          if (result.stateVersion <= stateVersion) throw new Error("Out-of-order server revision rejected");
++          stateVersion = result.stateVersion;
++          image.dataset.commandId = "frame.create"; image.dataset.stateVersion = String(stateVersion); image.src = `${result.preview}&_=${stateVersion}`;
++          banner.textContent = `Server frame.create • revision ${stateVersion} • ${result.document?.dirty ? "unsaved" : "saved"}`; banner.dataset.stateVersion = String(stateVersion);
++        }).catch(error => { banner.textContent = `Server edit failed: ${error.message}`; banner.style.background = "#6d2222"; });
++      });
 +      image.addEventListener("load", () => {
 +        image.dataset.width = String(image.naturalWidth); image.dataset.height = String(image.naturalHeight);
 +        banner.textContent = `${model.title} • ${model.pageCount} pages • ${model.dirty ? "unsaved" : "saved"} • revision ${reply.stateVersion} • ${image.naturalWidth}×${image.naturalHeight}`;
 +        banner.dataset.stateVersion = String(reply.stateVersion);
-+        banner.dataset.pageCount = String(model.pageCount);
-+        banner.dataset.dirty = String(model.dirty);
 +      }, {once:true});
 +      image.addEventListener("error", () => { banner.textContent = "Server render failed to load"; banner.style.background = "#6d2222"; }, {once:true});
 +      document.body.append(image);
@@ -57,7 +77,7 @@ index 0000000000000000000000000000000000000000..6e2c13aa4d25c53f3020cb2595301e4a
 +        fetch(`/api/designcraft/sessions/${sessionId}`, {method:"DELETE",credentials:"same-origin",headers:{"Content-Type":"application/json"},body:JSON.stringify({discard:true}),keepalive:true}).catch(()=>{});
 +      }, {once:true});
 +    } catch (error) {
-+      banner.textContent = `Server sample unavailable: ${error.message}`; banner.style.background = "#6d2222";
++      banner.textContent = `Server document unavailable: ${error.message}`; banner.style.background = "#6d2222";
 +      console.error("DesignCraft server bridge failed", error);
 +    }
 +  })();

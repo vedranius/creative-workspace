@@ -22,9 +22,13 @@ Build the original pinned upstream browser app, then use `npm run ui:install -- 
 
 The Actions-built `designcraft-par03-preview` archive, when attached to a verified draft, contains original DesignCraft pin `a127c6d5c3576972bbd60445f26d893db071eef3` plus `par-03-server-read-model-v2`. Register it into a **new** original-UI root using `CW_ORIGINAL_UI_DIR`; `/original/designcraft/?serverSample` runs the one allowlisted `file.newSample` operation and reflects a few revisioned read-model fields alongside its bounded render. Other original handlers still use the local UI Session; editing, provider, save ACK, recovery and full parity remain incomplete. Keep DesignCraft planned and the release draft. See [bridge scope and evidence](designcraft-par03-sample-bridge.md).
 
+### Alpha.15 DesignCraft edit bridge candidate
+
+Alpha.15 uses the same pinned DesignCraft UI, with patch variant `par-03-server-edit-v1`. In `/original/designcraft/?serverEdit`, `file.new` creates a server-owned session and pointer gestures invoke allowlisted `frame.create` in browser order; Actions must rebuild and register the reviewed patch from the exact pin. Local native/Chromium evidence is in [the DesignCraft handoff](designcraft-par03-sample-bridge.md). The original local `DesignApp` still reports no open document, so this is not a complete server-backed editor. Preserve `draftOnly`; verify every Actions job, release tag, draft asset and checksum before reporting the candidate.
+
 The original previews process locally in WASM; File Open/save/export use upstream browser host behavior. Shared server/laptop on-demand/hybrid/copy-first modes, destination-write acknowledgement and recovery are not integrated into these original UIs. A browser download or a preview's clean indicator is not evidence that the selected disk destination acknowledged a write. Keep original application availability pending until those paths pass acceptance.
 
-`release/config.json` marks alpha.13 `draftOnly`; a tag-triggered Actions run must build/check each native target, build separate FilmCraft/DesignCraft preview archives, verify browser/native evidence and checksums, then retain the GitHub Release draft. Do not turn it into a public complete-suite claim while original UI packaging/parity evidence is missing.
+`release/config.json` keeps alpha.15 `draftOnly`; a tag-triggered Actions run must build/check each native target, build separate FilmCraft/DesignCraft preview archives, verify browser/native evidence and checksums, then retain the GitHub Release draft. Do not turn it into a public complete-suite claim while original UI packaging/parity evidence is missing.
 
 ## FilmCraft original UI preview archive
 

@@ -1,5 +1,15 @@
 # PAR-03 handoff — bounded server read-model slice verified
 
+## Alpha.15 local edit slice complete; Actions verification pending (2026-10-12)
+
+Added the reviewed DesignCraft `par-03-server-edit-v1` bridge: `file.new`, then serialized pointer-created `frame.create`, with state revision and server PNG displayed over the original UI shell. Native proof reaches revision 2 and changes the render digest. Chromium sends two rapid gestures, reaches revision 3 and verifies same-origin guards (404 foreign session, 403 invalid Origin, 409 stale revision), with zero uncaught errors. Evidence: [native report](evidence/designcraft-par03-server-edit-native.json), [browser report](evidence/designcraft-par03-server-edit.json), [screenshot](evidence/designcraft-par03-server-edit.png). `npm run check`, focused DesignCraft tests 6/6, and `git diff --check` passed. Full pinned optimized WASM and native candidates were built using the low-impact wrapper; candidates are local evidence, not release assets.
+
+Critical limitation: upstream `DesignApp` remains visibly on “No document open” while a server PNG is overlaid; local page/panel/session state and native tool selection are not wired through. Pointer creates a fixed demo story. Keep the catalog planned. A freshly built worker rejected the older `doc.sample` route (`Unsupported workspace layout method`); preserve that finding rather than claiming the prior route revalidated. No provider/save destination/retention ACK/reopen/recovery parity.
+
+Patch: [par-03-server-sample.patch](../patches/designcraft/a127c6d5/par-03-server-sample.patch), SHA-256 `17a1967cd6834bc8f73c4250512af97b2e61b65aa8af4e689a49d134442d99a8`. Next: connect the upstream `DesignApp` read-model and original tool/action dispatch to the server-owned Session, eliminating the split welcome/local versus server document view; preserve ordering and revision checks. Then provider destination/retention, acknowledged save/reopen and recovery; do not move on to PhotoCraft before the DesignCraft acceptance gate.
+
+Alpha.15 package/version/docs are staged locally. Before considering this run complete: commit and normal push, run Checks and the Actions-built release workflow for the new version, inspect tag/draft/assets/checksums as actually produced, and retain draft status.
+
 Updated 2026-10-11 after the alpha.13 read-model browser/native slice.
 
 ## Alpha.14 Actions outcome (2026-10-11)
