@@ -1,12 +1,12 @@
 # DesignCraft PAR-03 server read-model slice
 
-## Current edit/read-model patch (alpha.16 candidate)
+## Current edit/read-model patch (alpha.16 draft release verified)
 
 `par-03-server-read-model-v3` supersedes the alpha.15 shell response handling: each `frame.create` response refreshes revision, title/pages/dirty metadata, banner and bounded server PNG together. See [browser evidence](evidence/designcraft-par03-read-model-v3-browser.json), [native evidence](evidence/designcraft-par03-read-model-v3-native.json), and [screenshot](evidence/designcraft-par03-read-model-v3.png). The original `DesignApp` Session remains empty and its panels still say no document is open; actions are not dispatched from the original app. Keep DesignCraft planned.
 
 Updated 2026-10-11 for alpha.13. This is a verified experimental vertical slice, not a server-backed DesignCraft port.
 
-## Alpha.15 bounded edit bridge (2026-10-12)
+## Alpha.15 bounded edit bridge (historical, 2026-10-12)
 
 The reviewed variant now also routes a fresh `file.new` document and pointer-drawn text frames through the server-owned native session. It forwards only the known `frame.create` method, maps page coordinates, reads the current revision inside a serialized browser queue, and shows the server PNG at the acknowledged revision.
 
@@ -34,8 +34,6 @@ A separate live Codex In-app Browser check visibly rendered the original DesignC
 
 The read-model screenshot is [designcraft-par03-read-model-original-ui.png](evidence/designcraft-par03-read-model-original-ui.png); machine-readable results are in [designcraft-par03-read-model-browser.json](evidence/designcraft-par03-read-model-browser.json). Original UI context is preserved in [the earlier visual screenshot](evidence/designcraft-par03-original-ui.png). `npm run check`, `npm run release:validate`, `git diff --check`, the full Node suite (45/45), native worker smoke, and the browser guard/render smoke passed.
 
-## Scope still pending
+## Current scope still pending (alpha.16)
 
-The original `DesignApp`, menus, tool IDs and browser shell remain upstream. Only `file.newSample` is sent to the server; only title/page-count/dirty fields from its read model are reflected in the canvas presentation. The `DesignApp` local `Session` remains empty. Editing, pointer/tool ordering, state synchronization across other commands, save/provider ACK, recovery, full feature parity, update staging and OS/browser acceptance remain pending. Keep DesignCraft planned and do not describe the original application as available.
-
-The new candidate has not yet been built by GitHub Actions. Its local WASM build is development evidence only; do not claim a downloadable or cross-platform asset until the alpha.13 draft release assets and checksums are verified.
+The upstream `DesignApp`, menus, tool IDs and browser shell remain original, but the app's local `Session` is still empty; the screenshot shows “No document open.” This bridge's outer shell sends `file.new` and pointer-generated `frame.create` to the server worker and reflects the response metadata/PNG. It does not observe the original app's menus, tools or action dispatch, and its pointer gesture is a fixed demo path. All other original actions, in-app state/panels, provider destination/retention, save ACK, reopen, recovery, full feature parity and other browser/OS acceptance remain pending. Keep DesignCraft planned and do not describe the original application as available. Alpha.16 is a verified Actions-built draft, documented in [release evidence](evidence/creative-workspace-alpha16-release.md).
