@@ -195,10 +195,13 @@ jobs:
           CW_PLAYWRIGHT_MODULE: file://${{ github.workspace }}/build/browser-qa/node_modules/playwright/index.mjs
           CW_PAR03_SCREENSHOT: ${{ github.workspace }}/build/designcraft-par03-evidence/browser.png
           CW_PAR03_REPORT: ${{ github.workspace }}/build/designcraft-par03-evidence/report.json
+          CW_PAR03_FILE_NEW_SCREENSHOT: ${{ github.workspace }}/build/designcraft-par03-evidence/file-new-browser.png
+          CW_PAR03_FILE_NEW_REPORT: ${{ github.workspace }}/build/designcraft-par03-evidence/file-new-browser.json
         run: |
           chmod +x "$CW_DESIGNCRAFT_BINARY"
           npm install --prefix build/browser-qa --no-audit --no-fund --save-exact playwright@1.64.0
           (cd build/browser-qa && npx playwright install --with-deps chromium)
+          node scripts/smoke-designcraft-file-new-browser.mjs
           node scripts/smoke-designcraft-par03-browser.mjs
       - uses: actions/upload-artifact@v4
         if: always()

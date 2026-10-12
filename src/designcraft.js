@@ -8,7 +8,7 @@ import {resolveWorkspace,isWithin} from './storage.js';
 import {importSegments,receiveFile} from './transfers.js';
 
 const nativeMethods=new Set(['__cw_identity','new','sample','open','state','render','command','export','mark_saved']);
-const methods=new Set(['state','heartbeat','doc.new','doc.sample','doc.open','doc.save','page.select','frame.create','select.set','select.all','select.none','transform.move','transform.resize','object.fill','object.stroke','swatch.create','story.setText','type.char','edit.clear','edit.undo','edit.redo']);
+const methods=new Set(['state','heartbeat','file.new','doc.new','doc.sample','doc.open','doc.save','page.select','frame.create','select.set','select.all','select.none','transform.move','transform.resize','object.fill','object.stroke','swatch.create','story.setText','type.char','edit.clear','edit.undo','edit.redo']);
 const fail=(message,status=400,code)=>Object.assign(new Error(message),{status,...(code?{code}:{})});
 const relative=value=>{try{importSegments(value);return value;}catch{throw fail('Use a relative path inside this application workspace');}};
 const number=(value,min,max,label)=>{if(typeof value!=='number'||!Number.isFinite(value)||value<min||value>max)throw fail(`Invalid ${label}`);return value;};
@@ -56,9 +56,10 @@ export function createDesignCraft({binary=process.env.CW_DESIGNCRAFT_BINARY||pat
     const task=s.queue.then(async()=>{
       if(expectedVersion!==undefined&&expectedVersion!==s.version)throw fail('Document changed. Refresh its state before applying this operation.',409,'STATE_VERSION_CONFLICT');
       if(method==='heartbeat')return {alive:true};if(method==='state')return snapshot(s);let result={};
-      if(method==='doc.open'||method==='doc.new'||method==='doc.sample'){
+      if(method==='file.new'||method==='doc.open'||method==='doc.new'||method==='doc.sample'){
         if(await s.engine.call('state'))throw fail('Save and close the current document before opening another',409);
-        if(method==='doc.open'){const input=relative(params.path);if(!/\.designcraft$/i.test(input))throw fail('Choose a native .designcraft document');const file=await resolveWorkspace(s.root,input),info=await stat(file);if(!info.isFile()||info.size>maxFileBytes)throw fail('Document exceeds the 64 MB prototype limit',413);s.version++;result=await s.engine.call('open',{path:file});s.name=path.basename(input);}
+        if(method==='file.new'){if(Object.keys(params).length!==1||typeof params.preset!=='string'||params.preset.length<1||params.preset.length>100)throw fail('Original file.new requires one known-size preset name');s.version++;result=await s.engine.call('new',{preset:params.preset});result={...result,commandId:'file.new'};}
+        else if(method==='doc.open'){const input=relative(params.path);if(!/\.designcraft$/i.test(input))throw fail('Choose a native .designcraft document');const file=await resolveWorkspace(s.root,input),info=await stat(file);if(!info.isFile()||info.size>maxFileBytes)throw fail('Document exceeds the 64 MB prototype limit',413);s.version++;result=await s.engine.call('open',{path:file});s.name=path.basename(input);}
         else if(method==='doc.sample'){s.version++;s.dirty=true;result=await s.engine.call('sample');s.name='Sample Document';}
         else{const width=number(params.width,1,10000,'width'),height=number(params.height,1,10000,'height');if(!Number.isInteger(params.pages))throw fail('Page count must be an integer');s.version++;s.dirty=true;result=await s.engine.call('new',{title:typeof params.name==='string'?params.name.slice(0,100):'Untitled',width,height,pages:number(params.pages,1,64,'page count'),facingPages:false});result={...result,commandId:'file.new'};s.name=typeof params.name==='string'?params.name.slice(0,100):'Untitled';}
       }else{

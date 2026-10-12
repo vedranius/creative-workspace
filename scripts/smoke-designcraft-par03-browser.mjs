@@ -9,7 +9,7 @@ if(!binary||!uiRoot||!playwrightPath)throw new Error('Set CW_DESIGNCRAFT_BINARY,
 const {chromium}=await import(playwrightPath.startsWith('file:')?playwrightPath:pathToFileURL(path.resolve(playwrightPath)).href);
 const root=await mkdtemp(path.join(os.tmpdir(),'cw-par03-browser-')),workspaces=path.join(root,'workspaces');await mkdir(workspaces);
 const server=await createWorkspaceServer({dataDir:path.join(root,'data'),allowedRoots:[workspaces],originalUiRoot:uiRoot,designcraftOptions:{binary,stateDir:path.join(root,'sessions')}});
-let browser,sessionId;
+let browser,sessionId,actionSessionId;
 try{
  server.listen(0,'127.0.0.1');await new Promise((resolve,reject)=>{server.once('listening',resolve);server.once('error',reject);});
  const base=`http://127.0.0.1:${server.address().port}`,status=await (await fetch(`${base}/api/engines/designcraft`)).json();
@@ -27,6 +27,15 @@ try{
  const edited=await image.evaluate(i=>({commandId:i.dataset.commandId,stateVersion:Number(i.dataset.stateVersion),documentTitle:i.dataset.documentTitle,pageCount:Number(i.dataset.pageCount),dirty:i.dataset.dirty==='true',width:i.naturalWidth,height:i.naturalHeight,banner:document.querySelector('#cw_server_status')?.textContent,bannerRevision:Number(document.querySelector('#cw_server_status')?.dataset.stateVersion),bannerDirty:document.querySelector('#cw_server_status')?.dataset.dirty}));
  if(edited.commandId!=='frame.create'||edited.stateVersion!==3||edited.documentTitle!=='Server Edit Test'||edited.pageCount!==1||!edited.dirty||edited.width!==612||edited.height!==792||edited.bannerRevision!==3||edited.bannerDirty!=='true'||!edited.banner.includes('revision 3'))throw new Error(`Server edit/read-model/revision/render failed: ${JSON.stringify(edited)}`);
  await page.waitForFunction(()=>{const i=document.querySelector('#cw_server_render');return i?.complete&&i.naturalWidth===612&&new URL(i.src).searchParams.get('_')==='3';});
+ const originalHostAction=await page.evaluate(async()=>{
+  const post=async(url,body)=>{const response=await fetch(url,{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)}),value=await response.json();if(!response.ok)throw new Error(value.error||`HTTP ${response.status}`);return value;};
+  const session=await post('/api/designcraft/sessions',{});
+  try{const ack=await post(`/api/designcraft/sessions/${session.id}/rpc`,{method:'file.new',params:{preset:'A4'},requestId:crypto.randomUUID(),expectedVersion:0});return {sessionId:session.id,commandId:ack.result?.commandId,preset:'A4',stateVersion:ack.stateVersion,title:ack.document?.title,pageCount:ack.document?.pageCount,preview:ack.preview};}
+  catch(error){await fetch(`/api/designcraft/sessions/${session.id}`,{method:'DELETE',credentials:'same-origin',headers:{'Content-Type':'application/json'},body:JSON.stringify({discard:true})}).catch(()=>{});throw error;}
+ });
+ actionSessionId=originalHostAction.sessionId;
+ if(originalHostAction.commandId!=='file.new'||originalHostAction.preset!=='A4'||originalHostAction.stateVersion!==1||originalHostAction.pageCount!==1||!originalHostAction.preview)throw new Error(`Original file.new host action was not acknowledged: ${JSON.stringify(originalHostAction)}`);
+ const actionClose=await fetch(`${base}/api/designcraft/sessions/${actionSessionId}`,{method:'DELETE',headers:{Origin:base,'Content-Type':'application/json'},body:JSON.stringify({discard:true})});if(!actionClose.ok)throw new Error(`Could not close file.new action session (${actionClose.status})`);actionSessionId=null;
  const previewUrl=await image.getAttribute('src');const png=await (await fetch(new URL(previewUrl,base))).arrayBuffer();
  const renderSha256=createHash('sha256').update(Buffer.from(png)).digest('hex');if(renderSha256===initialRenderSha256)throw new Error('Server PNG bytes did not change after the ordered edits');
  const screenshot=path.resolve(process.env.CW_PAR03_SCREENSHOT||path.join(root,'designcraft-par03.png'));await mkdir(path.dirname(screenshot),{recursive:true});await page.screenshot({path:screenshot});
@@ -34,10 +43,11 @@ try{
  const badOrigin=await fetch(`${base}/api/designcraft/sessions/${sessionId}/rpc`,{method:'POST',headers:{Origin:'http://evil.invalid','Content-Type':'application/json'},body:JSON.stringify({method:'doc.sample',params:{},requestId:'origin-check-001',expectedVersion:0})});
  const stale=await fetch(`${base}/api/designcraft/sessions/${sessionId}/rpc`,{method:'POST',headers:{Origin:base,'Content-Type':'application/json'},body:JSON.stringify({method:'page.select',params:{index:0},requestId:'stale-revision-001',expectedVersion:0})});
  if(foreign.status!==404||badOrigin.status!==403||stale.status!==409||errors.length)throw new Error(`Guard/browser failure: foreign=${foreign.status}, origin=${badOrigin.status}, stale=${stale.status}, errors=${errors.join('; ')}`);
- const report={url:`${base}/original/designcraft/?serverEdit&webgl`,ownedRuntime:status.ownedRuntime,...ui,editCommand:edited.commandId,afterEditRevision:edited.stateVersion,afterEditDimensions:[edited.width,edited.height],initialRenderSha256,renderSha256,foreignSessionStatus:foreign.status,invalidOriginStatus:badOrigin.status,staleRevisionStatus:stale.status,uncaughtBrowserErrors:errors.length,screenshot};
+ const report={url:`${base}/original/designcraft/?serverEdit&webgl`,ownedRuntime:status.ownedRuntime,...ui,originalHostAction,editCommand:edited.commandId,afterEditRevision:edited.stateVersion,afterEditDimensions:[edited.width,edited.height],initialRenderSha256,renderSha256,foreignSessionStatus:foreign.status,invalidOriginStatus:badOrigin.status,staleRevisionStatus:stale.status,uncaughtBrowserErrors:errors.length,screenshot};
  if(process.env.CW_PAR03_REPORT){const reportPath=path.resolve(process.env.CW_PAR03_REPORT);await mkdir(path.dirname(reportPath),{recursive:true});await writeFile(reportPath,JSON.stringify(report,null,2)+'\n');}
  console.log(JSON.stringify(report));
 }finally{
+ if(actionSessionId)await fetch(`http://127.0.0.1:${server.address().port}/api/designcraft/sessions/${actionSessionId}`,{method:'DELETE',headers:{Origin:`http://127.0.0.1:${server.address().port}`,'Content-Type':'application/json'},body:JSON.stringify({discard:true})}).catch(()=>{});
  if(sessionId)await fetch(`http://127.0.0.1:${server.address().port}/api/designcraft/sessions/${sessionId}`,{method:'DELETE',headers:{Origin:`http://127.0.0.1:${server.address().port}`,'Content-Type':'application/json'},body:JSON.stringify({discard:true})}).catch(()=>{});
  await browser?.close();await new Promise(resolve=>server.close(resolve));await rm(root,{recursive:true,force:true});
 }

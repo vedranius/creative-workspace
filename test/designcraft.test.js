@@ -8,11 +8,11 @@ import {createWorkspaceServer} from '../src/server.js';
 
 // Protocol fixture only. Actual parsing/rendering/export is verified by smoke-designcraft.mjs.
 class DesignFixture{
-  constructor(){this.closed=false;this.doc=null;this.edits=0;this.sampleCommandId=null;this.commands=[];}
+  constructor(){this.closed=false;this.doc=null;this.edits=0;this.sampleCommandId=null;this.newParams=null;this.commands=[];}
   async call(method,p={}){
     if(method==='__cw_identity')return {runtimeId:'creative-workspace-designcraft-v1',version:'fixture'};
     if(method==='state')return this.doc?structuredClone(this.doc):null;
-    if(method==='new'||method==='open'){this.doc={title:'Fixture',dirty:method==='new',pageCount:1,spreads:[{index:0,pages:[{index:0,name:'1',bounds:[0,0,800,600]}],items:[]}],stories:[],layers:[],selection:{items:[]},history:{undo:[],redo:[]}};return {};}
+    if(method==='new'||method==='open'){if(method==='new')this.newParams=structuredClone(p);this.doc={title:'Fixture',dirty:method==='new',pageCount:1,spreads:[{index:0,pages:[{index:0,name:'1',bounds:[0,0,800,600]}],items:[]}],stories:[],layers:[],selection:{items:[]},history:{undo:[],redo:[]}};return {};}
     if(method==='sample'){this.sampleCommandId='file.newSample';this.doc={title:'Original sample',dirty:true,pageCount:2,spreads:[{index:0,pages:[{index:0,name:'1',bounds:[0,0,800,600]}],items:[]}],stories:[],layers:[],selection:{items:[]},history:{undo:[],redo:[]}};return {commandId:this.sampleCommandId};}
     if(method==='render'){const png=Buffer.alloc(24);Buffer.from([137,80,78,71,13,10,26,10]).copy(png);png.writeUInt32BE(13,8);png.write('IHDR',12);png.writeUInt32BE(800,16);png.writeUInt32BE(600,20);return {pngBase64:png.toString('base64')};}
     if(method==='command'){this.edits++;this.commands.push(p.command);this.doc.dirty=true;return {id:1};}
@@ -28,6 +28,15 @@ test('Design sample is created by the owned worker with the original command ID 
   const sampled=await call(session.id,'doc.sample');
   const activeWorker=engines.find(engine=>!engine.closed);assert.equal(activeWorker?.sampleCommandId,'file.newSample');assert.equal(sampled.stateVersion,1);assert.equal(sampled.document.title,'Original sample');assert.equal(sampled.document.name,'Sample Document');assert.equal(sampled.document.pageCount,2);assert.equal(sampled.document.dirty,true);assert.match(sampled.preview,/preview\.png\?v=1$/);assert.ok(design.preview(session.id,1).length>0);
   await assert.rejects(call(session.id,'doc.sample'),/save and close/i);await design.close(session.id,{discard:true});
+});
+
+test('Original file.new preset action reaches the owned worker unchanged and returns an ACKed read model',async t=>{
+  const {project,design,engines,call}=await fixture(t),session=await design.create(project);
+  await assert.rejects(call(session.id,'file.new',{preset:'A4',path:'/private'}),/preset name/);
+  const created=await call(session.id,'file.new',{preset:'A4'}),worker=engines.find(engine=>!engine.closed);
+  assert.deepEqual(worker?.newParams,{preset:'A4'});assert.equal(created.result.commandId,'file.new');assert.equal(created.stateVersion,1);
+  assert.equal(created.document.title,'Fixture');assert.equal(created.document.dirty,true);assert.match(created.preview,/preview\.png\?v=1$/);
+  await design.close(session.id,{discard:true});
 });
 
 test('Design sessions isolate state, deduplicate edits and refuse stale/colliding output',async t=>{

@@ -2,6 +2,12 @@
 
 Each completed product update receives a new SemVer, changelog entry and immutable Actions-built release. Engine source versions remain independently pinned.
 
+## [0.2.0-alpha.17] — 2026-10-12 (release pending)
+
+- Add a bounded server host-action route for the original DesignCraft `file.new` preset caller. It accepts only a single preset name, forwards that original parameter to the owned native worker, and returns the worker's command ID with the acknowledged revision, read model and server render.
+- Verify exact preset forwarding and ACK/read-model response with a protocol fixture, the owned native worker, and Chromium (A4, revision 1, 595×842 server PNG, no browser errors). [Browser report](docs/evidence/designcraft-par03-file-new-browser.json).
+- This is only the server action seam: the pinned original `DesignApp` caller and panels are not yet attached to it. Keep DesignCraft planned and the Actions release draft-only pending original UI/session synchronization, provider, save ACK, reopen and recovery.
+
 ## [0.2.0-alpha.16] — 2026-10-12 (draft release verified)
 
 - Refresh the full revisioned DesignCraft read model and its server render after every bridged `frame.create` response, including title, page count, dirty state and current revision.
