@@ -1,0 +1,15 @@
+{
+  "ownedRuntime": true,
+  "browser": "Chromium",
+  "commandId": "file.new",
+  "preset": "A4",
+  "stateVersion": 1,
+  "title": "Untitled-1",
+  "pageCount": 1,
+  "dirty": true,
+  "canonicalSnapshotBytes": 6873,
+  "canonicalSnapshotSpreadCount": 1,
+  "previewWidth": 595,
+  "previewHeight": 842,
+  "uncaughtBrowserErrors": 0
+}

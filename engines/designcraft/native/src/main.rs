@@ -10,6 +10,7 @@ use std::path::{Path, PathBuf};
 use std::sync::Arc;
 const LIMIT: usize = 65536;
 const MAX: u64 = 64 * 1024 * 1024;
+const MAX_CANONICAL_STATE: usize = 16 * 1024 * 1024;
 const COMMANDS: &[&str] = &[
     "frame.create",
     "selection.set",
@@ -59,6 +60,14 @@ fn zip_budget(bytes: &[u8]) -> Result<(), Box<dyn std::error::Error>> {
 #[cfg(test)]
 mod tests {
     use super::*;
+    #[test]
+    fn canonical_document_snapshot_round_trips() -> Result<(), Box<dyn std::error::Error>> {
+        let doc = Document::new(&designcraft_doc::build::NewDocument::default());
+        let snapshot = canonical_snapshot(&doc)?;
+        let restored: Document = serde_json::from_value(snapshot)?;
+        assert_eq!(restored, doc);
+        Ok(())
+    }
     #[test]
     fn compressed_package_cannot_expand_past_the_document_budget() -> Result<(), Box<dyn std::error::Error>> {
         let mut writer = zip::ZipWriter::new(std::io::Cursor::new(Vec::new()));
@@ -132,6 +141,13 @@ fn budget(d: &Document) -> Result<(), Box<dyn std::error::Error>> {
     }
     Ok(())
 }
+fn canonical_snapshot(doc: &Document) -> Result<Value, Box<dyn std::error::Error>> {
+    let snapshot = serde_json::to_value(doc)?;
+    if serde_json::to_vec(&snapshot)?.len() > MAX_CANONICAL_STATE {
+        return Err("Canonical document snapshot exceeds 16 MB".into());
+    }
+    Ok(snapshot)
+}
 fn output_path(root: &Path, p: &str) -> Result<PathBuf, Box<dyn std::error::Error>> {
     let p = Path::new(p);
     let parent = std::fs::canonicalize(p.parent().ok_or("Missing output parent")?)?;
@@ -152,12 +168,14 @@ fn answer(h: &mut Headless, saved: &mut Option<Arc<Document>>, read: &Path, writ
         "__cw_identity" => Ok(json!({"runtimeId":"creative-workspace-designcraft-v1","version":"0.5.0"})),
         "state" => {
             let Some(st) = h.session.active() else { return Ok(Value::Null) };
-            let clean = saved.as_ref().is_some_and(|d| Arc::ptr_eq(d, &st.doc));
+            let doc = st.doc.clone();
+            let clean = saved.as_ref().is_some_and(|d| Arc::ptr_eq(d, &doc));
             let mut v = h.call("document.inspect", json!({}))?;
             if let Some(o) = v.as_object_mut() {
                 o.remove("path");
             }
             v["dirty"] = json!(!clean);
+            v["documentSnapshot"] = canonical_snapshot(&doc)?;
             let history = h.call("engine.execute", json!({"command":"document.history","params":{}}))?;
             v["history"] = history;
             if let Some(st) = h.session.active()

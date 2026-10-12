@@ -2,6 +2,12 @@
 
 Each completed product update receives a new SemVer, changelog entry and immutable Actions-built release. Engine source versions remain independently pinned.
 
+## [0.2.0-alpha.18] — 2026-10-12 (draft candidate)
+
+- Return the server-owned DesignCraft `Document` as a bounded canonical snapshot alongside its revisioned read model and render. The gateway rejects missing or oversized snapshots and keeps the snapshot separate from display metadata.
+- Add native worker, gateway protocol and Chromium RPC evidence for A4 open/edit/render and snapshot transport. This does not hydrate the original `DesignApp` session; original actions, panels, provider/save ACK, reopen and recovery remain incomplete. Keep the release draft and DesignCraft planned.
+- Alpha.18 must be built by Actions and its target assets/checksums verified before any release claim.
+
 ## [0.2.0-alpha.17] — 2026-10-12 (draft release verified)
 
 - Add a bounded server host-action route for the original DesignCraft `file.new` preset caller. It accepts only a single preset name, forwards that original parameter to the owned native worker, and returns the worker's command ID with the acknowledged revision, read model and server render.

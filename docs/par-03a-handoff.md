@@ -1,5 +1,11 @@
 # PAR-03 handoff — bounded server read-model slice verified
 
+## Alpha.18 canonical snapshot transport (2026-10-12)
+
+The worker's `state` reply now includes the canonical serialized upstream `Document`, bounded to 16 MiB. The gateway validates the field and returns it as `documentSnapshot`, separate from the read-model projection, with the same serialized session/revision path. The focused protocol tests pass 8/8; the isolated native worker compiles and its 3 tests pass; a real worker smoke returned a 6,573-byte one-spread snapshot and server render at revisions 1→2 ([native evidence](evidence/designcraft-par03-canonical-snapshot-native.json)).
+
+The browser RPC smoke passes with A4, revision 1, one-spread 6,873-byte snapshot, 595×842 server PNG and zero browser errors ([browser evidence](evidence/designcraft-par03-canonical-snapshot-browser.json)). The repository test suite passes 48/48 and `npm run check` passes. This does not connect or hydrate the original `DesignApp`. Keep DesignCraft planned and alpha.18 draft pending Actions assets/checksums. Next: add the source-level asynchronous pending/ACK/error lifecycle to the original action boundary, ensure the real preset card reaches the owned worker, and hydrate the original Session only after validating action ID, revision and canonical snapshot in the ACK. Preserve the dirty `/work/designcraft` checkout and `engines/filmcraft/`.
+
 ## Session/action bridge feasibility boundary (2026-10-12)
 
 ### Follow-up probe: canonical document hydration boundary (2026-10-12)

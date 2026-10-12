@@ -17,6 +17,7 @@ try{
   const sample=await adapter.execute(session.id,{method:'doc.new',params:{name:'Server Edit Test',width:612,height:792,pages:1},requestId:'native-new-0001',expectedVersion:0});
   if(sample.result?.commandId!=='file.new')throw new Error('The native worker did not run upstream file.new');
   if(sample.stateVersion!==1)throw new Error(`Expected state revision 1, received ${sample.stateVersion}`);
+  if(!sample.documentSnapshot||!Array.isArray(sample.documentSnapshot.spreads)||sample.documentSnapshot.spreads.length!==1||Buffer.byteLength(JSON.stringify(sample.documentSnapshot))>16*1024*1024)throw new Error('The native worker did not return a bounded canonical DesignCraft document snapshot');
   const before=adapter.preview(session.id,new URL(sample.preview,'http://localhost').searchParams.get('v'));
   const edit=await adapter.execute(session.id,{method:'frame.create',params:{rect:[40,50,250,160],content:'text',text:'Server edited story'},requestId:'native-frame-create-0001',expectedVersion:sample.stateVersion});
   if(edit.result?.commandId!=='frame.create'||edit.stateVersion!==2||!edit.document?.dirty)throw new Error('The native worker did not apply frame.create as revision 2');
@@ -31,6 +32,8 @@ try{
     editStateVersion:edit.stateVersion,
     title:sample.document?.title,
     pageCount:sample.document?.pageCount,
+    canonicalSnapshotBytes:Buffer.byteLength(JSON.stringify(sample.documentSnapshot)),
+    canonicalSnapshotSpreadCount:sample.documentSnapshot.spreads.length,
     pngBytes:frame.length,
     pngWidth:frame.readUInt32BE(16),
     pngHeight:frame.readUInt32BE(20),

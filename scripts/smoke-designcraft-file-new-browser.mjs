@@ -27,11 +27,11 @@ try{
       const ack=await post(`/api/designcraft/sessions/${session.id}/rpc`,{method:'file.new',params:{preset:'A4'},requestId:crypto.randomUUID(),expectedVersion:0});
       const response=await fetch(ack.preview,{credentials:'same-origin'}),png=new DataView(await response.arrayBuffer());
       if(!response.ok||response.headers.get('content-type')!=='image/png')throw new Error('The acknowledged preview was not a server PNG');
-      return {sessionId:session.id,commandId:ack.result?.commandId,preset:'A4',stateVersion:ack.stateVersion,title:ack.document?.title,pageCount:ack.document?.pageCount,dirty:ack.document?.dirty,previewWidth:png.getUint32(16),previewHeight:png.getUint32(20)};
+      return {sessionId:session.id,commandId:ack.result?.commandId,preset:'A4',stateVersion:ack.stateVersion,title:ack.document?.title,pageCount:ack.document?.pageCount,dirty:ack.document?.dirty,canonicalSnapshotBytes:new TextEncoder().encode(JSON.stringify(ack.documentSnapshot)).length,canonicalSnapshotSpreadCount:ack.documentSnapshot?.spreads?.length,previewWidth:png.getUint32(16),previewHeight:png.getUint32(20)};
     }catch(error){await fetch(`/api/designcraft/sessions/${session.id}`,{method:'DELETE',credentials:'same-origin',headers:{'Content-Type':'application/json'},body:JSON.stringify({discard:true})}).catch(()=>{});throw error;}
   });
   sessionId=action.sessionId;
-  assert.equal(action.commandId,'file.new');assert.equal(action.preset,'A4');assert.equal(action.stateVersion,1);assert.equal(action.pageCount,1);assert.equal(action.dirty,true);assert.ok(action.previewWidth>0&&action.previewHeight>0);assert.deepEqual(errors,[]);
+  assert.equal(action.commandId,'file.new');assert.equal(action.preset,'A4');assert.equal(action.stateVersion,1);assert.equal(action.pageCount,1);assert.equal(action.dirty,true);assert.ok(action.canonicalSnapshotBytes>0&&action.canonicalSnapshotBytes<=16*1024*1024);assert.equal(action.canonicalSnapshotSpreadCount,1);assert.ok(action.previewWidth>0&&action.previewHeight>0);assert.deepEqual(errors,[]);
   const response=await fetch(`${base}/api/designcraft/sessions/${sessionId}`,{method:'DELETE',headers:{Origin:base,'Content-Type':'application/json'},body:JSON.stringify({discard:true})});assert.equal(response.status,200);sessionId=null;
   const report={ownedRuntime:true,browser:'Chromium',...action,sessionId:undefined,uncaughtBrowserErrors:errors.length};
   if(process.env.CW_PAR03_FILE_NEW_REPORT){const reportPath=path.resolve(process.env.CW_PAR03_FILE_NEW_REPORT);await mkdir(path.dirname(reportPath),{recursive:true});await writeFile(reportPath,JSON.stringify(report,null,2)+'\n');}

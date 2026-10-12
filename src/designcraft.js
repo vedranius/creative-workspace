@@ -14,6 +14,7 @@ const relative=value=>{try{importSegments(value);return value;}catch{throw fail(
 const number=(value,min,max,label)=>{if(typeof value!=='number'||!Number.isFinite(value)||value<min||value>max)throw fail(`Invalid ${label}`);return value;};
 const ids=value=>{if(!Array.isArray(value)||value.length>200||value.some(id=>!Number.isSafeInteger(id)||id<0))throw fail('Choose up to 200 object IDs');return value;};
 const boundedPng=value=>{if(typeof value!=='string'||value.length>16*1024*1024||!/^iVBORw0KGgo/.test(value))throw fail('Server preview is missing or exceeds the 12 MB render limit',502);const bytes=Buffer.from(value,'base64');if(bytes.length<24||bytes.length>12*1024*1024||bytes.readUInt32BE(0)!==0x89504e47)throw fail('Server preview is not a bounded PNG',502);const width=bytes.readUInt32BE(16),height=bytes.readUInt32BE(20);if(!width||!height||width>1280||height>1280||width*height>1280*1280)throw fail('Server preview dimensions exceed 1280 × 1280',502);return bytes;};
+const boundedCanonicalDocument=value=>{if(!value||typeof value!=='object'||Array.isArray(value))throw fail('Canonical DesignCraft document snapshot is missing',502);if(Buffer.byteLength(JSON.stringify(value),'utf8')>16*1024*1024)throw fail('Canonical DesignCraft document snapshot exceeds 16 MB',502);return value;};
 
 // Do not forward arbitrary engine parameters: some native commands accept filesystem paths.
 function commandParams(method,p){
@@ -45,10 +46,10 @@ export function createDesignCraft({binary=process.env.CW_DESIGNCRAFT_BINARY||pat
   }
   const get=id=>{const s=sessions.get(id);if(!s||s.engine.closed)throw fail('DesignCraft session is not available',404);if(s.closing)throw fail('DesignCraft session is closing',409);s.lastUsed=Date.now();return s;};
   async function snapshot(s){
-    const document=await s.engine.call('state');let preview=null;
+    const document=await s.engine.call('state');let preview=null,documentSnapshot=null;
     s.dirty=document?.dirty||false;
-    if(document){document.name=s.name||document.title;s.page=Math.max(0,Math.min(s.page,(document.pageCount||1)-1));const frame=await s.engine.call('render',{page:s.page});s.frames.set(++s.previewVersion,boundedPng(frame.pngBase64));while(s.frames.size>3)s.frames.delete(s.frames.keys().next().value);preview=`/api/designcraft/sessions/${s.id}/preview.png?v=${s.previewVersion}`;}
-    return {document,page:s.page,stateVersion:s.version,preview};
+    if(document){documentSnapshot=boundedCanonicalDocument(document.documentSnapshot);delete document.documentSnapshot;document.name=s.name||document.title;s.page=Math.max(0,Math.min(s.page,(document.pageCount||1)-1));const frame=await s.engine.call('render',{page:s.page});s.frames.set(++s.previewVersion,boundedPng(frame.pngBase64));while(s.frames.size>3)s.frames.delete(s.frames.keys().next().value);preview=`/api/designcraft/sessions/${s.id}/preview.png?v=${s.previewVersion}`;}
+    return {document,documentSnapshot,page:s.page,stateVersion:s.version,preview};
   }
   async function execute(id,{method,params={},requestId,expectedVersion}={}){
     const s=get(id);if(!methods.has(method))throw fail('Unsupported DesignCraft method');if(typeof requestId!=='string'||requestId.length<8||requestId.length>100)throw fail('A unique requestId is required');if(params===null||typeof params!=='object'||Array.isArray(params))throw fail('Params must be an object');if(expectedVersion!==undefined&&(!Number.isSafeInteger(expectedVersion)||expectedVersion<0))throw fail('Invalid expectedVersion');

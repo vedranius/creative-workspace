@@ -11,7 +11,7 @@ class DesignFixture{
   constructor(){this.closed=false;this.doc=null;this.edits=0;this.sampleCommandId=null;this.newParams=null;this.commands=[];}
   async call(method,p={}){
     if(method==='__cw_identity')return {runtimeId:'creative-workspace-designcraft-v1',version:'fixture'};
-    if(method==='state')return this.doc?structuredClone(this.doc):null;
+    if(method==='state')return this.doc?{...structuredClone(this.doc),documentSnapshot:structuredClone(this.doc.documentSnapshot||this.doc)}:null;
     if(method==='new'||method==='open'){if(method==='new')this.newParams=structuredClone(p);this.doc={title:'Fixture',dirty:method==='new',pageCount:1,spreads:[{index:0,pages:[{index:0,name:'1',bounds:[0,0,800,600]}],items:[]}],stories:[],layers:[],selection:{items:[]},history:{undo:[],redo:[]}};return {};}
     if(method==='sample'){this.sampleCommandId='file.newSample';this.doc={title:'Original sample',dirty:true,pageCount:2,spreads:[{index:0,pages:[{index:0,name:'1',bounds:[0,0,800,600]}],items:[]}],stories:[],layers:[],selection:{items:[]},history:{undo:[],redo:[]}};return {commandId:this.sampleCommandId};}
     if(method==='render'){const png=Buffer.alloc(24);Buffer.from([137,80,78,71,13,10,26,10]).copy(png);png.writeUInt32BE(13,8);png.write('IHDR',12);png.writeUInt32BE(800,16);png.writeUInt32BE(600,20);return {pngBase64:png.toString('base64')};}
@@ -35,7 +35,17 @@ test('Original file.new preset action reaches the owned worker unchanged and ret
   await assert.rejects(call(session.id,'file.new',{preset:'A4',path:'/private'}),/preset name/);
   const created=await call(session.id,'file.new',{preset:'A4'}),worker=engines.find(engine=>!engine.closed);
   assert.deepEqual(worker?.newParams,{preset:'A4'});assert.equal(created.result.commandId,'file.new');assert.equal(created.stateVersion,1);
-  assert.equal(created.document.title,'Fixture');assert.equal(created.document.dirty,true);assert.match(created.preview,/preview\.png\?v=1$/);
+  assert.equal(created.document.title,'Fixture');assert.equal(created.document.dirty,true);assert.equal(created.documentSnapshot.title,'Fixture');assert.match(created.preview,/preview\.png\?v=1$/);
+  await design.close(session.id,{discard:true});
+});
+
+test('Design gateway rejects absent and oversized canonical document snapshots',async t=>{
+  const {project,design,engines,call}=await fixture(t),session=await design.create(project);await call(session.id,'doc.new',{width:800,height:600,pages:1});
+  const worker=engines.find(engine=>!engine.closed),state=worker.call.bind(worker);
+  worker.call=async(method,p)=>{const value=await state(method,p);if(method==='state'&&value)value.documentSnapshot={title:'x'.repeat(16*1024*1024)};return value;};
+  await assert.rejects(call(session.id,'state'),e=>e.status===502&&/16 MB/.test(e.message));
+  worker.call=async(method,p)=>{const value=await state(method,p);if(method==='state'&&value)delete value.documentSnapshot;return value;};
+  await assert.rejects(call(session.id,'state'),e=>e.status===502&&/missing/.test(e.message));
   await design.close(session.id,{discard:true});
 });
 
