@@ -1,0 +1,33 @@
+{
+  "candidate": "DesignCraft PAR-03 original file.new pending/ACK and canonical snapshot hydration",
+  "upstreamPin": "a127c6d5c3576972bbd60445f26d893db071eef3",
+  "sourcePreparation": "git archive of the exact pinned upstream commit; applied canonical snapshot patch, then host-action hydration patch",
+  "patches": [
+    {
+      "path": "patches/designcraft/a127c6d5/par-03-canonical-snapshot-candidate.patch",
+      "sha256": "056ead05b45134ecae19cd93abc8b8fe86a2be1c2c09a7c2093df842a50cba53",
+      "applyCheck": "passed"
+    },
+    {
+      "path": "patches/designcraft/a127c6d5/par-03-host-action-hydration-candidate.patch",
+      "sha256": "0d8c4986dba9fa5bd7631ed026c0d091a00556fc67d652a978a13abaefb57c52",
+      "applyCheck": "passed after canonical snapshot patch"
+    }
+  ],
+  "command": "cargo check --target wasm32-unknown-unknown -p designcraft-web",
+  "toolchain": {
+    "rustc": "1.99.0 (b940084d7 2026-09-28)",
+    "cargo": "1.99.0 (5f94df478 2026-08-27)",
+    "buildWrapper": "/home/vedran/Documents/Codex/2026-10-10/da-x20/work/tools/low-impact-build.py",
+    "cargoBuildJobs": 1,
+    "nice": 10
+  },
+  "result": "passed",
+  "warning": "Existing unused variable path in crates/ui-egui/src/panels/library.rs:196",
+  "acceptance": "candidate only; no optimized Trunk build, browser proof, server PNG in the original canvas, or guard against later unbridged local mutations",
+  "environment": {
+    "trunkAvailable": false,
+    "chromiumBinaryAvailable": false,
+    "tmpFreeBytes": 0
+  }
+}
