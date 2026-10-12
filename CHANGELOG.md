@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.2.0-alpha.25] — 2026-10-13 (verification correction candidate)
+
+- Correct the original `file.open` fixture to expect the canonical real input path on macOS (`/var` aliases `/private/var`). The implementation already canonicalized the root correctly; source/UI/gateway behavior is unchanged from alpha.24.
+- Alpha.24 three-OS Checks caught the fixture mismatch; its separate release build may still finish as a draft. Use a fresh immutable alpha.25 version and verify its Checks/Actions assets before availability claims. No tag is rewritten.
+- Retain all selected-file copy-first/Open/edit/Undo evidence and original/provider/save/reopen/parity limitations.
+
 ## [0.2.0-alpha.24] — 2026-10-12 (draft candidate)
 
 - Connect the original DesignCraft Open dialog to a native browser file chooser and a streamed copy of only the selected `.designcraft` file. The shared transfer primitive bounds inputs, refuses collisions, and acknowledges bytes/path/session before native `file.open` runs.

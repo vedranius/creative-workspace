@@ -1,6 +1,6 @@
 {
   "name": "creative-workspace",
-  "version": "0.2.0-alpha.24",
+  "version": "0.2.0-alpha.25",
   "private": true,
   "type": "module",
   "description": "Self-hosted creative studio with original upstream browser UI previews, independent server engines and shared file-provider groundwork",

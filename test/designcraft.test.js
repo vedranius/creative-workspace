@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import path from 'node:path';
 import os from 'node:os';
 import {Readable} from 'node:stream';
-import {mkdtemp,mkdir,rm,readFile,writeFile,symlink} from 'node:fs/promises';
+import {mkdtemp,mkdir,rm,readFile,writeFile,symlink,realpath} from 'node:fs/promises';
 import {createDesignCraft} from '../src/designcraft.js';
 import {createWorkspaceServer} from '../src/server.js';
 
@@ -50,7 +50,7 @@ test('Original file.open resolves only its provider root, ACKs server state and 
  assert.equal(engines.find(e=>!e.closed).openParams,undefined);
  const opened=await call(session.id,'file.open',{path:'chosen.designcraft'},{expectedVersion:0});
  assert.equal(opened.result.commandId,'file.open');assert.equal(opened.stateVersion,1);assert.equal(opened.document.dirty,false);
- assert.equal(opened.document.name,'chosen.designcraft');assert.equal(engines.find(e=>!e.closed).openParams.path,path.join(project,'chosen.designcraft'));
+ assert.equal(opened.document.name,'chosen.designcraft');assert.equal(engines.find(e=>!e.closed).openParams.path,await realpath(path.join(project,'chosen.designcraft')));
  await assert.rejects(call(session.id,'file.open',{path:'chosen.designcraft'},{expectedVersion:0}),e=>e.code==='STATE_VERSION_CONFLICT');
  await assert.rejects(call(session.id,'file.open',{path:'chosen.designcraft'},{expectedVersion:1}),/save and close/i);
  await design.close(session.id);

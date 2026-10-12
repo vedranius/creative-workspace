@@ -1,6 +1,6 @@
 # Original DesignCraft Open — single-file copy-first candidate
 
-Creative Workspace alpha.24 connects the pinned original DesignCraft welcome Open control and File/Open shortcut to the browser's native file chooser. The source remains upstream `a127c6d5c3576972bbd60445f26d893db071eef3` with a reviewed portability/backend patch; it is not a replacement editor.
+Creative Workspace alpha.24 (verification correction alpha.25) connects the pinned original DesignCraft welcome Open control and File/Open shortcut to the browser's native file chooser. The source remains upstream `a127c6d5c3576972bbd60445f26d893db071eef3` with a reviewed portability/backend patch; it is not a replacement editor.
 
 The browser host accepts one `.designcraft` file up to 64 MiB. It sends the selected File object through fetch without reading/parsing its archive into a client document. The common `receiveFile` transfer primitive receives bounded bytes under an `imports/<unique-id>/` path in the **existing session's server root**. Changing the panel's application workspace during the chooser cannot redirect this session's input. Existing copies are never overwritten, foreign sessions/Origins/auth failures are rejected, and inputs are not written through a laptop share.
 
@@ -28,6 +28,8 @@ One real Chromium context chooses the original Open control, cancels once, then 
 
 ## Release and installation
 
-Alpha.24 requires Actions builds, all OS checks, the original Open browser job, an immutable new tag, a draft and six archive/checksum pairs before download claims. The host-canvas candidate archive remains separate from registered original UI packages; do not copy it over a live studio or an unsaved document. The three native prototype bundles, legacy preview and FilmCraft preview retain their existing limited acceptance. No complete creative-suite claim follows from this candidate.
+Alpha.25 requires Actions builds, all OS checks, the original Open browser job, an immutable new tag, a draft and six archive/checksum pairs before download claims. The host-canvas candidate archive remains separate from registered original UI packages; do not copy it over a live studio or an unsaved document. The three native prototype bundles, legacy preview and FilmCraft preview retain their existing limited acceptance. No complete creative-suite claim follows from this candidate.
 
 Next after release verification: source/provider selection in the original host workflow, separate destination/retention, original save-copy with destination ACK, then reopen/recovery and full parity. Keep provider and upstream-update gates intact.
+
+The initial alpha.24 macOS fixture compared the uncanonicalized temporary-directory alias with the correctly canonicalized engine input. Alpha.25 uses `realpath` in that assertion. Application behavior/source patch/WASM/browser evidence are unchanged; final three-OS Checks and draft assets remain pending.
