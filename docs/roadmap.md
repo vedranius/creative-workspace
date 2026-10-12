@@ -10,7 +10,7 @@ Ovaj dokument određuje redoslijed razvoja. [Stanje razvoja](development-state.m
 
 **DOCS-SUMMARY-01:** README overview, instalacija, 14 stvarnih screenshotova, CW logo i objašnjenje licence/izvornih autora. [Primopredaja](summary-handoff.md). Dokumentacija ne mijenja stanje prihvaćenosti aplikacija.
 
-**PAR-03 originalni canvas, alpha.19 kandidat:** stvarna A4 preset kartica → server `file.new` → ACK/canonical mirror → server PNG u izvornom canvasu. Nepovezane lokalne radnje blokirane; postojeći studio nije zamijenjen. [Opseg i provjera](designcraft-host-canvas.md). Prije nastavka provjeriti build/browser/Actions i stvarne draft artefakte; zatim spojiti stvarnu originalnu edit radnju, pa provider/save ACK/reopen/recovery.
+**PAR-03 originalni canvas i prvi edit action, kandidat (neprihvaćen):** stvarna A4 preset kartica → server `file.new` → ACK/canonical mirror → originalni Rectangle Tool `M` drag → server `frame.create` revision 2 → ACKed read-model i promijenjen server PNG u izvornom canvasu. Optimizirani Trunk, native mirror test, Chromium browser proof i 48 repozitorijskih testova prolaze. [PAR-03 handoff/evidence](par-03a-handoff.md#current-edit-action-candidate-2026-10-12-not-accepted). Patch je još neregistriran i neaktivan: drugi alati/akcije, provider, destination/write ACK, save/reopen/recovery i puna parity nedostaju; DesignCraft ostaje planned. Sljedeće spojiti iduću izvornu radnju kroz isti serijski ACK, pa dovršiti common provider/save/reopen/recovery.
 
 ## Cilj i pravila proizvoda
 

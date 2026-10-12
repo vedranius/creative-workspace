@@ -1,0 +1,38 @@
+{
+  "status": "bounded-candidate-browser-proof",
+  "originalPresetClick": [
+    778,
+    467
+  ],
+  "actions": [
+    {
+      "commandId": "file.new",
+      "preset": "A4",
+      "stateVersion": 1
+    },
+    {
+      "commandId": "frame.create",
+      "source": "original Rectangle Tool M shortcut + pointer drag",
+      "expectedVersion": 1,
+      "stateVersion": 2,
+      "dirty": true,
+      "serverSnapshotRefreshed": true,
+      "serverRenderChanged": true
+    }
+  ],
+  "canonicalSnapshotBytes": 7866,
+  "serverPngDimensions": [
+    595,
+    842
+  ],
+  "serverPngSha256": "d687dc750e90c0ebb0b246182e5c3539211ce109f236a877902a4a926d853098",
+  "originalCanvasServerTexture": true,
+  "visibleCanvas": {
+    "brightPixels": 532510,
+    "distinctColorsAtLeast": 64
+  },
+  "unbridgedCommandsBlocked": true,
+  "uncaughtBrowserErrors": [],
+  "previewFailureLeavesMirrorUnhydrated": true,
+  "availability": "planned; provider/save/reopen/recovery/full parity pending"
+}

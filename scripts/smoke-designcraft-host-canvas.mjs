@@ -55,7 +55,8 @@ try{
  browser=await chromium.launch({headless:true,chromiumSandbox:true,executablePath:process.env.CW_BROWSER_EXECUTABLE,args:['--enable-webgl','--use-gl=angle','--use-angle=swiftshader','--enable-unsafe-swiftshader','--disable-dev-shm-usage']});
  const page=await browser.newPage({viewport:{width:1440,height:1000}}),errors=[],pageErrors=[],requests=[],replies=[];
  page.on('pageerror',e=>{errors.push(e.message);pageErrors.push(e.message);});
- page.on('console',m=>{if(m.type()==='error')errors.push(m.text());});
+ page.on('console',m=>{if(m.type()==='error'){errors.push(m.text());console.error(`Browser console: ${m.text()}`);}});
+ page.on('requestfailed',req=>console.error(`Browser request failed: ${req.url()} ${req.failure()?.errorText||''}`));
  page.on('request',req=>{const m=req.url().match(/\/api\/designcraft\/sessions\/([a-f0-9]{48})\/rpc$/);if(m){sessionId=m[1];requests.push(req.postDataJSON());}});
  page.on('response',async response=>{if(response.url().endsWith('/rpc'))replies.push(await response.json());});
  await page.goto(base+'/candidate/?webgl',{waitUntil:'domcontentloaded'});
@@ -66,17 +67,30 @@ try{
  await page.waitForFunction(()=>document.querySelector('#designcraft_canvas')?.hasAttribute('data-original-preset-a4'));
  const click=JSON.parse(await page.locator('#designcraft_canvas').getAttribute('data-original-preset-a4'));
  await page.mouse.click(...click);
- await page.waitForFunction(()=>document.querySelector('#designcraft_canvas')?.getAttribute('data-server-render')==='true',null,{timeout:120000});
+ await page.waitForFunction(()=>document.querySelector('#designcraft_canvas')?.getAttribute('data-server-render')==='true',null,{timeout:30000}).catch(async error=>{console.error(JSON.stringify({phase:'file.new-ack',requests,replies,errors,canvas:await page.locator('#designcraft_canvas').evaluate(e=>({revision:e.getAttribute('data-server-revision'),render:e.getAttribute('data-server-render')}))}));throw error;});
  assert.equal(requests.length,1);assert.equal(requests[0].method,'file.new');assert.equal(requests[0].params.preset,'A4');
  assert.equal(replies[0]?.result?.commandId,'file.new');assert.equal(replies[0]?.stateVersion,1);
  const revision=await page.locator('#designcraft_canvas').getAttribute('data-server-revision');assert.equal(revision,'1');
  const preview=await fetch(base+replies[0].preview);assert.equal(preview.headers.get('content-type'),'image/png');
  const png=Buffer.from(await preview.arrayBuffer());assert.equal(png.readUInt32BE(16),595);assert.equal(png.readUInt32BE(20),842);
- // Unbridged pointer gestures and shortcuts cannot advance the server or edit a local document.
- await page.mouse.move(600,350);await page.mouse.down();await page.mouse.move(850,600,{steps:4});await page.mouse.up();
+ // Use the original M shortcut and original Rectangle Tool pointer workflow. Only its committed
+ // frame.create is sent to the server; local document state must remain unchanged until ACK.
+ const beforeSnapshot=createHash('sha256').update(JSON.stringify(replies[0].documentSnapshot)).digest('hex');
+ await page.mouse.click(500,300);await page.keyboard.press('m');
+ await page.mouse.move(410,300);await page.mouse.down();await page.mouse.move(560,460,{steps:5});await page.mouse.up();
+ await page.waitForFunction(()=>document.querySelector('#designcraft_canvas')?.getAttribute('data-server-revision')==='2',null,{timeout:30000}).catch(async error=>{console.error(JSON.stringify({phase:'frame.create-ack',requests,replies,errors,canvas:await page.locator('#designcraft_canvas').evaluate(e=>({revision:e.getAttribute('data-server-revision'),render:e.getAttribute('data-server-render')}))}));throw error;});
+ assert.equal(requests.length,2);assert.equal(requests[1].method,'frame.create');assert.equal(requests[1].expectedVersion,1);
+ assert.ok(Array.isArray(requests[1].params.rect));assert.equal(replies[1]?.result?.commandId,'frame.create');assert.equal(replies[1]?.stateVersion,2);
+ assert.equal(replies[1]?.document?.dirty,true);
+ assert.notEqual(createHash('sha256').update(JSON.stringify(replies[1].documentSnapshot)).digest('hex'),beforeSnapshot);
+ assert.equal(await page.locator('#designcraft_canvas').getAttribute('data-server-render'),'true');
+ const nextPreview=await fetch(base+replies[1].preview);assert.equal(nextPreview.headers.get('content-type'),'image/png');
+ const nextPng=Buffer.from(await nextPreview.arrayBuffer());
+ assert.notEqual(createHash('sha256').update(nextPng).digest('hex'),createHash('sha256').update(png).digest('hex'));
+ // Other original commands remain unavailable and cannot advance the server state.
  await page.keyboard.press('Control+z');await page.keyboard.press('Control+n');
- await page.waitForTimeout(500);assert.equal(requests.length,1);
- assert.equal(await page.locator('#designcraft_canvas').getAttribute('data-server-revision'),'1');assert.deepEqual(errors,[]);
+ await page.waitForTimeout(500);assert.equal(requests.length,2);
+ assert.equal(await page.locator('#designcraft_canvas').getAttribute('data-server-revision'),'2');assert.deepEqual(errors,[]);
  await page.waitForTimeout(1000);
  const screenshot=process.env.CW_PAR03_SCREENSHOT;
  const painted=visibleCanvas(await page.screenshot(screenshot?{path:path.resolve(screenshot)}:{}));
@@ -94,7 +108,7 @@ try{
  assert.equal(await page.locator('#designcraft_canvas').getAttribute('data-server-revision'),'0');
  assert.equal(await page.locator('#designcraft_canvas').getAttribute('data-server-render'),'false');
  assert.deepEqual(pageErrors,[]);
- const report={status:'bounded-candidate-browser-proof',originalPresetClick:click,commandId:'file.new',preset:'A4',stateVersion:1,canonicalSnapshotBytes:Buffer.byteLength(JSON.stringify(replies[0].documentSnapshot)),serverPngDimensions:[595,842],serverPngSha256:createHash('sha256').update(png).digest('hex'),originalCanvasServerTexture:true,visibleCanvas:painted,unbridgedGesturesAndShortcutsBlocked:true,uncaughtBrowserErrors:[],previewFailureLeavesMirrorUnhydrated:true,availability:'planned; edit/save/provider/reopen parity pending'};
+ const report={status:'bounded-candidate-browser-proof',originalPresetClick:click,actions:[{commandId:'file.new',preset:'A4',stateVersion:1},{commandId:'frame.create',source:'original Rectangle Tool M shortcut + pointer drag',expectedVersion:1,stateVersion:2,dirty:true,serverSnapshotRefreshed:true,serverRenderChanged:true}],canonicalSnapshotBytes:Buffer.byteLength(JSON.stringify(replies[1].documentSnapshot)),serverPngDimensions:[595,842],serverPngSha256:createHash('sha256').update(nextPng).digest('hex'),originalCanvasServerTexture:true,visibleCanvas:painted,unbridgedCommandsBlocked:true,uncaughtBrowserErrors:[],previewFailureLeavesMirrorUnhydrated:true,availability:'planned; provider/save/reopen/recovery/full parity pending'};
  if(process.env.CW_PAR03_REPORT)await writeFile(path.resolve(process.env.CW_PAR03_REPORT),JSON.stringify(report,null,2)+'\n');
  console.log(JSON.stringify(report));
 }finally{

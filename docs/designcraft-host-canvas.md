@@ -6,6 +6,12 @@ The actual preset click queues original `file.new` and its preset parameters. Th
 
 Only this first document action is bridged. Other original commands, tools and file imports are unavailable rather than silently executing locally. The mirror refuses engine command execution, the original UI is disabled while pending/after hydration, and unbridged shortcuts and drops are blocked. Native workers retain their normal command behavior. This does not complete editing, file providers, destination ACK, save/reopen, recovery, upstream update activation or full UI/function parity.
 
+## Original Rectangle Tool edit candidate
+
+The separate [PAR-03 `frame.create` candidate](par-03a-handoff.md#current-edit-action-candidate-2026-10-12-not-accepted) keeps the original `DesignApp` and adds one real edit path: original Rectangle Tool `M` shortcut + drag → ordered server `frame.create` → ACKed canonical mirror and server PNG. Build and behavior evidence are in the [native/build report](evidence/designcraft-par03-frame-create-candidate-native.json) and [Chromium report/screenshot](evidence/designcraft-par03-frame-create-candidate-browser.json). Exact pin, patch SHA and limitations are in the [candidate manifest](../engines/original-ui/designcraft/frame-create-candidate.json).
+
+This candidate is not registered or activated. Other original actions/tools, provider paths, destination ACK/save/reopen/recovery and complete parity remain unfinished; catalog and release availability stay planned.
+
 ## Reproduce without touching a live studio
 
 Use a new clean checkout at the exact upstream pin, Rust 1.99.0 with `wasm32-unknown-unknown`, and checksum-pinned Trunk 0.21.14. `npm run ui:designcraft:host -- <clean-source> <new-assets>` checks the exact reviewed source patch/digest before and after building. The candidate manifest is [host-canvas.json](../engines/original-ui/designcraft/host-canvas.json). It is separate from the currently registered immutable original-UI package.

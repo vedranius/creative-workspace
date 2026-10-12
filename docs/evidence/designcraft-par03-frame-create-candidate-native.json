@@ -1,0 +1,28 @@
+{
+  "status": "bounded-candidate-native-proof",
+  "upstreamCommit": "a127c6d5c3576972bbd60445f26d893db071eef3",
+  "sourcePatch": "patches/designcraft/a127c6d5/par-03-frame-create-candidate.patch",
+  "sourcePatchSha256": "695ca00dbb4853d85faa9940031a2424cee9a502b933a56651341496e5082b71",
+  "wasm": {
+    "command": "Trunk 0.21.14 release build through low-impact-build.py",
+    "sha256": "526f73144ef45a00307ba5713f3bbe6ef7dc1832501f38ef3e1d011feea0951c"
+  },
+  "nativeWorker": {
+    "command": "cargo build --locked -p cw-designcraft-engine",
+    "profile": "dev",
+    "sha256": "734b17042305a0fc15cd84de51d87846f366206f43bd621a9dccca5c67ed454f",
+    "runtime": "isolated candidate binary; no installed runtime or service replaced"
+  },
+  "unitTest": {
+    "command": "cargo test -p designcraft-engine server_mirror_stages_frame_creation_without_local_mutation",
+    "passed": 1,
+    "failed": 0,
+    "assertions": [
+      "frame.create is staged with the original ID and params",
+      "local document allocation is unchanged before server ACK",
+      "unbridged object.fill remains rejected"
+    ]
+  },
+  "browserEvidence": "designcraft-par03-frame-create-candidate-browser.json",
+  "limitations": "Only one original edit action is bridged. DesignCraft remains planned; provider/save/reopen/recovery/full parity are pending."
+}

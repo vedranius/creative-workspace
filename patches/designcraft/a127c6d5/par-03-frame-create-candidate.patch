@@ -1,0 +1,856 @@
+diff --git a/Cargo.lock b/Cargo.lock
+index 9473c97..134af19 100644
+--- a/Cargo.lock
++++ b/Cargo.lock
+@@ -851,6 +851,19 @@ version = "1.2.0"
+ source = "registry+https://github.com/rust-lang/crates.io-index"
+ checksum = "f27ae1dd37df86211c42e150270f82743308803d90a6f6e6651cd730d5e1732f"
+ 
++[[package]]
++name = "cw-designcraft-engine"
++version = "0.1.0"
++dependencies = [
++ "designcraft-doc",
++ "designcraft-engine",
++ "designcraft-format",
++ "designcraft-mcp",
++ "image",
++ "serde_json",
++ "zip",
++]
++
+ [[package]]
+ name = "data-url"
+ version = "0.3.2"
+@@ -1153,6 +1166,7 @@ dependencies = [
+  "eframe",
+  "egui",
+  "form_urlencoded",
++ "image",
+  "js-sys",
+  "log",
+  "rfd",
+diff --git a/apps/cw-designcraft-engine/Cargo.toml b/apps/cw-designcraft-engine/Cargo.toml
+new file mode 100644
+index 0000000..3297c5c
+--- /dev/null
++++ b/apps/cw-designcraft-engine/Cargo.toml
+@@ -0,0 +1,17 @@
++[package]
++name = "cw-designcraft-engine"
++version = "0.1.0"
++edition = "2024"
++license = "MIT OR Apache-2.0"
++
++[lints]
++workspace = true
++
++[dependencies]
++designcraft-mcp = { workspace = true }
++designcraft-engine = { workspace = true }
++designcraft-doc = { workspace = true }
++designcraft-format = { workspace = true }
++serde_json = { workspace = true }
++zip = { workspace = true }
++image = { workspace = true }
+diff --git a/apps/cw-designcraft-engine/src/main.rs b/apps/cw-designcraft-engine/src/main.rs
+new file mode 100644
+index 0000000..d89b9a2
+--- /dev/null
++++ b/apps/cw-designcraft-engine/src/main.rs
+@@ -0,0 +1,301 @@
++// Contributor-original MIT OR Apache-2.0 adapter. No desktop/MCP server.
++#![forbid(unsafe_code)]
++#![deny(clippy::unwrap_used, clippy::expect_used, clippy::panic, clippy::todo)]
++use designcraft_doc::{Content, Document, Item};
++use designcraft_engine::DocState;
++use designcraft_mcp::{Backend, Headless};
++use serde_json::{Value, json};
++use std::io::{self, BufRead, Read, Write};
++use std::path::{Path, PathBuf};
++use std::sync::Arc;
++const LIMIT: usize = 65536;
++const MAX: u64 = 64 * 1024 * 1024;
++const MAX_CANONICAL_STATE: usize = 16 * 1024 * 1024;
++const COMMANDS: &[&str] = &[
++    "frame.create",
++    "selection.set",
++    "edit.selectAll",
++    "edit.deselectAll",
++    "transform.move",
++    "transform.resize",
++    "object.fill",
++    "object.stroke",
++    "swatch.create",
++    "story.setText",
++    "type.char",
++    "edit.clear",
++    "edit.undo",
++    "edit.redo",
++];
++fn bounded_read(root: &Path, p: &str) -> Result<Vec<u8>, Box<dyn std::error::Error>> {
++    let file = std::fs::canonicalize(p)?;
++    if !file.starts_with(root) {
++        return Err("Input is outside the source root".into());
++    }
++    let mut bytes = Vec::new();
++    std::fs::File::open(file)?.take(MAX + 1).read_to_end(&mut bytes)?;
++    if bytes.len() as u64 > MAX {
++        return Err("Document exceeds 64 MB".into());
++    }
++    Ok(bytes)
++}
++fn zip_budget(bytes: &[u8]) -> Result<(), Box<dyn std::error::Error>> {
++    if !bytes.starts_with(b"PK") {
++        return Ok(());
++    }
++    let mut z = zip::ZipArchive::new(std::io::Cursor::new(bytes))?;
++    if z.len() > 2048 {
++        return Err("Too many package entries".into());
++    }
++    let mut total = 0u64;
++    for i in 0..z.len() {
++        total = total.checked_add(z.by_index(i)?.size()).ok_or("Package size overflow")?;
++        if total > MAX {
++            return Err("Expanded document exceeds 64 MB".into());
++        }
++    }
++    Ok(())
++}
++
++#[cfg(test)]
++mod tests {
++    use super::*;
++    #[test]
++    fn canonical_snapshot_round_trips_the_engine_document() -> Result<(), Box<dyn std::error::Error>> {
++        let doc = Document::new(&designcraft_doc::build::NewDocument::default());
++        let snapshot = canonical_snapshot(&doc)?;
++        let restored: Document = serde_json::from_value(snapshot)?;
++        assert_eq!(restored, doc);
++        Ok(())
++    }
++    #[test]
++    fn compressed_package_cannot_expand_past_the_document_budget() -> Result<(), Box<dyn std::error::Error>> {
++        let mut writer = zip::ZipWriter::new(std::io::Cursor::new(Vec::new()));
++        writer.start_file("document.json", zip::write::SimpleFileOptions::default().compression_method(zip::CompressionMethod::Deflated))?;
++        let zeros = vec![0; 1024 * 1024];
++        for _ in 0..65 {
++            writer.write_all(&zeros)?;
++        }
++        let package = writer.finish()?.into_inner();
++        assert!(package.len() < 1024 * 1024);
++        assert!(zip_budget(&package).is_err());
++        Ok(())
++    }
++    #[test]
++    fn an_external_input_cannot_be_read_through_the_native_entrypoint() -> Result<(), Box<dyn std::error::Error>> {
++        let root = std::env::temp_dir().join(format!("cw-layout-roots-{}", std::process::id()));
++        std::fs::create_dir_all(root.join("read"))?;
++        std::fs::write(root.join("private.designcraft"), b"private")?;
++        let result = bounded_read(&std::fs::canonicalize(root.join("read"))?, &root.join("private.designcraft").to_string_lossy());
++        std::fs::remove_dir_all(&root)?;
++        assert!(result.is_err());
++        Ok(())
++    }
++}
++fn items_budget(items: &[Arc<Item>], depth: usize, count: &mut usize) -> Result<(), String> {
++    if depth > 16 {
++        return Err("Document groups exceed 16 levels".into());
++    }
++    for item in items {
++        *count += 1;
++        if *count > 5000 {
++            return Err("Document exceeds 5,000 items".into());
++        }
++        if let Content::Group { items } = &item.content {
++            items_budget(items, depth + 1, count)?
++        }
++    }
++    Ok(())
++}
++fn budget(d: &Document) -> Result<(), Box<dyn std::error::Error>> {
++    if d.page_count() == 0 || d.page_count() > 64 {
++        return Err("Choose 1–64 pages".into());
++    }
++    for (_, _, p) in d.pages() {
++        if !p.width.is_finite() || !p.height.is_finite() || !(1.0..=10000.0).contains(&p.width) || !(1.0..=10000.0).contains(&p.height) {
++            return Err("Page size exceeds the prototype limit".into());
++        }
++    }
++    let mut count = 0;
++    for sp in d.spreads.iter().chain(d.parents.iter()) {
++        items_budget(&sp.items, 0, &mut count)?;
++    }
++    if d.stories.values().map(|s| s.text.len()).sum::<usize>() > 1024 * 1024 {
++        return Err("Story text exceeds 1 MB".into());
++    }
++    for a in d.assets.values() {
++        if a.data.is_empty() {
++            return Err("Linked assets need embedded bytes; external link loading is not supported".into());
++        }
++        let reader = image::ImageReader::new(std::io::Cursor::new(&*a.data)).with_guessed_format()?;
++        if !matches!(
++            (reader.format(), a.mime.as_str()),
++            (Some(image::ImageFormat::Png), "image/png") | (Some(image::ImageFormat::Jpeg), "image/jpeg")
++        ) {
++            return Err("Only embedded PNG/JPEG assets are supported by this adapter".into());
++        }
++        let (w, h) = reader.into_dimensions()?;
++        if u64::from(w) * u64::from(h) > 16_000_000 {
++            return Err("Embedded image exceeds 16 megapixels".into());
++        }
++    }
++    Ok(())
++}
++fn canonical_snapshot(doc: &Document) -> Result<Value, Box<dyn std::error::Error>> {
++    let snapshot = serde_json::to_value(doc)?;
++    let encoded = serde_json::to_vec(&snapshot)?;
++    if encoded.len() > MAX_CANONICAL_STATE {
++        return Err("Canonical document snapshot exceeds 16 MB".into());
++    }
++    Ok(snapshot)
++}
++fn output_path(root: &Path, p: &str) -> Result<PathBuf, Box<dyn std::error::Error>> {
++    let p = Path::new(p);
++    let parent = std::fs::canonicalize(p.parent().ok_or("Missing output parent")?)?;
++    if !parent.starts_with(root) {
++        return Err("Output is outside the private root".into());
++    }
++    let name = p.file_name().ok_or("Missing filename")?;
++    let file = parent.join(name);
++    if file.symlink_metadata().is_ok() {
++        return Err("Private output already exists".into());
++    }
++    Ok(file)
++}
++fn answer(h: &mut Headless, saved: &mut Option<Arc<Document>>, read: &Path, write: &Path, r: &Value) -> Result<Value, Box<dyn std::error::Error>> {
++    let method = r.get("method").and_then(Value::as_str).unwrap_or("");
++    let p = r.get("params").cloned().unwrap_or(json!({}));
++    match method {
++        "__cw_identity" => Ok(json!({"runtimeId":"creative-workspace-designcraft-v1","version":"0.5.0"})),
++        "state" => {
++            let Some(st) = h.session.active() else { return Ok(Value::Null) };
++            let doc = st.doc.clone();
++            let clean = saved.as_ref().is_some_and(|d| Arc::ptr_eq(d, &doc));
++            let mut v = h.call("document.inspect", json!({}))?;
++            if let Some(o) = v.as_object_mut() {
++                o.remove("path");
++            }
++            v["dirty"] = json!(!clean);
++            v["documentSnapshot"] = canonical_snapshot(&doc)?;
++            let history = h.call("engine.execute", json!({"command":"document.history","params":{}}))?;
++            v["history"] = history;
++            if let Some(st) = h.session.active()
++                && let Some(stories) = v.get_mut("stories").and_then(Value::as_array_mut)
++            {
++                for story in stories {
++                    if let Some(id) = story.get("id").and_then(Value::as_u64).map(designcraft_doc::StoryId)
++                        && let Some(s) = st.doc.story(id)
++                    {
++                        story["text"] = json!(s.text.chars().take(20000).collect::<String>());
++                        story["editable"] = json!(s.text.encode_utf16().count() <= 20000);
++                    }
++                }
++            }
++            Ok(v)
++        }
++        "open" | "new" => {
++            if h.session.active().is_some() {
++                return Err("One document per session; save and close first".into());
++            }
++            if method == "open" {
++                let bytes = bounded_read(read, p.get("path").and_then(Value::as_str).ok_or("Missing input path")?)?;
++                zip_budget(&bytes)?;
++                // Pure memory import avoids upstream file.open's automatic document fonts,
++                // data-merge source resolution and linked-file reads outside the user's root.
++                let doc = designcraft_format::load(&bytes)?;
++                budget(&doc)?;
++                h.session.add_document(DocState::new(doc, None));
++                *saved = h.session.active().map(|s| s.doc.clone());
++            } else {
++                h.call("engine.execute", json!({"command":"file.new","params":p}))?;
++            }
++            Ok(json!({"warnings":[]}))
++        }
++        "command" => {
++            let c = p.get("command").and_then(Value::as_str).ok_or("Missing command")?;
++            if !COMMANDS.contains(&c) {
++                return Err("Unsupported workspace layout command".into());
++            }
++            Ok(h.call("engine.execute", p)?)
++        }
++        "render" => {
++            let st = h.session.active().ok_or("No document")?;
++            let index = p.get("page").and_then(Value::as_u64).unwrap_or(0) as usize;
++            let page = st.doc.page(index).ok_or("Unknown page")?;
++            Ok(h.call("ui.render", json!({"page":index,"scale":(1280.0/page.width.max(page.height)).min(1.0)}))?)
++        }
++        "export" => {
++            let file = output_path(write, p.get("path").and_then(Value::as_str).ok_or("Missing export filename")?)?;
++            let format = p.get("format").and_then(Value::as_str).ok_or("Missing export format")?;
++            budget(&h.session.active().ok_or("No document")?.doc)?;
++            let mut value = match format {
++                "designcraft" => {
++                    let bytes = designcraft_format::save(&h.session.active().ok_or("No document")?.doc)?;
++                    let mut f = std::fs::OpenOptions::new().write(true).create_new(true).open(&file)?;
++                    f.write_all(&bytes)?;
++                    json!({"bytes":bytes.len()})
++                }
++                "pdf" => h.call("engine.execute", json!({"command":"file.exportPdf","params":{"path":file,"tagged":true}}))?,
++                "png" => h.call("app.export", json!({"path":file,"page":p.get("page"),"scale":p.get("scale")}))?,
++                _ => return Err("Unsupported export format".into()),
++            };
++            if let Some(o) = value.as_object_mut() {
++                o.remove("path");
++            }
++            Ok(value)
++        }
++        "mark_saved" => {
++            *saved = Some(h.session.active().ok_or("No document")?.doc.clone());
++            Ok(json!({"saved":true}))
++        }
++        _ => Err("Unsupported workspace layout method".into()),
++    }
++}
++fn main() -> Result<(), Box<dyn std::error::Error>> {
++    let read = std::fs::canonicalize(std::env::args_os().nth(1).ok_or("Pass the source root")?)?;
++    let write = std::fs::canonicalize(std::env::args_os().nth(2).ok_or("Pass the private output root")?)?;
++    let mut h = Headless::new();
++    let mut saved = None;
++    let mut input = io::stdin().lock();
++    let mut output = io::stdout().lock();
++    loop {
++        let mut line = Vec::new();
++        if Read::by_ref(&mut input).take((LIMIT + 1) as u64).read_until(b'\n', &mut line)? == 0 {
++            break;
++        }
++        let reply = if line.len() > LIMIT {
++            if line.last() != Some(&b'\n') {
++                loop {
++                    let chunk = input.fill_buf()?;
++                    if chunk.is_empty() {
++                        break;
++                    }
++                    let end = chunk.iter().position(|b| *b == b'\n');
++                    let length = end.map_or(chunk.len(), |at| at + 1);
++                    input.consume(length);
++                    if end.is_some() {
++                        break;
++                    }
++                }
++            }
++            json!({"id":null,"ok":false,"error":"Request exceeds 64 KB"})
++        } else {
++            match serde_json::from_slice::<Value>(&line) {
++                Err(_) => json!({"id":null,"ok":false,"error":"Invalid JSON request"}),
++                Ok(r) => match answer(&mut h, &mut saved, &read, &write, &r) {
++                    Ok(result) => json!({"id":r.get("id"),"ok":true,"result":result}),
++                    Err(e) => json!({"id":r.get("id"),"ok":false,"error":e.to_string()}),
++                },
++            }
++        };
++        let bytes = serde_json::to_vec(&reply)?;
++        if bytes.len() > 32 * 1024 * 1024 {
++            serde_json::to_writer(&mut output, &json!({"id":reply.get("id"),"ok":false,"error":"Reply exceeds 32 MB"}))?;
++        } else {
++            output.write_all(&bytes)?;
++        }
++        output.write_all(b"\n")?;
++        output.flush()?;
++    }
++    Ok(())
++}
+diff --git a/apps/designcraft-web/Cargo.toml b/apps/designcraft-web/Cargo.toml
+index 75775c3..fb1e7e1 100644
+--- a/apps/designcraft-web/Cargo.toml
++++ b/apps/designcraft-web/Cargo.toml
+@@ -21,6 +21,7 @@ designcraft-ui-egui = { workspace = true }
+ egui = { workspace = true }
+ log = { workspace = true }
+ serde_json = { workspace = true }
++image = { workspace = true }
+ 
+ [target.'cfg(target_arch = "wasm32")'.dependencies]
+ # `wgpu` pulls egui-wgpu's defaults: WebGPU plus the WebGL2 fallback.
+@@ -29,4 +30,4 @@ rfd = { workspace = true }
+ wasm-bindgen = "0.2"
+ wasm-bindgen-futures = "0.4"
+ js-sys = "0.3"
+-web-sys = { version = "0.3", features = ["Window", "Document", "Element", "HtmlElement", "HtmlCanvasElement", "HtmlAnchorElement", "Blob", "BlobPropertyBag", "Url", "Location", "CssStyleDeclaration"] }
++web-sys = { version = "0.3", features = ["Window", "Document", "Element", "HtmlElement", "HtmlCanvasElement", "HtmlAnchorElement", "Blob", "BlobPropertyBag", "Url", "Location", "CssStyleDeclaration", "Request", "RequestInit", "Response", "Headers"] }
+diff --git a/apps/designcraft-web/src/web.rs b/apps/designcraft-web/src/web.rs
+index fe7cca4..19e9736 100644
+--- a/apps/designcraft-web/src/web.rs
++++ b/apps/designcraft-web/src/web.rs
+@@ -2,7 +2,7 @@
+ 
+ use super::browser_policy::{has_query_flag, mime_for};
+ use designcraft_engine::Session;
+-use designcraft_ui_egui::{DesignApp, ImportRequest, ImportedFile, Inbox, Services};
++use designcraft_ui_egui::{DesignApp, HostActionAck, ImportRequest, ImportedFile, Inbox, Services};
+ use wasm_bindgen::JsCast as _;
+ 
+ const DOC_EXTS: &[&str] = &["designcraft", "idml"];
+@@ -41,6 +41,11 @@ pub fn start() {
+             log::error!("missing <canvas id=\"{CANVAS_ID}\">");
+             return;
+         };
++        let session = match post_json("/api/designcraft/sessions", serde_json::json!({})).await {
++            Ok(value) => value.get("id").and_then(serde_json::Value::as_str).map(str::to_owned),
++            Err(error) => { log::error!("server session initialization failed: {error}"); None }
++        };
++        let Some(session_id) = session else { return; };
+         let mut options = eframe::WebOptions::default();
+         if has_query_flag(&query(), "webgl")
+             && let eframe::egui_wgpu::WgpuSetup::CreateNew(create) = &mut options.wgpu_options.wgpu_setup
+@@ -56,11 +61,11 @@ pub fn start() {
+                         log::info!("designcraft-web: wgpu backend {:?}", rs.adapter.get_info().backend);
+                     }
+                     let inbox: Inbox = Inbox::default();
+-                    let mut app = DesignApp::new(Session::new(), services(inbox.clone(), cc.egui_ctx.clone()));
+-                    if has_query_flag(&query(), "sample") {
+-                        let _ = app.run("file.newSample", serde_json::json!({}));
+-                    }
+-                    Ok(Box::new(WebShell { app, inbox }))
++                    let actions = std::sync::Arc::new(std::sync::Mutex::new(Vec::new()));
++                    let replies = std::sync::Arc::new(std::sync::Mutex::new(Vec::new()));
++                    let mut mirror = Session::new(); mirror.set_server_mirror();
++                    let app = DesignApp::new(mirror, services(inbox.clone(), actions.clone(), cc.egui_ctx.clone()));
++                    Ok(Box::new(WebShell { app, actions, replies, session_id: session_id.clone(), busy: false }))
+                 }),
+             )
+             .await;
+@@ -81,27 +86,44 @@ fn query() -> String {
+ /// and feed them through the inbox.
+ struct WebShell {
+     app: DesignApp,
+-    inbox: Inbox,
++    actions: std::sync::Arc<std::sync::Mutex<Vec<(String, serde_json::Value)>>>,
++    replies: std::sync::Arc<std::sync::Mutex<Vec<Result<HostActionAck, String>>>>,
++    session_id: String,
++    busy: bool,
+ }
+ 
+ impl eframe::App for WebShell {
+     fn logic(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
+-        let dropped = ctx.input_mut(|i| std::mem::take(&mut i.raw.dropped_files));
+-        for f in dropped {
+-            let request = self.app.import_request("drop");
+-            let inbox = self.inbox.clone();
+-            let ctx = ctx.clone();
+-            wasm_bindgen_futures::spawn_local(async move {
+-                let name = f.path().file_name().map(|n| n.to_string_lossy().to_string()).unwrap_or_else(|| "dropped".into());
+-                match f.bytes_async().await {
+-                    Ok(bytes) => {
+-                        inbox.lock().unwrap_or_else(|e| e.into_inner()).push(ImportedFile { request, name, bytes });
+-                        ctx.request_repaint();
+-                    }
+-                    Err(e) => log::error!("couldn't read dropped file {name}: {e}"),
+-                }
+-            });
++        let replies = std::mem::take(&mut *self.replies.lock().unwrap_or_else(|e| e.into_inner()));
++        if !replies.is_empty() { self.busy = false; }
++        for reply in replies { match reply { Ok(ack) => if let Err(e) = self.app.apply_host_action_ack(ack) { self.app.host_action_error(e); }, Err(e) => self.app.host_action_error(e) } }
++        if !self.busy {
++            let next = self.actions.lock().unwrap_or_else(|e| e.into_inner()).first().cloned();
++            if let Some((command, params)) = next {
++                self.actions.lock().unwrap_or_else(|e| e.into_inner()).remove(0); self.busy = true;
++                let session_id = self.session_id.clone();
++                let expected_version = self.app.host_revision();
++                let path = format!("/api/designcraft/sessions/{}/rpc", self.session_id); let replies = self.replies.clone(); let ctx = ctx.clone();
++                wasm_bindgen_futures::spawn_local(async move {
++                    let result = async {
++                        let request_id = format!("original-{command}-{}", js_sys::Date::now());
++                        let reply = post_json(&path, serde_json::json!({"method":command,"params":params,"requestId":request_id,"expectedVersion":expected_version})).await?;
++                        if reply.get("result").and_then(|v|v.get("commandId")).and_then(serde_json::Value::as_str) != Some(command.as_str()) { return Err("Unexpected server action acknowledgement".into()); }
++                        let revision = reply.get("stateVersion").and_then(serde_json::Value::as_u64).filter(|v|*v>0).ok_or("Missing acknowledged revision")?;
++                        let snapshot = reply.get("documentSnapshot").cloned().ok_or("Missing canonical document snapshot")?;
++                        let preview_path = reply.get("preview").and_then(serde_json::Value::as_str).ok_or("Missing server preview")?;
++                        let prefix = format!("/api/designcraft/sessions/{session_id}/preview.png?v=");
++                        if !preview_path.starts_with(&prefix) || !preview_path[prefix.len()..].chars().all(|c|c.is_ascii_digit()) { return Err("Invalid server preview identity".into()); }
++                        let preview = fetch_preview(preview_path).await?;
++                        let dirty = reply.get("document").and_then(|d|d.get("dirty")).and_then(serde_json::Value::as_bool).ok_or("Missing acknowledged dirty state")?;
++                        Ok(HostActionAck { command_id:command, revision, snapshot, preview, dirty })
++                    }.await;
++                    replies.lock().unwrap_or_else(|e| e.into_inner()).push(result); ctx.request_repaint();
++                });
++            }
+         }
++        // File import remains unavailable until the common provider bridge is connected.
++        ctx.input_mut(|i| i.raw.dropped_files.clear());
+         self.app.logic(ctx);
+     }
+ 
+@@ -112,10 +134,15 @@ impl eframe::App for WebShell {
+ 
+     fn ui(&mut self, ui: &mut egui::Ui, _frame: &mut eframe::Frame) {
+         self.app.ui(ui);
++        if let Some(canvas) = web_sys::window().and_then(|w|w.document()).and_then(|d|d.get_element_by_id(CANVAS_ID)) {
++            if let Some(rect) = self.app.host_preset_rect { let _ = canvas.set_attribute("data-original-preset-a4", &serde_json::json!([rect.center().x, rect.center().y]).to_string()); }
++            let _ = canvas.set_attribute("data-server-revision", &self.app.host_revision().to_string());
++            let _ = canvas.set_attribute("data-server-render", if self.app.has_host_preview() { "true" } else { "false" });
++        }
+     }
+ }
+ 
+-fn services(inbox: Inbox, ctx: egui::Context) -> Services {
++fn services(inbox: Inbox, actions: std::sync::Arc<std::sync::Mutex<Vec<(String, serde_json::Value)>>>, ctx: egui::Context) -> Services {
+     let open_inbox = inbox.clone();
+     Services {
+         open_async: Some(Box::new(move |request: ImportRequest| {
+@@ -146,10 +173,39 @@ fn services(inbox: Inbox, ctx: egui::Context) -> Services {
+             }
+         })),
+         inbox: Some(inbox),
++        host_action: Some(Box::new(move |id, params| { actions.lock().unwrap_or_else(|e|e.into_inner()).push((id.to_owned(), params)); Ok(()) })),
+         ..Default::default()
+     }
+ }
+ 
++async fn fetch_preview(path: &str) -> Result<egui::ColorImage, String> {
++    use wasm_bindgen_futures::JsFuture;
++    let response: web_sys::Response = JsFuture::from(web_sys::window().ok_or("missing window")?.fetch_with_str(path)).await.map_err(|e|format!("preview fetch: {e:?}"))?.dyn_into().map_err(|_|"invalid preview response")?;
++    if !response.ok() || response.headers().get("Content-Type").ok().flatten().as_deref() != Some("image/png") { return Err("Server PNG is unavailable".into()); }
++    let buffer = JsFuture::from(response.array_buffer().map_err(|e|format!("preview: {e:?}"))?).await.map_err(|e|format!("preview: {e:?}"))?;
++    let bytes = js_sys::Uint8Array::new(&buffer).to_vec();
++    if bytes.len() < 24 || bytes.len() > 12 * 1024 * 1024 || &bytes[..8] != b"\x89PNG\r\n\x1a\n" { return Err("Invalid bounded server PNG".into()); }
++    let w = u32::from_be_bytes(bytes[16..20].try_into().map_err(|_|"width")?) as usize;
++    let h = u32::from_be_bytes(bytes[20..24].try_into().map_err(|_|"height")?) as usize;
++    if w == 0 || h == 0 || w > 1280 || h > 1280 { return Err("Server PNG dimensions exceed the preview limit".into()); }
++    let png = image::load_from_memory_with_format(&bytes, image::ImageFormat::Png).map_err(|e|format!("Server PNG decoding failed: {e}"))?.to_rgba8();
++    if png.width() as usize != w || png.height() as usize != h { return Err("Server PNG dimensions do not agree".into()); }
++    Ok(egui::ColorImage::from_rgba_unmultiplied([w,h], png.as_raw()))
++}
++
++async fn post_json(path: &str, body: serde_json::Value) -> Result<serde_json::Value, String> {
++    use wasm_bindgen::JsValue;
++    use wasm_bindgen_futures::JsFuture;
++    let init = web_sys::RequestInit::new(); init.set_method("POST"); init.set_body(&JsValue::from_str(&body.to_string()));
++    let request = web_sys::Request::new_with_str_and_init(path, &init).map_err(|e|format!("request: {e:?}"))?;
++    request.headers().set("Content-Type","application/json").map_err(|e|format!("headers: {e:?}"))?;
++    let response: web_sys::Response = JsFuture::from(web_sys::window().ok_or("missing window")?.fetch_with_request(&request)).await.map_err(|e|format!("fetch: {e:?}"))?.dyn_into().map_err(|_|"invalid response")?;
++    let body = JsFuture::from(response.text().map_err(|e|format!("body: {e:?}"))?).await.map_err(|e|format!("body: {e:?}"))?.as_string().ok_or("response body was not text")?;
++    let value: serde_json::Value = serde_json::from_str(&body).map_err(|e|format!("decode JSON: {e}"))?;
++    if !response.ok() { return Err(value.get("error").and_then(serde_json::Value::as_str).unwrap_or("server request failed").to_owned()); }
++    Ok(value)
++}
++
+ /// Trigger a browser download of `bytes` named after the last component of `path`.
+ fn download(path: &str, bytes: &[u8]) -> Result<(), String> {
+     let js = |e: wasm_bindgen::JsValue| format!("{e:?}");
+diff --git a/crates/engine/src/lib.rs b/crates/engine/src/lib.rs
+index 771c89b..8d8cfd1 100644
+--- a/crates/engine/src/lib.rs
++++ b/crates/engine/src/lib.rs
+@@ -84,6 +84,7 @@ pub struct DocState {
+     pub path: Option<String>,
+     pub revision: u64,
+     pub saved_revision: u64,
++    pub mirror_dirty: Option<bool>,
+     /// The document as last saved (dirty = the current document is a different allocation).
+     pub saved_doc: Arc<Document>,
+     pub active_layer: LayerId,
+@@ -125,6 +126,7 @@ impl DocState {
+             path,
+             revision: 1,
+             saved_revision: 1,
++            mirror_dirty: None,
+             active_layer,
+             interaction: None,
+             editing_parents: false,
+@@ -135,7 +137,7 @@ impl DocState {
+         }
+     }
+     pub fn is_dirty(&self) -> bool {
+-        !Arc::ptr_eq(&self.doc, &self.saved_doc)
++        self.mirror_dirty.unwrap_or(!Arc::ptr_eq(&self.doc, &self.saved_doc))
+     }
+     pub fn title(&self) -> String {
+         self.path
+@@ -246,6 +248,8 @@ impl Default for Prefs {
+ 
+ pub struct Session {
+     docs: Vec<DocState>,
++    server_mirror: bool,
++    pending_host_action: Option<(String, Value)>,
+     active: Option<usize>,
+     pub prefs: Prefs,
+     pub cache: Arc<Cache>,
+@@ -286,6 +290,8 @@ impl Session {
+         guard::install_panic_hook();
+         Session {
+             docs: vec![],
++            server_mirror: false,
++            pending_host_action: None,
+             active: None,
+             prefs: Prefs::default(),
+             cache: Arc::new(Cache::new()),
+@@ -305,6 +311,28 @@ impl Session {
+         }
+     }
+ 
++    pub fn set_server_mirror(&mut self) { self.server_mirror = true; }
++
++    /// Retrieve the last original tool command staged by a server mirror interaction.
++    pub fn take_host_action(&mut self) -> Option<(String, Value)> {
++        self.pending_host_action.take()
++    }
++
++    /// Replace the canonical document in a server-owned UI mirror after its ACK.
++    pub fn replace_server_mirror(&mut self, document: Document, dirty: bool) -> Result<()> {
++        if !self.server_mirror { return Err(EngineError::Disabled("server mirror".into(), "session is not a server mirror".into())); }
++        let st = self.active_mut().ok_or(EngineError::NoDocument)?;
++        let doc = Arc::new(document);
++        st.active_layer = doc.default_layer();
++        st.selection = Selection::default();
++        st.history = Default::default();
++        st.saved_doc = doc.clone();
++        st.doc = doc;
++        st.interaction = None;
++        st.mirror_dirty = Some(dirty);
++        Ok(())
++    }
++
+     pub fn documents(&self) -> &[DocState] {
+         &self.docs
+     }
+@@ -387,6 +415,13 @@ impl Session {
+     /// Run command `id`. A panic inside it becomes [`EngineError::Internal`] and leaves the
+     /// document as it was (see [`guard`]).
+     pub fn execute(&mut self, id: &str, params: &Value) -> Result<Value> {
++        if self.server_mirror {
++            if id == "frame.create" {
++                self.pending_host_action = Some((id.into(), params.clone()));
++                return Ok(Value::Null);
++            }
++            return Err(EngineError::Disabled(id.into(), "This original action is not connected to the server yet".into()));
++        }
+         self.guarded(id, |s| s.execute_unguarded(id, params))
+     }
+ 
+diff --git a/crates/engine/src/tests.rs b/crates/engine/src/tests.rs
+index c1032bc..80dd744 100644
+--- a/crates/engine/src/tests.rs
++++ b/crates/engine/src/tests.rs
+@@ -561,3 +561,18 @@ fn commands_take_non_object_params_without_panicking() {
+         assert!(r.is_ok(), "{p}: {r:?}");
+     }
+ }
++
++#[test]
++fn server_mirror_stages_frame_creation_without_local_mutation() {
++    let mut s = Session::new();
++    s.set_server_mirror();
++    let doc = designcraft_doc::Document::new(&designcraft_doc::build::NewDocument::default());
++    s.add_document(DocState::new(doc, None));
++    let before = s.active().unwrap().doc.clone();
++    let params = json!({"spread":{"index":0},"shape":"rectangle","content":"graphic","rect":[10.0,20.0,100.0,120.0]});
++    assert!(s.execute("frame.create", &params).is_ok());
++    assert!(std::sync::Arc::ptr_eq(&before, &s.active().unwrap().doc));
++    assert_eq!(s.take_host_action(), Some(("frame.create".into(), params)));
++    assert!(s.execute("object.fill", &json!({"swatch":"[Black]"})).is_err());
++    assert!(s.take_host_action().is_none());
++}
+diff --git a/crates/ui-egui/src/canvas.rs b/crates/ui-egui/src/canvas.rs
+index 34dd614..8a5cd27 100644
+--- a/crates/ui-egui/src/canvas.rs
++++ b/crates/ui-egui/src/canvas.rs
+@@ -243,6 +243,25 @@ pub fn show(app: &mut DesignApp, ui: &mut egui::Ui) {
+     if !app.view().is_some_and(|v| v.fitted) {
+         fit(app, rect, "spread");
+     }
++    if app.services.host_action.is_some() {
++        if !app.host_pending() {
++            handle_input(app, ui, &resp, rect);
++        }
++        let painter = ui.painter_at(screen);
++        painter.rect_filled(screen, 0.0, t.pasteboard);
++        if let Some(image) = app.host_preview.take() {
++            app.host_texture = Some(ui.ctx().load_texture(format!("server-page-{}", app.host_revision), image, egui::TextureOptions::LINEAR));
++        }
++        if let Some(texture) = &app.host_texture {
++            let size = texture.size_vec2();
++            let scale = ((screen.width()-40.0)/size.x).min((screen.height()-40.0)/size.y).max(0.01);
++            let page = Rect::from_center_size(screen.center(), size * scale);
++            painter.image(texture.id(), page, Rect::from_min_max(pos2(0.0,0.0), pos2(1.0,1.0)), Color32::WHITE);
++        }
++        // Tool commands are captured by the server mirror; the acknowledged server PNG is the
++        // only document rendering shown here.
++        return;
++    }
+     handle_input(app, ui, &resp, rect);
+     let Some(st) = app.session.active() else { return };
+     let Some(&v) = app.view() else { return };
+@@ -1435,9 +1454,15 @@ fn handle_input(app: &mut DesignApp, ui: &mut egui::Ui, resp: &egui::Response, r
+     }
+     ui.data_mut(|d| d.insert_temp(down_id, down));
+     for e in events {
++        let committed = e.kind == PointerKind::Up;
+         if let Err(err) = app.session.pointer(&e, vi) {
+             app.status(err.to_string());
+         }
++        if committed && let Some((id, params)) = app.session.take_host_action()
++            && let Err(err) = app.queue_host_action(&id, params)
++        {
++            app.host_action_error(err);
++        }
+     }
+     app.after_engine();
+     if resp.clicked() || resp.drag_started() {
+diff --git a/crates/ui-egui/src/chrome.rs b/crates/ui-egui/src/chrome.rs
+index 2896fcd..511fcec 100644
+--- a/crates/ui-egui/src/chrome.rs
++++ b/crates/ui-egui/src/chrome.rs
+@@ -695,6 +695,7 @@ pub fn start_screen(app: &mut DesignApp, ui: &mut egui::Ui) {
+             ui.horizontal_wrapped(|ui| {
+                 for p in designcraft_doc::build::PRESETS.iter().filter(|p| p.intent == designcraft_doc::Intent::Print) {
+                     let (cr, resp) = ui.allocate_exact_size(vec2(120.0, 150.0), Sense::click());
++                    if p.name == "A4" && app.services.host_action.is_some() { app.host_preset_rect = Some(cr); }
+                     let hov = resp.hovered();
+                     ui.painter().rect_filled(cr, 6.0, if hov { t.hover } else { t.panel });
+                     let k = (80.0 / p.width.max(p.height)) as f32;
+diff --git a/crates/ui-egui/src/lib.rs b/crates/ui-egui/src/lib.rs
+index fb81e9c..5686dec 100644
+--- a/crates/ui-egui/src/lib.rs
++++ b/crates/ui-egui/src/lib.rs
+@@ -54,6 +54,17 @@ pub type DownloadFn = Box<dyn FnMut(&str, &[u8])>;
+ /// Files delivered asynchronously with their original operation and document identity.
+ pub type Inbox = std::sync::Arc<std::sync::Mutex<Vec<ImportedFile>>>;
+ 
++/// A server-owned document action waiting for its worker acknowledgement.
++#[derive(Clone, Debug)]
++pub struct HostActionAck {
++    pub command_id: String,
++    pub revision: u64,
++    pub snapshot: serde_json::Value,
++    pub preview: egui::ColorImage,
++    pub dirty: bool,
++}
++pub type HostActionFn = Box<dyn FnMut(&str, serde_json::Value) -> Result<(), String>>;
++
+ /// Platform services injected by the host (desktop or web).
+ #[derive(Default)]
+ pub struct Services {
+@@ -71,6 +82,8 @@ pub struct Services {
+     pub download: Option<DownloadFn>,
+     /// Files delivered asynchronously, drained every frame with their captured request context.
+     pub inbox: Option<Inbox>,
++    /// Queue an original action for a server-owned engine; the host applies only its ACK.
++    pub host_action: Option<HostActionFn>,
+ }
+ 
+ #[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
+@@ -484,6 +497,12 @@ pub struct DesignApp {
+     last_time: f64,
+     /// When recovery data was last written (seconds, egui time).
+     pub last_recovery: f64,
++    host_revision: u64,
++    pub host_preset_rect: Option<egui::Rect>,
++    host_pending: bool,
++    host_pending_command: Option<String>,
++    host_preview: Option<egui::ColorImage>,
++    host_texture: Option<egui::TextureHandle>,
+ }
+ 
+ impl DesignApp {
+@@ -521,6 +540,7 @@ impl DesignApp {
+             native_shortcuts: Default::default(),
+             last_time: 0.0,
+             last_recovery: 0.0,
++            host_preset_rect: None, host_revision: 0, host_pending: false, host_pending_command: None, host_preview: None, host_texture: None,
+         }
+     }
+ 
+@@ -561,6 +581,22 @@ impl DesignApp {
+ 
+     /// THE entry point for every action (menus, shortcuts, palette, panels, control channel).
+     pub fn run(&mut self, id: &str, params: Value) -> Result<Value, String> {
++        if self.services.host_action.is_some() {
++            if id == "tool.select" {
++                let tool = params.get("tool").and_then(Value::as_str).ok_or("Missing tool ID")?;
++                self.session.set_tool(tool);
++                self.ui.flyout = None;
++                return Ok(json!({"tool": tool}));
++            }
++            let allowed = (id == "file.new" && self.session.active().is_none())
++                || (id == "frame.create" && self.session.active().is_some());
++            if !allowed {
++                let error = "This original action is not connected to the server yet";
++                self.status(error); return Err(error.into());
++            }
++            self.queue_host_action(id, params)?;
++            return Ok(json!({"pending": true, "commandId": id}));
++        }
+         if let Some(r) = menus::run_ui(self, id, &params) {
+             return r;
+         }
+@@ -572,6 +608,50 @@ impl DesignApp {
+         r
+     }
+ 
++    /// Queue one allowlisted original action. Its local mutation is deferred until server ACK.
++    pub fn queue_host_action(&mut self, id: &str, params: Value) -> Result<(), String> {
++        if self.host_pending { return Err("A server action is already pending".into()); }
++        let allowed = (id == "file.new" && self.session.active().is_none())
++            || (id == "frame.create" && self.session.active().is_some());
++        if !allowed { return Err("This original action is not connected to the server yet".into()); }
++        let Some(host_action) = self.services.host_action.as_mut() else { return Err("Server action host is unavailable".into()); };
++        host_action(id, params)?;
++        self.host_pending = true;
++        self.host_pending_command = Some(id.to_owned());
++        self.status(if id == "file.new" { "Creating document on server…" } else { "Applying frame on server…" });
++        Ok(())
++    }
++
++    /// Apply a server response after the browser host validates the action ID and revision.
++    pub fn apply_host_action_ack(&mut self, ack: HostActionAck) -> Result<(), String> {
++        if ack.revision == 0 || self.host_pending_command.as_deref() != Some(ack.command_id.as_str()) {
++            return Err("Invalid server action acknowledgement".into());
++        }
++        if !self.host_pending || ack.revision <= self.host_revision { return Err("Unexpected or stale server acknowledgement".into()); }
++        let document: designcraft_doc::Document = serde_json::from_value(ack.snapshot).map_err(|e| format!("Invalid acknowledged document snapshot: {e}"))?;
++        if document.spreads.len() != 1 { return Err("Only one-spread server hydration is implemented".into()); }
++        if self.session.active().is_some() {
++            self.session.replace_server_mirror(document, ack.dirty).map_err(|e| e.to_string())?;
++        } else {
++            let mut mirror = designcraft_engine::DocState::new(document, None);
++            mirror.mirror_dirty = Some(ack.dirty);
++            self.session.add_document(mirror);
++        }
++        self.host_revision = ack.revision; self.host_pending = false; self.host_pending_command = None; self.host_preview = Some(ack.preview); self.host_texture = None;
++        self.after_engine();
++        self.status(format!("Server document acknowledged at revision {}", ack.revision));
++        Ok(())
++    }
++
++    pub fn host_revision(&self) -> u64 { self.host_revision }
++    pub fn host_pending(&self) -> bool { self.host_pending }
++    pub fn host_action_error(&mut self, message: String) {
++        self.host_pending = false;
++        self.host_pending_command = None;
++        self.status(format!("Server document action failed: {message}"));
++    }
++    pub fn has_host_preview(&self) -> bool { self.host_preview.is_some() || self.host_texture.is_some() }
++
+     /// Handle requests produced by tools/commands (dialogs, view changes, file pickers).
+     pub fn after_engine(&mut self) {
+         let reqs = std::mem::take(&mut self.session.ui_requests);
+@@ -757,8 +837,8 @@ impl DesignApp {
+             self.perf.fps = self.perf.fps * 0.9 + (1.0 / dt).min(240.0) * 0.1;
+         }
+         self.last_time = now;
+-        self.drain_control(ctx);
+-        if self.fonts_ready {
++        if self.services.host_action.is_none() { self.drain_control(ctx); }
++        if self.fonts_ready && self.services.host_action.is_none() {
+             self.drain_inbox();
+         }
+         if !self.synthetic.is_empty() {
+@@ -816,6 +896,7 @@ impl DesignApp {
+ 
+     /// Lay out the whole window.
+     pub fn ui(&mut self, ui: &mut egui::Ui) {
++        if self.services.host_action.is_some() && self.host_pending { ui.disable(); }
+         let ctx = ui.ctx().clone();
+         if !self.fonts_ready {
+             ctx.request_repaint();

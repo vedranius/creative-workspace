@@ -1,0 +1,22 @@
+{
+  "schemaVersion": 1,
+  "app": "designcraft",
+  "commit": "a127c6d5c3576972bbd60445f26d893db071eef3",
+  "id": "par-03-original-frame-create-v1",
+  "patch": "patches/designcraft/a127c6d5/par-03-frame-create-candidate.patch",
+  "sha256": "695ca00dbb4853d85faa9940031a2424cee9a502b933a56651341496e5082b71",
+  "status": "bounded-candidate; catalog planned",
+  "scope": [
+    "Original A4 file.new action through pending/ACK",
+    "Original Rectangle Tool M shortcut and pointer gesture",
+    "Server-owned frame.create with expected revision",
+    "Canonical snapshot/read-model and server PNG refreshed only after ACK",
+    "Local mirror remains read-only; tool selection is a local UI action"
+  ],
+  "limitations": [
+    "Only file.new and frame.create are bridged",
+    "Frame Tool and other tools/actions remain unavailable",
+    "No common provider, destination ACK, save/reopen or recovery",
+    "Not registered in a studio package and not activated in a live session"
+  ]
+}
