@@ -17,6 +17,10 @@ The original source and reviewed patch remain verified byte-for-byte. `scripts/b
 
 Browser report: [JSON](designcraft-alpha23-build-isolation-browser.json) · [screenshot](designcraft-alpha23-build-isolation-browser.png).
 
+## Release verification
+
+Actions Checks `38306757205` passed on Ubuntu, Windows and macOS. Build/release `38306757116` passed its contract, native engine matrix, FilmCraft original UI smoke, DesignCraft source registration and browser proofs, isolated Trunk build, and all three bundle smokes. Immutable tag `v0.2.0-alpha.23` points to `4edfaeae33f52caff7fa6ff87e0857ae959f7958`; draft release `RE_kwDOVDgEq84Yf2nG` has six archives and six sidecars, all downloaded and validated with `sha256sum -c`. See [complete asset/checksum record](creative-workspace-alpha23-release.md).
+
 ## Scope
 
 This is a build-pipeline fix for an unregistered DesignCraft candidate. It does not add app behavior or activate a package. File-provider integration, separate save destination and retention, laptop write acknowledgement, save/reopen, recovery and complete original-app parity remain required; keep DesignCraft planned and the alpha.23 release draft-only.
