@@ -32,6 +32,8 @@ async function licenses(relative=''){
 }
 await licenses();
 await cp(path.join(root,config.patch),path.join(assets,'SOURCE.patch'));
+await cp(path.join(root,'LICENSE'),path.join(assets,'LICENSE-CREATIVE-WORKSPACE'));
+await writeFile(path.join(assets,'UPSTREAM.txt'),`Original DesignCraft: https://github.com/storytold/designcraft\nSource revision: ${config.commit}\nIntegration: https://github.com/vedranius/creative-workspace\nOriginal components retain their own licenses; see licenses/. Creative Workspace integration license: LICENSE-CREATIVE-WORKSPACE.\n`);
 await writeFile(path.join(assets,'SOURCE.json'),JSON.stringify(config,null,2)+'\n');
 const pkg=JSON.parse(await readFile(path.join(root,'package.json')));
 await writeFile(path.join(assets,'INSTALL.txt'),`Creative Workspace ${pkg.version}: bounded original DesignCraft server-canvas candidate.\nThis archive is not a complete editor or a registered studio installation. Do not replace any live original-UI package. It proves the original A4 preset caller, server-owned file.new, acknowledged canonical UI mirror and bounded server PNG inside the original canvas. Unbridged tools/commands are disabled. Editing, file providers, destination ACK, save/reopen and recovery remain pending. Run the isolated smoke-designcraft-host-canvas.mjs with CW_DESIGNCRAFT_UI_ASSETS pointing to this folder and an owned compatible worker; see docs/designcraft-host-canvas.md.\n`);
