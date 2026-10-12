@@ -32,9 +32,9 @@ Alpha.15 uses the same pinned DesignCraft UI, with patch variant `par-03-server-
 
 The original previews process locally in WASM; File Open/save/export use upstream browser host behavior. Shared server/laptop on-demand/hybrid/copy-first modes, destination-write acknowledgement and recovery are not integrated into these original UIs. A browser download or a preview's clean indicator is not evidence that the selected disk destination acknowledged a write. Keep original application availability pending until those paths pass acceptance.
 
-`release/config.json` keeps alpha.18 `draftOnly`; its main-branch workflow must build and check each native target, separate FilmCraft/DesignCraft preview archives, browser/native evidence and checksums before a draft can be verified. Alpha.18 adds bounded canonical DesignCraft document-snapshot transport; it does not synchronize the original UI or complete provider/save parity. Do not turn it into a public complete-suite claim while original UI packaging/parity evidence is missing.
+`release/config.json` keeps alpha.18 `draftOnly`; Actions run `38240276900` built and checked each native target, separate FilmCraft/DesignCraft preview archives, browser/native evidence and checksums. All five archives and sidecars are verified in [the alpha.18 release report](evidence/creative-workspace-alpha18-release.md). Alpha.18 adds bounded canonical DesignCraft document-snapshot transport; it does not synchronize the original UI or complete provider/save parity. Do not turn it into a public complete-suite claim while original UI packaging/parity evidence is missing.
 
-The project version is `0.2.0-alpha.18`. The immutable tag and release draft are created only by the normal Actions publication job after its contract gate; verify the resulting tag, all target assets and checksum sidecars before describing the candidate as verified.
+The project version is `0.2.0-alpha.18`. Its immutable tag and release draft are verified in [the alpha.18 release report](evidence/creative-workspace-alpha18-release.md).
 
 ## FilmCraft original UI preview archive
 

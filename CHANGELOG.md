@@ -2,11 +2,11 @@
 
 Each completed product update receives a new SemVer, changelog entry and immutable Actions-built release. Engine source versions remain independently pinned.
 
-## [0.2.0-alpha.18] — 2026-10-12 (draft candidate)
+## [0.2.0-alpha.18] — 2026-10-12 (draft release verified)
 
 - Return the server-owned DesignCraft `Document` as a bounded canonical snapshot alongside its revisioned read model and render. The gateway rejects missing or oversized snapshots and keeps the snapshot separate from display metadata.
 - Add native worker, gateway protocol and Chromium RPC evidence for A4 open/edit/render and snapshot transport. This does not hydrate the original `DesignApp` session; original actions, panels, provider/save ACK, reopen and recovery remain incomplete. Keep the release draft and DesignCraft planned.
-- Alpha.18 must be built by Actions and its target assets/checksums verified before any release claim.
+- Checks `38240276991` and Build/release `38240276900` passed. Immutable tag `v0.2.0-alpha.18` points to `707db96`; draft release `410527256` has five Actions archives and five verified SHA256 sidecars. [Release evidence](docs/evidence/creative-workspace-alpha18-release.md).
 
 ## [0.2.0-alpha.17] — 2026-10-12 (draft release verified)
 
