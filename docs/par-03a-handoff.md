@@ -10,6 +10,10 @@ Patch: [par-03-server-sample.patch](../patches/designcraft/a127c6d5/par-03-serve
 
 Alpha.15 package/version/docs are staged locally. Before considering this run complete: commit and normal push, run Checks and the Actions-built release workflow for the new version, inspect tag/draft/assets/checksums as actually produced, and retain draft status.
 
+### Alpha.15 CI corrections (2026-10-12)
+
+The edit bridge was committed as `1ced95f`; initial Actions run `38188284157` found the release script still required the prior patch ID, and the follow-up `ff18e81` corrected that registration guard and its identity test. Build/release run `38188319890` then exposed a fixture race: two sessions start concurrently, while the test selected the first live engine instead of the worker that received `frame.create`. The test now locates the worker by its recorded command. Local `npm run check` and `npm test` pass (46/46); the correction is not pushed yet. Next: commit/push the test and this handoff, inspect the new Checks/Build runs, then verify the actual immutable alpha.15 tag, draft release assets and checksums. Do not publish or claim complete DesignCraft; its upstream `DesignApp` is still unsynchronized and provider/save/reopen/recovery remain pending.
+
 Updated 2026-10-11 after the alpha.13 read-model browser/native slice.
 
 ## Alpha.14 Actions outcome (2026-10-11)
