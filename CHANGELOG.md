@@ -2,6 +2,12 @@
 
 Each completed product update receives a new SemVer, changelog entry and immutable Actions-built release. Engine source versions remain independently pinned.
 
+## [0.2.0-alpha.20] — 2026-10-12 (draft packaging candidate)
+
+- Include the Creative Workspace integration license and explicit upstream repository/pin attribution beside the original component licenses in the bounded DesignCraft host-canvas archive.
+- Original UI/worker pins, candidate source patch, WASM behavior and browser evidence are unchanged from alpha.19. All original editing/provider/save/reopen parity limitations remain.
+- Alpha.19 Actions was already running when this packaging correction was pushed; the host token cannot cancel Actions (GitHub 403). Use this fresh immutable version rather than modifying any alpha.19 tag/release. Both Actions asset sets remain subject to verification.
+
 ## [0.2.0-alpha.19] — 2026-10-12 (draft candidate)
 
 - Added the original DesignCraft A4 preset → owned server worker → acknowledged canonical mirror → server PNG in the original canvas candidate.

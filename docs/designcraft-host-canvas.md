@@ -24,8 +24,10 @@ Run `scripts/smoke-designcraft-host-canvas.mjs` with `CW_DESIGNCRAFT_UI_ASSETS`,
 
 ## Installation and release scope
 
-Actions builds and browser-verifies an additional `designcraft-host-canvas-candidate.tar.gz` archive and SHA256 sidecar. This is a review/verification artifact, not a registered editor or a complete cross-platform creative bundle. Do not copy it over a running original-UI installation. Product alpha.19 remains draft until its actual Actions artifacts are checked; the earlier three native prototype bundles and two original UI previews retain their documented limitations. Six archives and six sidecars are expected for this draft.
+Actions builds and browser-verifies an additional `designcraft-host-canvas-candidate.tar.gz` archive and SHA256 sidecar. This is a review/verification artifact, not a registered editor or a complete cross-platform creative bundle. Do not copy it over a running original-UI installation. Product alpha.20 remains draft until its actual Actions artifacts are checked; the earlier three native prototype bundles and two original UI previews retain their documented limitations. Six archives and six sidecars are expected for this draft.
 
 Local build/QA uses a disk-backed temporary directory and the host low-impact wrapper (one Cargo job, at most two CPUs, nice 10). Previously downloaded release archives were preserved on disk to free about 1.1 GB of `/tmp` tmpfs. Protected application services and documents were not restarted.
 
 Next: connect an actual original editing action through the same ordered pending/ACK boundary, refresh the canonical mirror and server canvas at the new revision, then implement common file-provider destination/retention/save ACK/reopen/recovery. Keep availability planned until acceptance passes.
+
+Alpha.20 also includes `LICENSE-CREATIVE-WORKSPACE` and `UPSTREAM.txt` in the candidate archive. Its source patch and local browser/WASM evidence are unchanged from alpha.19. The host token lacks Actions cancellation permission (403); no tag/release is overwritten. Verify the final alpha.20 pipeline and its twelve assets separately.

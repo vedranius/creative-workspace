@@ -34,7 +34,7 @@ The original previews process locally in WASM; File Open/save/export use upstrea
 
 `release/config.json` keeps alpha.18 `draftOnly`; Actions run `38240276900` built and checked each native target, separate FilmCraft/DesignCraft preview archives, browser/native evidence and checksums. All five archives and sidecars are verified in [the alpha.18 release report](evidence/creative-workspace-alpha18-release.md). Alpha.18 adds bounded canonical DesignCraft document-snapshot transport; it does not synchronize the original UI or complete provider/save parity. Do not turn it into a public complete-suite claim while original UI packaging/parity evidence is missing.
 
-The project version is `0.2.0-alpha.19`. Its new original DesignCraft host-canvas candidate requires six Actions-built archives and six checksum sidecars; CI, tag and draft assets remain pending verification. [Candidate scope/install/QA](designcraft-host-canvas.md). Alpha.18 is the previous verified draft.
+The project version is `0.2.0-alpha.20` (candidate license/attribution packaging correction; server-canvas behavior is unchanged from alpha.19). Its new original DesignCraft host-canvas candidate requires six Actions-built archives and six checksum sidecars; CI, tag and draft assets remain pending verification. [Candidate scope/install/QA](designcraft-host-canvas.md). Alpha.18 is the previous verified draft.
 
 ## FilmCraft original UI preview archive
 
