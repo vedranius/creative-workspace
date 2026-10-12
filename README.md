@@ -2,7 +2,7 @@
 
 # Creative Workspace
 
-**Version: 0.2.0-alpha.23** — open-source, self-hosted, single-user prototype; Actions assets verified, release kept draft pending full app/provider parity.
+**Version: 0.2.0-alpha.24** — open-source, self-hosted, single-user prototype; Actions assets verified, release kept draft pending full app/provider parity.
 
 Bring your creative tools together in one browser studio. Choose an application, select your files, and access your own server from a lightweight laptop. The goal is **the original application interfaces and tools in the browser, with the server doing the heavy work**: photography, image editing, illustration, PDF, publishing, video and motion graphics. Browser controls run locally; document commands, data and previews travel to the server. No VNC or remote desktop is involved.
 
@@ -11,6 +11,8 @@ Bring your creative tools together in one browser studio. Choose an application,
 > **Current scope:** RapidRAW has an independently owned browser/server integration. All seven ArtCraft original interfaces have been built and browser-verified as previews. DesignCraft has isolated, unregistered pinned-source candidates for A4 creation, original Rectangle Tool `frame.create`, and original Ctrl+Z / `edit.undo` through ordered server ACKs; the original canvas shows the ACKed server PNG. The candidates are not active in the studio. Other tools/actions, provider ACK/recovery and full parity remain pending. **No complete server-backed original ArtCraft port is accepted yet.**
 
 Alpha.23 builds the DesignCraft candidate from a disposable copy of the exact reviewed source so Trunk build mutations cannot invalidate the post-build source guard. Its Actions workflow, target assets and SHA256 sidecars are verified. The draft stays unpublished because full original app/provider/save parity is incomplete; DesignCraft remains planned.
+
+Alpha.24 adds an original Open-dialog candidate for a selected laptop `.designcraft` file: streaming copy-first upload is acknowledged in the same isolated session before the native server opens it and returns original UI state/server preview. Single native one-spread files only; folder modes, save/reopen and full parity remain pending. [Details](docs/designcraft-file-open.md).
 
 ## What is new
 

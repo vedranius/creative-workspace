@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.2.0-alpha.24] — 2026-10-12 (draft candidate)
+
+- Connect the original DesignCraft Open dialog to a native browser file chooser and a streamed copy of only the selected `.designcraft` file. The shared transfer primitive bounds inputs, refuses collisions, and acknowledges bytes/path/session before native `file.open` runs.
+- Bind input copies to the existing session's root even if the panel workspace changes; refuse writes through selected laptop shares. Preserve original command ID, native filename/clean state and server canonical snapshot/preview.
+- Cancellation, failed upload and oversized files cannot cause native open. Source/gateway tests (52/52) and actual original-Open browser proof pass; Actions-built candidate assets remain subject to verification.
+- Scope remains a single-file copy-first/one-spread candidate. On-demand/hybrid folder permissions, save destination ACK, reopen/recovery and complete parity remain pending; the studio is not activated or restarted.
+
 ## [0.2.0-alpha.23] — 2026-10-12 (build-isolation candidate)
 
 - Isolate the original DesignCraft optimized Trunk build in a disposable copy of the exact reviewed upstream source. The CI failure showed that the build could change its input checkout before the post-build guard; the guard remains byte-exact and checks the canonical checkout after the build.

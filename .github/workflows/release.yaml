@@ -215,6 +215,7 @@ jobs:
           git -C build/original-ui/source-designcraft-host checkout --detach a127c6d5c3576972bbd60445f26d893db071eef3
           node scripts/build-designcraft-host-ui.mjs
           node scripts/smoke-designcraft-frame-undo-candidate.mjs
+          CW_PAR03_SCREENSHOT="$GITHUB_WORKSPACE/build/designcraft-par03-evidence/file-open.png" CW_PAR03_REPORT="$GITHUB_WORKSPACE/build/designcraft-par03-evidence/file-open.json" node scripts/smoke-designcraft-file-open-candidate.mjs
       - uses: actions/upload-artifact@v4
         if: always()
         with:

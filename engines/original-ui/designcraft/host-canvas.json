@@ -2,21 +2,21 @@
   "schemaVersion": 1,
   "app": "designcraft",
   "commit": "a127c6d5c3576972bbd60445f26d893db071eef3",
-  "id": "par-03-original-frame-create-undo-v1",
-  "patch": "patches/designcraft/a127c6d5/par-03-frame-create-undo-candidate.patch",
-  "sha256": "e86632a24c2966d9f618973b254ef17cde4b60f86f58e8210d532c35487701e7",
+  "id": "par-03-original-file-open-copy-first-v1",
+  "patch": "patches/designcraft/a127c6d5/par-03-file-open-candidate.patch",
+  "sha256": "41c89db9506812f355e200a835fbb333fc3243f35ee45fe2540e507d98ff732f",
   "status": "bounded-candidate; catalog planned",
   "scope": [
-    "Original A4 file.new pending/ACK",
-    "Original Rectangle Tool M drag frame.create pending/ACK",
-    "Original Edit > Undo (edit.undo) pending/ACK",
-    "Undo changes the canonical server snapshot and PNG only after worker success",
-    "Server mirror stages undo without a local mutation"
+    "Original app.openDialog / browser file chooser",
+    "Streamed selected native file through shared receiveFile transfer",
+    "Session-rooted import ACK before original server file.open",
+    "Server canonical snapshot/PNG and original filename presentation",
+    "Cancellation/upload failure/size limit block open without touching original"
   ],
   "limitations": [
-    "Other original commands/tools remain fail-closed",
-    "Undo availability is enabled for an open server mirror; worker rejects empty history",
-    "No common file provider, destination ACK, save/reopen or recovery",
-    "Not registered in a studio package and not activated in a live session"
+    "Native one-spread .designcraft documents, single-file copy-first only",
+    "Original UI folder mode selection/on-demand/hybrid and real folder permissions remain pending",
+    "Save destination ACK/reopen/recovery and full parity are not accepted",
+    "Candidate not registered or activated in a live studio"
   ]
 }

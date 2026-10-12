@@ -1,5 +1,11 @@
 # PAR-03 handoff — bounded server read-model slice verified
 
+## Original Open candidate (2026-10-12; alpha.24)
+
+[Implementation/installation/acceptance](designcraft-file-open.md) bridges the original Open control, a real browser file chooser, session-isolated common copy-first transfer, original `file.open`, and canonical UI/server PNG. [Report](evidence/designcraft-file-open-browser.json) and [screenshot](evidence/designcraft-file-open-browser.png) verify selected-file copy, filename/clean state, original rectangle edit/Undo, unchanged originals, cancellation, failed upload no-hydration and pre-upload size rejection. The panel workspace can change without redirecting this session's copy. Strict original pin/source-patch/Root/Origin/auth/session guards are retained. Local optimized WASM and 52 Node tests pass. No native engine rebuild or live app activation was needed.
+
+Next exact step: verify alpha.24 Actions, immutable tag/draft and six archives/six SHA256 sidecars, including the new Open browser evidence. Keep draft/catalog planned. This is a single-file native one-spread copy-first candidate; real folder permissions/on-demand/hybrid choice, destination/retention/save ACK, reopen/recovery and full parity are not accepted. After release verification connect the original save-copy action to an explicit output destination/provider ACK, then reopen/recovery; don't repeat the Open audit/build or change protected services.
+
 ## Alpha.23 build-isolation fix (2026-10-12)
 
 Run `38301345701` completed with all contract/native/bundle jobs successful, but the `original-designcraft` job failed after optimized Trunk compilation at the post-build exact-source assertion (`scripts/build-designcraft-host-ui.mjs:21`). Publish was skipped. Identity `vedranius` was verified; `v0.2.0-alpha.22` has no tag or release, and alpha.20 remains the latest verified immutable draft. The exact reviewed patch passed its pre-build source check; CI's Trunk invocation changed its input checkout before the later check.

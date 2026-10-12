@@ -1,0 +1,673 @@
+diff --git a/Cargo.lock b/Cargo.lock
+index 9473c974a1ffbded2d1db4455b7e44f2a1841034..2bc5441e015dece34ff2eab4accea37084a5febf 100644
+--- a/Cargo.lock
++++ b/Cargo.lock
+@@ -1153,6 +1153,7 @@ dependencies = [
+  "eframe",
+  "egui",
+  "form_urlencoded",
++ "image",
+  "js-sys",
+  "log",
+  "rfd",
+diff --git a/apps/designcraft-web/Cargo.toml b/apps/designcraft-web/Cargo.toml
+index 75775c31ef8c329347d0e01250db3c44bf865728..fb1e7e1f319b92d4aab08c9a4c4a3d61a85eb167 100644
+--- a/apps/designcraft-web/Cargo.toml
++++ b/apps/designcraft-web/Cargo.toml
+@@ -21,6 +21,7 @@ designcraft-ui-egui = { workspace = true }
+ egui = { workspace = true }
+ log = { workspace = true }
+ serde_json = { workspace = true }
++image = { workspace = true }
+ 
+ [target.'cfg(target_arch = "wasm32")'.dependencies]
+ # `wgpu` pulls egui-wgpu's defaults: WebGPU plus the WebGL2 fallback.
+@@ -29,4 +30,4 @@ rfd = { workspace = true }
+ wasm-bindgen = "0.2"
+ wasm-bindgen-futures = "0.4"
+ js-sys = "0.3"
+-web-sys = { version = "0.3", features = ["Window", "Document", "Element", "HtmlElement", "HtmlCanvasElement", "HtmlAnchorElement", "Blob", "BlobPropertyBag", "Url", "Location", "CssStyleDeclaration"] }
++web-sys = { version = "0.3", features = ["Window", "Document", "Element", "HtmlElement", "HtmlCanvasElement", "HtmlAnchorElement", "Blob", "BlobPropertyBag", "Url", "Location", "CssStyleDeclaration", "Request", "RequestInit", "Response", "Headers"] }
+diff --git a/apps/designcraft-web/file-provider.js b/apps/designcraft-web/file-provider.js
+new file mode 100644
+index 0000000000000000000000000000000000000000..a4e6d22de48143b508f8427151b1d791adc9892f
+--- /dev/null
++++ b/apps/designcraft-web/file-provider.js
+@@ -0,0 +1,24 @@
++// Browser host service for the original File/Open workflow. Document parsing remains on server.
++export function chooseAndCopyNativeDocument(sessionId) {
++  return new Promise((resolve, reject) => {
++    const input = document.createElement("input");
++    input.type = "file"; input.accept = ".designcraft"; input.hidden = true;
++    let settled = false;
++    const finish = (error, path = null) => { if (settled) return; settled = true; input.remove(); error ? reject(String(error)) : resolve(path); };
++    input.addEventListener("cancel", () => finish(null), {once:true});
++    input.addEventListener("change", async () => {
++      const file = input.files?.[0]; if (!file) { finish(null); return; }
++      try {
++        if (!/\.designcraft$/i.test(file.name) || file.name.length > 255 || /[\\/\x00]/.test(file.name)) throw new Error("Choose a native .designcraft publication");
++        if (file.size > 64 * 1024 * 1024) throw new Error("Publication exceeds the 64 MB prototype limit");
++        const path = `imports/${crypto.randomUUID()}/${file.name}`;
++        const response = await fetch(`/api/designcraft/sessions/${sessionId}/input?path=${encodeURIComponent(path)}`, {method:"PUT",credentials:"same-origin",headers:{"Content-Type":"application/octet-stream"},body:file});
++        const result = await response.json();
++        if (!response.ok) throw new Error(result.error || `Transfer failed: HTTP ${response.status}`);
++        if (result.sessionId !== sessionId || result.mode !== "copy-first" || result.path !== path || result.bytes !== file.size) throw new Error("Server did not acknowledge the complete selected file");
++        finish(null, path);
++      } catch (error) { finish(error.message || error); }
++    }, {once:true});
++    document.body.append(input); input.click();
++  });
++}
+diff --git a/apps/designcraft-web/src/web.rs b/apps/designcraft-web/src/web.rs
+index fe7cca4ae5e51ab3101b9d0b73a543fde8beae16..78753602ffa2686ef8ca5adea6c8903507afb814 100644
+--- a/apps/designcraft-web/src/web.rs
++++ b/apps/designcraft-web/src/web.rs
+@@ -2,31 +2,15 @@
+ 
+ use super::browser_policy::{has_query_flag, mime_for};
+ use designcraft_engine::Session;
+-use designcraft_ui_egui::{DesignApp, ImportRequest, ImportedFile, Inbox, Services};
++use designcraft_ui_egui::{DesignApp, HostActionAck, ImportRequest, Inbox, Services};
+ use wasm_bindgen::JsCast as _;
+ 
+-const DOC_EXTS: &[&str] = &["designcraft", "idml"];
+-const IMAGE_EXTS: &[&str] = &[
+-    "png",
+-    "jpg",
+-    "jpeg",
+-    "gif",
+-    "webp",
+-    "tif",
+-    "tiff",
+-    "bmp",
+-    "psd",
+-    "svg",
+-    "pdf",
+-    "ai",
+-    "txt",
+-    "docx",
+-    "rtf",
+-    "md",
+-    "xlsx",
+-    "idml",
+-    "designcraft",
+-];
++type OpenReplies = std::sync::Arc<std::sync::Mutex<Vec<Result<Option<String>,String>>>>;
++#[wasm_bindgen::prelude::wasm_bindgen(module = "/file-provider.js")]
++extern "C" {
++    #[wasm_bindgen::prelude::wasm_bindgen(js_name = chooseAndCopyNativeDocument)]
++    fn choose_and_copy_native_document(session: &str) -> js_sys::Promise;
++}
+ const CANVAS_ID: &str = "designcraft_canvas";
+ const LOADING_ID: &str = "designcraft_loading";
+ 
+@@ -41,6 +25,11 @@ pub fn start() {
+             log::error!("missing <canvas id=\"{CANVAS_ID}\">");
+             return;
+         };
++        let session = match post_json("/api/designcraft/sessions", serde_json::json!({})).await {
++            Ok(value) => value.get("id").and_then(serde_json::Value::as_str).map(str::to_owned),
++            Err(error) => { log::error!("server session initialization failed: {error}"); None }
++        };
++        let Some(session_id) = session else { return; };
+         let mut options = eframe::WebOptions::default();
+         if has_query_flag(&query(), "webgl")
+             && let eframe::egui_wgpu::WgpuSetup::CreateNew(create) = &mut options.wgpu_options.wgpu_setup
+@@ -56,11 +45,12 @@ pub fn start() {
+                         log::info!("designcraft-web: wgpu backend {:?}", rs.adapter.get_info().backend);
+                     }
+                     let inbox: Inbox = Inbox::default();
+-                    let mut app = DesignApp::new(Session::new(), services(inbox.clone(), cc.egui_ctx.clone()));
+-                    if has_query_flag(&query(), "sample") {
+-                        let _ = app.run("file.newSample", serde_json::json!({}));
+-                    }
+-                    Ok(Box::new(WebShell { app, inbox }))
++                    let actions = std::sync::Arc::new(std::sync::Mutex::new(Vec::new()));
++                    let replies = std::sync::Arc::new(std::sync::Mutex::new(Vec::new()));
++                    let mut mirror = Session::new(); mirror.set_server_mirror();
++                    let open_replies = OpenReplies::default();
++                    let app = DesignApp::new(mirror, services(inbox.clone(), actions.clone(), open_replies.clone(), session_id.clone(), cc.egui_ctx.clone()));
++                    Ok(Box::new(WebShell { app, actions, replies, open_replies, session_id: session_id.clone(), busy: false }))
+                 }),
+             )
+             .await;
+@@ -81,27 +71,51 @@ fn query() -> String {
+ /// and feed them through the inbox.
+ struct WebShell {
+     app: DesignApp,
+-    inbox: Inbox,
++    actions: std::sync::Arc<std::sync::Mutex<Vec<(String, serde_json::Value)>>>,
++    replies: std::sync::Arc<std::sync::Mutex<Vec<Result<HostActionAck, String>>>>,
++    session_id: String,
++    busy: bool,
++    open_replies: OpenReplies,
+ }
+ 
+ impl eframe::App for WebShell {
+     fn logic(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
+-        let dropped = ctx.input_mut(|i| std::mem::take(&mut i.raw.dropped_files));
+-        for f in dropped {
+-            let request = self.app.import_request("drop");
+-            let inbox = self.inbox.clone();
+-            let ctx = ctx.clone();
+-            wasm_bindgen_futures::spawn_local(async move {
+-                let name = f.path().file_name().map(|n| n.to_string_lossy().to_string()).unwrap_or_else(|| "dropped".into());
+-                match f.bytes_async().await {
+-                    Ok(bytes) => {
+-                        inbox.lock().unwrap_or_else(|e| e.into_inner()).push(ImportedFile { request, name, bytes });
+-                        ctx.request_repaint();
+-                    }
+-                    Err(e) => log::error!("couldn't read dropped file {name}: {e}"),
+-                }
+-            });
++        let opened = std::mem::take(&mut *self.open_replies.lock().unwrap_or_else(|e| e.into_inner()));
++        for result in opened { self.app.finish_host_open(result); }
++        let replies = std::mem::take(&mut *self.replies.lock().unwrap_or_else(|e| e.into_inner()));
++        if !replies.is_empty() { self.busy = false; }
++        for reply in replies { match reply { Ok(ack) => if let Err(e) = self.app.apply_host_action_ack(ack) { self.app.host_action_error(e); }, Err(e) => self.app.host_action_error(e) } }
++        if !self.busy {
++            let next = self.actions.lock().unwrap_or_else(|e| e.into_inner()).first().cloned();
++            if let Some((command, params)) = next {
++                self.actions.lock().unwrap_or_else(|e| e.into_inner()).remove(0); self.busy = true;
++                let session_id = self.session_id.clone();
++                let expected_version = self.app.host_revision();
++                let path = format!("/api/designcraft/sessions/{}/rpc", self.session_id); let replies = self.replies.clone(); let ctx = ctx.clone();
++                wasm_bindgen_futures::spawn_local(async move {
++                    let result = async {
++                        let request_id = format!("original-{command}-{}", js_sys::Date::now());
++                        let reply = post_json(&path, serde_json::json!({"method":command,"params":params,"requestId":request_id,"expectedVersion":expected_version})).await?;
++                        let result = reply.get("result").ok_or("Missing server action result")?;
++                        let command_ack = result.get("commandId").and_then(serde_json::Value::as_str) == Some(command.as_str());
++                        let undo_ack = command == "edit.undo" && result.get("undone").and_then(serde_json::Value::as_str).is_some_and(|label| !label.is_empty());
++                        if !command_ack && !undo_ack { return Err("Unexpected server action acknowledgement".into()); }
++                        let revision = reply.get("stateVersion").and_then(serde_json::Value::as_u64).filter(|v|*v>0).ok_or("Missing acknowledged revision")?;
++                        let snapshot = reply.get("documentSnapshot").cloned().ok_or("Missing canonical document snapshot")?;
++                        let preview_path = reply.get("preview").and_then(serde_json::Value::as_str).ok_or("Missing server preview")?;
++                        let prefix = format!("/api/designcraft/sessions/{session_id}/preview.png?v=");
++                        if !preview_path.starts_with(&prefix) || !preview_path[prefix.len()..].chars().all(|c|c.is_ascii_digit()) { return Err("Invalid server preview identity".into()); }
++                        let preview = fetch_preview(preview_path).await?;
++                        let dirty = reply.get("document").and_then(|d|d.get("dirty")).and_then(serde_json::Value::as_bool).ok_or("Missing acknowledged dirty state")?;
++                        let display_name = reply.get("document").and_then(|d|d.get("name")).and_then(serde_json::Value::as_str).filter(|n|n.len()<=1024).map(str::to_owned);
++                        Ok(HostActionAck { command_id:command, revision, snapshot, preview, dirty, display_name })
++                    }.await;
++                    replies.lock().unwrap_or_else(|e| e.into_inner()).push(result); ctx.request_repaint();
++                });
++            }
+         }
++        // File import remains unavailable until the common provider bridge is connected.
++        ctx.input_mut(|i| i.raw.dropped_files.clear());
+         self.app.logic(ctx);
+     }
+ 
+@@ -112,29 +126,29 @@ impl eframe::App for WebShell {
+ 
+     fn ui(&mut self, ui: &mut egui::Ui, _frame: &mut eframe::Frame) {
+         self.app.ui(ui);
++        if let Some(canvas) = web_sys::window().and_then(|w|w.document()).and_then(|d|d.get_element_by_id(CANVAS_ID)) {
++            if let Some(rect) = self.app.host_preset_rect { let _ = canvas.set_attribute("data-original-preset-a4", &serde_json::json!([rect.center().x, rect.center().y]).to_string()); }
++            if let Some(rect) = self.app.host_open_rect { let _ = canvas.set_attribute("data-original-open", &serde_json::json!([rect.center().x, rect.center().y]).to_string()); }
++            let _ = canvas.set_attribute("data-server-pending", if self.app.host_pending() { "true" } else { "false" });
++            let _ = canvas.set_attribute("data-server-revision", &self.app.host_revision().to_string());
++            let _ = canvas.set_attribute("data-server-render", if self.app.has_host_preview() { "true" } else { "false" });
++        }
+     }
+ }
+ 
+-fn services(inbox: Inbox, ctx: egui::Context) -> Services {
+-    let open_inbox = inbox.clone();
++fn services(inbox: Inbox, actions: std::sync::Arc<std::sync::Mutex<Vec<(String, serde_json::Value)>>>, open_replies: OpenReplies, session_id: String, ctx: egui::Context) -> Services {
+     Services {
+         open_async: Some(Box::new(move |request: ImportRequest| {
+-            let inbox = open_inbox.clone();
+-            let ctx = ctx.clone();
+-            let dialog = if request.purpose == "swatches" {
+-                rfd::AsyncFileDialog::new().add_filter("Swatch Exchange (ASE)", &["ase"])
+-            } else if request.purpose == "place" {
+-                rfd::AsyncFileDialog::new().add_filter("Graphics", IMAGE_EXTS)
+-            } else {
+-                rfd::AsyncFileDialog::new().add_filter("DesignCraft", DOC_EXTS)
+-            };
++            let replies = open_replies.clone(); let ctx = ctx.clone();
++            if request.purpose != "open" { replies.lock().unwrap_or_else(|e|e.into_inner()).push(Err("Only native publication opening is connected".into())); ctx.request_repaint(); return; }
++            let promise = choose_and_copy_native_document(&session_id);
+             wasm_bindgen_futures::spawn_local(async move {
+-                let Some(file) = dialog.pick_file().await else {
+-                    return;
++                let result = match wasm_bindgen_futures::JsFuture::from(promise).await {
++                    Ok(value) if value.is_null() => Ok(None),
++                    Ok(value) => value.as_string().map(Some).ok_or_else(|| "Invalid provider path".to_owned()),
++                    Err(error) => Err(error.as_string().unwrap_or_else(|| "The selected file could not be copied to the server".into())),
+                 };
+-                let bytes = file.read().await;
+-                inbox.lock().unwrap_or_else(|e| e.into_inner()).push(ImportedFile { request, name: file.file_name(), bytes });
+-                ctx.request_repaint();
++                replies.lock().unwrap_or_else(|e|e.into_inner()).push(result); ctx.request_repaint();
+             });
+         })),
+         // Exports ask for a name; the browser decides where the download goes.
+@@ -146,10 +160,39 @@ fn services(inbox: Inbox, ctx: egui::Context) -> Services {
+             }
+         })),
+         inbox: Some(inbox),
++        host_action: Some(Box::new(move |id, params| { actions.lock().unwrap_or_else(|e|e.into_inner()).push((id.to_owned(), params)); Ok(()) })),
+         ..Default::default()
+     }
+ }
+ 
++async fn fetch_preview(path: &str) -> Result<egui::ColorImage, String> {
++    use wasm_bindgen_futures::JsFuture;
++    let response: web_sys::Response = JsFuture::from(web_sys::window().ok_or("missing window")?.fetch_with_str(path)).await.map_err(|e|format!("preview fetch: {e:?}"))?.dyn_into().map_err(|_|"invalid preview response")?;
++    if !response.ok() || response.headers().get("Content-Type").ok().flatten().as_deref() != Some("image/png") { return Err("Server PNG is unavailable".into()); }
++    let buffer = JsFuture::from(response.array_buffer().map_err(|e|format!("preview: {e:?}"))?).await.map_err(|e|format!("preview: {e:?}"))?;
++    let bytes = js_sys::Uint8Array::new(&buffer).to_vec();
++    if bytes.len() < 24 || bytes.len() > 12 * 1024 * 1024 || &bytes[..8] != b"\x89PNG\r\n\x1a\n" { return Err("Invalid bounded server PNG".into()); }
++    let w = u32::from_be_bytes(bytes[16..20].try_into().map_err(|_|"width")?) as usize;
++    let h = u32::from_be_bytes(bytes[20..24].try_into().map_err(|_|"height")?) as usize;
++    if w == 0 || h == 0 || w > 1280 || h > 1280 { return Err("Server PNG dimensions exceed the preview limit".into()); }
++    let png = image::load_from_memory_with_format(&bytes, image::ImageFormat::Png).map_err(|e|format!("Server PNG decoding failed: {e}"))?.to_rgba8();
++    if png.width() as usize != w || png.height() as usize != h { return Err("Server PNG dimensions do not agree".into()); }
++    Ok(egui::ColorImage::from_rgba_unmultiplied([w,h], png.as_raw()))
++}
++
++async fn post_json(path: &str, body: serde_json::Value) -> Result<serde_json::Value, String> {
++    use wasm_bindgen::JsValue;
++    use wasm_bindgen_futures::JsFuture;
++    let init = web_sys::RequestInit::new(); init.set_method("POST"); init.set_body(&JsValue::from_str(&body.to_string()));
++    let request = web_sys::Request::new_with_str_and_init(path, &init).map_err(|e|format!("request: {e:?}"))?;
++    request.headers().set("Content-Type","application/json").map_err(|e|format!("headers: {e:?}"))?;
++    let response: web_sys::Response = JsFuture::from(web_sys::window().ok_or("missing window")?.fetch_with_request(&request)).await.map_err(|e|format!("fetch: {e:?}"))?.dyn_into().map_err(|_|"invalid response")?;
++    let body = JsFuture::from(response.text().map_err(|e|format!("body: {e:?}"))?).await.map_err(|e|format!("body: {e:?}"))?.as_string().ok_or("response body was not text")?;
++    let value: serde_json::Value = serde_json::from_str(&body).map_err(|e|format!("decode JSON: {e}"))?;
++    if !response.ok() { return Err(value.get("error").and_then(serde_json::Value::as_str).unwrap_or("server request failed").to_owned()); }
++    Ok(value)
++}
++
+ /// Trigger a browser download of `bytes` named after the last component of `path`.
+ fn download(path: &str, bytes: &[u8]) -> Result<(), String> {
+     let js = |e: wasm_bindgen::JsValue| format!("{e:?}");
+diff --git a/crates/engine/src/lib.rs b/crates/engine/src/lib.rs
+index 771c89b13c42fe1bb874eeb855581d154f2b4494..5d74f1f05099f836c7df20be136a86ed1224b454 100644
+--- a/crates/engine/src/lib.rs
++++ b/crates/engine/src/lib.rs
+@@ -84,6 +84,7 @@ pub struct DocState {
+     pub path: Option<String>,
+     pub revision: u64,
+     pub saved_revision: u64,
++    pub mirror_dirty: Option<bool>,
+     /// The document as last saved (dirty = the current document is a different allocation).
+     pub saved_doc: Arc<Document>,
+     pub active_layer: LayerId,
+@@ -125,6 +126,7 @@ impl DocState {
+             path,
+             revision: 1,
+             saved_revision: 1,
++            mirror_dirty: None,
+             active_layer,
+             interaction: None,
+             editing_parents: false,
+@@ -135,7 +137,7 @@ impl DocState {
+         }
+     }
+     pub fn is_dirty(&self) -> bool {
+-        !Arc::ptr_eq(&self.doc, &self.saved_doc)
++        self.mirror_dirty.unwrap_or(!Arc::ptr_eq(&self.doc, &self.saved_doc))
+     }
+     pub fn title(&self) -> String {
+         self.path
+@@ -246,6 +248,8 @@ impl Default for Prefs {
+ 
+ pub struct Session {
+     docs: Vec<DocState>,
++    server_mirror: bool,
++    pending_host_action: Option<(String, Value)>,
+     active: Option<usize>,
+     pub prefs: Prefs,
+     pub cache: Arc<Cache>,
+@@ -286,6 +290,8 @@ impl Session {
+         guard::install_panic_hook();
+         Session {
+             docs: vec![],
++            server_mirror: false,
++            pending_host_action: None,
+             active: None,
+             prefs: Prefs::default(),
+             cache: Arc::new(Cache::new()),
+@@ -305,6 +311,28 @@ impl Session {
+         }
+     }
+ 
++    pub fn set_server_mirror(&mut self) { self.server_mirror = true; }
++
++    /// Retrieve the last original tool command staged by a server mirror interaction.
++    pub fn take_host_action(&mut self) -> Option<(String, Value)> {
++        self.pending_host_action.take()
++    }
++
++    /// Replace the canonical document in a server-owned UI mirror after its ACK.
++    pub fn replace_server_mirror(&mut self, document: Document, dirty: bool) -> Result<()> {
++        if !self.server_mirror { return Err(EngineError::Disabled("server mirror".into(), "session is not a server mirror".into())); }
++        let st = self.active_mut().ok_or(EngineError::NoDocument)?;
++        let doc = Arc::new(document);
++        st.active_layer = doc.default_layer();
++        st.selection = Selection::default();
++        st.history = Default::default();
++        st.saved_doc = doc.clone();
++        st.doc = doc;
++        st.interaction = None;
++        st.mirror_dirty = Some(dirty);
++        Ok(())
++    }
++
+     pub fn documents(&self) -> &[DocState] {
+         &self.docs
+     }
+@@ -387,6 +415,16 @@ impl Session {
+     /// Run command `id`. A panic inside it becomes [`EngineError::Internal`] and leaves the
+     /// document as it was (see [`guard`]).
+     pub fn execute(&mut self, id: &str, params: &Value) -> Result<Value> {
++        if self.server_mirror {
++            if id == "frame.create" || id == "edit.undo" {
++                if id == "edit.undo" && !params.as_object().is_some_and(|p| p.is_empty()) {
++                    return Err(EngineError::Disabled(id.into(), "unexpected parameters".into()));
++                }
++                self.pending_host_action = Some((id.into(), params.clone()));
++                return Ok(Value::Null);
++            }
++            return Err(EngineError::Disabled(id.into(), "This original action is not connected to the server yet".into()));
++        }
+         self.guarded(id, |s| s.execute_unguarded(id, params))
+     }
+ 
+diff --git a/crates/engine/src/tests.rs b/crates/engine/src/tests.rs
+index c1032bccf395d43e1f5d0be0275ead5a3fe8330d..4f38a673023083fcb3af2d7e380ac1ddc1ef2cec 100644
+--- a/crates/engine/src/tests.rs
++++ b/crates/engine/src/tests.rs
+@@ -561,3 +561,30 @@ fn commands_take_non_object_params_without_panicking() {
+         assert!(r.is_ok(), "{p}: {r:?}");
+     }
+ }
++
++#[test]
++fn server_mirror_stages_frame_creation_without_local_mutation() {
++    let mut s = Session::new();
++    s.set_server_mirror();
++    let doc = designcraft_doc::Document::new(&designcraft_doc::build::NewDocument::default());
++    s.add_document(DocState::new(doc, None));
++    let before = s.active().unwrap().doc.clone();
++    let params = json!({"spread":{"index":0},"shape":"rectangle","content":"graphic","rect":[10.0,20.0,100.0,120.0]});
++    assert!(s.execute("frame.create", &params).is_ok());
++    assert!(std::sync::Arc::ptr_eq(&before, &s.active().unwrap().doc));
++    assert_eq!(s.take_host_action(), Some(("frame.create".into(), params)));
++    assert!(s.execute("object.fill", &json!({"swatch":"[Black]"})).is_err());
++    assert!(s.take_host_action().is_none());
++}
++
++#[test]
++fn server_mirror_stages_undo_without_mutating_local_document() {
++    let mut s = Session::new();
++    s.set_server_mirror();
++    let document = designcraft_doc::Document::new(&designcraft_doc::build::NewDocument::default());
++    s.add_document(DocState::new(document.clone(), None));
++    let params = json!({});
++    assert!(s.execute("edit.undo", &params).is_ok());
++    assert_eq!(s.take_host_action(), Some(("edit.undo".into(), params)));
++    assert_eq!(s.active().map(|state| state.doc.clone()), Some(std::sync::Arc::new(document)));
++}
+diff --git a/crates/ui-egui/src/canvas.rs b/crates/ui-egui/src/canvas.rs
+index 34dd6144278a6bac68705fb8012f987b9909a599..8a5cd27a761788403116ba80619b45d77c38a59a 100644
+--- a/crates/ui-egui/src/canvas.rs
++++ b/crates/ui-egui/src/canvas.rs
+@@ -243,6 +243,25 @@ pub fn show(app: &mut DesignApp, ui: &mut egui::Ui) {
+     if !app.view().is_some_and(|v| v.fitted) {
+         fit(app, rect, "spread");
+     }
++    if app.services.host_action.is_some() {
++        if !app.host_pending() {
++            handle_input(app, ui, &resp, rect);
++        }
++        let painter = ui.painter_at(screen);
++        painter.rect_filled(screen, 0.0, t.pasteboard);
++        if let Some(image) = app.host_preview.take() {
++            app.host_texture = Some(ui.ctx().load_texture(format!("server-page-{}", app.host_revision), image, egui::TextureOptions::LINEAR));
++        }
++        if let Some(texture) = &app.host_texture {
++            let size = texture.size_vec2();
++            let scale = ((screen.width()-40.0)/size.x).min((screen.height()-40.0)/size.y).max(0.01);
++            let page = Rect::from_center_size(screen.center(), size * scale);
++            painter.image(texture.id(), page, Rect::from_min_max(pos2(0.0,0.0), pos2(1.0,1.0)), Color32::WHITE);
++        }
++        // Tool commands are captured by the server mirror; the acknowledged server PNG is the
++        // only document rendering shown here.
++        return;
++    }
+     handle_input(app, ui, &resp, rect);
+     let Some(st) = app.session.active() else { return };
+     let Some(&v) = app.view() else { return };
+@@ -1435,9 +1454,15 @@ fn handle_input(app: &mut DesignApp, ui: &mut egui::Ui, resp: &egui::Response, r
+     }
+     ui.data_mut(|d| d.insert_temp(down_id, down));
+     for e in events {
++        let committed = e.kind == PointerKind::Up;
+         if let Err(err) = app.session.pointer(&e, vi) {
+             app.status(err.to_string());
+         }
++        if committed && let Some((id, params)) = app.session.take_host_action()
++            && let Err(err) = app.queue_host_action(&id, params)
++        {
++            app.host_action_error(err);
++        }
+     }
+     app.after_engine();
+     if resp.clicked() || resp.drag_started() {
+diff --git a/crates/ui-egui/src/chrome.rs b/crates/ui-egui/src/chrome.rs
+index 2896fcdc40e6ecccac2824fdb1e9bf093c93ffcd..5eda31a00b63a11e30c236d27aa7fe873b4963ff 100644
+--- a/crates/ui-egui/src/chrome.rs
++++ b/crates/ui-egui/src/chrome.rs
+@@ -660,14 +660,13 @@ pub fn start_screen(app: &mut DesignApp, ui: &mut egui::Ui) {
+                 {
+                     let _ = app.run("app.newDocumentDialog", json!({}));
+                 }
+-                if ui
+-                    .add(
++                let open = ui.add(
+                         egui::Button::new(crate::rtl::widget(ui, egui::RichText::new(crate::i18n::tr(&app.ui.language, "  Open  ")).size(14.0)))
+                             .corner_radius(16.0)
+                             .min_size(vec2(0.0, 32.0)),
+-                    )
+-                    .clicked()
+-                {
++                    );
++                if app.services.host_action.is_some() { app.host_open_rect = Some(open.rect); }
++                if open.clicked() {
+                     let _ = app.run("app.openDialog", json!({}));
+                 }
+                 if ui
+@@ -695,6 +694,7 @@ pub fn start_screen(app: &mut DesignApp, ui: &mut egui::Ui) {
+             ui.horizontal_wrapped(|ui| {
+                 for p in designcraft_doc::build::PRESETS.iter().filter(|p| p.intent == designcraft_doc::Intent::Print) {
+                     let (cr, resp) = ui.allocate_exact_size(vec2(120.0, 150.0), Sense::click());
++                    if p.name == "A4" && app.services.host_action.is_some() { app.host_preset_rect = Some(cr); }
+                     let hov = resp.hovered();
+                     ui.painter().rect_filled(cr, 6.0, if hov { t.hover } else { t.panel });
+                     let k = (80.0 / p.width.max(p.height)) as f32;
+diff --git a/crates/ui-egui/src/lib.rs b/crates/ui-egui/src/lib.rs
+index fb81e9c344d4390d2e3ff8a4d0d016ad563376fc..f7bbe09f2265e11eeed320acfa23eb05f18e56d0 100644
+--- a/crates/ui-egui/src/lib.rs
++++ b/crates/ui-egui/src/lib.rs
+@@ -54,6 +54,18 @@ pub type DownloadFn = Box<dyn FnMut(&str, &[u8])>;
+ /// Files delivered asynchronously with their original operation and document identity.
+ pub type Inbox = std::sync::Arc<std::sync::Mutex<Vec<ImportedFile>>>;
+ 
++/// A server-owned document action waiting for its worker acknowledgement.
++#[derive(Clone, Debug)]
++pub struct HostActionAck {
++    pub command_id: String,
++    pub revision: u64,
++    pub snapshot: serde_json::Value,
++    pub preview: egui::ColorImage,
++    pub dirty: bool,
++    pub display_name: Option<String>,
++}
++pub type HostActionFn = Box<dyn FnMut(&str, serde_json::Value) -> Result<(), String>>;
++
+ /// Platform services injected by the host (desktop or web).
+ #[derive(Default)]
+ pub struct Services {
+@@ -71,6 +83,8 @@ pub struct Services {
+     pub download: Option<DownloadFn>,
+     /// Files delivered asynchronously, drained every frame with their captured request context.
+     pub inbox: Option<Inbox>,
++    /// Queue an original action for a server-owned engine; the host applies only its ACK.
++    pub host_action: Option<HostActionFn>,
+ }
+ 
+ #[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
+@@ -484,6 +498,14 @@ pub struct DesignApp {
+     last_time: f64,
+     /// When recovery data was last written (seconds, egui time).
+     pub last_recovery: f64,
++    host_revision: u64,
++    pub host_preset_rect: Option<egui::Rect>,
++    pub host_open_rect: Option<egui::Rect>,
++    host_pending: bool,
++    host_open_pending: bool,
++    host_pending_command: Option<String>,
++    host_preview: Option<egui::ColorImage>,
++    host_texture: Option<egui::TextureHandle>,
+ }
+ 
+ impl DesignApp {
+@@ -521,6 +543,7 @@ impl DesignApp {
+             native_shortcuts: Default::default(),
+             last_time: 0.0,
+             last_recovery: 0.0,
++            host_preset_rect: None, host_open_rect: None, host_revision: 0, host_pending: false, host_open_pending: false, host_pending_command: None, host_preview: None, host_texture: None,
+         }
+     }
+ 
+@@ -561,6 +584,30 @@ impl DesignApp {
+ 
+     /// THE entry point for every action (menus, shortcuts, palette, panels, control channel).
+     pub fn run(&mut self, id: &str, params: Value) -> Result<Value, String> {
++        if self.services.host_action.is_some() {
++            if id == "app.openDialog" {
++                if self.host_pending || self.host_open_pending || self.session.active().is_some() { return Err("Save and close the current document before opening another".into()); }
++                self.host_open_pending = true;
++                self.status("Choose a native publication on your laptop; the selected file will be copied to the server…");
++                if let Err(error) = self.pick_and_open("open") { self.host_open_pending = false; return Err(error); }
++                return Ok(json!({"pending":true,"sourceMode":"copy-first"}));
++            }
++            if self.host_open_pending { return Err("A file selection or transfer is already pending".into()); }
++            if id == "tool.select" {
++                let tool = params.get("tool").and_then(Value::as_str).ok_or("Missing tool ID")?;
++                self.session.set_tool(tool);
++                self.ui.flyout = None;
++                return Ok(json!({"tool": tool}));
++            }
++            let allowed = (matches!(id, "file.new" | "file.open") && self.session.active().is_none())
++                || (matches!(id, "frame.create" | "edit.undo") && self.session.active().is_some());
++            if !allowed {
++                let error = "This original action is not connected to the server yet";
++                self.status(error); return Err(error.into());
++            }
++            self.queue_host_action(id, params)?;
++            return Ok(json!({"pending": true, "commandId": id}));
++        }
+         if let Some(r) = menus::run_ui(self, id, &params) {
+             return r;
+         }
+@@ -572,6 +619,60 @@ impl DesignApp {
+         r
+     }
+ 
++    /// Queue one allowlisted original action. Its local mutation is deferred until server ACK.
++    pub fn queue_host_action(&mut self, id: &str, params: Value) -> Result<(), String> {
++        if self.host_pending { return Err("A server action is already pending".into()); }
++        let allowed = (matches!(id, "file.new" | "file.open") && self.session.active().is_none())
++            || (matches!(id, "frame.create" | "edit.undo") && self.session.active().is_some());
++        if !allowed { return Err("This original action is not connected to the server yet".into()); }
++        let Some(host_action) = self.services.host_action.as_mut() else { return Err("Server action host is unavailable".into()); };
++        host_action(id, params)?;
++        self.host_pending = true;
++        self.host_pending_command = Some(id.to_owned());
++        self.status(match id { "file.new" => "Creating document on server…", "file.open" => "Opening the selected publication on server…", "frame.create" => "Applying frame on server…", _ => "Undoing on server…" });
++        Ok(())
++    }
++
++    /// Apply a server response after the browser host validates the action ID and revision.
++    pub fn apply_host_action_ack(&mut self, ack: HostActionAck) -> Result<(), String> {
++        if ack.revision == 0 || self.host_pending_command.as_deref() != Some(ack.command_id.as_str()) {
++            return Err("Invalid server action acknowledgement".into());
++        }
++        if !self.host_pending || ack.revision <= self.host_revision { return Err("Unexpected or stale server acknowledgement".into()); }
++        let document: designcraft_doc::Document = serde_json::from_value(ack.snapshot).map_err(|e| format!("Invalid acknowledged document snapshot: {e}"))?;
++        if document.spreads.len() != 1 { return Err("Only one-spread server hydration is implemented".into()); }
++        if self.session.active().is_some() {
++            self.session.replace_server_mirror(document, ack.dirty).map_err(|e| e.to_string())?;
++        } else {
++            let mut mirror = designcraft_engine::DocState::new(document, None);
++            mirror.mirror_dirty = Some(ack.dirty);
++            if ack.command_id == "file.open" { mirror.path = ack.display_name; }
++            self.session.add_document(mirror);
++        }
++        self.host_revision = ack.revision; self.host_pending = false; self.host_pending_command = None; self.host_preview = Some(ack.preview); self.host_texture = None;
++        self.after_engine();
++        self.status(format!("Server document acknowledged at revision {}", ack.revision));
++        Ok(())
++    }
++
++    pub fn host_revision(&self) -> u64 { self.host_revision }
++    pub fn host_pending(&self) -> bool { self.host_pending || self.host_open_pending }
++    pub fn finish_host_open(&mut self, result: Result<Option<String>,String>) {
++        if !self.host_open_pending { return; }
++        self.host_open_pending = false;
++        match result {
++            Ok(Some(path)) => if let Err(error) = self.queue_host_action("file.open", json!({"path":path})) { self.host_action_error(error); },
++            Ok(None) => self.status("File selection cancelled"),
++            Err(error) => self.host_action_error(error),
++        }
++    }
++    pub fn host_action_error(&mut self, message: String) {
++        self.host_pending = false;
++        self.host_pending_command = None;
++        self.status(format!("Server document action failed: {message}"));
++    }
++    pub fn has_host_preview(&self) -> bool { self.host_preview.is_some() || self.host_texture.is_some() }
++
+     /// Handle requests produced by tools/commands (dialogs, view changes, file pickers).
+     pub fn after_engine(&mut self) {
+         let reqs = std::mem::take(&mut self.session.ui_requests);
+@@ -757,8 +858,8 @@ impl DesignApp {
+             self.perf.fps = self.perf.fps * 0.9 + (1.0 / dt).min(240.0) * 0.1;
+         }
+         self.last_time = now;
+-        self.drain_control(ctx);
+-        if self.fonts_ready {
++        if self.services.host_action.is_none() { self.drain_control(ctx); }
++        if self.fonts_ready && self.services.host_action.is_none() {
+             self.drain_inbox();
+         }
+         if !self.synthetic.is_empty() {
+@@ -816,6 +917,7 @@ impl DesignApp {
+ 
+     /// Lay out the whole window.
+     pub fn ui(&mut self, ui: &mut egui::Ui) {
++        if self.services.host_action.is_some() && self.host_pending() { ui.disable(); }
+         let ctx = ui.ctx().clone();
+         if !self.fonts_ready {
+             ctx.request_repaint();
+diff --git a/crates/ui-egui/src/menus.rs b/crates/ui-egui/src/menus.rs
+index 94e5c097179c9c19e99fd2a4970e1d471d726ca7..cd14ffadaa10d45d4018e70233ecc7cc435fda53 100644
+--- a/crates/ui-egui/src/menus.rs
++++ b/crates/ui-egui/src/menus.rs
+@@ -1777,6 +1777,10 @@ pub fn checked(app: &DesignApp, id: &str, params: &Value) -> Option<bool> {
+ 
+ /// Enablement for menu display (UI commands need a document unless they're app/window-level).
+ pub fn menu_enabled(app: &DesignApp, id: &str) -> bool {
++    if app.services.host_action.is_some() && id == "app.openDialog" { return app.session.active().is_none() && !app.host_pending(); }
++    if app.services.host_action.is_some() && id == "edit.undo" {
++        return app.session.active().is_some();
++    }
+     if ui_label(id).is_some() {
+         return app.session.active().is_some() || id.starts_with("app.") || id.starts_with("window.");
+     }

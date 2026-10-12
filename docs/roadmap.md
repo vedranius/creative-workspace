@@ -14,6 +14,8 @@ Ovaj dokument određuje redoslijed razvoja. [Stanje razvoja](development-state.m
 
 **PAR-03 alpha.23 build izolacija potvrđena:** nakon što je Actions `38301345701` srušio post-build exact-source guard, optimized Trunk se sada vrti u privremenoj kopiji; kanonski checkout ostaje byte-identičan patchu. Local Trunk/Chromium original A4 → `frame.create` → `edit.undo`, npm 50/50, sva tri OS bundle smoka i Actions `38306757116` prolaze. Immutable tag `v0.2.0-alpha.23`, draft i svih šest arhiva/checksum parova su provjereni. [Primopredaja/evidence](par-03a-handoff.md#alpha23-build-isolation-fix-2026-10-12). Sljedeći konkretan korak je originalni `file.open` preko common providera u server-owned session, zatim destination ACK, save/reopen/recovery. DesignCraft ostaje planned.
 
+**PAR-03 alpha.24 originalni Open:** stvarni originalni Open control/file chooser → session-rooted copy-first transfer ACK → server `file.open` → izvorni filename/state/canvas. Optimizirani UI i 52 testa prolaze; Chromium potvrđuje open/edit/Undo, nepromijenjene originale, otkazivanje i odbijanje neuspjelog/prevelikog prijenosa. [Opseg i dokazi](designcraft-file-open.md). Najprije Actions/tag/draft/checksums; zatim originalni save-copy uz eksplicitni destination/retention i provider write ACK te reopen/recovery. Ostali modovi/permission i puna parity pending.
+
 ## Cilj i pravila proizvoda
 
 **Obvezna korisnička specifikacija:** [izvorne aplikacije 1:1 i njihove nadogradnje](original-app-requirements.md). ArtCraft UI, alati, dijalozi, shortcuti i funkcije moraju odgovarati izvornoj native verziji. Nadogradnja prenosi zajedno originalni UI i engine te provjerava parity i kompatibilnost. Ograničeni vlastiti editor nije prihvatljiv dovršeni port.

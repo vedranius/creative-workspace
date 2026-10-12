@@ -8,7 +8,7 @@ import {resolveWorkspace,isWithin} from './storage.js';
 import {importSegments,receiveFile} from './transfers.js';
 
 const nativeMethods=new Set(['__cw_identity','new','sample','open','state','render','command','export','mark_saved']);
-const methods=new Set(['state','heartbeat','file.new','doc.new','doc.sample','doc.open','doc.save','page.select','frame.create','select.set','select.all','select.none','transform.move','transform.resize','object.fill','object.stroke','swatch.create','story.setText','type.char','edit.clear','edit.undo','edit.redo']);
+const methods=new Set(['state','heartbeat','file.new','file.open','doc.new','doc.sample','doc.open','doc.save','page.select','frame.create','select.set','select.all','select.none','transform.move','transform.resize','object.fill','object.stroke','swatch.create','story.setText','type.char','edit.clear','edit.undo','edit.redo']);
 const fail=(message,status=400,code)=>Object.assign(new Error(message),{status,...(code?{code}:{})});
 const relative=value=>{try{importSegments(value);return value;}catch{throw fail('Use a relative path inside this application workspace');}};
 const number=(value,min,max,label)=>{if(typeof value!=='number'||!Number.isFinite(value)||value<min||value>max)throw fail(`Invalid ${label}`);return value;};
@@ -51,16 +51,23 @@ export function createDesignCraft({binary=process.env.CW_DESIGNCRAFT_BINARY||pat
     if(document){documentSnapshot=boundedCanonicalDocument(document.documentSnapshot);delete document.documentSnapshot;document.name=s.name||document.title;s.page=Math.max(0,Math.min(s.page,(document.pageCount||1)-1));const frame=await s.engine.call('render',{page:s.page});s.frames.set(++s.previewVersion,boundedPng(frame.pngBase64));while(s.frames.size>3)s.frames.delete(s.frames.keys().next().value);preview=`/api/designcraft/sessions/${s.id}/preview.png?v=${s.previewVersion}`;}
     return {document,documentSnapshot,page:s.page,stateVersion:s.version,preview};
   }
+  async function importInput(id,stream,target){
+    const s=get(id),input=relative(target);
+    if(s.shareId)throw fail('Copy-first input requires an independent server workspace',403);
+    if(!input.startsWith('imports/')||!/\.designcraft$/i.test(input))throw fail('Choose a native publication in the imports folder');
+    const copied=await receiveFile(stream,s.root,input,maxFileBytes);
+    return {...copied,sessionId:id,mode:'copy-first'};
+  }
   async function execute(id,{method,params={},requestId,expectedVersion}={}){
     const s=get(id);if(!methods.has(method))throw fail('Unsupported DesignCraft method');if(typeof requestId!=='string'||requestId.length<8||requestId.length>100)throw fail('A unique requestId is required');if(params===null||typeof params!=='object'||Array.isArray(params))throw fail('Params must be an object');if(expectedVersion!==undefined&&(!Number.isSafeInteger(expectedVersion)||expectedVersion<0))throw fail('Invalid expectedVersion');
     const signature=JSON.stringify({method,params,expectedVersion}),old=s.requests.get(requestId);if(old){if(old.signature!==signature)throw fail('requestId was already used for a different operation',409);return old.task;}if([...s.requests.values()].filter(r=>r.pending).length>=32)throw fail('Too many queued operations',429);
     const task=s.queue.then(async()=>{
       if(expectedVersion!==undefined&&expectedVersion!==s.version)throw fail('Document changed. Refresh its state before applying this operation.',409,'STATE_VERSION_CONFLICT');
       if(method==='heartbeat')return {alive:true};if(method==='state')return snapshot(s);let result={};
-      if(method==='file.new'||method==='doc.open'||method==='doc.new'||method==='doc.sample'){
+      if(method==='file.new'||method==='file.open'||method==='doc.open'||method==='doc.new'||method==='doc.sample'){
         if(await s.engine.call('state'))throw fail('Save and close the current document before opening another',409);
         if(method==='file.new'){if(Object.keys(params).length!==1||typeof params.preset!=='string'||params.preset.length<1||params.preset.length>100)throw fail('Original file.new requires one known-size preset name');s.version++;result=await s.engine.call('new',{preset:params.preset});result={...result,commandId:'file.new'};}
-        else if(method==='doc.open'){const input=relative(params.path);if(!/\.designcraft$/i.test(input))throw fail('Choose a native .designcraft document');const file=await resolveWorkspace(s.root,input),info=await stat(file);if(!info.isFile()||info.size>maxFileBytes)throw fail('Document exceeds the 64 MB prototype limit',413);s.version++;result=await s.engine.call('open',{path:file});s.name=path.basename(input);}
+        else if(method==='file.open'||method==='doc.open'){if(method==='file.open'&&(Object.keys(params).length!==1||typeof params.path!=='string'))throw fail('Original file.open requires only a provider-relative path');const input=relative(params.path);if(!/\.designcraft$/i.test(input))throw fail('Choose a native .designcraft document');const file=await resolveWorkspace(s.root,input),info=await stat(file);if(!info.isFile()||info.size>maxFileBytes)throw fail('Document exceeds the 64 MB prototype limit',413);s.version++;result=await s.engine.call('open',{path:file});s.name=path.basename(input);if(method==='file.open')result={...result,commandId:'file.open'};}
         else if(method==='doc.sample'){s.version++;s.dirty=true;result=await s.engine.call('sample');s.name='Sample Document';}
         else{const width=number(params.width,1,10000,'width'),height=number(params.height,1,10000,'height');if(!Number.isInteger(params.pages))throw fail('Page count must be an integer');s.version++;s.dirty=true;result=await s.engine.call('new',{title:typeof params.name==='string'?params.name.slice(0,100):'Untitled',width,height,pages:number(params.pages,1,64,'page count'),facingPages:false});result={...result,commandId:'file.new'};s.name=typeof params.name==='string'?params.name.slice(0,100):'Untitled';}
       }else{
@@ -84,5 +91,5 @@ export function createDesignCraft({binary=process.env.CW_DESIGNCRAFT_BINARY||pat
   async function close(id,{discard=false}={}){const s=get(id);s.closing=true;try{await s.queue;if(s.dirty&&discard!==true)throw fail('Save the native DesignCraft document before closing it',409);s.engine.stop();sessions.delete(id);await rm(path.dirname(s.privateRoot),{recursive:true,force:true});return {closed:true};}finally{s.closing=false;}}
   async function output(id,name){const s=get(id);if(!s.outputs.has(name))throw fail('This file was not exported by this session',403);return resolveWorkspace(s.writeRoot,name);}
   const idle=setInterval(()=>{for(const [id,s]of sessions)if(!s.dirty&&![...s.requests.values()].some(r=>r.pending)&&Date.now()-s.lastUsed>3600000)close(id).catch(()=>{});},60000);idle.unref();
-  return {status,create,execute,preview,close,output,describe:id=>{const s=get(id);return {readRoot:s.root,writeRoot:s.writeRoot,shareId:s.shareId,laptopOutput:s.laptopOutput};},usesShare:id=>[...sessions.values()].some(s=>s.shareId===id&&!s.engine.closed),shutdown:()=>{clearInterval(idle);for(const s of sessions.values())s.engine.stop();sessions.clear();}};
+  return {status,create,execute,importInput,preview,close,output,describe:id=>{const s=get(id);return {readRoot:s.root,writeRoot:s.writeRoot,shareId:s.shareId,laptopOutput:s.laptopOutput};},usesShare:id=>[...sessions.values()].some(s=>s.shareId===id&&!s.engine.closed),shutdown:()=>{clearInterval(idle);for(const s of sessions.values())s.engine.stop();sessions.clear();}};
 }

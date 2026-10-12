@@ -1,0 +1,25 @@
+{
+  "status": "bounded-original-open-copy-first-proof",
+  "sourceCommand": "app.openDialog -> file.open",
+  "originalBrowserFileChooser": true,
+  "mode": "copy-first",
+  "copiedBytes": 2847,
+  "providerInputRootBoundToSession": true,
+  "copyAcknowledgedBeforeNativeOpen": true,
+  "openRevision": 1,
+  "openDirty": false,
+  "openedObjects": 1,
+  "editRevision": 2,
+  "undoRevision": 3,
+  "undoRestoresOpenedSnapshotAndRender": true,
+  "laptopOriginalAndServerCopyUnchanged": true,
+  "cancelCreatesNoOpen": true,
+  "transferFailureLeavesMirrorUnhydrated": true,
+  "oversizedFileRejectedBeforeUpload": true,
+  "visibleCanvas": {
+    "brightPixels": 532934,
+    "distinctColorsAtLeast": 64
+  },
+  "uncaughtBrowserErrors": [],
+  "limitations": "Native one-spread documents only; folder permissions/on-demand/hybrid and save destination ACK/reopen/recovery/full parity pending"
+}

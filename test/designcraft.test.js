@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import path from 'node:path';
 import os from 'node:os';
+import {Readable} from 'node:stream';
 import {mkdtemp,mkdir,rm,readFile,writeFile,symlink} from 'node:fs/promises';
 import {createDesignCraft} from '../src/designcraft.js';
 import {createWorkspaceServer} from '../src/server.js';
@@ -12,7 +13,7 @@ class DesignFixture{
   async call(method,p={}){
     if(method==='__cw_identity')return {runtimeId:'creative-workspace-designcraft-v1',version:'fixture'};
     if(method==='state')return this.doc?{...structuredClone(this.doc),documentSnapshot:structuredClone(this.doc.documentSnapshot||this.doc)}:null;
-    if(method==='new'||method==='open'){if(method==='new')this.newParams=structuredClone(p);this.doc={title:'Fixture',dirty:method==='new',pageCount:1,spreads:[{index:0,pages:[{index:0,name:'1',bounds:[0,0,800,600]}],items:[]}],stories:[],layers:[],selection:{items:[]},history:{undo:[],redo:[]}};return {};}
+    if(method==='new'||method==='open'){if(method==='new')this.newParams=structuredClone(p);else this.openParams=structuredClone(p);this.doc={title:'Fixture',dirty:method==='new',pageCount:1,spreads:[{index:0,pages:[{index:0,name:'1',bounds:[0,0,800,600]}],items:[]}],stories:[],layers:[],selection:{items:[]},history:{undo:[],redo:[]}};return {};}
     if(method==='sample'){this.sampleCommandId='file.newSample';this.doc={title:'Original sample',dirty:true,pageCount:2,spreads:[{index:0,pages:[{index:0,name:'1',bounds:[0,0,800,600]}],items:[]}],stories:[],layers:[],selection:{items:[]},history:{undo:[],redo:[]}};return {commandId:this.sampleCommandId};}
     if(method==='render'){const png=Buffer.alloc(24);Buffer.from([137,80,78,71,13,10,26,10]).copy(png);png.writeUInt32BE(13,8);png.write('IHDR',12);png.writeUInt32BE(800,16);png.writeUInt32BE(600,20);return {pngBase64:png.toString('base64')};}
     if(method==='command'){this.edits++;this.commands.push(p.command);this.doc.dirty=true;return {id:1};}
@@ -37,6 +38,37 @@ test('Original file.new preset action reaches the owned worker unchanged and ret
   assert.deepEqual(worker?.newParams,{preset:'A4'});assert.equal(created.result.commandId,'file.new');assert.equal(created.stateVersion,1);
   assert.equal(created.document.title,'Fixture');assert.equal(created.document.dirty,true);assert.equal(created.documentSnapshot.title,'Fixture');assert.match(created.preview,/preview\.png\?v=1$/);
   await design.close(session.id,{discard:true});
+});
+
+test('Original file.open resolves only its provider root, ACKs server state and preserves open documents',async t=>{
+ const {root,project,design,engines,call}=await fixture(t);
+ await writeFile(path.join(project,'chosen.designcraft'),'fixture');await writeFile(path.join(root,'outside.designcraft'),'outside');
+ const session=await design.create(project);
+ for(const params of [{path:'../outside.designcraft'},{path:'chosen.designcraft',base64:'untrusted'},{path:'/private/chosen.designcraft'}])await assert.rejects(call(session.id,'file.open',params));
+ let linked=true;await symlink(path.join(root,'outside.designcraft'),path.join(project,'escape.designcraft')).catch(e=>{if(['EPERM','EACCES'].includes(e.code))linked=false;else throw e;});
+ if(linked)await assert.rejects(call(session.id,'file.open',{path:'escape.designcraft'}));
+ assert.equal(engines.find(e=>!e.closed).openParams,undefined);
+ const opened=await call(session.id,'file.open',{path:'chosen.designcraft'},{expectedVersion:0});
+ assert.equal(opened.result.commandId,'file.open');assert.equal(opened.stateVersion,1);assert.equal(opened.document.dirty,false);
+ assert.equal(opened.document.name,'chosen.designcraft');assert.equal(engines.find(e=>!e.closed).openParams.path,path.join(project,'chosen.designcraft'));
+ await assert.rejects(call(session.id,'file.open',{path:'chosen.designcraft'},{expectedVersion:0}),e=>e.code==='STATE_VERSION_CONFLICT');
+ await assert.rejects(call(session.id,'file.open',{path:'chosen.designcraft'},{expectedVersion:1}),/save and close/i);
+ await design.close(session.id);
+});
+
+test('Copy-first input is bounded and session-rooted, never writes through a laptop share or overwrites',async t=>{
+ const {project,design,call}=await fixture(t,{maxFileBytes:8});const session=await design.create(project);
+ const copied=await design.importInput(session.id,Readable.from(['chosen']),'imports/one/chosen.designcraft');
+ assert.equal(copied.mode,'copy-first');assert.equal(copied.sessionId,session.id);assert.equal(copied.bytes,6);
+ await assert.rejects(design.importInput(session.id,Readable.from(['new']),'imports/one/chosen.designcraft'));
+ assert.equal(await readFile(path.join(project,'imports/one/chosen.designcraft'),'utf8'),'chosen');
+ await assert.rejects(design.importInput(session.id,Readable.from(['123456789']),'imports/two/large.designcraft'),e=>e.status===413);
+ await assert.rejects(readFile(path.join(project,'imports/two/large.designcraft')));
+ await assert.rejects(design.importInput(session.id,Readable.from(['x']),'../outside.designcraft'));
+ const share=await design.create(project,{shareId:'selected-laptop',laptopOutput:true});
+ await assert.rejects(design.importInput(share.id,Readable.from(['x']),'imports/one/laptop.designcraft'),e=>e.status===403);
+ const opened=await call(session.id,'file.open',{path:copied.path},{expectedVersion:0});assert.equal(opened.result.commandId,'file.open');
+ await design.close(session.id);await design.close(share.id);
 });
 
 test('Design gateway rejects absent and oversized canonical document snapshots',async t=>{
@@ -79,6 +111,14 @@ test('Design gateway enforces auth/origin, share ownership and approved output',
   const base=`http://127.0.0.1:${server.address().port}`,headers={Authorization:`Basic ${Buffer.from('design:password').toString('base64')}`,'Content-Type':'application/json',Origin:base},api=(route,method='GET',body)=>fetch(base+route,{method,headers,body:body===undefined?undefined:JSON.stringify(body)});
   assert.equal((await fetch(base+'/api/engines/designcraft')).status,401);assert.equal((await api('/apps/designcraft/')).status,200);assert.equal((await fetch(base+'/api/designcraft/sessions',{method:'POST',headers:{...headers,Origin:'https://foreign.test'},body:'{}'})).status,403);
   const session=await (await api('/api/designcraft/sessions','POST',{})).json(),rpc=(method,params={})=>api(`/api/designcraft/sessions/${session.id}/rpc`,'POST',{method,params,requestId:crypto.randomUUID()});
+  const inputPath=`/api/designcraft/sessions/${session.id}/input?path=imports/test/selected.designcraft`;
+  const put=(route,override={})=>fetch(base+route,{method:'PUT',headers:{...headers,'Content-Type':'application/octet-stream',...override},body:Buffer.from('selected')});
+  assert.equal((await fetch(base+inputPath,{method:'PUT',headers:{Origin:base,'Content-Type':'application/octet-stream'},body:'x'})).status,401);
+  assert.equal((await put(inputPath,{Origin:'https://foreign.test'})).status,403);
+  assert.equal((await put(inputPath,{'Content-Type':'application/json'})).status,415);
+  assert.equal((await put(`/api/designcraft/sessions/${'0'.repeat(48)}/input?path=imports/test/selected.designcraft`)).status,404);
+  assert.equal((await put(inputPath)).status,201);
+  assert.equal((await put(inputPath)).status,409);
   assert.equal((await rpc('doc.new',{width:800,height:600,pages:1})).status,200);assert.equal((await rpc('doc.save',{path:'copy.designcraft'})).status,200);assert.equal((await api(`/api/designcraft/sessions/${session.id}/output?path=copy.designcraft`)).status,200);assert.equal((await api(`/api/designcraft/sessions/${session.id}/output?path=outside.designcraft`)).status,403);
   const foreign=await (await api('/api/storage/shares','POST',{app:'photocraft',name:'Other app',mode:'transfer'})).json();assert.equal((await api('/api/designcraft/sessions','POST',{sourceShareId:foreign.id,saveDestination:'server'})).status,404);
   const share=await (await api('/api/storage/shares','POST',{app:'designcraft',name:'Design copy',mode:'transfer',access:'read'})).json();assert.equal((await api('/api/designcraft/sessions','POST',{sourceShareId:share.id,saveDestination:'laptop'})).status,403);const shared=await (await api('/api/designcraft/sessions','POST',{sourceShareId:share.id,saveDestination:'server'})).json();assert.equal((await api(`/api/storage/shares/${share.id}`,'DELETE',{})).status,409);assert.equal((await api(`/api/designcraft/sessions/${shared.id}`,'DELETE',{})).status,200);assert.equal((await api(`/api/storage/shares/${share.id}`,'DELETE',{})).status,200);
