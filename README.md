@@ -2,7 +2,7 @@
 
 # Creative Workspace
 
-**Version: 0.2.0-alpha.15** — open-source, self-hosted, single-user prototype.
+**Version: 0.2.0-alpha.16** — open-source, self-hosted, single-user prototype; draft candidate.
 
 Bring your creative tools together in one browser studio. Choose an application, select your files, and access your own server from a lightweight laptop. The goal is **the original application interfaces and tools in the browser, with the server doing the heavy work**: photography, image editing, illustration, PDF, publishing, video and motion graphics. Browser controls run locally; document commands, data and previews travel to the server. No VNC or remote desktop is involved.
 
@@ -14,11 +14,11 @@ Bring your creative tools together in one browser studio. Choose an application,
 
 - **Original interfaces from one studio:** registered PhotoCraft, VectorCraft, PdfCraft, DesignCraft, LightCraft, FilmCraft and EffectCraft launch on the studio's own origin at `/original/<app>/`. Invalid or missing packages stay unavailable. [Installation and browser evidence](docs/studio-original-uis.md).
 - **FilmCraft MKV/WebM import fix:** a reviewed patch to the original media browser handles pending reads, duplicate requests, selection/bin changes, cancellation and metadata retry. Eight isolated browser cases passed; this is not a claim that every codec or video export works. [Fix and evidence](docs/filmcraft-mkv-import-handoff.md).
-- **DesignCraft PAR-03 edit slice:** the original UI shell sends allowlisted `file.new` and serialized pointer-created `frame.create` actions to the owned native worker. Chromium verified revision 1→3, changed 612×792 server renders, and stale-revision, foreign-session and invalid-Origin rejection. The local `DesignApp` remains unsynchronized; other tools, providers, save ACK and recovery are pending. [Bridge scope and evidence](docs/designcraft-par03-sample-bridge.md).
+- **DesignCraft PAR-03 edit/read-model slice:** the original UI shell sends allowlisted `file.new` and serialized pointer-created `frame.create` actions to the owned native worker. Every response refreshes title, pages, dirty state, revision and the 612×792 server render together; Chromium verifies revision 1→3 and stale-revision, foreign-session and invalid-Origin rejection. The local `DesignApp` remains unsynchronized; other tools, providers, save ACK and recovery are pending. [Bridge scope and evidence](docs/designcraft-par03-sample-bridge.md).
 - **Release foundations:** GitHub Actions builds Linux x64, Windows x64 and Apple Silicon macOS native-prototype bundles with an embedded Node 24 runtime, licenses, manifests, native smokes and checksums. FilmCraft and DesignCraft preview archives have separate build jobs. Alpha.15 Actions built and verified all target bundles, previews, ten release assets and checksums; keep the release draft because original DesignApp state, provider and full parity are pending. [Release evidence](docs/evidence/creative-workspace-alpha15-release.md).
 - **A visual project guide:** real screenshots of the studio and all eight applications, an original CW logo, installation instructions and explicit source/license attribution.
 
-The latest verified **public** download is [v0.2.0-alpha.7](https://github.com/vedranius/creative-workspace/releases/tag/v0.2.0-alpha.7). Alpha.14 and alpha.15 are verified **draft** releases with ten assets/checksums each; neither is a public download. Alpha.15 Actions/native/browser checks passed, but original DesignApp state and provider/save parity remain incomplete. Every new product feature/fix receives its own version and changelog; documentation-only updates retain the product version. [Release requirements and upgrade guide](docs/releases.md).
+The latest verified **public** download is [v0.2.0-alpha.7](https://github.com/vedranius/creative-workspace/releases/tag/v0.2.0-alpha.7). Alpha.14 and alpha.15 are verified **draft** releases; alpha.16 is a draft candidate whose Actions-built assets are pending. Original DesignApp state and provider/save parity remain incomplete. Every new product feature/fix receives its own version and changelog; documentation-only updates retain the product version. [Release requirements and upgrade guide](docs/releases.md).
 
 ## Applications and current status
 

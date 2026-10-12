@@ -2,6 +2,12 @@
 
 Each completed product update receives a new SemVer, changelog entry and immutable Actions-built release. Engine source versions remain independently pinned.
 
+## [0.2.0-alpha.16] — 2026-10-12 (draft candidate)
+
+- Refresh the full revisioned DesignCraft read model and its server render after every bridged `frame.create` response, including title, page count, dirty state and current revision.
+- Verify exact pinned-source patch registration, native worker render changes, two ordered browser edits through revision 3, and 404/403/409 session/Origin/stale-revision guards with no Chromium errors. [Browser/native evidence](docs/evidence/designcraft-par03-read-model-v3-browser.json).
+- Keep DesignCraft planned: the overlay does not synchronize the original local `DesignApp` Session or panels; original action dispatch, provider destination/retention, save ACK, reopen and recovery remain incomplete. Keep Actions assets draft-only.
+
 ## [0.2.0-alpha.15] — 2026-10-12 (draft candidate)
 
 - Extend the pinned original DesignCraft PAR-03 bridge with `file.new` and `frame.create`; the original worker owns document creation, pointer edit ordering, state revisions and PNG rendering.

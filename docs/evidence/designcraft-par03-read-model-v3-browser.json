@@ -1,0 +1,26 @@
+{
+  "url": "http://127.0.0.1:39531/original/designcraft/?serverEdit&webgl",
+  "ownedRuntime": true,
+  "commandId": "file.new",
+  "stateVersion": 1,
+  "documentTitle": "Server Edit Test",
+  "pageCount": 1,
+  "dirty": true,
+  "width": 612,
+  "height": 792,
+  "canvas": true,
+  "banner": "Server Edit Test \u2022 1 pages \u2022 unsaved \u2022 revision 1 \u2022 612\u00d7792",
+  "editCommand": "frame.create",
+  "afterEditRevision": 3,
+  "afterEditDimensions": [
+    612,
+    792
+  ],
+  "initialRenderSha256": "69d148418f028903fca9f034d73de6de8e11282b442b9fdda3b1f43b306c87b1",
+  "renderSha256": "d191113ef93be3dceee7b85e08509124288e29a2b90244083dd8c6433da5b1ea",
+  "foreignSessionStatus": 404,
+  "invalidOriginStatus": 403,
+  "staleRevisionStatus": 409,
+  "uncaughtBrowserErrors": 0,
+  "screenshot": "docs/evidence/designcraft-par03-read-model-v3.png"
+}

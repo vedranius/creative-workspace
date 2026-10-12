@@ -1,0 +1,14 @@
+{
+  "ownedRuntime": true,
+  "createCommandId": "file.new",
+  "editCommandId": "frame.create",
+  "createStateVersion": 1,
+  "editStateVersion": 2,
+  "title": "Server Edit Test",
+  "pageCount": 1,
+  "pngBytes": 14020,
+  "pngWidth": 612,
+  "pngHeight": 792,
+  "beforeRenderSha256": "69d148418f028903fca9f034d73de6de8e11282b442b9fdda3b1f43b306c87b1",
+  "afterRenderSha256": "d3593e91d865578eb865aa5f4bf06974281135f7899297c5816ebf1dd40fe218"
+}

@@ -1,6 +1,6 @@
 # Releases and installation
 
-Creative Workspace aims to let a lightweight laptop access a powerful self-hosted creative server through native browser interfaces. Original documents remain under explicitly selected file-provider permissions; rendering/editing runs on the server. No remote desktop transport is used. The latest published public release is 0.2.0-alpha.7. Alpha.10's draft and eight assets are verified. Alpha.11–13 did not create releases; alpha.13 failed because plain Git diff omitted a new reviewed source file after a successful Trunk build. Alpha.14 fixes exact diff collection without changing the reviewed patch. Actions, native/browser checks and all ten uploaded assets/checksums passed; the immutable tag and prerelease are verified. The release remains draft until full original-app/server/provider parity is accepted.
+Creative Workspace aims to let a lightweight laptop access a powerful self-hosted creative server through native browser interfaces. Original documents remain under explicitly selected file-provider permissions; rendering/editing runs on the server. No remote desktop transport is used. The latest published public release is 0.2.0-alpha.7. Alpha.14 and alpha.15 drafts and assets are verified; alpha.16 is a new draft candidate with its Actions run and downloadable assets pending. All remain draft until full original-app/server/provider parity is accepted.
 
 The current channel is **alpha**, for one user. Version 0.2.0-alpha.7 is published; Actions built the Linux x64, Windows x64 and Apple Silicon macOS bundles and passed all native bundle smokes. Each archive and its SHA256 sidecar is downloadable from [Releases](https://github.com/vedranius/creative-workspace/releases/tag/v0.2.0-alpha.7). Alpha.4 was not published because its macOS PhotoCraft smoke exposed a visual-change assertion race. Source archives automatically shown by GitHub are source code, not install bundles.
 
@@ -16,11 +16,15 @@ Alpha.9 was not released: WASM compilation succeeded, but shallow Git diff ID fo
 
 ## Original UI previews
 
+### Alpha.16 DesignCraft response/read-model refresh
+
+The `par-03-server-read-model-v3` preview applies each `frame.create` server response as one revisioned model/render update, including title, pages, dirty state and the preview image. The exact pinned UI was rebuilt and registered locally, and native/Chromium evidence verifies two ordered edits reach revision 3 with 404/403/409 guards. This remains an overlay bridge: the original local `DesignApp` still says “No document open.” Provider, acknowledged save, reopen, recovery, and original action dispatch are incomplete. Alpha.16 release verification is pending; keep `draftOnly`. See [handoff](par-03a-handoff.md).
+
 Build the original pinned upstream browser app, then use `npm run ui:install -- <app> <clean-source-checkout> <static-output>` (or the bundled Node with `scripts/install-original-ui.mjs`). Set `CW_ORIGINAL_UI_DIR` to the registration root when starting the studio; the default is `DATA_DIR/original-ui`. The dashboard offers only packages that pass identity, hash and confinement checks. See [instructions and evidence](studio-original-uis.md). Registration does not clone/build/execute arbitrary repositories. It requires a known original pin and preserves its licensing.
 
-### DesignCraft PAR-03 sample bridge
+### DesignCraft PAR-03 sample bridge (alpha.13 historical)
 
-The Actions-built `designcraft-par03-preview` archive, when attached to a verified draft, contains original DesignCraft pin `a127c6d5c3576972bbd60445f26d893db071eef3` plus `par-03-server-read-model-v2`. Register it into a **new** original-UI root using `CW_ORIGINAL_UI_DIR`; `/original/designcraft/?serverSample` runs the one allowlisted `file.newSample` operation and reflects a few revisioned read-model fields alongside its bounded render. Other original handlers still use the local UI Session; editing, provider, save ACK, recovery and full parity remain incomplete. Keep DesignCraft planned and the release draft. See [bridge scope and evidence](designcraft-par03-sample-bridge.md).
+The earlier sample bridge used original DesignCraft pin `a127c6d5c3576972bbd60445f26d893db071eef3` plus `par-03-server-read-model-v2`. It ran only the allowlisted `file.newSample` operation and reflected a few revisioned read-model fields. Alpha.16 supersedes that preview with `par-03-server-read-model-v3`; the original local `DesignApp` Session, other handlers, provider, save ACK, recovery and full parity remain incomplete. Keep DesignCraft planned and the release draft. See [bridge scope and evidence](designcraft-par03-sample-bridge.md).
 
 ### Alpha.15 DesignCraft edit bridge candidate
 
@@ -28,7 +32,7 @@ Alpha.15 uses the same pinned DesignCraft UI, with patch variant `par-03-server-
 
 The original previews process locally in WASM; File Open/save/export use upstream browser host behavior. Shared server/laptop on-demand/hybrid/copy-first modes, destination-write acknowledgement and recovery are not integrated into these original UIs. A browser download or a preview's clean indicator is not evidence that the selected disk destination acknowledged a write. Keep original application availability pending until those paths pass acceptance.
 
-`release/config.json` keeps alpha.15 `draftOnly`; a tag-triggered Actions run must build/check each native target, build separate FilmCraft/DesignCraft preview archives, verify browser/native evidence and checksums, then retain the GitHub Release draft. Do not turn it into a public complete-suite claim while original UI packaging/parity evidence is missing.
+`release/config.json` keeps alpha.16 `draftOnly`; its main-branch workflow must build/check each native target, build separate FilmCraft/DesignCraft preview archives, verify browser/native evidence and checksums, then retain the GitHub Release draft. Do not turn it into a public complete-suite claim while original UI packaging/parity evidence is missing.
 
 ## FilmCraft original UI preview archive
 

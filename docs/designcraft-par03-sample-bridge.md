@@ -1,5 +1,9 @@
 # DesignCraft PAR-03 server read-model slice
 
+## Current edit/read-model patch (alpha.16 candidate)
+
+`par-03-server-read-model-v3` supersedes the alpha.15 shell response handling: each `frame.create` response refreshes revision, title/pages/dirty metadata, banner and bounded server PNG together. See [browser evidence](evidence/designcraft-par03-read-model-v3-browser.json), [native evidence](evidence/designcraft-par03-read-model-v3-native.json), and [screenshot](evidence/designcraft-par03-read-model-v3.png). The original `DesignApp` Session remains empty and its panels still say no document is open; actions are not dispatched from the original app. Keep DesignCraft planned.
+
 Updated 2026-10-11 for alpha.13. This is a verified experimental vertical slice, not a server-backed DesignCraft port.
 
 ## Alpha.15 bounded edit bridge (2026-10-12)

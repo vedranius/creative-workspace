@@ -12,10 +12,10 @@ index b05be39367b0eeb780fc1759c79f61d53f196abf..441f58de395e6d02527ce1e42f0be4a5
  </html>
 diff --git a/apps/designcraft-web/server-bridge.js b/apps/designcraft-web/server-bridge.js
 new file mode 100644
-index 0000000000000000000000000000000000000000..c22e5777ab7191782dbc90ae859a782014d5f9d0
+index 0000000000000000000000000000000000000000..009af4530fee5c970380e28bfa4c13907c9c862c
 --- /dev/null
 +++ b/apps/designcraft-web/server-bridge.js
-@@ -0,0 +1,66 @@
+@@ -0,0 +1,80 @@
 +// PAR-03 bounded experiment: invoke one original command on the owned server worker.
 +// The original DesignApp remains the shell; this bounded edit demonstration owns state only on the server.
 +const params = new URLSearchParams(location.search);
@@ -46,6 +46,21 @@ index 0000000000000000000000000000000000000000..c22e5777ab7191782dbc90ae859a7820
 +      image.id = "cw_server_render"; image.alt = `Server-rendered DesignCraft page, revision ${reply.stateVersion}`;
 +      image.dataset.stateVersion = String(reply.stateVersion); image.dataset.commandId = reply.result.commandId; image.dataset.documentTitle = model.title; image.dataset.pageCount = String(model.pageCount); image.dataset.dirty = String(model.dirty); image.src = reply.preview;
 +      Object.assign(image.style, {position:"fixed",left:"34%",top:"24%",width:"32%",height:"52%",objectFit:"contain",zIndex:"2",pointerEvents:"auto",touchAction:"none",filter:"drop-shadow(0 2px 6px #0008)"});
++      const applyReadModel = (value, commandId) => {
++        const model = value.document;
++        if (!Number.isSafeInteger(value.stateVersion) || !value.preview || !model || typeof model.title !== "string" || !Number.isSafeInteger(model.pageCount) || typeof model.dirty !== "boolean") throw new Error("Server response did not contain a revisioned DesignCraft read model and render");
++        stateVersion = value.stateVersion;
++        image.dataset.commandId = commandId;
++        image.dataset.stateVersion = String(stateVersion);
++        image.dataset.documentTitle = model.title;
++        image.dataset.pageCount = String(model.pageCount);
++        image.dataset.dirty = String(model.dirty);
++        image.src = value.preview;
++        image.alt = `Server-rendered ${model.title}, ${model.pageCount} pages, revision ${stateVersion}`;
++        banner.dataset.stateVersion = String(stateVersion);
++        banner.dataset.dirty = String(model.dirty);
++        banner.textContent = `${model.title} • ${model.pageCount} pages • ${model.dirty ? "unsaved" : "saved"} • revision ${stateVersion}`;
++      };
 +      let dragStart = null;
 +      image.addEventListener("pointerdown", event => { if (!image.naturalWidth) return; event.preventDefault(); event.stopPropagation(); image.setPointerCapture(event.pointerId); dragStart = {x:event.offsetX, y:event.offsetY}; });
 +      image.addEventListener("pointerup", event => {
@@ -60,9 +75,8 @@ index 0000000000000000000000000000000000000000..c22e5777ab7191782dbc90ae859a7820
 +          const expectedVersion = stateVersion;
 +          const result = await post(`/api/designcraft/sessions/${sessionId}/rpc`, {method:"frame.create",params:{rect:[Math.min(x1,x2),Math.min(y1,y2),Math.max(x1,x2),Math.max(y1,y2)],content:"text",text:"Server edited story"},requestId:crypto.randomUUID(),expectedVersion});
 +          if (result.stateVersion <= stateVersion) throw new Error("Out-of-order server revision rejected");
-+          stateVersion = result.stateVersion;
-+          image.dataset.commandId = "frame.create"; image.dataset.stateVersion = String(stateVersion); image.src = `${result.preview}&_=${stateVersion}`;
-+          banner.textContent = `Server frame.create • revision ${stateVersion} • ${result.document?.dirty ? "unsaved" : "saved"}`; banner.dataset.stateVersion = String(stateVersion);
++          applyReadModel(result, "frame.create");
++          image.src = `${result.preview}&_=${stateVersion}`;
 +        }).catch(error => { banner.textContent = `Server edit failed: ${error.message}`; banner.style.background = "#6d2222"; });
 +      });
 +      image.addEventListener("load", () => {

@@ -1,5 +1,23 @@
 # PAR-03 handoff — bounded server read-model slice verified
 
+## Alpha.16 server response/read-model refresh candidate (2026-10-12)
+
+Patch variant `par-03-server-read-model-v3` applies the complete response after `frame.create`: source command ID, server state revision, document title, page count, dirty state, and server preview URL are refreshed together. The canvas image metadata and status banner now reflect the same latest revision after edits.
+
+- Exact pinned source patch SHA-256: `8aef8238c49ada00ac085f25b0fa5b35da18eed5e90247a17aa181c81e1536eb`; `git apply --check` and exact source registration pass.
+- Rebuilt original WASM for pin `a127c6d5c3576972bbd60445f26d893db071eef3` with the low-impact wrapper; registration succeeded into a disposable package root.
+- Native worker: `file.new` revision 1, `frame.create` revision 2, 612×792 bounded PNG and changed digest.
+- Chromium: two serialized pointer-created `frame.create` operations reach revision 3; title `Server Edit Test`, 1 page, dirty=true, image and banner revision 3; foreign session/Origin/stale revision return 404/403/409; zero uncaught errors. [Browser JSON](evidence/designcraft-par03-read-model-v3-browser.json), [native JSON](evidence/designcraft-par03-read-model-v3-native.json), [screenshot](evidence/designcraft-par03-read-model-v3.png).
+- Local verification: `npm run check`, `npm test` 46/46 and `git diff --check` pass. The first browser attempt caught a truncated JS sidecar during patch regeneration; the complete source diff was regenerated, rebuilt and the passing run above uses that corrected exact patch.
+
+This is a shell-side response refresh only. The screenshot still shows the upstream `DesignApp` saying “No document open”; its actual Session, panels, original command/tool dispatch and rendering are unsynchronized. It is not DesignCraft availability. No file provider destination/retention, laptop write ACK, reopen or recovery is accepted. Keep release draft-only.
+
+Next exact task: route one actual upstream `DesignApp` read-model/action through the server-owned Session and surface its acknowledged response inside the native app state/UI. Inspect the public API seam in the pinned `DesignApp` (`run`, public `session`) and its web runner, build an isolated reviewed source patch, and add test assertions for an actual original action ID. Preserve `engines/filmcraft/` and all protected runtime sessions.
+
+### Alpha.16 release gate
+
+Product version is `0.2.0-alpha.16`. The tag/release/assets have not yet been verified. Inspect remote tags/releases and current workflow; authenticate as `vedranius`; push normally; verify CI, the immutable tag/draft, target archives and SHA256 sidecars. Keep the draft because original `DesignApp` state/action/provider/save/recovery parity is incomplete.
+
 ## Alpha.15 edit slice and draft release verified (2026-10-12)
 
 Added reviewed DesignCraft `par-03-server-edit-v1`: `file.new`, then serialized pointer-created `frame.create`, with revisioned server PNG over the original UI shell. Native proof reaches revision 2 and changes render digest. Chromium sends two rapid gestures, reaches revision 3 and verifies same-origin guards (404 foreign session, 403 invalid Origin, 409 stale revision), with zero uncaught errors. Evidence: [native report](evidence/designcraft-par03-server-edit-native.json), [browser report](evidence/designcraft-par03-server-edit.json), [screenshot](evidence/designcraft-par03-server-edit.png). Local `npm run check`, full `npm test` 46/46, release validation, native smoke, browser smoke and `git diff --check` passed. Optimized UI/native local builds used the low-impact wrapper.
