@@ -1,0 +1,34 @@
+{
+  "status": "candidate-only; not integrated or accepted as an editor",
+  "runAtUtc": "2026-10-12T10:18:41Z",
+  "sourcePin": "a127c6d5c3576972bbd60445f26d893db071eef3",
+  "candidatePatch": "patches/designcraft/a127c6d5/par-03-canonical-snapshot-candidate.patch",
+  "candidatePatchSha256": "056ead05b45134ecae19cd93abc8b8fe86a2be1c2c09a7c2093df842a50cba53",
+  "changes": [
+    "Carries a canonical serialized DesignCraft Document in the owned worker state reply.",
+    "Rejects canonical snapshot JSON larger than 16 MiB before returning it.",
+    "Round-trip tests the snapshot through the pinned Document serde schema."
+  ],
+  "verification": {
+    "nativeBuild": "cargo build --offline -p cw-designcraft-engine passed through low-impact-build.py",
+    "nativeTests": "cargo test --offline -p cw-designcraft-engine passed, 3/3",
+    "workerSmoke": {
+      "newMethod": "new",
+      "preset": "A4",
+      "newRequestAcknowledged": true,
+      "stateRequestAcknowledged": true,
+      "canonicalDocumentReturned": true,
+      "canonicalDocumentSpreadCount": 1
+    },
+    "patchReverseCheck": "git apply --reverse --check passed against the candidate",
+    "nice": 10,
+    "cargoJobs": 1
+  },
+  "notProven": [
+    "The upstream original file.new caller is not connected to an asynchronous pending/ACK/error lifecycle.",
+    "The original DesignApp Session, panels and canvas have not hydrated from the acknowledged snapshot.",
+    "No browser proof, original UI processing, edit/save/reopen, provider ACK, or recovery evidence was produced.",
+    "This candidate does not change the catalog status or establish DesignCraft availability."
+  ],
+  "nextExactStep": "Apply and review this worker candidate together with a source-level original DesignApp host-action lifecycle: preserve file.new and preset, await the server worker ACK, validate action ID/revision/canonical snapshot as one response, hydrate the original UI read model from that acknowledged snapshot without running a duplicate local engine mutation, then prove the original preset card reaches the owned worker and the original UI updates in a real browser."
+}
