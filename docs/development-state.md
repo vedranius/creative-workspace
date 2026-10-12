@@ -6,6 +6,8 @@ First Actions build `38204423605` passed the new A4 browser smoke but exposed th
 
 **2026-10-12 PAR-03 implementation boundary:** pinned `DesignApp::run` is synchronous and dispatches to a concrete local `Session`; panels/tools also directly read/execute against it. A one-off async shell RPC cannot safely synchronize the original application. The first real caller is the New Document preset card (`chrome.rs` → `app.run("file.new", {preset})`). Next replace the source-level session/action boundary with ordered pending/ACK/error handling backed by the server-owned Session; make the original UI consume the acknowledged read-model without a local duplicate mutation. Details and exact acceptance are in [PAR-03 handoff](par-03a-handoff.md). No product behavior or availability changed in this checkpoint.
 
+**2026-10-12 PAR-03 hydration probe:** pinned `Document` derives `Deserialize`, and `Session::add_document(DocState::new(...))` is a possible hydration primitive. The worker currently returns `document.inspect` projection rather than canonical `Document` JSON, so that reply cannot safely hydrate the original Session. No source behavior or build/browser evidence changed. Next add a bounded canonical snapshot to the owned worker state reply, route the real `file.new` caller through pending/ACK/error, and apply only a validated acknowledged snapshot. See [PAR-03 handoff](par-03a-handoff.md).
+
 Updated: 2026-10-12. Read this file, `../AGENTS.md`, and the relevant roadmap row before starting a bounded feature.
 
 ## Current milestone

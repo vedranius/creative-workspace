@@ -2,6 +2,12 @@
 
 ## Session/action bridge feasibility boundary (2026-10-12)
 
+### Follow-up probe: canonical document hydration boundary (2026-10-12)
+
+Inspected the pinned source in the existing disposable `/tmp/cw-par03-trunk-repro` checkout, without editing or building it. `designcraft_doc::Document` derives `Deserialize`, and `Session::add_document(DocState::new(document, None))` provides a possible in-process hydration primitive. However, the alpha.17 worker's `state` response is `document.inspect` output: an inspection/read-model projection, not the canonical serialized `Document`. The UI cannot safely deserialize that projection as its engine document, and passing only the projection into a panel or overlay would preserve the stale-session defect. The gateway's `file.new` response currently exposes that projection plus render, not a document snapshot.
+
+Next narrow implementation boundary: extend the owned worker's bounded state reply with a canonical `Document` snapshot from its authoritative `DocState`, then route the actual original `file.new` caller through a pending/ACK/error host action and hydrate the browser `Session` only after ACK. Keep the snapshot under the existing response-size cap, do not echo it into the UI until command ID, revision, and snapshot validate together, and test hydration against the same pinned source schema. This is a feasibility finding only; no product behavior, test/build evidence, or availability changed in this run.
+
 ### Alpha.17 completed server-side action seam
 
 The workspace gateway now accepts `method: "file.new"` only with `{ "preset": <string up to 100 characters> }`, forwards that exact original preset parameter through the owned native worker's `file.new` call, and returns the worker ACK, state revision, read model and bounded render. Protocol-fixture coverage rejects extra fields; actual native and Chromium smokes verified A4 at revision 1 with a 595×842 server PNG and zero browser errors ([browser report](evidence/designcraft-par03-file-new-browser.json)). This closes only the gateway contract: the upstream preset click still calls synchronous local `DesignApp::run`, and its local session/panels remain unsynchronized. Keep DesignCraft planned. Next attach that original caller through an asynchronous pending/ACK/error boundary and make the app consume acknowledged server state without local command execution.
