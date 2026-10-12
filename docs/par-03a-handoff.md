@@ -16,7 +16,7 @@ Next exact task: route one actual upstream `DesignApp` read-model/action through
 
 ### Alpha.16 release gate
 
-Product version is `0.2.0-alpha.16`. The tag/release/assets have not yet been verified. Inspect remote tags/releases and current workflow; authenticate as `vedranius`; push normally; verify CI, the immutable tag/draft, target archives and SHA256 sidecars. Keep the draft because original `DesignApp` state/action/provider/save/recovery parity is incomplete.
+Product version is `0.2.0-alpha.16`. Checks `38194170672` and Build/release `38194170670` passed. GitHub account `vedranius` verified. Immutable tag `v0.2.0-alpha.16` points to `3f51e7d721bc0432bc42a5fbd7ff52df52809175`; draft prerelease `RE_kwDOVDgEq84YcV1b` contains five Actions archives and five checksum sidecars, all downloaded and verified. See [release evidence](evidence/creative-workspace-alpha16-release.md). Keep the draft because original `DesignApp` state/action/provider/save/recovery parity is incomplete.
 
 ## Alpha.15 edit slice and draft release verified (2026-10-12)
 

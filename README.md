@@ -2,7 +2,7 @@
 
 # Creative Workspace
 
-**Version: 0.2.0-alpha.16** — open-source, self-hosted, single-user prototype; draft candidate.
+**Version: 0.2.0-alpha.16** — open-source, self-hosted, single-user prototype; verified draft release.
 
 Bring your creative tools together in one browser studio. Choose an application, select your files, and access your own server from a lightweight laptop. The goal is **the original application interfaces and tools in the browser, with the server doing the heavy work**: photography, image editing, illustration, PDF, publishing, video and motion graphics. Browser controls run locally; document commands, data and previews travel to the server. No VNC or remote desktop is involved.
 
@@ -18,7 +18,7 @@ Bring your creative tools together in one browser studio. Choose an application,
 - **Release foundations:** GitHub Actions builds Linux x64, Windows x64 and Apple Silicon macOS native-prototype bundles with an embedded Node 24 runtime, licenses, manifests, native smokes and checksums. FilmCraft and DesignCraft preview archives have separate build jobs. Alpha.15 Actions built and verified all target bundles, previews, ten release assets and checksums; keep the release draft because original DesignApp state, provider and full parity are pending. [Release evidence](docs/evidence/creative-workspace-alpha15-release.md).
 - **A visual project guide:** real screenshots of the studio and all eight applications, an original CW logo, installation instructions and explicit source/license attribution.
 
-The latest verified **public** download is [v0.2.0-alpha.7](https://github.com/vedranius/creative-workspace/releases/tag/v0.2.0-alpha.7). Alpha.14 and alpha.15 are verified **draft** releases; alpha.16 is a draft candidate whose Actions-built assets are pending. Original DesignApp state and provider/save parity remain incomplete. Every new product feature/fix receives its own version and changelog; documentation-only updates retain the product version. [Release requirements and upgrade guide](docs/releases.md).
+The latest verified **public** download is [v0.2.0-alpha.7](https://github.com/vedranius/creative-workspace/releases/tag/v0.2.0-alpha.7). Alpha.14, alpha.15 and alpha.16 are verified **draft** releases; alpha.16 has ten Actions-built assets with verified SHA256 sidecars. Original DesignApp state and provider/save parity remain incomplete. Every new product feature/fix receives its own version and changelog; documentation-only updates retain the product version. [Release requirements and upgrade guide](docs/releases.md).
 
 ## Applications and current status
 

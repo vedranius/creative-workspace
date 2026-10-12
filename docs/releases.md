@@ -1,6 +1,6 @@
 # Releases and installation
 
-Creative Workspace aims to let a lightweight laptop access a powerful self-hosted creative server through native browser interfaces. Original documents remain under explicitly selected file-provider permissions; rendering/editing runs on the server. No remote desktop transport is used. The latest published public release is 0.2.0-alpha.7. Alpha.14 and alpha.15 drafts and assets are verified; alpha.16 is a new draft candidate with its Actions run and downloadable assets pending. All remain draft until full original-app/server/provider parity is accepted.
+Creative Workspace aims to let a lightweight laptop access a powerful self-hosted creative server through native browser interfaces. Original documents remain under explicitly selected file-provider permissions; rendering/editing runs on the server. No remote desktop transport is used. The latest published public release is 0.2.0-alpha.7. Alpha.14, alpha.15 and alpha.16 drafts and assets are verified. All remain draft until full original-app/server/provider parity is accepted. See [alpha.16 release verification](evidence/creative-workspace-alpha16-release.md).
 
 The current channel is **alpha**, for one user. Version 0.2.0-alpha.7 is published; Actions built the Linux x64, Windows x64 and Apple Silicon macOS bundles and passed all native bundle smokes. Each archive and its SHA256 sidecar is downloadable from [Releases](https://github.com/vedranius/creative-workspace/releases/tag/v0.2.0-alpha.7). Alpha.4 was not published because its macOS PhotoCraft smoke exposed a visual-change assertion race. Source archives automatically shown by GitHub are source code, not install bundles.
 
@@ -18,7 +18,7 @@ Alpha.9 was not released: WASM compilation succeeded, but shallow Git diff ID fo
 
 ### Alpha.16 DesignCraft response/read-model refresh
 
-The `par-03-server-read-model-v3` preview applies each `frame.create` server response as one revisioned model/render update, including title, pages, dirty state and the preview image. The exact pinned UI was rebuilt and registered locally, and native/Chromium evidence verifies two ordered edits reach revision 3 with 404/403/409 guards. This remains an overlay bridge: the original local `DesignApp` still says “No document open.” Provider, acknowledged save, reopen, recovery, and original action dispatch are incomplete. Alpha.16 release verification is pending; keep `draftOnly`. See [handoff](par-03a-handoff.md).
+The `par-03-server-read-model-v3` preview applies each `frame.create` server response as one revisioned model/render update, including title, pages, dirty state and the preview image. The exact pinned UI was rebuilt and registered locally, and native/Chromium evidence verifies two ordered edits reach revision 3 with changed PNG bytes and 404/403/409 guards. This remains an overlay bridge: the original local `DesignApp` still says “No document open.” Provider, acknowledged save, reopen, recovery, and original action dispatch are incomplete. Alpha.16 Actions checks, immutable tag, draft release, ten assets and checksums are verified; keep `draftOnly`. See [handoff](par-03a-handoff.md) and [release evidence](evidence/creative-workspace-alpha16-release.md).
 
 Build the original pinned upstream browser app, then use `npm run ui:install -- <app> <clean-source-checkout> <static-output>` (or the bundled Node with `scripts/install-original-ui.mjs`). Set `CW_ORIGINAL_UI_DIR` to the registration root when starting the studio; the default is `DATA_DIR/original-ui`. The dashboard offers only packages that pass identity, hash and confinement checks. See [instructions and evidence](studio-original-uis.md). Registration does not clone/build/execute arbitrary repositories. It requires a known original pin and preserves its licensing.
 
@@ -32,7 +32,7 @@ Alpha.15 uses the same pinned DesignCraft UI, with patch variant `par-03-server-
 
 The original previews process locally in WASM; File Open/save/export use upstream browser host behavior. Shared server/laptop on-demand/hybrid/copy-first modes, destination-write acknowledgement and recovery are not integrated into these original UIs. A browser download or a preview's clean indicator is not evidence that the selected disk destination acknowledged a write. Keep original application availability pending until those paths pass acceptance.
 
-`release/config.json` keeps alpha.16 `draftOnly`; its main-branch workflow must build/check each native target, build separate FilmCraft/DesignCraft preview archives, verify browser/native evidence and checksums, then retain the GitHub Release draft. Do not turn it into a public complete-suite claim while original UI packaging/parity evidence is missing.
+`release/config.json` keeps alpha.16 `draftOnly`; its main-branch workflow built and checked each native target, separate FilmCraft/DesignCraft preview archives, browser/native evidence and checksums, then retained the GitHub Release draft. Do not turn it into a public complete-suite claim while original UI packaging/parity evidence is missing.
 
 ## FilmCraft original UI preview archive
 
