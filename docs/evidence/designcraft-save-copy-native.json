@@ -1,0 +1,27 @@
+{
+  "status": "bounded-original-save-copy-native-browser-proof",
+  "sourceCommit": "a127c6d5c3576972bbd60445f26d893db071eef3",
+  "sourcePatch": "patches/designcraft/a127c6d5/par-03-save-copy-candidate.patch",
+  "sourcePatchSha256": "373f47736bbd6878e2ee79c9bba46bbb4a5cdf32aca973fbc270bb6ae0af994e",
+  "nativeWorker": {
+    "source": "engines/designcraft/native/src/main.rs",
+    "build": "cargo build --offline -p cw-designcraft-engine through the host low-impact wrapper (one job, at most two CPUs, nice 10)",
+    "sha256": "1d91d883afd1038f017e982f3364b49c44b3d4c723ec810f83cc302bd6544785",
+    "operation": "save_copy delegates to upstream file.saveACopy with a unique private staging path and leaves the saved-state pointer unchanged"
+  },
+  "optimizedUiWasmSha256": "7546ee5a72619e8acbcd7525bf300c929bd6cc6c64177e1c415222a1189a8560",
+  "browserEvidence": "designcraft-save-copy-browser.json",
+  "browserReportStatus": "bounded-original-open-and-server-save-copy-proof",
+  "proof": [
+    "Original browser Open chooser copies input to the session root and the native worker opens it",
+    "Original File Save a Copy shortcut/dialog reaches the native file.saveACopy command",
+    "Native byte count and atomic server workspace write are acknowledged before success",
+    "Current document remains dirty and keeps its original filename",
+    "Existing target is rejected and the retained copy reopens through the original chooser"
+  ],
+  "limitations": [
+    "Candidate is unregistered; DesignCraft remains planned",
+    "Only one-spread native .designcraft documents, server destination and workspace retention are covered",
+    "Laptop output acknowledgement, other retention policies, recovery, folder permissions/on-demand/hybrid and full UI parity are pending"
+  ]
+}

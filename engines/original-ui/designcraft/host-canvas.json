@@ -2,21 +2,26 @@
   "schemaVersion": 1,
   "app": "designcraft",
   "commit": "a127c6d5c3576972bbd60445f26d893db071eef3",
-  "id": "par-03-original-file-open-copy-first-v1",
-  "patch": "patches/designcraft/a127c6d5/par-03-file-open-candidate.patch",
-  "sha256": "41c89db9506812f355e200a835fbb333fc3243f35ee45fe2540e507d98ff732f",
+  "id": "par-03-original-save-copy-server-v1",
+  "patch": "patches/designcraft/a127c6d5/par-03-save-copy-candidate.patch",
+  "sha256": "373f47736bbd6878e2ee79c9bba46bbb4a5cdf32aca973fbc270bb6ae0af994e",
   "status": "bounded-candidate; catalog planned",
   "scope": [
     "Original app.openDialog / browser file chooser",
     "Streamed selected native file through shared receiveFile transfer",
     "Session-rooted import ACK before original server file.open",
     "Server canonical snapshot/PNG and original filename presentation",
-    "Cancellation/upload failure/size limit block open without touching original"
+    "Cancellation/upload failure/size limit block open without touching original",
+    "Original File → Save a Copy… action writes a new server-workspace copy",
+    "Native file.saveACopy preserves the source filename and dirty state",
+    "Atomic server write ACK precedes success and existing targets are never overwritten"
   ],
   "limitations": [
     "Native one-spread .designcraft documents, single-file copy-first only",
     "Original UI folder mode selection/on-demand/hybrid and real folder permissions remain pending",
-    "Save destination ACK/reopen/recovery and full parity are not accepted",
+    "Laptop destination fails closed until browser write acknowledgement exists",
+    "Only explicit workspace retention is supported; temporary and managed retention remain pending",
+    "Session recovery and full parity are not accepted",
     "Candidate not registered or activated in a live studio"
   ]
 }

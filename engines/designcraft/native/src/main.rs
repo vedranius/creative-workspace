@@ -255,6 +255,13 @@ fn answer(h: &mut Headless, saved: &mut Option<Arc<Document>>, read: &Path, writ
             }
             Ok(value)
         }
+        "save_copy" => {
+            let file = output_path(write, p.get("path").and_then(Value::as_str).ok_or("Missing copy filename")?)?;
+            budget(&h.session.active().ok_or("No document")?.doc)?;
+            let mut value = h.call("engine.execute", json!({"command":"file.saveACopy","params":{"path":file}}))?;
+            if let Some(o) = value.as_object_mut() { o.remove("path"); }
+            Ok(value)
+        }
         "mark_saved" => {
             *saved = Some(h.session.active().ok_or("No document")?.doc.clone());
             Ok(json!({"saved":true}))

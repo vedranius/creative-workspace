@@ -1,6 +1,6 @@
 # Original DesignCraft Open — single-file copy-first candidate
 
-Creative Workspace alpha.24 (verification correction alpha.25) connects the pinned original DesignCraft welcome Open control and File/Open shortcut to the browser's native file chooser. The source remains upstream `a127c6d5c3576972bbd60445f26d893db071eef3` with a reviewed portability/backend patch; it is not a replacement editor.
+Creative Workspace alpha.24 (verification correction alpha.25) connects the pinned original DesignCraft welcome Open control and File/Open shortcut to the browser's native file chooser. Alpha.26 builds on that candidate with server-retained Save Copy; the cumulative scope is described in [DesignCraft host-canvas candidate](designcraft-host-canvas.md). Source remains upstream `a127c6d5c3576972bbd60445f26d893db071eef3` with reviewed integration patches; it is not a replacement editor.
 
 The browser host accepts one `.designcraft` file up to 64 MiB. It sends the selected File object through fetch without reading/parsing its archive into a client document. The common `receiveFile` transfer primitive receives bounded bytes under an `imports/<unique-id>/` path in the **existing session's server root**. Changing the panel's application workspace during the chooser cannot redirect this session's input. Existing copies are never overwritten, foreign sessions/Origins/auth failures are rejected, and inputs are not written through a laptop share.
 
@@ -28,10 +28,10 @@ One real Chromium context chooses the original Open control, cancels once, then 
 
 ## Release and installation
 
-Alpha.25 requires Actions builds, all OS checks, the original Open browser job, an immutable new tag, a draft and six archive/checksum pairs before download claims. The host-canvas candidate archive remains separate from registered original UI packages; do not copy it over a live studio or an unsaved document. The three native prototype bundles, legacy preview and FilmCraft preview retain their existing limited acceptance. No complete creative-suite claim follows from this candidate.
+Alpha.25 publication is verified; alpha.26 requires its own Actions builds, all OS checks, original Open/Save Copy browser job, immutable tag, draft and six archive/checksum pairs before download claims. The host-canvas candidate archive remains separate from registered original UI packages; do not copy it over a live studio or unsaved document. No complete creative-suite claim follows from this candidate.
 
-Next after release verification: source/provider selection in the original host workflow, separate destination/retention, original save-copy with destination ACK, then reopen/recovery and full parity. Keep provider and upstream-update gates intact.
+The cumulative browser proof now covers the original server Save Copy flow and reopening of the retained copy. Next implement supported laptop write acknowledgement and remaining provider/recovery/full-parity requirements. Keep provider and upstream-update gates intact.
 
-The initial alpha.24 macOS fixture compared the uncanonicalized temporary-directory alias with the correctly canonicalized engine input. Alpha.25 uses `realpath` in that assertion. Application behavior/source patch/WASM/browser evidence are unchanged; final three-OS Checks and draft assets remain pending.
+The alpha.24 macOS fixture compared the uncanonicalized temporary-directory alias with the correctly canonicalized engine input. Alpha.25 uses `realpath` in that assertion; its Actions verification is recorded above.
 
-Publication checkpoint 2026-10-13: commits `8f3fcdd` (feature) and `83276a9` (alpha.25 canonical macOS verification) are pushed; [Checks 38314679443](https://github.com/vedranius/creative-workspace/actions/runs/38314679443) passed all three OS. [Alpha.25 build/release 38314678319](https://github.com/vedranius/creative-workspace/actions/runs/38314678319) is pending behind alpha.24. Final tag/draft/download assets remain unverified.
+Publication checkpoint 2026-10-13: commits `8f3fcdd` (Open feature) and `83276a9` (alpha.25 canonical macOS verification) are pushed; [Checks 38314679443](https://github.com/vedranius/creative-workspace/actions/runs/38314679443) passed all three OS. Alpha.25 Actions Build/release `38314678319`, immutable tag and six archive/checksum pairs are verified (draft retained). Alpha.26 Save Copy has separate local browser/build evidence; its own publication remains pending.

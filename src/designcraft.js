@@ -7,8 +7,8 @@ import {EngineProcess} from './photocraft.js';
 import {resolveWorkspace,isWithin} from './storage.js';
 import {importSegments,receiveFile} from './transfers.js';
 
-const nativeMethods=new Set(['__cw_identity','new','sample','open','state','render','command','export','mark_saved']);
-const methods=new Set(['state','heartbeat','file.new','file.open','doc.new','doc.sample','doc.open','doc.save','page.select','frame.create','select.set','select.all','select.none','transform.move','transform.resize','object.fill','object.stroke','swatch.create','story.setText','type.char','edit.clear','edit.undo','edit.redo']);
+const nativeMethods=new Set(['__cw_identity','new','sample','open','state','render','command','export','save_copy','mark_saved']);
+const methods=new Set(['state','heartbeat','file.new','file.open','doc.new','doc.sample','doc.open','doc.save','file.saveACopy','page.select','frame.create','select.set','select.all','select.none','transform.move','transform.resize','object.fill','object.stroke','swatch.create','story.setText','type.char','edit.clear','edit.undo','edit.redo']);
 const fail=(message,status=400,code)=>Object.assign(new Error(message),{status,...(code?{code}:{})});
 const relative=value=>{try{importSegments(value);return value;}catch{throw fail('Use a relative path inside this application workspace');}};
 const number=(value,min,max,label)=>{if(typeof value!=='number'||!Number.isFinite(value)||value<min||value>max)throw fail(`Invalid ${label}`);return value;};
@@ -73,6 +73,20 @@ export function createDesignCraft({binary=process.env.CW_DESIGNCRAFT_BINARY||pat
       }else{
         if(!(await s.engine.call('state')))throw fail('Open a publication first');
         if(method==='page.select'){if(!Number.isSafeInteger(params.index)||params.index<0)throw fail('Invalid page');const doc=await s.engine.call('state');if(params.index>=doc.pageCount)throw fail('Unknown page');s.version++;s.page=params.index;}
+        else if(method==='file.saveACopy'){
+          if(Object.keys(params).sort().join(',')!=='destination,path,retention')throw fail('Save a Copy needs an explicit path, destination and retention choice');
+          if(params.destination!=='server')throw fail('Laptop Save a Copy needs a browser write acknowledgement; choose the server workspace',403,'WRITE_ACK_REQUIRED');
+          if(params.retention!=='workspace')throw fail('This Save a Copy flow currently supports explicit workspace retention only',422,'RETENTION_UNSUPPORTED');
+          const target=relative(params.path);if(!/\.designcraft$/i.test(target))throw fail('Save a native copy with a .designcraft filename');
+          const exportRoot=path.join(s.privateRoot,randomBytes(12).toString('hex'));await mkdir(exportRoot);const staged=path.join(exportRoot,'copy.designcraft');
+          try{
+            const exported=await s.engine.call('save_copy',{path:staged});const info=await stat(staged);if(!info.isFile()||info.size<1||info.size>maxFileBytes)throw fail('Native copy exceeds the 64 MB prototype limit',413);
+            if(!exported||exported.bytes!==info.size)throw fail('Native Save a Copy byte acknowledgement did not match the staged output',502);
+            const written=await receiveFile(createReadStream(staged),s.writeRoot,target,maxFileBytes);
+            if(written.bytes!==info.size)throw fail('Server workspace write acknowledgement did not match the native copy',502);
+            s.outputs.add(target);s.version++;result={commandId:'file.saveACopy',path:target,bytes:info.size,destination:'server',retention:'workspace',savedDocument:false};
+          }finally{await rm(exportRoot,{recursive:true,force:true}).catch(()=>{});}
+        }
         else if(method==='doc.save'){
           const target=relative(params.path),format=path.extname(target).slice(1).toLowerCase();if(!['designcraft','pdf','png'].includes(format))throw fail('Choose .designcraft, .pdf or .png');s.version++;
           const exportRoot=path.join(s.privateRoot,randomBytes(12).toString('hex'));await mkdir(exportRoot);const source=path.join(exportRoot,`document.${format}`);

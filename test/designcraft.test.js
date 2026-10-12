@@ -13,11 +13,12 @@ class DesignFixture{
   async call(method,p={}){
     if(method==='__cw_identity')return {runtimeId:'creative-workspace-designcraft-v1',version:'fixture'};
     if(method==='state')return this.doc?{...structuredClone(this.doc),documentSnapshot:structuredClone(this.doc.documentSnapshot||this.doc)}:null;
-    if(method==='new'||method==='open'){if(method==='new')this.newParams=structuredClone(p);else this.openParams=structuredClone(p);this.doc={title:'Fixture',dirty:method==='new',pageCount:1,spreads:[{index:0,pages:[{index:0,name:'1',bounds:[0,0,800,600]}],items:[]}],stories:[],layers:[],selection:{items:[]},history:{undo:[],redo:[]}};return {};}
+    if(method==='new'||method==='open'){if(method==='new')this.newParams=structuredClone(p);else this.openParams=structuredClone(p);this.doc={title:'Fixture',dirty:method==='new',pageCount:1,spreads:[{index:0,pages:[{index:0,name:'1',bounds:[0,0,800,600]}],items:[]}],stories:[],layers:[],selection:{items:[]},history:{undo:[],redo:[]}};if(method==='open'){try{this.doc=JSON.parse(await readFile(p.path,'utf8'));this.doc.dirty=false;}catch{}}return {};}
     if(method==='sample'){this.sampleCommandId='file.newSample';this.doc={title:'Original sample',dirty:true,pageCount:2,spreads:[{index:0,pages:[{index:0,name:'1',bounds:[0,0,800,600]}],items:[]}],stories:[],layers:[],selection:{items:[]},history:{undo:[],redo:[]}};return {commandId:this.sampleCommandId};}
     if(method==='render'){const png=Buffer.alloc(24);Buffer.from([137,80,78,71,13,10,26,10]).copy(png);png.writeUInt32BE(13,8);png.write('IHDR',12);png.writeUInt32BE(800,16);png.writeUInt32BE(600,20);return {pngBase64:png.toString('base64')};}
     if(method==='command'){this.edits++;this.commands.push(p.command);this.doc.dirty=true;return {id:1};}
     if(method==='export'){await writeFile(p.path,'fixture design copy');return {warnings:[]};}
+    if(method==='save_copy'){this.copyCommandId='file.saveACopy';const bytes=Buffer.from(JSON.stringify(this.doc));await writeFile(p.path,bytes);return {bytes:bytes.length};}
     if(method==='mark_saved'){this.doc.dirty=false;return {saved:true};}throw new Error('Unsupported fixture method');
   }
   stop(){this.closed=true;}
@@ -38,6 +39,24 @@ test('Original file.new preset action reaches the owned worker unchanged and ret
   assert.deepEqual(worker?.newParams,{preset:'A4'});assert.equal(created.result.commandId,'file.new');assert.equal(created.stateVersion,1);
   assert.equal(created.document.title,'Fixture');assert.equal(created.document.dirty,true);assert.equal(created.documentSnapshot.title,'Fixture');assert.match(created.preview,/preview\.png\?v=1$/);
   await design.close(session.id,{discard:true});
+});
+
+test('Original file.saveACopy writes a retained server copy after byte ACK without marking the source saved and the copy reopens',async t=>{
+  const {project,design,engines,call}=await fixture(t),source=await design.create(project);
+  await call(source.id,'file.new',{preset:'A4'});
+  await call(source.id,'frame.create',{rect:[10,10,90,70],content:'text',text:'Keep this edit'});
+  const saved=await call(source.id,'file.saveACopy',{path:'copies/issue-copy.designcraft',destination:'server',retention:'workspace'});
+  assert.equal(saved.result.commandId,'file.saveACopy');assert.equal(saved.result.savedDocument,false);assert.equal(saved.result.destination,'server');assert.equal(saved.result.retention,'workspace');
+  assert.equal(saved.document.dirty,true);assert.equal(saved.document.name,'Fixture');assert.equal(saved.stateVersion,3);
+  const copy=await readFile(await design.output(source.id,'copies/issue-copy.designcraft'));
+  assert.equal(copy.toString(),JSON.stringify(engines.find(engine=>!engine.closed).doc));
+  await assert.rejects(call(source.id,'file.saveACopy',{path:'copies/issue-copy.designcraft',destination:'server',retention:'workspace'}),e=>e.status===409);
+  await assert.rejects(call(source.id,'file.saveACopy',{path:'copies/laptop.designcraft',destination:'laptop',retention:'workspace'}),e=>e.code==='WRITE_ACK_REQUIRED');
+  await assert.rejects(call(source.id,'file.saveACopy',{path:'copies/temp.designcraft',destination:'server',retention:'temporary'}),e=>e.code==='RETENTION_UNSUPPORTED');
+  const reopened=await design.create(project);const opened=await call(reopened.id,'doc.open',{path:'copies/issue-copy.designcraft'});
+  assert.equal(engines.find(engine=>engine.openParams)?.openParams.path,path.join(project,'copies/issue-copy.designcraft'));
+  assert.equal(opened.document.dirty,false);assert.equal(opened.document.name,'issue-copy.designcraft');
+  await design.close(source.id,{discard:true});await design.close(reopened.id);
 });
 
 test('Original file.open resolves only its provider root, ACKs server state and preserves open documents',async t=>{

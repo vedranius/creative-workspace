@@ -108,9 +108,28 @@ try{
  assert.equal(createHash('sha256').update(Buffer.from(await (await fetch(base+acks[2].preview)).arrayBuffer())).digest('hex'),openedPngHash);
  assert.equal(createHash('sha256').update(await readFile(chosen)).digest('hex'),originalHash);
  assert.equal(createHash('sha256').update(await readFile(serverCopy)).digest('hex'),originalHash);
+ // Use the original File menu shortcut and confirmation dialog to exercise file.saveACopy.
+ await page.keyboard.press('m');await page.mouse.move(610,385);await page.mouse.down();await page.mouse.move(755,500,{steps:4});await page.mouse.up();
+ await page.waitForFunction(()=>document.querySelector('#designcraft_canvas')?.getAttribute('data-server-revision')==='4');
+ await page.keyboard.press('Control+Alt+s');await page.waitForTimeout(200);await page.keyboard.press('Enter');
+ await page.waitForFunction(()=>document.querySelector('#designcraft_canvas')?.getAttribute('data-server-revision')==='5',null,{timeout:30000});
+ assert.deepEqual(requests.slice(3).map(item=>item.method),['frame.create','file.saveACopy']);
+ const saveRequest=requests[4],saveAck=acks[4];assert.equal(saveRequest.expectedVersion,4);assert.equal(saveRequest.params.destination,'server');assert.equal(saveRequest.params.retention,'workspace');
+ assert.equal(saveAck.result.commandId,'file.saveACopy');assert.equal(saveAck.result.savedDocument,false);assert.equal(saveAck.document.dirty,true);assert.equal(saveAck.document.name,'chosen.designcraft');
+ const retainedPath=saveRequest.params.path,retainedLocal=path.join(scratch,'projects/designcraft',retainedPath),retained=await readFile(retainedLocal);
+ const retainedResponse=await fetch(`${base}/api/designcraft/sessions/${sessionId}/output?path=${encodeURIComponent(retainedPath)}`,{headers:{Origin:base}});assert.equal(retainedResponse.status,200);
+ assert.deepEqual(Buffer.from(await retainedResponse.arrayBuffer()),retained);assert.ok(retained.length>0);assert.notEqual(createHash('sha256').update(retained).digest('hex'),originalHash);
+ const collision=await fetch(`${base}/api/designcraft/sessions/${sessionId}/rpc`,{method:'POST',headers:{Origin:base,'Content-Type':'application/json'},body:JSON.stringify({method:'file.saveACopy',params:{path:retainedPath,destination:'server',retention:'workspace'},requestId:crypto.randomUUID()})});assert.equal(collision.status,409);
+ // Reopen the retained server copy through the same original browser chooser and server input ACK.
+ const retainedForReopen=path.join(laptop,'retained-copy.designcraft');await writeFile(retainedForReopen,retained);
+ await post(`/api/designcraft/sessions/${sessionId}`,'DELETE',{discard:true});sessionId=null;
+ await load();const retainedChooser=await choose();await retainedChooser.setFiles(retainedForReopen);
+ await page.waitForFunction(()=>document.querySelector('#designcraft_canvas')?.getAttribute('data-server-revision')==='1',null,{timeout:120000});
+ assert.equal(requests[5].method,'file.open');assert.equal(acks[5].document.name,'retained-copy.designcraft');assert.equal(acks[5].document.dirty,false);
+ assert.equal(acks[5].documentSnapshot.spreads[0].items.length,2);
+ await post(`/api/designcraft/sessions/${sessionId}`,'DELETE',{discard:true});sessionId=null;
  await page.waitForTimeout(500);
  const screenshot=process.env.CW_PAR03_SCREENSHOT;const painted=visibleCanvas(await page.screenshot(screenshot?{path:path.resolve(screenshot)}:{}));
- await post(`/api/designcraft/sessions/${sessionId}`,'DELETE',{discard:true});sessionId=null;
  // A failed transfer cannot produce file.open or a hydrated UI.
  await page.route('**/input?*',route=>route.fulfill({status:503,contentType:'application/json',body:JSON.stringify({error:'Injected transfer failure'})}));
  await load();const previousRequests=requests.length;
@@ -122,7 +141,7 @@ try{
  let uploads=0;page.on('request',request=>{if(/\/input\?/.test(request.url()))uploads++;});
  const largePicker=await choose();await largePicker.setFiles(oversized);await page.waitForFunction(()=>document.querySelector('#designcraft_canvas')?.getAttribute('data-server-pending')==='false');
  assert.equal(uploads,0);assert.equal(requests.length,previousRequests);assert.deepEqual(errors,[]);
- const report={status:'bounded-original-open-copy-first-proof',sourceCommand:'app.openDialog -> file.open',originalBrowserFileChooser:true,mode:'copy-first',copiedBytes:fixture.length,providerInputRootBoundToSession:true,copyAcknowledgedBeforeNativeOpen:true,openRevision:1,openDirty:false,openedObjects:1,editRevision:2,undoRevision:3,undoRestoresOpenedSnapshotAndRender:true,laptopOriginalAndServerCopyUnchanged:true,cancelCreatesNoOpen:true,transferFailureLeavesMirrorUnhydrated:true,oversizedFileRejectedBeforeUpload:true,visibleCanvas:painted,uncaughtBrowserErrors:errors,limitations:'Native one-spread documents only; folder permissions/on-demand/hybrid and save destination ACK/reopen/recovery/full parity pending'};
+ const report={status:'bounded-original-open-and-server-save-copy-proof',sourceCommands:['app.openDialog -> file.open','File → Save a Copy… -> file.saveACopy'],originalBrowserFileChooser:true,mode:'copy-first',copiedBytes:fixture.length,providerInputRootBoundToSession:true,copyAcknowledgedBeforeNativeOpen:true,openRevision:1,openDirty:false,openedObjects:1,editRevision:2,undoRevision:3,undoRestoresOpenedSnapshotAndRender:true,saveCopyDestination:'server',saveCopyRetention:'workspace',saveCopyAtomicWriteAcknowledgedBeforeSuccess:true,saveCopyPreservesOriginalDirtyStateAndFilename:true,saveCopyDoesNotOverwriteExistingTargets:true,retainedCopyReopenedThroughOriginalChooser:true,laptopOriginalAndServerImportUnchanged:true,cancelCreatesNoOpen:true,transferFailureLeavesMirrorUnhydrated:true,oversizedFileRejectedBeforeUpload:true,visibleCanvas:painted,uncaughtBrowserErrors:errors,limitations:'Native one-spread documents only; laptop output, other retention modes, recovery, folder permissions/on-demand/hybrid and full parity pending'};
  if(process.env.CW_PAR03_REPORT)await writeFile(path.resolve(process.env.CW_PAR03_REPORT),JSON.stringify(report,null,2)+'\n');console.log(JSON.stringify(report));
 }finally{
  for(const id of [sessionId,fixtureId].filter(Boolean))await fetch(`http://127.0.0.1:${server.address().port}/api/designcraft/sessions/${id}`,{method:'DELETE',headers:{Origin:`http://127.0.0.1:${server.address().port}`,'Content-Type':'application/json'},body:JSON.stringify({discard:true})}).catch(()=>{});
