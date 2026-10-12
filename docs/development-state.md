@@ -1,5 +1,7 @@
 # Development handoff
 
+**2026-10-12 PAR-03 implementation boundary:** pinned `DesignApp::run` is synchronous and dispatches to a concrete local `Session`; panels/tools also directly read/execute against it. A one-off async shell RPC cannot safely synchronize the original application. Next replace the source-level session/action boundary with ordered pending/ACK/error handling backed by the server-owned Session; prove one real original caller/action ID and revision refresh. Details and exact source locations are in [PAR-03 handoff](par-03a-handoff.md). No product behavior or availability changed in this checkpoint.
+
 Updated: 2026-10-12. Read this file, `../AGENTS.md`, and the relevant roadmap row before starting a bounded feature.
 
 ## Current milestone

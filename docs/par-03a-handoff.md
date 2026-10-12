@@ -1,5 +1,13 @@
 # PAR-03 handoff — bounded server read-model slice verified
 
+## Session/action bridge feasibility boundary (2026-10-12)
+
+The next implementation cannot be a shell callback around one `DesignApp::run` call. At the pinned `a127c6d5` source, `DesignApp::run(&mut self, id, params)` is synchronous and immediately calls its concrete `self.session.execute`; `DesignApp` publicly owns `Session`, but panels, dialogs, menus, taskbar and canvas/tool code also read or execute against that same session directly (for example `crates/ui-egui/src/lib.rs:444,563-573`, `panels/layers.rs`, `panels/properties.rs`, `menus.rs`, `taskbar.rs`). The web runner constructs that local session in `apps/designcraft-web/src/web.rs:57-60`.
+
+Therefore an async RPC wrapper at the existing `run()` boundary would either block the browser, report completion before the server ACK, or leave the original panels/tools reading stale local state. None is acceptable. Preserve the current server-owned worker and response guards; the next code slice must introduce a source-level session/action adapter that queues original action IDs and params, exposes pending/error/acknowledged states to the UI, and refreshes the session-backed read model only from an acknowledged server response. It must keep ordered actions and stale-revision rejection. Start with a non-destructive action whose real upstream caller is identified in the pinned UI, and prove the caller/action ID reaches the owned worker; do not add another custom pointer or sample path.
+
+The prior native candidate at `/tmp/par03-designcraft-candidate/build/release/cw-designcraft-engine` is available, while its pinned upstream checkout `/home/vedran/Documents/Codex/2026-10-10/da-x20/work/designcraft` has pre-existing dirty `Cargo.lock` and untracked `apps/cw-designcraft-engine/`; preserve both. Do not rebuild or reset that checkout. This boundary note is evidence/planning only; it does not advance DesignCraft availability or replace the pending implementation.
+
 ## Alpha.16 server response/read-model refresh candidate (2026-10-12)
 
 Patch variant `par-03-server-read-model-v3` applies the complete response after `frame.create`: source command ID, server state revision, document title, page count, dirty state, and server preview URL are refreshed together. The canvas image metadata and status banner now reflect the same latest revision after edits.
@@ -12,7 +20,7 @@ Patch variant `par-03-server-read-model-v3` applies the complete response after 
 
 This is a shell-side response refresh only. The screenshot still shows the upstream `DesignApp` saying “No document open”; its actual Session, panels, original command/tool dispatch and rendering are unsynchronized. It is not DesignCraft availability. No file provider destination/retention, laptop write ACK, reopen or recovery is accepted. Keep release draft-only.
 
-Next exact task: route one actual upstream `DesignApp` read-model/action through the server-owned Session and surface its acknowledged response inside the native app state/UI. Inspect the public API seam in the pinned `DesignApp` (`run`, public `session`) and its web runner, build an isolated reviewed source patch, and add test assertions for an actual original action ID. Preserve `engines/filmcraft/` and all protected runtime sessions.
+Next exact task: implement the source-level session/action adapter described above: queue one real original UI action ID asynchronously, process it in the server-owned Session, then apply its acknowledged revision/read-model to the original UI without advancing a local engine Session. Build and browser-verify an isolated reviewed source patch and assert the original caller/action ID in the native worker evidence. Preserve `engines/filmcraft/` and all protected runtime sessions.
 
 ### Alpha.16 release gate
 
