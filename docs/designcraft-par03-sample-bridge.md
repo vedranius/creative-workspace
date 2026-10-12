@@ -1,6 +1,12 @@
 # DesignCraft PAR-03 server read-model slice
 
-## Current edit/read-model patch (alpha.16 draft release verified)
+## Alpha.17 preset-action server seam (draft release verified)
+
+The gateway now accepts `method: "file.new"` with exactly one bounded preset name and forwards the original `file.new` action and parameter to the owned worker. Native and Chromium smoke reports verify A4, revision 1 and a 595×842 server PNG: [native report](evidence/designcraft-par03-file-new-native.json), [browser report](evidence/designcraft-par03-file-new-browser.json). Alpha.17's immutable tag, successful Actions runs, five archives and five verified checksum sidecars are recorded in [release evidence](evidence/creative-workspace-alpha17-release.md).
+
+This is only the gateway contract. The original preset card still calls synchronous local `DesignApp::run`; its local session and panels remain unsynchronized. DesignCraft stays planned, and the Actions release remains draft until the original async session/action bridge, providers, save ACK, reopen and recovery are complete.
+
+## Previous edit/read-model patch (alpha.16 draft release verified)
 
 `par-03-server-read-model-v3` supersedes the alpha.15 shell response handling: each `frame.create` response refreshes revision, title/pages/dirty metadata, banner and bounded server PNG together. See [browser evidence](evidence/designcraft-par03-read-model-v3-browser.json), [native evidence](evidence/designcraft-par03-read-model-v3-native.json), and [screenshot](evidence/designcraft-par03-read-model-v3.png). The original `DesignApp` Session remains empty and its panels still say no document is open; actions are not dispatched from the original app. Keep DesignCraft planned.
 
