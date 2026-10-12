@@ -1,5 +1,11 @@
 # PAR-03 handoff — bounded server read-model slice verified
 
+## Alpha.21 Actions failure and next step (2026-10-12)
+
+Run [38294207900](https://github.com/vedranius/creative-workspace/actions/runs/38294207900) on `a96abeb9ee559f37c7044c5528545d9841f1308e` completed with contract, original FilmCraft, native matrix and three OS bundle jobs successful. The DesignCraft host UI build succeeded, then `scripts/build-designcraft-host-ui.mjs:21` failed its post-build exact-source-diff assertion (`Host canvas source changed during build`). The original DesignCraft worker browser step earlier passed. Publish was skipped; verified GitHub identity is `vedranius`, but no `v0.2.0-alpha.21` tag or release exists. Thus there are no candidate release archives/checksum sidecars to verify, and alpha.20 remains the latest verified immutable draft. Do not retry publication or create a replacement tag.
+
+Next bounded task: reproduce and identify what mutates the pinned source during the host-canvas Trunk build, compare the before/after Git diff, make the smallest safe fix to the build guard or source mutation, then rerun the focused proof and full workflow. Keep alpha.21 as an unpublished candidate until Actions and asset/checksum inspection succeed. The original UI candidates remain inactive; DesignCraft stays planned. After release verification, continue original `file.open` through the common provider/server-owned Session.
+
 ## Current edit-action candidate (2026-10-12; not accepted)
 
 The original Rectangle Tool's `M` shortcut and pointer drag now reach the owned server worker as the original `frame.create` action. Repeated local preview mutations are captured in the server mirror; only the committed final params are queued, using the last acknowledged `expectedVersion`. The browser applies the canonical document/read-model and bounded server PNG only after the matching action ACK. Tool selection remains local UI state; unbridged document commands still fail closed. Candidate patch: [source diff](../patches/designcraft/a127c6d5/par-03-frame-create-candidate.patch), SHA-256 `695ca00dbb4853d85faa9940031a2424cee9a502b933a56651341496e5082b71`; [manifest](../engines/original-ui/designcraft/frame-create-candidate.json).
