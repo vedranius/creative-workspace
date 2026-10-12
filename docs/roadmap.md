@@ -42,6 +42,8 @@ RapidRAW ima zaseban Linux engine i browser editor. PhotoCraft ima zaseban Rust 
 
 **PAR-03 alpha.18 canonical snapshot transport, draft verified:** `state` carries the canonical `Document` under 16 MiB through the gateway as `documentSnapshot`; protocol tests 8/8, native tests 3/3 and real worker open/edit/render smoke pass ([native evidence](evidence/designcraft-par03-canonical-snapshot-native.json)). Chromium RPC proof confirms A4, revision 1, one-spread 6,873-byte snapshot, 595×842 server render and zero browser errors ([browser evidence](evidence/designcraft-par03-canonical-snapshot-browser.json)). Full repo tests pass 48/48. Checks `38240276991` and Build/release `38240276900` passed; tag `v0.2.0-alpha.18` and all five archive/checksum pairs are verified ([release evidence](evidence/creative-workspace-alpha18-release.md)). Original UI hydration is still pending; DesignCraft remains planned and release remains draft. Next connect the original `DesignApp` pending/ACK/error action lifecycle and apply only the validated acknowledged snapshot.
 
+**PAR-03 source hydration candidate (not accepted):** a pinned source diff now queues the original `DesignApp::run("file.new")`, sends its preset to the owned worker, and hydrates the UI Session after ACK. Wasm `cargo check` passes, but optimized Trunk/browser proof is unavailable; local rendering and other unbridged actions remain unsynchronized. Keep DesignCraft planned and alpha.18 draft-only. Exact gaps and next acceptance step: [PAR-03 handoff](par-03a-handoff.md#original-host-action-hydration-candidate-2026-10-12-not-accepted).
+
 ## Redoslijed i kriteriji dovršenosti
 
 | Faza | Rezultat za korisnika | Zadaci i provjera |

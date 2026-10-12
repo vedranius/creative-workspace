@@ -1,0 +1,290 @@
+diff --git a/apps/designcraft-web/Cargo.toml b/apps/designcraft-web/Cargo.toml
+index 75775c3..3aee525 100644
+--- a/apps/designcraft-web/Cargo.toml
++++ b/apps/designcraft-web/Cargo.toml
+@@ -29,4 +29,4 @@ rfd = { workspace = true }
+ wasm-bindgen = "0.2"
+ wasm-bindgen-futures = "0.4"
+ js-sys = "0.3"
+-web-sys = { version = "0.3", features = ["Window", "Document", "Element", "HtmlElement", "HtmlCanvasElement", "HtmlAnchorElement", "Blob", "BlobPropertyBag", "Url", "Location", "CssStyleDeclaration"] }
++web-sys = { version = "0.3", features = ["Window", "Document", "Element", "HtmlElement", "HtmlCanvasElement", "HtmlAnchorElement", "Blob", "BlobPropertyBag", "Url", "Location", "CssStyleDeclaration", "Request", "RequestInit", "Response", "Headers"] }
+diff --git a/apps/designcraft-web/index.html b/apps/designcraft-web/index.html
+index b05be39..441f58d 100644
+--- a/apps/designcraft-web/index.html
++++ b/apps/designcraft-web/index.html
+@@ -14,6 +14,7 @@
+ </head>
+ <body>
+   <canvas id="designcraft_canvas"></canvas>
++  <script defer src="./server-bridge.js" data-trunk></script>
+   <div id="designcraft_loading">Loading DesignCraft&hellip;</div>
+ </body>
+ </html>
+diff --git a/apps/designcraft-web/src/web.rs b/apps/designcraft-web/src/web.rs
+index fe7cca4..6ad1af7 100644
+--- a/apps/designcraft-web/src/web.rs
++++ b/apps/designcraft-web/src/web.rs
+@@ -2,7 +2,7 @@
+ 
+ use super::browser_policy::{has_query_flag, mime_for};
+ use designcraft_engine::Session;
+-use designcraft_ui_egui::{DesignApp, ImportRequest, ImportedFile, Inbox, Services};
++use designcraft_ui_egui::{DesignApp, HostActionAck, ImportRequest, ImportedFile, Inbox, Services};
+ use wasm_bindgen::JsCast as _;
+ 
+ const DOC_EXTS: &[&str] = &["designcraft", "idml"];
+@@ -41,6 +41,11 @@ pub fn start() {
+             log::error!("missing <canvas id=\"{CANVAS_ID}\">");
+             return;
+         };
++        let session = match post_json("/api/designcraft/sessions", serde_json::json!({})).await {
++            Ok(value) => value.get("id").and_then(serde_json::Value::as_str).map(str::to_owned),
++            Err(error) => { log::error!("server session initialization failed: {error}"); None }
++        };
++        let Some(session_id) = session else { return; };
+         let mut options = eframe::WebOptions::default();
+         if has_query_flag(&query(), "webgl")
+             && let eframe::egui_wgpu::WgpuSetup::CreateNew(create) = &mut options.wgpu_options.wgpu_setup
+@@ -56,11 +61,10 @@ pub fn start() {
+                         log::info!("designcraft-web: wgpu backend {:?}", rs.adapter.get_info().backend);
+                     }
+                     let inbox: Inbox = Inbox::default();
+-                    let mut app = DesignApp::new(Session::new(), services(inbox.clone(), cc.egui_ctx.clone()));
+-                    if has_query_flag(&query(), "sample") {
+-                        let _ = app.run("file.newSample", serde_json::json!({}));
+-                    }
+-                    Ok(Box::new(WebShell { app, inbox }))
++                    let actions = std::sync::Arc::new(std::sync::Mutex::new(Vec::new()));
++                    let replies = std::sync::Arc::new(std::sync::Mutex::new(Vec::new()));
++                    let app = DesignApp::new(Session::new(), services(inbox.clone(), actions.clone(), cc.egui_ctx.clone()));
++                    Ok(Box::new(WebShell { app, inbox, actions, replies, session_id: session_id.clone(), busy: false }))
+                 }),
+             )
+             .await;
+@@ -82,10 +86,35 @@ fn query() -> String {
+ struct WebShell {
+     app: DesignApp,
+     inbox: Inbox,
++    actions: std::sync::Arc<std::sync::Mutex<Vec<(String, serde_json::Value)>>>,
++    replies: std::sync::Arc<std::sync::Mutex<Vec<Result<HostActionAck, String>>>>,
++    session_id: String,
++    busy: bool,
+ }
+ 
+ impl eframe::App for WebShell {
+     fn logic(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
++        let replies = std::mem::take(&mut *self.replies.lock().unwrap_or_else(|e| e.into_inner()));
++        if !replies.is_empty() { self.busy = false; }
++        for reply in replies { match reply { Ok(ack) => if let Err(e) = self.app.apply_host_action_ack(ack) { self.app.host_action_error(e); }, Err(e) => self.app.host_action_error(e) } }
++        if !self.busy {
++            let next = self.actions.lock().unwrap_or_else(|e| e.into_inner()).first().cloned();
++            if let Some((command, params)) = next {
++                self.actions.lock().unwrap_or_else(|e| e.into_inner()).remove(0); self.busy = true;
++                let path = format!("/api/designcraft/sessions/{}/rpc", self.session_id); let replies = self.replies.clone(); let ctx = ctx.clone();
++                wasm_bindgen_futures::spawn_local(async move {
++                    let result = async {
++                        let request_id = js_sys::eval("crypto.randomUUID()").map_err(|e|format!("request ID: {e:?}"))?.as_string().ok_or("missing request ID")?;
++                        let reply = post_json(&path, serde_json::json!({"method":command,"params":params,"requestId":request_id,"expectedVersion":0})).await?;
++                        if reply.get("result").and_then(|v|v.get("commandId")).and_then(serde_json::Value::as_str) != Some("file.new") { return Err("Unexpected server action acknowledgement".into()); }
++                        let revision = reply.get("stateVersion").and_then(serde_json::Value::as_u64).filter(|v|*v>0).ok_or("Missing acknowledged revision")?;
++                        let snapshot = reply.get("documentSnapshot").cloned().ok_or("Missing canonical document snapshot")?;
++                        Ok(HostActionAck { command_id:"file.new".into(), revision, snapshot })
++                    }.await;
++                    replies.lock().unwrap_or_else(|e| e.into_inner()).push(result); ctx.request_repaint();
++                });
++            }
++        }
+         let dropped = ctx.input_mut(|i| std::mem::take(&mut i.raw.dropped_files));
+         for f in dropped {
+             let request = self.app.import_request("drop");
+@@ -115,7 +144,7 @@ impl eframe::App for WebShell {
+     }
+ }
+ 
+-fn services(inbox: Inbox, ctx: egui::Context) -> Services {
++fn services(inbox: Inbox, actions: std::sync::Arc<std::sync::Mutex<Vec<(String, serde_json::Value)>>>, ctx: egui::Context) -> Services {
+     let open_inbox = inbox.clone();
+     Services {
+         open_async: Some(Box::new(move |request: ImportRequest| {
+@@ -146,10 +175,24 @@ fn services(inbox: Inbox, ctx: egui::Context) -> Services {
+             }
+         })),
+         inbox: Some(inbox),
++        host_action: Some(Box::new(move |id, params| { actions.lock().unwrap_or_else(|e|e.into_inner()).push((id.to_owned(), params)); Ok(()) })),
+         ..Default::default()
+     }
+ }
+ 
++async fn post_json(path: &str, body: serde_json::Value) -> Result<serde_json::Value, String> {
++    use wasm_bindgen::JsValue;
++    use wasm_bindgen_futures::JsFuture;
++    let init = web_sys::RequestInit::new(); init.set_method("POST"); init.set_body(&JsValue::from_str(&body.to_string()));
++    let request = web_sys::Request::new_with_str_and_init(path, &init).map_err(|e|format!("request: {e:?}"))?;
++    request.headers().set("Content-Type","application/json").map_err(|e|format!("headers: {e:?}"))?;
++    let response: web_sys::Response = JsFuture::from(web_sys::window().ok_or("missing window")?.fetch_with_request(&request)).await.map_err(|e|format!("fetch: {e:?}"))?.dyn_into().map_err(|_|"invalid response")?;
++    let body = JsFuture::from(response.text().map_err(|e|format!("body: {e:?}"))?).await.map_err(|e|format!("body: {e:?}"))?.as_string().ok_or("response body was not text")?;
++    let value: serde_json::Value = serde_json::from_str(&body).map_err(|e|format!("decode JSON: {e}"))?;
++    if !response.ok() { return Err(value.get("error").and_then(serde_json::Value::as_str).unwrap_or("server request failed").to_owned()); }
++    Ok(value)
++}
++
+ /// Trigger a browser download of `bytes` named after the last component of `path`.
+ fn download(path: &str, bytes: &[u8]) -> Result<(), String> {
+     let js = |e: wasm_bindgen::JsValue| format!("{e:?}");
+diff --git a/crates/ui-egui/src/lib.rs b/crates/ui-egui/src/lib.rs
+index fb81e9c..c795de9 100644
+--- a/crates/ui-egui/src/lib.rs
++++ b/crates/ui-egui/src/lib.rs
+@@ -54,6 +54,15 @@ pub type DownloadFn = Box<dyn FnMut(&str, &[u8])>;
+ /// Files delivered asynchronously with their original operation and document identity.
+ pub type Inbox = std::sync::Arc<std::sync::Mutex<Vec<ImportedFile>>>;
+ 
++/// A server-owned document action waiting for its worker acknowledgement.
++#[derive(Clone, Debug)]
++pub struct HostActionAck {
++    pub command_id: String,
++    pub revision: u64,
++    pub snapshot: serde_json::Value,
++}
++pub type HostActionFn = Box<dyn FnMut(&str, serde_json::Value) -> Result<(), String>>;
++
+ /// Platform services injected by the host (desktop or web).
+ #[derive(Default)]
+ pub struct Services {
+@@ -71,6 +80,8 @@ pub struct Services {
+     pub download: Option<DownloadFn>,
+     /// Files delivered asynchronously, drained every frame with their captured request context.
+     pub inbox: Option<Inbox>,
++    /// Queue an original action for a server-owned engine; the host applies only its ACK.
++    pub host_action: Option<HostActionFn>,
+ }
+ 
+ #[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
+@@ -484,6 +495,7 @@ pub struct DesignApp {
+     last_time: f64,
+     /// When recovery data was last written (seconds, egui time).
+     pub last_recovery: f64,
++    host_action_ack: Option<HostActionAck>,
+ }
+ 
+ impl DesignApp {
+@@ -521,6 +533,7 @@ impl DesignApp {
+             native_shortcuts: Default::default(),
+             last_time: 0.0,
+             last_recovery: 0.0,
++            host_action_ack: None,
+         }
+     }
+ 
+@@ -564,6 +577,11 @@ impl DesignApp {
+         if let Some(r) = menus::run_ui(self, id, &params) {
+             return r;
+         }
++        if id == "file.new" && let Some(host_action) = self.services.host_action.as_mut() {
++            host_action(id, params)?;
++            self.status("Creating document on server…");
++            return Ok(json!({"pending": true, "commandId": id}));
++        }
+         let r = self.session.execute(id, &params).map_err(|e| e.to_string());
+         self.after_engine();
+         if let Err(e) = &r {
+@@ -572,6 +590,27 @@ impl DesignApp {
+         r
+     }
+ 
++    /// Apply a server response after the browser host validates the action ID and revision.
++    pub fn apply_host_action_ack(&mut self, ack: HostActionAck) -> Result<(), String> {
++        if ack.command_id != "file.new" || ack.revision == 0 {
++            return Err("Invalid server action acknowledgement".into());
++        }
++        self.host_action_ack = Some(ack);
++        let ack = self.host_action_ack.take().ok_or("Missing server acknowledgement")?;
++        let document: designcraft_doc::Document = serde_json::from_value(ack.snapshot).map_err(|e| format!("Invalid acknowledged document snapshot: {e}"))?;
++        if self.session.active().is_some() {
++            return Err("Cannot replace a local document with a server acknowledgement".into());
++        }
++        self.session.add_document(designcraft_engine::DocState::new(document, None));
++        self.after_engine();
++        self.status(format!("Server document acknowledged at revision {}", ack.revision));
++        Ok(())
++    }
++
++    pub fn host_action_error(&mut self, message: String) {
++        self.status(format!("Server document action failed: {message}"));
++    }
++
+     /// Handle requests produced by tools/commands (dialogs, view changes, file pickers).
+     pub fn after_engine(&mut self) {
+         let reqs = std::mem::take(&mut self.session.ui_requests);
+diff --git a/apps/designcraft-web/server-bridge.js b/apps/designcraft-web/server-bridge.js
+new file mode 100644
+index 0000000..c22e577
+--- /dev/null
++++ b/apps/designcraft-web/server-bridge.js
+@@ -0,0 +1,66 @@
++// PAR-03 bounded experiment: invoke one original command on the owned server worker.
++// The original DesignApp remains the shell; this bounded edit demonstration owns state only on the server.
++const params = new URLSearchParams(location.search);
++if (params.has("serverEdit")) {
++  const banner = document.createElement("div");
++  banner.id = "cw_server_status";
++  Object.assign(banner.style, {position:"fixed",right:"12px",bottom:"12px",zIndex:"20",padding:"8px 12px",borderRadius:"4px",background:"#173b32",color:"#e8fff6",font:"12px system-ui",boxShadow:"0 2px 8px #0008"});
++  banner.textContent = "Connecting to server-owned DesignCraft document…";
++  document.body.append(banner);
++  let sessionId = null;
++  let stateVersion = 0;
++  let actionQueue = Promise.resolve();
++  const post = async (url, body) => {
++    const response = await fetch(url, {method:"POST",credentials:"same-origin",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)});
++    const value = await response.json();
++    if (!response.ok) throw new Error(value.error || `HTTP ${response.status}`);
++    return value;
++  };
++  (async () => {
++    try {
++      const session = await post("/api/designcraft/sessions", {});
++      sessionId = session.id;
++      const reply = await post(`/api/designcraft/sessions/${sessionId}/rpc`, {method:"doc.new",params:{name:"Server Edit Test",width:612,height:792,pages:1},requestId:crypto.randomUUID(),expectedVersion:0});
++      const model = reply.document;
++      stateVersion = reply.stateVersion;
++      if (reply.result?.commandId !== "file.new" || reply.stateVersion !== 1 || !reply.preview || !model || typeof model.title !== "string" || !Number.isSafeInteger(model.pageCount) || typeof model.dirty !== "boolean") throw new Error("Server response did not match the expected new-document command, read model, and revision");
++      const image = document.createElement("img");
++      image.id = "cw_server_render"; image.alt = `Server-rendered DesignCraft page, revision ${reply.stateVersion}`;
++      image.dataset.stateVersion = String(reply.stateVersion); image.dataset.commandId = reply.result.commandId; image.dataset.documentTitle = model.title; image.dataset.pageCount = String(model.pageCount); image.dataset.dirty = String(model.dirty); image.src = reply.preview;
++      Object.assign(image.style, {position:"fixed",left:"34%",top:"24%",width:"32%",height:"52%",objectFit:"contain",zIndex:"2",pointerEvents:"auto",touchAction:"none",filter:"drop-shadow(0 2px 6px #0008)"});
++      let dragStart = null;
++      image.addEventListener("pointerdown", event => { if (!image.naturalWidth) return; event.preventDefault(); event.stopPropagation(); image.setPointerCapture(event.pointerId); dragStart = {x:event.offsetX, y:event.offsetY}; });
++      image.addEventListener("pointerup", event => {
++        if (!dragStart || !sessionId) return;
++        event.preventDefault(); event.stopPropagation();
++        const start = dragStart; dragStart = null;
++        const scale = Math.min(image.clientWidth / 612, image.clientHeight / 792), left = (image.clientWidth - 612 * scale) / 2, top = (image.clientHeight - 792 * scale) / 2;
++        const x1 = Math.max(0, Math.min(612, (start.x-left) / scale)), y1 = Math.max(0, Math.min(792, (start.y-top) / scale));
++        const x2 = Math.max(0, Math.min(612, (event.offsetX-left) / scale)), y2 = Math.max(0, Math.min(792, (event.offsetY-top) / scale));
++        if (Math.abs(x2-x1)<4 || Math.abs(y2-y1)<4) return;
++        actionQueue = actionQueue.then(async () => {
++          const expectedVersion = stateVersion;
++          const result = await post(`/api/designcraft/sessions/${sessionId}/rpc`, {method:"frame.create",params:{rect:[Math.min(x1,x2),Math.min(y1,y2),Math.max(x1,x2),Math.max(y1,y2)],content:"text",text:"Server edited story"},requestId:crypto.randomUUID(),expectedVersion});
++          if (result.stateVersion <= stateVersion) throw new Error("Out-of-order server revision rejected");
++          stateVersion = result.stateVersion;
++          image.dataset.commandId = "frame.create"; image.dataset.stateVersion = String(stateVersion); image.src = `${result.preview}&_=${stateVersion}`;
++          banner.textContent = `Server frame.create • revision ${stateVersion} • ${result.document?.dirty ? "unsaved" : "saved"}`; banner.dataset.stateVersion = String(stateVersion);
++        }).catch(error => { banner.textContent = `Server edit failed: ${error.message}`; banner.style.background = "#6d2222"; });
++      });
++      image.addEventListener("load", () => {
++        image.dataset.width = String(image.naturalWidth); image.dataset.height = String(image.naturalHeight);
++        banner.textContent = `${model.title} • ${model.pageCount} pages • ${model.dirty ? "unsaved" : "saved"} • revision ${reply.stateVersion} • ${image.naturalWidth}×${image.naturalHeight}`;
++        banner.dataset.stateVersion = String(reply.stateVersion);
++      }, {once:true});
++      image.addEventListener("error", () => { banner.textContent = "Server render failed to load"; banner.style.background = "#6d2222"; }, {once:true});
++      document.body.append(image);
++      addEventListener("pagehide", () => {
++        if (!sessionId) return;
++        fetch(`/api/designcraft/sessions/${sessionId}`, {method:"DELETE",credentials:"same-origin",headers:{"Content-Type":"application/json"},body:JSON.stringify({discard:true}),keepalive:true}).catch(()=>{});
++      }, {once:true});
++    } catch (error) {
++      banner.textContent = `Server document unavailable: ${error.message}`; banner.style.background = "#6d2222";
++      console.error("DesignCraft server bridge failed", error);
++    }
++  })();
++}

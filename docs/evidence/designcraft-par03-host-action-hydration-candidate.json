@@ -1,0 +1,36 @@
+{
+  "status": "candidate-not-accepted",
+  "upstreamPin": "a127c6d5c3576972bbd60445f26d893db071eef3",
+  "patch": "patches/designcraft/a127c6d5/par-03-host-action-hydration-candidate.patch",
+  "patchSha256": "0d8c4986dba9fa5bd7631ed026c0d091a00556fc67d652a978a13abaefb57c52",
+  "checks": {
+    "wasmCargoCheck": {
+      "result": "passed",
+      "command": "cargo check --target wasm32-unknown-unknown -p designcraft-web",
+      "toolchain": "Rust 1.99.0",
+      "wrapper": "/home/vedran/Documents/Codex/2026-10-10/da-x20/work/tools/low-impact-build.py",
+      "targetDirectory": "repository build/par03-hydration-target",
+      "warning": "Existing unused variable in crates/ui-egui/src/panels/library.rs:196"
+    },
+    "optimizedTrunkBuild": "not-run; local trunk executable unavailable",
+    "browserWorkerProof": "not-run"
+  },
+  "scope": [
+    "Queues original DesignApp file.new action and preset",
+    "Serializes browser requests to the owned worker",
+    "Validates file.new ACK and positive state revision",
+    "Deserializes canonical snapshot into original Session only after ACK",
+    "Reports pending and error status"
+  ],
+  "acceptanceGaps": [
+    "Upstream local renderer remains active after hydration; server PNG is not presented in the original canvas",
+    "Other original actions and tools can still mutate the local Session",
+    "No optimized pinned-source build or real browser proof",
+    "No provider/save destination, acknowledgement, reopen or recovery parity"
+  ],
+  "environment": {
+    "tmpFilesystem": "full, 0 bytes available",
+    "repositoryFilesystemAvailableBytes": 50465886208,
+    "cleanupPerformed": false
+  }
+}
