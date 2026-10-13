@@ -2,7 +2,7 @@
 
 # Creative Workspace
 
-**Version: 0.2.0-alpha.30** — open-source, self-hosted, single-user prototype; DesignCraft server Open preserves the selected filename across session-scoped copy-first storage; Actions release remains draft pending provider/save/recovery proof.
+**Version: 0.2.0-alpha.30** — open-source, self-hosted, single-user prototype; DesignCraft server Open preserves the selected filename across session-scoped copy-first storage; [Actions packages and original Open/edit/server Save Copy/reopen proof are verified](docs/evidence/creative-workspace-alpha30-release.md); release remains draft pending laptop provider/save/recovery and full parity.
 
 Bring your creative tools together in one browser studio. Choose an application, select your files, and access your own server from a lightweight laptop. The goal is **the original application interfaces and tools in the browser, with the server doing the heavy work**: photography, image editing, illustration, PDF, publishing, video and motion graphics. Browser controls run locally; document commands, data and previews travel to the server. No VNC or remote desktop is involved.
 

@@ -1,0 +1,62 @@
+{
+  "status": "bounded-candidate-browser-proof",
+  "originalPresetClick": [
+    778,
+    467
+  ],
+  "actions": [
+    {
+      "commandId": "file.new",
+      "preset": "A4",
+      "stateVersion": 1
+    },
+    {
+      "commandId": "frame.create",
+      "source": "original Rectangle Tool M shortcut + pointer drag",
+      "expectedVersion": 1,
+      "stateVersion": 2,
+      "dirty": true,
+      "serverSnapshotRefreshed": true,
+      "serverRenderChanged": true
+    },
+    {
+      "commandId": "edit.undo",
+      "source": "original Ctrl+Z shortcut",
+      "expectedVersion": 2,
+      "stateVersion": 3,
+      "canonicalSnapshotRestored": true,
+      "serverRenderRestored": true
+    },
+    {
+      "commandId": "edit.redo",
+      "source": "original Ctrl+Shift+Z shortcut",
+      "expectedVersion": 3,
+      "stateVersion": 4,
+      "canonicalEditSnapshotRestored": true,
+      "serverRenderChanged": true
+    },
+    {
+      "commandId": "edit.undo",
+      "source": "original Ctrl+Z shortcut",
+      "expectedVersion": 4,
+      "stateVersion": 5,
+      "canonicalSnapshotRestored": true,
+      "serverRenderRestored": true
+    }
+  ],
+  "canonicalSnapshotBytes": 6873,
+  "serverPngDimensions": [
+    595,
+    842
+  ],
+  "serverPngSha256": "40402e053fbcda7f6379931420bdbea7192004fd1973c890cafb6cd40efdc273",
+  "originalCanvasServerTexture": true,
+  "visibleCanvas": {
+    "brightPixels": 532616,
+    "distinctColorsAtLeast": 64
+  },
+  "unbridgedCommandsBlocked": true,
+  "uncaughtBrowserErrors": [],
+  "previewFailureLeavesMirrorUnhydrated": true,
+  "availability": "planned; provider/save/reopen/recovery/full parity pending"
+}

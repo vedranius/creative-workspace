@@ -1,0 +1,34 @@
+{
+  "status": "bounded-original-open-and-server-save-copy-proof",
+  "sourceCommands": [
+    "app.openDialog -> file.open",
+    "File → Save a Copy… -> file.saveACopy"
+  ],
+  "originalBrowserFileChooser": true,
+  "mode": "copy-first",
+  "copiedBytes": 2847,
+  "providerInputRootBoundToSession": true,
+  "copyAcknowledgedBeforeNativeOpen": true,
+  "openRevision": 1,
+  "openDirty": false,
+  "openedObjects": 1,
+  "editRevision": 2,
+  "undoRevision": 3,
+  "undoRestoresOpenedSnapshotAndRender": true,
+  "saveCopyDestination": "server",
+  "saveCopyRetention": "workspace",
+  "saveCopyAtomicWriteAcknowledgedBeforeSuccess": true,
+  "saveCopyPreservesOriginalDirtyStateAndFilename": true,
+  "saveCopyDoesNotOverwriteExistingTargets": true,
+  "retainedCopyReopenedThroughOriginalChooser": true,
+  "laptopOriginalAndServerImportUnchanged": true,
+  "cancelCreatesNoOpen": true,
+  "transferFailureLeavesMirrorUnhydrated": true,
+  "oversizedFileRejectedBeforeUpload": true,
+  "visibleCanvas": {
+    "brightPixels": 532912,
+    "distinctColorsAtLeast": 64
+  },
+  "uncaughtBrowserErrors": [],
+  "limitations": "Native one-spread documents only; laptop output, other retention modes, recovery, folder permissions/on-demand/hybrid and full parity pending"
+}
