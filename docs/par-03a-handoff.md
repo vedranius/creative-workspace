@@ -10,6 +10,8 @@
 
 **Alpha.27 test portability follow-up (2026-10-13):** the alpha.26 product behavior is unchanged. macOS test failure on docs commit `d46afd6` exposed `/var` vs `/private/var` path aliasing in the new Save Copy fixture. The assertion now compares `realpath(...)`; all three OS test jobs passed in run `38328093863`. Reusing alpha.26 failed the immutable-version release contract, so the test-only correction has its own fresh alpha.27 SemVer candidate. Verify the new workflow/tag/draft/assets; preserve draft-only status and DesignCraft planned state.
 
+Alpha.27 completion: three-platform Checks `38328228402`, full Build/release `38328228411`, all native/bundle jobs and original DesignCraft/FilmCraft proofs passed. Immutable `v0.2.0-alpha.27` points to `a82d144e0882cf80f984ef9221461804d81ab8d2`. Release remains prerelease/draft. Six Actions archive/checksum pairs were downloaded and verified ([release evidence](evidence/creative-workspace-alpha27-release.md)). This is a test-only portability correction; alpha.26 product behavior and the unregistered candidate are unchanged. Continue with laptop destination write ACK/provider recovery.
+
 **Next bounded task:** implement browser write acknowledgement for an explicitly selected laptop destination through the common provider, preserving dirty/uncertain outputs and refusing replay over newer local content. Keep workspace Save Copy behavior and recovery guarantees intact; run provider/native/browser QA before updating catalog claims.
 
 ## Original Open candidate (2026-10-12; alpha.24)

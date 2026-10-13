@@ -2,7 +2,7 @@
 
 # Creative Workspace
 
-**Version: 0.2.0-alpha.27** — open-source, self-hosted, single-user prototype; verified alpha.26 server Save Copy candidate plus a cross-platform test correction; alpha.27 Actions assets pending and the release stays draft pending full app/provider parity.
+**Version: 0.2.0-alpha.27** — open-source, self-hosted, single-user prototype; cross-platform test correction and Actions-built draft verified; release stays draft pending full app/provider parity.
 
 Bring your creative tools together in one browser studio. Choose an application, select your files, and access your own server from a lightweight laptop. The goal is **the original application interfaces and tools in the browser, with the server doing the heavy work**: photography, image editing, illustration, PDF, publishing, video and motion graphics. Browser controls run locally; document commands, data and previews travel to the server. No VNC or remote desktop is involved.
 
@@ -23,7 +23,7 @@ Alpha.24 adds an original Open-dialog candidate for a selected laptop `.designcr
 - **Release foundations:** GitHub Actions builds Linux x64, Windows x64 and Apple Silicon macOS native-prototype bundles with an embedded Node 24 runtime, licenses, manifests, native smokes and checksums. FilmCraft and DesignCraft preview archives have separate build jobs. Alpha.18 Actions built and verified all target bundles, previews, ten release assets and checksums; keep it draft because original DesignApp state, provider and full parity are pending. [Alpha.18 release evidence](docs/evidence/creative-workspace-alpha18-release.md).
 - **A visual project guide:** real screenshots of the studio and all eight applications, an original CW logo, installation instructions and explicit source/license attribution.
 
-Alpha.26 is a verified draft; alpha.27 contains only the cross-platform test correction and is pending fresh Actions/tag/asset verification. The latest verified **public** download is [v0.2.0-alpha.7](https://github.com/vedranius/creative-workspace/releases/tag/v0.2.0-alpha.7). Alpha.24–alpha.26 drafts remain separate; original DesignApp provider/save parity remains incomplete. Save Copy is still an unregistered candidate and does not make DesignCraft available. Every new product feature/fix receives its own version and changelog; documentation-only updates retain the product version. [Release requirements and upgrade guide](docs/releases.md).
+Alpha.26 and alpha.27 are verified drafts; alpha.27 contains only the cross-platform test correction. The latest verified **public** download is [v0.2.0-alpha.7](https://github.com/vedranius/creative-workspace/releases/tag/v0.2.0-alpha.7). Alpha.24–alpha.27 drafts remain separate; original DesignApp provider/save parity remains incomplete. Save Copy is still an unregistered candidate and does not make DesignCraft available. Every new product feature/fix receives its own version and changelog; documentation-only updates retain the product version. [Release requirements and upgrade guide](docs/releases.md).
 
 ## Applications and current status
 

@@ -10,7 +10,7 @@
 - Add an explicit server-workspace Save Copy path to the original DesignCraft File menu. It dispatches upstream `file.saveACopy` through the owned native worker, atomically publishes a new non-overwriting workspace file, and acknowledges bytes only after the server write completes.
 - Keep the active document dirty and under its original filename. Require `destination=server` and `retention=workspace`; fail closed for laptop output until browser write acknowledgement is available and for unimplemented retention policies.
 - Add gateway regression coverage and extend original Open browser proof to save, read and reopen a retained copy. DesignCraft remains planned; the candidate is unregistered and full provider/recovery/tool parity remains incomplete.
-- Build/release uses a fresh immutable alpha.26 tag and Actions assets; preserve the draft-only policy.
+- Fresh immutable alpha.27 tag and Actions assets are verified; preserve draft-only policy pending full app/provider parity.
 
 ## [0.2.0-alpha.25] — 2026-10-13 (verification correction candidate)
 
