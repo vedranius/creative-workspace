@@ -76,7 +76,12 @@ try{
  const originalHash=createHash('sha256').update(fixture).digest('hex');
  await post(`/api/designcraft/sessions/${fixtureId}`,'DELETE',{});fixtureId=null;rpcReceipts.length=0;
  browser=await chromium.launch({headless:true,chromiumSandbox:true,executablePath:process.env.CW_BROWSER_EXECUTABLE,args:['--enable-webgl','--use-gl=angle','--use-angle=swiftshader','--enable-unsafe-swiftshader','--disable-dev-shm-usage']});
- const page=await browser.newPage({viewport:{width:1440,height:1000}}),errors=[],requests=[],acks=rpcReceipts,copies=transferReceipts;
+ const context=await browser.newContext({viewport:{width:1440,height:1000}});
+ // This smoke drives Playwright's native filechooser event. The product prefers
+ // showOpenFilePicker where Chromium exposes it, so force its documented input
+ // fallback here; real File System Access permission checks remain separate QA.
+ await context.addInitScript(()=>{Object.defineProperty(window,'showOpenFilePicker',{configurable:true,value:undefined});});
+ const page=await context.newPage(),errors=[],requests=[],acks=rpcReceipts,copies=transferReceipts;
  page.on('pageerror',error=>errors.push(error.message));
  page.on('request',request=>{const match=request.url().match(/\/api\/designcraft\/sessions\/([a-f0-9]{48})\/(?:rpc|input)/);if(match)sessionId=match[1];if(request.url().endsWith('/rpc'))requests.push(request.postDataJSON());});
  const load=async()=>{await page.goto(base+'/candidate/?webgl',{waitUntil:'domcontentloaded'});await page.waitForFunction(()=>!document.querySelector('#designcraft_loading')&&document.querySelector('#designcraft_canvas')?.hasAttribute('data-original-open'),null,{timeout:120000});};
