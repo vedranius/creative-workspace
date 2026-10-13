@@ -2,7 +2,7 @@
 
 # Creative Workspace
 
-**Version: 0.2.0-alpha.29** — open-source, self-hosted, single-user prototype; DesignCraft original Undo/Redo server-bridge candidate; Actions release remains draft pending provider/save/recovery proof.
+**Version: 0.2.0-alpha.30** — open-source, self-hosted, single-user prototype; DesignCraft server Open preserves the selected filename across session-scoped copy-first storage; Actions release remains draft pending provider/save/recovery proof.
 
 Bring your creative tools together in one browser studio. Choose an application, select your files, and access your own server from a lightweight laptop. The goal is **the original application interfaces and tools in the browser, with the server doing the heavy work**: photography, image editing, illustration, PDF, publishing, video and motion graphics. Browser controls run locally; document commands, data and previews travel to the server. No VNC or remote desktop is involved.
 
@@ -24,7 +24,7 @@ Alpha.24 adds an original Open-dialog candidate for a selected laptop `.designcr
 - **Release foundations:** GitHub Actions builds Linux x64, Windows x64 and Apple Silicon macOS native-prototype bundles with an embedded Node 24 runtime, licenses, manifests, native smokes and checksums. FilmCraft and DesignCraft preview archives have separate build jobs. Alpha.18 Actions built and verified all target bundles, previews, ten release assets and checksums; keep it draft because original DesignApp state, provider and full parity are pending. [Alpha.18 release evidence](docs/evidence/creative-workspace-alpha18-release.md).
 - **A visual project guide:** real screenshots of the studio and all eight applications, an original CW logo, installation instructions and explicit source/license attribution.
 
-Alpha.26–alpha.29 are draft candidates. Alpha.29 adds original `edit.redo` to the unregistered DesignCraft server mirror and proves Undo/Redo snapshot/render transitions in Chromium. Provider binding, laptop write ACK, save/reopen recovery and full parity remain unaccepted; keep the release draft and catalog planned. See [alpha.29 evidence](docs/evidence/designcraft-par03-redo.md). The latest verified **public** download is [v0.2.0-alpha.7](https://github.com/vedranius/creative-workspace/releases/tag/v0.2.0-alpha.7). Do not treat any draft as an available DesignCraft application. Every new product feature/fix receives its own version and changelog; documentation-only updates retain the product version. [Release requirements and upgrade guide](docs/releases.md).
+Alpha.26–alpha.30 are draft candidates. Alpha.29 adds original `edit.redo` to the unregistered DesignCraft server mirror; alpha.30 preserves the selected filename while keeping imported bytes under a session-scoped copy-first path. Actions run `38373397503` passed the revision 1–5 server-canvas path but exposed this filename mismatch in the Open/Save Copy smoke. Provider binding, laptop write ACK, save/reopen recovery and full parity remain unaccepted; keep the release draft and catalog planned. See [PAR-03 handoff](docs/par-03a-handoff.md). The latest verified **public** download is [v0.2.0-alpha.7](https://github.com/vedranius/creative-workspace/releases/tag/v0.2.0-alpha.7). Do not treat any draft as an available DesignCraft application. Every new product feature/fix receives its own version and changelog; documentation-only updates retain the product version. [Release requirements and upgrade guide](docs/releases.md).
 
 ## Applications and current status
 

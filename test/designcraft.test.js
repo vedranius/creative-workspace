@@ -114,6 +114,15 @@ test('Copy-first input is bounded and session-rooted, never writes through a lap
  await design.close(session.id);await design.close(share.id);
 });
 
+test('Original file.open keeps the selected filename when copy-first storage adds a session prefix',async t=>{
+ const {project,design,call}=await fixture(t);const session=await design.create(project);
+ const providerPath='imports/123e4567-e89b-42d3-a456-426614174000-chosen.designcraft';
+ await design.importInput(session.id,Readable.from(['fixture']),providerPath);
+ const opened=await call(session.id,'file.open',{path:providerPath},{expectedVersion:0});
+ assert.equal(opened.document.name,'chosen.designcraft');
+ await design.close(session.id);
+});
+
 test('Design gateway rejects absent and oversized canonical document snapshots',async t=>{
   const {project,design,engines,call}=await fixture(t),session=await design.create(project);await call(session.id,'doc.new',{width:800,height:600,pages:1});
   const worker=engines.find(engine=>!engine.closed),state=worker.call.bind(worker);

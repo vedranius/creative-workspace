@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.2.0-alpha.30] — 2026-10-13 (DesignCraft provider filename preservation)
+
+- Preserve the browser-selected `.designcraft` basename in the original server read model when the copy-first provider stores the upload under a UUID-prefixed, session-rooted path.
+- Add a gateway regression for opening `imports/<uuid>-chosen.designcraft`; the UI keeps `chosen.designcraft` for Save a Copy and reopen workflows while storage remains collision-safe.
+- Actions run `38373397503` proved original A4, frame creation, Undo/Redo/Undo and server renders through revision 5, but its Open/Save Copy browser smoke caught the prefixed display name. No release assets or availability claim are accepted until the fresh Actions run, provider ACK and reopen evidence pass.
+
 ## [0.2.0-alpha.29] — 2026-10-13 (draft candidate; DesignCraft original Redo bridge)
 
 - Extend the isolated original `DesignApp` server mirror to route the upstream `edit.redo` action through its ordered pending/ACK path. Validate the worker's redo receipt, then apply only its canonical snapshot and server PNG at the acknowledged revision.
