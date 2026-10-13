@@ -179,7 +179,7 @@ export async function createWorkspaceServer({dataDir=process.env.DATA_DIR||path.
         if(req.method==='PUT'&&designSession[2]==='input')return json(await designcraft.importInput(designSession[1],req,url.searchParams.get('path')),201);
         if(req.method==='POST'&&designSession[2]==='rpc'){
           const input=await body(req,65536),detail=designcraft.describe(designSession[1]);
-          if(detail.shareId&&(['doc.open','file.open'].includes(input.method)||input.method==='doc.save'&&detail.laptopOutput))try{storage.source(detail.shareId,'designcraft');}catch{throw error('Reconnect the laptop folder before opening or saving files',503);}
+          if(detail.shareId&&(['doc.open','file.open'].includes(input.method)||detail.laptopOutput&&['doc.save','file.saveACopy'].includes(input.method)))try{storage.source(detail.shareId,'designcraft');}catch{throw error('Reconnect the laptop folder before opening or saving files',503);}
           if(['doc.open','file.open'].includes(input.method)&&detail.shareId&&typeof input.params?.path==='string')storage.focus(path.join(detail.readRoot,input.params.path));
           storage.activity.touch();storage.activity.loading(input.requestId);try{return json(await designcraft.execute(designSession[1],input));}finally{storage.activity.loaded(input.requestId);}
         }

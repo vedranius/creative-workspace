@@ -1,5 +1,11 @@
 # PAR-03 handoff — bounded server read-model slice verified
 
+## 2026-10-13 laptop Save Copy server handler candidate (unaccepted)
+
+The working tree adds a server handler for explicit `destination=laptop` to original `file.saveACopy`. It checks native bytes, uses exclusive create under the selected laptop on-demand mount, and waits on the injected common-provider `settleOutput` browser ACK before success. It fails closed if the session/provider ACK hook is missing, preserves the source dirty state, and rejects collision/retry after uncertain ACK. Protocol fixture [report](evidence/designcraft-laptop-save-copy-protocol.json); `npm run check` and `npm test` 55/55 pass. `git diff --check` passes.
+
+This is not accepted or released. The local host lacks `/dev/fuse`, Trunk, and Chromium, and the pinned original Save Copy dialog/session bootstrap still only selects server workspace. No browser permission, real provider ACK, native worker output, reopen, disconnect or recovery proof exists. Do not register this variant, make availability claims, or bump SemVer yet. Next: integrate the original host with a selected read/write on-demand share and expose the explicit destination choice; then prove actual original UI save→ACK→reopen, collisions, interrupted write recovery, and no replay over newer content using real Chromium and FUSE. Preserve untracked `engines/filmcraft/` and all live sessions.
+
 ## Alpha.26 original Save Copy candidate — 2026-10-13
 
 **Bounded result:** added the original File → Save a Copy… action to the cumulative upstream DesignCraft candidate. The original dialog requires explicit `destination=server` and `retention=workspace`, routes native `file.saveACopy` to the owned worker, writes through a unique private staging directory, validates regular-file/size/native-byte evidence, and atomically creates a new workspace target without overwrite. The final response only follows the server write ACK. The source filename and dirty state remain unchanged. Laptop output returns `WRITE_ACK_REQUIRED`; non-workspace retention returns `RETENTION_UNSUPPORTED`. The candidate is unregistered; DesignCraft remains planned.

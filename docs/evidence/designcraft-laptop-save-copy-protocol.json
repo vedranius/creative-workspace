@@ -1,0 +1,28 @@
+{
+  "status": "protocol-fixture-only",
+  "feature": "original file.saveACopy laptop provider ACK candidate",
+  "verified": [
+    "native save_copy bytes are staged and checked before destination write",
+    "laptop destination is allowed only for a session created with an explicitly selected laptop share",
+    "new destination is created exclusively and an existing path is rejected without modifying bytes",
+    "success response waits for settleOutput(provider browser write ACK)",
+    "source filename and dirty state remain unchanged",
+    "simulated lost ACK leaves the uncertain output in place; retry to that path is rejected"
+  ],
+  "checks": {
+    "npmRunCheck": "passed",
+    "npmTest": "55/55 passed"
+  },
+  "notVerified": [
+    "real DesignCraft native worker output",
+    "original UI selection of read/write laptop folder and destination control",
+    "real browser file-provider permission and WebSocket write ACK",
+    "FUSE-backed write, disconnect/reconnect recovery, and reopen from the laptop folder"
+  ],
+  "environment": {
+    "devFuse": "missing",
+    "trunk": "unavailable",
+    "chromiumExecutable": "unavailable"
+  },
+  "availability": "planned; candidate is not registered or accepted"
+}

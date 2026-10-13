@@ -1,6 +1,7 @@
 import path from 'node:path';
 import {access,mkdir,realpath,stat,rm,open,readdir} from 'node:fs/promises';
 import {createReadStream} from 'node:fs';
+import {Transform} from 'node:stream';
 import {pipeline} from 'node:stream/promises';
 import {randomBytes} from 'node:crypto';
 import {EngineProcess} from './photocraft.js';
@@ -30,7 +31,7 @@ function commandParams(method,p){
 }
 async function destination(root,target){const parts=importSegments(target),base=await realpath(root);let parent=base;for(const name of parts.slice(0,-1)){await mkdir(path.join(parent,name)).catch(e=>{if(e.code!=='EEXIST')throw e;});parent=await realpath(path.join(parent,name));if(!isWithin(base,parent))throw fail('Output folder is outside the workspace',403);}return path.join(parent,parts.at(-1));}
 
-export function createDesignCraft({binary=process.env.CW_DESIGNCRAFT_BINARY||path.resolve('data/engines/designcraft/build/release/cw-designcraft-engine'),stateDir=path.resolve('data/engines/designcraft/sessions'),maxSessions=4,maxFileBytes=64*1024*1024,settleOutput=async()=>{},processFactory=(file,read,write)=>new EngineProcess(file,read,{args:[read,write],configDir:write,allowedMethods:nativeMethods,engineName:'DesignCraft'})}={}){
+export function createDesignCraft({binary=process.env.CW_DESIGNCRAFT_BINARY||path.resolve('data/engines/designcraft/build/release/cw-designcraft-engine'),stateDir=path.resolve('data/engines/designcraft/sessions'),maxSessions=4,maxFileBytes=64*1024*1024,settleOutput,processFactory=(file,read,write)=>new EngineProcess(file,read,{args:[read,write],configDir:write,allowedMethods:nativeMethods,engineName:'DesignCraft'})}={}){
   const sessions=new Map();let creating=0,probe=null,cached=null;
   async function identity(root){const engine=processFactory(binary,root,root);try{const value=await engine.call('__cw_identity');if(value.runtimeId!=='creative-workspace-designcraft-v1')throw fail('This is not a workspace-owned DesignCraft engine',503);return value;}finally{engine.stop();}}
   async function status(){
@@ -75,19 +76,36 @@ export function createDesignCraft({binary=process.env.CW_DESIGNCRAFT_BINARY||pat
         if(method==='page.select'){if(!Number.isSafeInteger(params.index)||params.index<0)throw fail('Invalid page');const doc=await s.engine.call('state');if(params.index>=doc.pageCount)throw fail('Unknown page');s.version++;s.page=params.index;}
         else if(method==='file.saveACopy'){
           if(Object.keys(params).sort().join(',')!=='destination,path,retention')throw fail('Save a Copy needs an explicit path, destination and retention choice');
-          if(params.destination!=='server')throw fail('Laptop Save a Copy needs a browser write acknowledgement; choose the server workspace',403,'WRITE_ACK_REQUIRED');
+          if(!['server','laptop'].includes(params.destination))throw fail('Choose a server or laptop destination');
+          if(params.destination==='laptop'&&!s.laptopOutput)throw fail('Select a read/write laptop folder before choosing the laptop destination',403,'LAPTOP_DESTINATION_REQUIRED');
+          if(params.destination==='laptop'&&typeof settleOutput!=='function')throw fail('Laptop write acknowledgement is unavailable',503,'WRITE_ACK_UNAVAILABLE');
           if(params.retention!=='workspace')throw fail('This Save a Copy flow currently supports explicit workspace retention only',422,'RETENTION_UNSUPPORTED');
           const target=relative(params.path);if(!/\.designcraft$/i.test(target))throw fail('Save a native copy with a .designcraft filename');
           const exportRoot=path.join(s.privateRoot,randomBytes(12).toString('hex'));await mkdir(exportRoot);const staged=path.join(exportRoot,'copy.designcraft');
           try{
             const exported=await s.engine.call('save_copy',{path:staged});const info=await stat(staged);if(!info.isFile()||info.size<1||info.size>maxFileBytes)throw fail('Native copy exceeds the 64 MB prototype limit',413);
             if(!exported||exported.bytes!==info.size)throw fail('Native Save a Copy byte acknowledgement did not match the staged output',502);
-            const written=await receiveFile(createReadStream(staged),s.writeRoot,target,maxFileBytes);
-            if(written.bytes!==info.size)throw fail('Server workspace write acknowledgement did not match the native copy',502);
-            s.outputs.add(target);s.version++;result={commandId:'file.saveACopy',path:target,bytes:info.size,destination:'server',retention:'workspace',savedDocument:false};
+            let bytes=0;
+            if(params.destination==='laptop'){
+              const targetFile=await destination(s.writeRoot,target);let handle;
+              try{
+                handle=await open(targetFile,'wx');
+                const limiter=new Transform({transform(chunk,encoding,callback){bytes+=chunk.length;callback(bytes>maxFileBytes?fail('Native copy exceeds the 64 MB prototype limit',413):null,chunk);}});
+                await pipeline(createReadStream(staged),limiter,handle.createWriteStream());
+              }catch(e){throw e.code==='EEXIST'?fail('Choose a new filename; this laptop file already exists and was not overwritten',409,'OUTPUT_EXISTS'):e;}
+              finally{await handle?.close().catch(()=>{});}
+              // Closing the server-side file only queues the provider write. Report success after the browser
+              // destination acknowledges it; on timeout the provider journal retains the uncertain output.
+              await settleOutput(s.shareId,target);
+            }else{
+              const written=await receiveFile(createReadStream(staged),s.writeRoot,target,maxFileBytes);bytes=written.bytes;
+            }
+            if(bytes!==info.size)throw fail('Destination write acknowledgement did not match the native copy',502);
+            s.outputs.add(target);s.version++;result={commandId:'file.saveACopy',path:target,bytes,destination:params.destination,retention:'workspace',savedDocument:false};
           }finally{await rm(exportRoot,{recursive:true,force:true}).catch(()=>{});}
         }
         else if(method==='doc.save'){
+          if(s.laptopOutput&&typeof settleOutput!=='function')throw fail('Laptop write acknowledgement is unavailable',503,'WRITE_ACK_UNAVAILABLE');
           const target=relative(params.path),format=path.extname(target).slice(1).toLowerCase();if(!['designcraft','pdf','png'].includes(format))throw fail('Choose .designcraft, .pdf or .png');s.version++;
           const exportRoot=path.join(s.privateRoot,randomBytes(12).toString('hex'));await mkdir(exportRoot);const source=path.join(exportRoot,`document.${format}`);
           const doc=await s.engine.call('state'),board=doc.spreads.flatMap(sp=>sp.pages).find(p=>p.index===s.page);

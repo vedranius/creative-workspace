@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import path from 'node:path';
 import os from 'node:os';
 import {Readable} from 'node:stream';
-import {mkdtemp,mkdir,rm,readFile,writeFile,symlink,realpath} from 'node:fs/promises';
+import {mkdtemp,mkdir,rm,readFile,writeFile,symlink,realpath,stat} from 'node:fs/promises';
 import {createDesignCraft} from '../src/designcraft.js';
 import {createWorkspaceServer} from '../src/server.js';
 
@@ -51,12 +51,36 @@ test('Original file.saveACopy writes a retained server copy after byte ACK witho
   const copy=await readFile(await design.output(source.id,'copies/issue-copy.designcraft'));
   assert.equal(copy.toString(),JSON.stringify(engines.find(engine=>!engine.closed).doc));
   await assert.rejects(call(source.id,'file.saveACopy',{path:'copies/issue-copy.designcraft',destination:'server',retention:'workspace'}),e=>e.status===409);
-  await assert.rejects(call(source.id,'file.saveACopy',{path:'copies/laptop.designcraft',destination:'laptop',retention:'workspace'}),e=>e.code==='WRITE_ACK_REQUIRED');
+  await assert.rejects(call(source.id,'file.saveACopy',{path:'copies/laptop.designcraft',destination:'laptop',retention:'workspace'}),e=>e.code==='LAPTOP_DESTINATION_REQUIRED');
   await assert.rejects(call(source.id,'file.saveACopy',{path:'copies/temp.designcraft',destination:'server',retention:'temporary'}),e=>e.code==='RETENTION_UNSUPPORTED');
   const reopened=await design.create(project);const opened=await call(reopened.id,'doc.open',{path:'copies/issue-copy.designcraft'});
   assert.equal(engines.find(engine=>engine.openParams)?.openParams.path,await realpath(path.join(project,'copies/issue-copy.designcraft')));
   assert.equal(opened.document.dirty,false);assert.equal(opened.document.name,'issue-copy.designcraft');
   await design.close(source.id,{discard:true});await design.close(reopened.id);
+});
+
+test('Original laptop file.saveACopy waits for provider ACK, preserves dirty source and never overwrites or replays uncertain output',async t=>{
+  const root=await mkdtemp(path.join(os.tmpdir(),'cw-design-laptop-copy-')),project=path.join(root,'project'),laptop=path.join(root,'laptop'),engines=[];
+  await mkdir(project);await mkdir(laptop);t.after(()=>rm(root,{recursive:true,force:true}));
+  let ack=false,failAck=false,expectedPath='exports/issue.designcraft';const design=createDesignCraft({binary:process.execPath,stateDir:path.join(root,'sessions'),settleOutput:async(shareId,relative)=>{assert.equal(shareId,'chosen-laptop');assert.equal(relative,expectedPath);assert.equal((await stat(path.join(laptop,relative))).isFile(),true);ack=true;if(failAck)throw Object.assign(new Error('Laptop filesystem reply timed out'),{code:'EIO'});},processFactory:()=>{const engine=new DesignFixture();engines.push(engine);return engine;}});t.after(()=>design.shutdown());
+  const session=await design.create(project,{writeRoot:laptop,shareId:'chosen-laptop',laptopOutput:true});const call=(method,params={},extra={})=>design.execute(session.id,{method,params,requestId:crypto.randomUUID(),...extra});
+  await call('file.new',{preset:'A4'});await call('frame.create',{rect:[10,10,90,70],content:'text',text:'Preserve dirty original'});
+  const saved=await call('file.saveACopy',{path:'exports/issue.designcraft',destination:'laptop',retention:'workspace'});
+  assert.equal(ack,true);assert.equal(saved.result.destination,'laptop');assert.equal(saved.result.savedDocument,false);assert.equal(saved.document.dirty,true);assert.equal(saved.document.name,'Fixture');assert.equal(saved.stateVersion,3);
+  const bytes=await readFile(path.join(laptop,'exports/issue.designcraft'));assert.equal(bytes.toString(),JSON.stringify(engines.find(e=>!e.closed).doc));
+  await assert.rejects(call('file.saveACopy',{path:'exports/issue.designcraft',destination:'laptop',retention:'workspace'}),e=>e.code==='OUTPUT_EXISTS');assert.deepEqual(await readFile(path.join(laptop,'exports/issue.designcraft')),bytes);
+  failAck=true;expectedPath='exports/uncertain.designcraft';await assert.rejects(call('file.saveACopy',{path:expectedPath,destination:'laptop',retention:'workspace'}),/timed out/);
+  const uncertain=await readFile(path.join(laptop,'exports/uncertain.designcraft'));assert.ok(uncertain.length>0);assert.equal((await call('state')).document.dirty,true);
+  await assert.rejects(call('file.saveACopy',{path:'exports/uncertain.designcraft',destination:'laptop',retention:'workspace'}),e=>e.code==='OUTPUT_EXISTS');assert.deepEqual(await readFile(path.join(laptop,'exports/uncertain.designcraft')),uncertain);
+  await design.close(session.id,{discard:true});
+});
+
+test('DesignCraft never treats a missing laptop ACK hook as save success',async t=>{
+  const {project,design,call}=await fixture(t),laptop=path.join(os.tmpdir(),`cw-design-no-ack-${crypto.randomUUID()}`);await mkdir(laptop);
+  const session=await design.create(project,{writeRoot:laptop,shareId:'selected-laptop',laptopOutput:true});await call(session.id,'file.new',{preset:'A4'});
+  await assert.rejects(call(session.id,'file.saveACopy',{path:'no-ack.designcraft',destination:'laptop',retention:'workspace'}),e=>e.code==='WRITE_ACK_UNAVAILABLE');
+  await assert.rejects(readFile(path.join(laptop,'no-ack.designcraft')));assert.equal((await call(session.id,'state')).document.dirty,true);
+  await design.close(session.id,{discard:true});await rm(laptop,{recursive:true,force:true});
 });
 
 test('Original file.open resolves only its provider root, ACKs server state and preserves open documents',async t=>{
