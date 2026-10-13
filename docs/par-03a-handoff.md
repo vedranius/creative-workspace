@@ -1,5 +1,11 @@
 # PAR-03 handoff — bounded server read-model slice verified
 
+## Alpha.31 CI and draft verification (2026-10-13)
+
+Commit `81802cac9e4a7c5d47a239579f26c4b5928be073` is pushed to `main`. Checks `38393945791` and Build/release `38393945850` passed; the latter includes contract, all native jobs, three OS bundles, `original-designcraft`, and publish. Immutable `v0.2.0-alpha.31` resolves to the same commit. The prerelease remains a draft with six Actions-built archives and six `.sha256` assets; downloaded sidecar values match the GitHub release asset digests. The Actions run retains `designcraft-par03-browser-evidence` and `release-designcraft-par03-ui` artifacts.
+
+The local archive download/rehash could not finish because `/tmp` tmpfs is full (12 GiB used, 60 MiB available). No local archive checksum rehash is claimed. The original browser smoke still mocks the File System Access folder handle. **Keep the release draft, keep DesignCraft planned, and do not activate this candidate.** Next exact step: provide adequate scratch space, then prove genuine browser folder permission and laptop destination write ACK/reopen/uncertain-output recovery without modifying protected sessions. Full original tool/action parity remains a later acceptance requirement.
+
 ## Alpha.31 provider-binding candidate — local verification complete, 2026-10-13
 
 The original pinned DesignApp now binds session startup/Open to the common selected read/write on-demand provider and preserves an explicit copy-first server upload. Original Save a Copy exposes server workspace or selected laptop folder separately from supported workspace retention. Gateway routes bind server workspace and provider roots independently; laptop writes await provider acknowledgement and fail closed on collisions. Local checks pass (`npm run check`, 57/57 tests, release validation, diff check), native WASM check passes, and the optimized pinned-source build passes the exact candidate-patch guard.
