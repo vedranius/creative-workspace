@@ -54,7 +54,7 @@ test('Original file.saveACopy writes a retained server copy after byte ACK witho
   await assert.rejects(call(source.id,'file.saveACopy',{path:'copies/laptop.designcraft',destination:'laptop',retention:'workspace'}),e=>e.code==='WRITE_ACK_REQUIRED');
   await assert.rejects(call(source.id,'file.saveACopy',{path:'copies/temp.designcraft',destination:'server',retention:'temporary'}),e=>e.code==='RETENTION_UNSUPPORTED');
   const reopened=await design.create(project);const opened=await call(reopened.id,'doc.open',{path:'copies/issue-copy.designcraft'});
-  assert.equal(engines.find(engine=>engine.openParams)?.openParams.path,path.join(project,'copies/issue-copy.designcraft'));
+  assert.equal(engines.find(engine=>engine.openParams)?.openParams.path,await realpath(path.join(project,'copies/issue-copy.designcraft')));
   assert.equal(opened.document.dirty,false);assert.equal(opened.document.name,'issue-copy.designcraft');
   await design.close(source.id,{discard:true});await design.close(reopened.id);
 });
