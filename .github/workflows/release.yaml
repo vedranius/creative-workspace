@@ -5,6 +5,7 @@ on:
     paths-ignore:
       - 'docs/**'
       - 'evidence/**'
+      - 'patches/**'
       - 'README.md'
       - 'LICENSE.md'
       - 'CHANGELOG.md'
