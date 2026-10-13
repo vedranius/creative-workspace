@@ -1,5 +1,10 @@
 # Development handoff
 
+## 2026-10-14 PAR-03 text.insert queue candidate
+
+An unregistered candidate patch routes the original `text.insert` action through the server mirror and adds a bounded FIFO while another server action is pending (32 events, 16 KiB total, 4 KiB/event). ACKs drain one action at a time; overflow rejects new input, and failures hold queued edits without automatic replay. Patch: [candidate](patches/designcraft/a127c6d5/par-03-text-insert-queue-candidate.patch), SHA-256 `8eba5bc78553b2580943085e139e850f12442bcd66f975273e94ba351a95b5fa`. Engine and UI queue tests pass (3/3), UI crate check passes, and the 57 repository tests pass. Browser editing and original UI build remain unverified; do not register or claim availability. Next: build the pinned optimized candidate, then fast-typing browser proof. Preserve the alpha.31 draft and separately resolve genuine folder permission/ACK/recovery.
+
+
 ## 2026-10-13 PAR-03 genuine browser folder-permission attempt
 
 The exact alpha.31 Actions-built host candidate archive was downloaded into ignored scratch at `build/host-tmp/cw-par03-real-folder/`; its sidecar verifies and `SOURCE.json` confirms pin `a127c6d5…` and candidate patch SHA-256 `27c0c700…634f`. `/tmp` remains full, so the QA `TMPDIR` used a short `/tmp/cw-par03-qa` symlink into this workspace disk (273 GiB available). A headful Playwright Chromium context kept the native `showDirectoryPicker` implementation and a synthetic fixture was staged only in the new QA folder. No folder permission was granted: CUA exposes only In-app Browser and MCP Apps, no Chrome/native-picker surface; the real picker never returned a handle and “Start this mode” remained disabled. The disposable context closed on timeout. No application code or live sessions changed; `engines/filmcraft/` remains untouched.

@@ -1,5 +1,11 @@
 # PAR-03 handoff — bounded server read-model slice verified
 
+## Alpha.32 text-input queue candidate — 2026-10-14
+
+A bounded source patch stages original `text.insert` IDs/parameters in the server mirror and queues events arriving while one server action awaits ACK. The queue preserves order, limits entries to 32 events / 16 KiB total / 4 KiB per event, and drains only after a validated ACK. Overflow is explicitly rejected; failed ACKs hold queued edits without automatic replay. Patch SHA-256: `8eba5bc78553b2580943085e139e850f12442bcd66f975273e94ba351a95b5fa`. Native engine and UI queue tests pass (3/3); `cargo check -p designcraft-ui-egui` passes. Repository `npm run check`, `npm test` 57/57, `npm run release:validate`, and clean-pin patch apply/hash checks pass. Browser editing remains unverified. Candidate is not registered/activated; DesignCraft stays planned.
+
+Next: build the pinned optimized UI candidate and capture browser evidence of fast typing with successive server revisions/render updates. Keep the alpha.31 release draft and separately complete real picker permission/write ACK/recovery.
+
 ## Alpha.31 CI and draft verification (2026-10-13)
 
 Commit `81802cac9e4a7c5d47a239579f26c4b5928be073` is pushed to `main`. Checks `38393945791` and Build/release `38393945850` passed; the latter includes contract, all native jobs, three OS bundles, `original-designcraft`, and publish. Immutable `v0.2.0-alpha.31` resolves to the same commit. The prerelease remains a draft with six Actions-built archives and six `.sha256` assets; downloaded sidecar values match the GitHub release asset digests. The Actions run retains `designcraft-par03-browser-evidence` and `release-designcraft-par03-ui` artifacts.
