@@ -96,7 +96,7 @@ try{
  const picker=await choose();await picker.setFiles(chosen);
  await page.waitForFunction(()=>document.querySelector('#designcraft_canvas')?.getAttribute('data-server-revision')==='1',null,{timeout:120000});
  assert.equal(requests.length,1);assert.equal(requests[0].method,'file.open');assert.equal(requests[0].expectedVersion,0);
- assert.match(requests[0].params.path,/^imports\/[a-f0-9-]+\/chosen\.designcraft$/);
+ assert.match(requests[0].params.path,/^imports\/[a-f0-9-]+-chosen\.designcraft$/);
  assert.equal(acks[0].result.commandId,'file.open');assert.equal(acks[0].document.dirty,false);assert.equal(acks[0].document.name,'chosen.designcraft');
  assert.equal(copies.length,1);assert.equal(copies[0].mode,'copy-first');assert.equal(copies[0].sessionId,sessionId);assert.equal(copies[0].bytes,fixture.length);
  const serverCopy=path.join(scratch,'projects/designcraft',requests[0].params.path);
