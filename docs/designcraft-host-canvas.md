@@ -1,6 +1,6 @@
 # DesignCraft original UI server action candidate
 
-Creative Workspace alpha.26 extends the bounded candidate based on upstream DesignCraft `a127c6d5c3576972bbd60445f26d893db071eef3`. It retains the original `DesignApp` and its A4 welcome-screen preset card. This is an unregistered partial port; DesignCraft remains planned.
+Creative Workspace alpha.31 extends the bounded candidate based on upstream DesignCraft `a127c6d5c3576972bbd60445f26d893db071eef3`. It retains the original `DesignApp` and its A4 welcome-screen preset card. This is an unregistered partial port; DesignCraft remains planned. Alpha.31 binds the original app bootstrap to a common app-scoped read/write on-demand share, browses that share in the original Open action, and keeps an explicit server copy-first upload path available.
 
 The actual preset click queues original `file.new` and its preset parameters. The owned gateway/worker creates the document and returns a revisioned canonical snapshot, dirty state and bounded server PNG. The browser validates the ACK, snapshot and same-session preview before hydrating a read-only original UI mirror. The original canvas displays the server PNG as an egui texture; its local document renderer and pointer/tool path are bypassed. Image decoding and displaying the preview remain browser presentation work.
 
@@ -8,7 +8,7 @@ The alpha.21 candidate extends this document action with the original Rectangle 
 
 ## Original Save Copy
 
-The original File → Save a Copy… dialog now submits upstream `file.saveACopy` to the owned worker. The user sees and must confirm an explicit server workspace path and `Keep in workspace` retention. The native worker writes into a unique private staging directory; the gateway checks the bounded regular file and native byte count, then atomically creates the new workspace path without replacing an existing output. It returns success only after the final server write acknowledges the same byte count. The original file name and dirty state remain unchanged; the command never calls `mark_saved`.
+The original File → Save a Copy… dialog now submits upstream `file.saveACopy` to the owned worker. The user separately selects server workspace or the connected laptop folder and sees the supported `Keep in workspace` retention. The original bootstrap requires an explicitly selected read/write on-demand share, and original Open browses that provider; a separate local upload keeps copy-first server imports. The native worker writes into a unique private staging directory; the gateway checks the bounded regular file and native byte count, then atomically creates the new workspace path without replacing an existing output. It returns success only after the final server write acknowledges the same byte count. The original file name and dirty state remain unchanged; the command never calls `mark_saved`.
 
 Laptop output is rejected with `WRITE_ACK_REQUIRED` because the browser file system access API has no write-ACK flow here. Temporary/managed retention is rejected. This slice does not prove interrupted-write recovery, laptop permissions, folder modes or full app parity. The exact cumulative source pin, patch and limits are recorded in the [candidate manifest](../engines/original-ui/designcraft/host-canvas.json) and [source patch](../patches/designcraft/a127c6d5/par-03-save-copy-candidate.patch).
 

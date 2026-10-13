@@ -38,11 +38,11 @@ export function createDesignCraft({binary=process.env.CW_DESIGNCRAFT_BINARY||pat
     if(cached&&Date.now()-cached.at<10000)return {...cached.value,sessions:sessions.size};if(probe)return probe;
     probe=(async()=>{let value;try{await access(binary);const root=path.join(stateDir,'probe');await mkdir(root,{recursive:true});const owned=await identity(root);value={ready:true,url:'/apps/designcraft/',version:owned.version,ownedRuntime:true,processing:'server',adapter:'native-browser-prototype',maxSessions};}catch{value={ready:false,message:'Install the workspace-owned DesignCraft engine',processing:'server'};}cached={at:Date.now(),value};return {...value,sessions:sessions.size};})().finally(()=>{probe=null;});return probe;
   }
-  async function create(root,{writeRoot=root,shareId=null,laptopOutput=false}={}){
+  async function create(root,{writeRoot=root,workspaceRoot=writeRoot,shareId=null,laptopOutput=false}={}){
     if(!(await status()).ready)throw fail('DesignCraft engine is not installed',503);if(sessions.size+creating>=maxSessions)throw fail('DesignCraft session limit reached; close an unused session',409);creating++;
     let engine,privateRoot;
-    try{const id=randomBytes(24).toString('hex');privateRoot=path.join(stateDir,id,'outputs');await mkdir(privateRoot,{recursive:true});const read=await realpath(root),write=await realpath(writeRoot);engine=processFactory(binary,read,privateRoot);const owned=await engine.call('__cw_identity');if(owned.runtimeId!=='creative-workspace-designcraft-v1')throw fail('Unexpected DesignCraft engine',503);
-      sessions.set(id,{id,root:read,writeRoot:write,privateRoot,engine,shareId,laptopOutput,queue:Promise.resolve(),requests:new Map(),version:0,page:0,name:null,outputs:new Set(),frames:new Map(),previewVersion:0,lastUsed:Date.now(),dirty:false});return {id,shareId,processing:'server',source:shareId?'laptop':'server'};
+    try{const id=randomBytes(24).toString('hex');privateRoot=path.join(stateDir,id,'outputs');await mkdir(privateRoot,{recursive:true});const read=await realpath(root),write=await realpath(writeRoot),workspace=await realpath(workspaceRoot);engine=processFactory(binary,read,privateRoot);const owned=await engine.call('__cw_identity');if(owned.runtimeId!=='creative-workspace-designcraft-v1')throw fail('Unexpected DesignCraft engine',503);
+      sessions.set(id,{id,root:read,writeRoot:write,workspaceRoot:workspace,privateRoot,engine,shareId,laptopOutput,queue:Promise.resolve(),requests:new Map(),version:0,page:0,name:null,outputs:new Set(),outputRoots:new Map(),frames:new Map(),previewVersion:0,lastUsed:Date.now(),dirty:false});return {id,shareId,processing:'server',source:shareId?'laptop':'server'};
     }catch(e){engine?.stop();if(privateRoot)await rm(path.dirname(privateRoot),{recursive:true,force:true}).catch(()=>{});throw e;}finally{creating--;}
   }
   const get=id=>{const s=sessions.get(id);if(!s||s.engine.closed)throw fail('DesignCraft session is not available',404);if(s.closing)throw fail('DesignCraft session is closing',409);s.lastUsed=Date.now();return s;};
@@ -52,11 +52,12 @@ export function createDesignCraft({binary=process.env.CW_DESIGNCRAFT_BINARY||pat
     if(document){documentSnapshot=boundedCanonicalDocument(document.documentSnapshot);delete document.documentSnapshot;document.name=s.name||document.title;s.page=Math.max(0,Math.min(s.page,(document.pageCount||1)-1));const frame=await s.engine.call('render',{page:s.page});s.frames.set(++s.previewVersion,boundedPng(frame.pngBase64));while(s.frames.size>3)s.frames.delete(s.frames.keys().next().value);preview=`/api/designcraft/sessions/${s.id}/preview.png?v=${s.previewVersion}`;}
     return {document,documentSnapshot,page:s.page,stateVersion:s.version,preview};
   }
-  async function importInput(id,stream,target){
+  async function importInput(id,stream,target,destinationChoice){
     const s=get(id),input=relative(target);
-    if(s.shareId)throw fail('Copy-first input requires an independent server workspace',403);
+    if(s.shareId&&destinationChoice!=='server')throw fail('Choose the server workspace for copy-first input',403);
+    if(destinationChoice!==undefined&&destinationChoice!=='server')throw fail('Choose the server workspace for copy-first input',422);
     if(!input.startsWith('imports/')||!/\.designcraft$/i.test(input))throw fail('Choose a native publication in the imports folder');
-    const copied=await receiveFile(stream,s.root,input,maxFileBytes);
+    const copied=await receiveFile(stream,s.workspaceRoot,input,maxFileBytes);
     return {...copied,sessionId:id,mode:'copy-first'};
   }
   async function execute(id,{method,params={},requestId,expectedVersion}={}){
@@ -68,7 +69,7 @@ export function createDesignCraft({binary=process.env.CW_DESIGNCRAFT_BINARY||pat
       if(method==='file.new'||method==='file.open'||method==='doc.open'||method==='doc.new'||method==='doc.sample'){
         if(await s.engine.call('state'))throw fail('Save and close the current document before opening another',409);
         if(method==='file.new'){if(Object.keys(params).length!==1||typeof params.preset!=='string'||params.preset.length<1||params.preset.length>100)throw fail('Original file.new requires one known-size preset name');s.version++;result=await s.engine.call('new',{preset:params.preset});result={...result,commandId:'file.new'};}
-        else if(method==='file.open'||method==='doc.open'){if(method==='file.open'&&(Object.keys(params).length!==1||typeof params.path!=='string'))throw fail('Original file.open requires only a provider-relative path');const input=relative(params.path);if(!/\.designcraft$/i.test(input))throw fail('Choose a native .designcraft document');const file=await resolveWorkspace(s.root,input),info=await stat(file);if(!info.isFile()||info.size>maxFileBytes)throw fail('Document exceeds the 64 MB prototype limit',413);s.version++;result=await s.engine.call('open',{path:file});const filename=path.basename(input);s.name=filename.replace(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}-(?=.+\.designcraft$)/i,'');if(method==='file.open')result={...result,commandId:'file.open'};}
+        else if(method==='file.open'||method==='doc.open'){if(method==='file.open'&&(Object.keys(params).length!==1||typeof params.path!=='string'))throw fail('Original file.open requires only a provider-relative path');const input=relative(params.path);if(!/\.designcraft$/i.test(input))throw fail('Choose a native .designcraft document');const file=await resolveWorkspace(input.startsWith('imports/')?s.workspaceRoot:s.root,input),info=await stat(file);if(!info.isFile()||info.size>maxFileBytes)throw fail('Document exceeds the 64 MB prototype limit',413);s.version++;result=await s.engine.call('open',{path:file});const filename=path.basename(input);s.name=filename.replace(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}-(?=.+\.designcraft$)/i,'');if(method==='file.open')result={...result,commandId:'file.open'};}
         else if(method==='doc.sample'){s.version++;s.dirty=true;result=await s.engine.call('sample');s.name='Sample Document';}
         else{const width=number(params.width,1,10000,'width'),height=number(params.height,1,10000,'height');if(!Number.isInteger(params.pages))throw fail('Page count must be an integer');s.version++;s.dirty=true;result=await s.engine.call('new',{title:typeof params.name==='string'?params.name.slice(0,100):'Untitled',width,height,pages:number(params.pages,1,64,'page count'),facingPages:false});result={...result,commandId:'file.new'};s.name=typeof params.name==='string'?params.name.slice(0,100):'Untitled';}
       }else{
@@ -98,10 +99,10 @@ export function createDesignCraft({binary=process.env.CW_DESIGNCRAFT_BINARY||pat
               // destination acknowledges it; on timeout the provider journal retains the uncertain output.
               await settleOutput(s.shareId,target);
             }else{
-              const written=await receiveFile(createReadStream(staged),s.writeRoot,target,maxFileBytes);bytes=written.bytes;
+              const written=await receiveFile(createReadStream(staged),s.workspaceRoot,target,maxFileBytes);bytes=written.bytes;s.outputRoots.set(target,s.workspaceRoot);
             }
             if(bytes!==info.size)throw fail('Destination write acknowledgement did not match the native copy',502);
-            s.outputs.add(target);s.version++;result={commandId:'file.saveACopy',path:target,bytes,destination:params.destination,retention:'workspace',savedDocument:false};
+            if(params.destination==='laptop')s.outputRoots.set(target,s.writeRoot);s.outputs.add(target);s.version++;result={commandId:'file.saveACopy',path:target,bytes,destination:params.destination,retention:'workspace',savedDocument:false};
           }finally{await rm(exportRoot,{recursive:true,force:true}).catch(()=>{});}
         }
         else if(method==='doc.save'){
@@ -121,7 +122,7 @@ export function createDesignCraft({binary=process.env.CW_DESIGNCRAFT_BINARY||pat
   }
   function preview(id,version){const frame=get(id).frames.get(Number(version));if(!frame)throw fail('Preview is no longer available',410);return frame;}
   async function close(id,{discard=false}={}){const s=get(id);s.closing=true;try{await s.queue;if(s.dirty&&discard!==true)throw fail('Save the native DesignCraft document before closing it',409);s.engine.stop();sessions.delete(id);await rm(path.dirname(s.privateRoot),{recursive:true,force:true});return {closed:true};}finally{s.closing=false;}}
-  async function output(id,name){const s=get(id);if(!s.outputs.has(name))throw fail('This file was not exported by this session',403);return resolveWorkspace(s.writeRoot,name);}
+  async function output(id,name){const s=get(id);if(!s.outputs.has(name))throw fail('This file was not exported by this session',403);return resolveWorkspace(s.outputRoots.get(name)||s.writeRoot,name);}
   const idle=setInterval(()=>{for(const [id,s]of sessions)if(!s.dirty&&![...s.requests.values()].some(r=>r.pending)&&Date.now()-s.lastUsed>3600000)close(id).catch(()=>{});},60000);idle.unref();
-  return {status,create,execute,importInput,preview,close,output,describe:id=>{const s=get(id);return {readRoot:s.root,writeRoot:s.writeRoot,shareId:s.shareId,laptopOutput:s.laptopOutput};},usesShare:id=>[...sessions.values()].some(s=>s.shareId===id&&!s.engine.closed),shutdown:()=>{clearInterval(idle);for(const s of sessions.values())s.engine.stop();sessions.clear();}};
+  return {status,create,execute,importInput,preview,close,output,describe:id=>{const s=get(id);return {readRoot:s.root,writeRoot:s.writeRoot,workspaceRoot:s.workspaceRoot,shareId:s.shareId,laptopOutput:s.laptopOutput};},usesShare:id=>[...sessions.values()].some(s=>s.shareId===id&&!s.engine.closed),shutdown:()=>{clearInterval(idle);for(const s of sessions.values())s.engine.stop();sessions.clear();}};
 }

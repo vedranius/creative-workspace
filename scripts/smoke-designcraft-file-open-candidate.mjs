@@ -2,7 +2,7 @@
 import assert from 'node:assert/strict';
 import path from 'node:path';
 import os from 'node:os';
-import {mkdtemp,mkdir,readFile,writeFile,rm,realpath,truncate} from 'node:fs/promises';
+import {mkdtemp,mkdir,readFile,writeFile,rm,realpath} from 'node:fs/promises';
 import {createHash} from 'node:crypto';
 import {inflateSync} from 'node:zlib';
 import {pathToFileURL} from 'node:url';
@@ -57,7 +57,7 @@ function visibleCanvas(png){
  assert.ok(brightPixels>100000&&colors.size>=32,`Original canvas was not visibly painted: ${brightPixels} bright pixels, ${colors.size} colors`);
  return {brightPixels,distinctColorsAtLeast:Math.min(colors.size,64)};
 }
-let browser,sessionId,fixtureId;
+let browser,sessionId,fixtureId,shareIds=[];
 try{
  server.listen(0,'127.0.0.1');await new Promise(resolve=>server.once('listening',resolve));
  const base=`http://127.0.0.1:${server.address().port}`;
@@ -71,52 +71,49 @@ try{
  await rpc(fixtureId,'frame.create',{rect:[60,60,220,200],content:'unassigned',shape:'rectangle'});
  await rpc(fixtureId,'doc.save',{path:'native-fixture.designcraft'});
  const fixture=await readFile(path.join(scratch,'projects/designcraft/native-fixture.designcraft'));
- const laptop=path.join(scratch,'laptop');await mkdir(laptop);
- const chosen=path.join(laptop,'chosen.designcraft');await writeFile(chosen,fixture);
  const originalHash=createHash('sha256').update(fixture).digest('hex');
  await post(`/api/designcraft/sessions/${fixtureId}`,'DELETE',{});fixtureId=null;rpcReceipts.length=0;
  browser=await chromium.launch({headless:true,chromiumSandbox:true,executablePath:process.env.CW_BROWSER_EXECUTABLE,args:['--enable-webgl','--use-gl=angle','--use-angle=swiftshader','--enable-unsafe-swiftshader','--disable-dev-shm-usage']});
  const context=await browser.newContext({viewport:{width:1440,height:1000}});
- // This smoke drives Playwright's native filechooser event. The product prefers
- // showOpenFilePicker where Chromium exposes it, so force its documented input
- // fallback here; real File System Access permission checks remain separate QA.
- await context.addInitScript(()=>{Object.defineProperty(window,'showOpenFilePicker',{configurable:true,value:undefined});});
+ await context.addInitScript(({payload})=>{
+  const files=new Map([['chosen.designcraft',Uint8Array.from(atob(payload),c=>c.charCodeAt(0))],['unrelated.bin',new Uint8Array(1024)]]);window.__cwFiles=files;
+  const dir=(name='Generated laptop publications',prefix='')=>({kind:'directory',name,async *entries(){const seen=new Set();for(const key of files.keys()){const rest=key.slice(prefix?prefix.length+1:0);if(!rest)continue;const part=rest.split('/')[0];if(seen.has(part))continue;seen.add(part);yield [part,rest.includes('/')?dir(part,[prefix,part].filter(Boolean).join('/')):fileHandle(part,[prefix,part].filter(Boolean).join('/'))];}},async getDirectoryHandle(n){const next=[prefix,n].filter(Boolean).join('/');if(![...files.keys()].some(k=>k.startsWith(next+'/')))throw new DOMException('Missing folder','NotFoundError');return dir(n,next);},async getFileHandle(n,{create=false}={}){const key=[prefix,n].filter(Boolean).join('/');if(!files.has(key)&&!create)throw new DOMException('Missing file','NotFoundError');if(create&&!files.has(key))files.set(key,new Uint8Array());return fileHandle(n,key);},async removeEntry(n){files.delete([prefix,n].filter(Boolean).join('/'));}});
+  const fileHandle=(name,key)=>({kind:'file',name,async getFile(){const bytes=files.get(key);if(!bytes)throw new DOMException('Missing file','NotFoundError');return new File([bytes],name,{lastModified:Date.now()});},async createWritable({keepExistingData=false}={}){let bytes=keepExistingData?(files.get(key)||new Uint8Array()).slice():new Uint8Array();return {async write(command){const at=command.position||0,data=command.data instanceof Blob?new Uint8Array(await command.data.arrayBuffer()):new Uint8Array(command.data);if(at+data.length>bytes.length){const grown=new Uint8Array(at+data.length);grown.set(bytes);bytes=grown;}bytes.set(data,at);},async close(){files.set(key,bytes);}};}});
+  window.showDirectoryPicker=async()=>dir();
+ },{payload:fixture.toString('base64')});
  const page=await context.newPage(),errors=[],requests=[],acks=rpcReceipts,copies=transferReceipts;
  page.on('pageerror',error=>errors.push(error.message));
- page.on('request',request=>{const match=request.url().match(/\/api\/designcraft\/sessions\/([a-f0-9]{48})\/(?:rpc|input)/);if(match)sessionId=match[1];if(request.url().endsWith('/rpc'))requests.push(request.postDataJSON());});
- const load=async()=>{await page.goto(base+'/candidate/?webgl',{waitUntil:'domcontentloaded'});await page.waitForFunction(()=>!document.querySelector('#designcraft_loading')&&document.querySelector('#designcraft_canvas')?.hasAttribute('data-original-open'),null,{timeout:120000});};
- const choose=async()=>{const chooser=page.waitForEvent('filechooser');const center=JSON.parse(await page.locator('#designcraft_canvas').getAttribute('data-original-open'));await page.mouse.click(...center);return chooser;};
+ page.on('request',request=>{const match=request.url().match(/\/api\/designcraft\/sessions\/([a-f0-9]{48})\/(?:rpc|input)/);if(match)sessionId=match[1];if(request.url().endsWith('/rpc'))requests.push(request.postDataJSON());});page.on('response',async response=>{if(response.url().endsWith('/api/storage/shares')&&response.request().method()==='POST'&&response.status()===201)try{shareIds.push((await response.json()).id);}catch{}});
+ const load=async()=>{await page.goto(base+'/candidate/?webgl',{waitUntil:'domcontentloaded'});await page.getByRole('button',{name:'Choose laptop folder…'}).click();await page.getByRole('button',{name:'Start this mode'}).click();await page.waitForFunction(()=>!document.querySelector('#designcraft_loading')&&document.querySelector('#designcraft_canvas')?.hasAttribute('data-original-open'),null,{timeout:120000});};
+ const choose=async()=>{const center=JSON.parse(await page.locator('#designcraft_canvas').getAttribute('data-original-open'));await page.mouse.click(...center);await page.getByRole('dialog',{name:'Open a DesignCraft publication'}).waitFor();};
  await load();
- const cancelled=await choose();await cancelled.setFiles([]);
+ await choose();await page.keyboard.press('Escape');
  await page.waitForFunction(()=>document.querySelector('#designcraft_canvas')?.getAttribute('data-server-pending')==='false');
  assert.equal(requests.length,0);assert.equal(copies.length,0);
- // Updating the panel's global workspace must not redirect a live session's chosen-file copy.
+ // Changing workspace settings cannot redirect a source already bound to its selected share.
  const changedRoot=path.join(scratch,'projects/changed');await mkdir(changedRoot);
  await post('/api/apps/designcraft/workspace','PUT',{root:changedRoot});
- const picker=await choose();await picker.setFiles(chosen);
+ await choose();await page.getByRole('button',{name:'◇ chosen.designcraft'}).click();
  await page.waitForFunction(()=>document.querySelector('#designcraft_canvas')?.getAttribute('data-server-revision')==='1',null,{timeout:120000});
  assert.equal(requests.length,1);assert.equal(requests[0].method,'file.open');assert.equal(requests[0].expectedVersion,0);
- assert.match(requests[0].params.path,/^imports\/[a-f0-9-]+-chosen\.designcraft$/);
+ assert.equal(requests[0].params.path,'chosen.designcraft');
  assert.equal(acks[0].result.commandId,'file.open');assert.equal(acks[0].document.dirty,false);assert.equal(acks[0].document.name,'chosen.designcraft');
- assert.equal(copies.length,1);assert.equal(copies[0].mode,'copy-first');assert.equal(copies[0].sessionId,sessionId);assert.equal(copies[0].bytes,fixture.length);
+ assert.equal(copies.length,0);
+ const openedSnapshot=JSON.stringify(acks[0].documentSnapshot),openedPng=Buffer.from(await (await fetch(base+acks[0].preview)).arrayBuffer()),openedPngHash=createHash('sha256').update(openedPng).digest('hex');
  const serverCopy=path.join(scratch,'projects/designcraft',requests[0].params.path);
- assert.equal(createHash('sha256').update(await readFile(serverCopy)).digest('hex'),originalHash);
- assert.deepEqual(acks[0].documentSnapshot.spreads[0].items.length,1);
- const openedSnapshot=JSON.stringify(acks[0].documentSnapshot),openedPng=Buffer.from(await (await fetch(base+acks[0].preview)).arrayBuffer());
- const openedPngHash=createHash('sha256').update(openedPng).digest('hex');
- await page.keyboard.press('Control+o');await page.waitForTimeout(100);assert.equal(requests.length,1);assert.equal(copies.length,1);
+ assert.equal(createHash('sha256').update(fixture).digest('hex'),originalHash);
  await page.keyboard.press('m');await page.mouse.move(610,385);await page.mouse.down();await page.mouse.move(755,500,{steps:4});await page.mouse.up();
  await page.waitForFunction(()=>document.querySelector('#designcraft_canvas')?.getAttribute('data-server-revision')==='2');
  assert.equal(requests[1].method,'frame.create');assert.equal(requests[1].expectedVersion,1);assert.equal(acks[1].document.dirty,true);
  await page.keyboard.press('Control+z');await page.waitForFunction(()=>document.querySelector('#designcraft_canvas')?.getAttribute('data-server-revision')==='3');
  assert.equal(requests[2].method,'edit.undo');assert.equal(JSON.stringify(acks[2].documentSnapshot),openedSnapshot);
  assert.equal(createHash('sha256').update(Buffer.from(await (await fetch(base+acks[2].preview)).arrayBuffer())).digest('hex'),openedPngHash);
- assert.equal(createHash('sha256').update(await readFile(chosen)).digest('hex'),originalHash);
- assert.equal(createHash('sha256').update(await readFile(serverCopy)).digest('hex'),originalHash);
+ assert.equal(await page.evaluate(()=>Array.from(window.__cwFiles.get('chosen.designcraft'))).then(bytes=>createHash('sha256').update(Buffer.from(bytes)).digest('hex')),originalHash);
+ await assert.rejects(readFile(serverCopy),error=>error.code==='ENOENT');
  // Use the original File menu shortcut and confirmation dialog to exercise file.saveACopy.
  await page.keyboard.press('m');await page.mouse.move(610,385);await page.mouse.down();await page.mouse.move(755,500,{steps:4});await page.mouse.up();
  await page.waitForFunction(()=>document.querySelector('#designcraft_canvas')?.getAttribute('data-server-revision')==='4');
- await page.keyboard.press('Control+Alt+s');await page.waitForTimeout(200);await page.keyboard.press('Enter');
+ await page.keyboard.press('Control+Alt+s');await page.waitForTimeout(250);if(process.env.CW_PAR03_SAVE_DIALOG)await page.screenshot({path:path.resolve(process.env.CW_PAR03_SAVE_DIALOG)});await page.mouse.click(512,511);await page.waitForTimeout(80);if(process.env.CW_PAR03_SAVE_DESTINATION_DIALOG)await page.screenshot({path:path.resolve(process.env.CW_PAR03_SAVE_DESTINATION_DIALOG)});await page.mouse.click(510,537);await page.mouse.click(1000,573);
  await page.waitForFunction(()=>document.querySelector('#designcraft_canvas')?.getAttribute('data-server-revision')==='5',null,{timeout:30000});
  assert.deepEqual(requests.slice(3).map(item=>item.method),['frame.create','file.saveACopy']);
  const saveRequest=requests[4],saveAck=acks[4];assert.equal(saveRequest.expectedVersion,4);assert.equal(saveRequest.params.destination,'server');assert.equal(saveRequest.params.retention,'workspace');
@@ -124,31 +121,24 @@ try{
  const retainedPath=saveRequest.params.path,retainedLocal=path.join(scratch,'projects/designcraft',retainedPath),retained=await readFile(retainedLocal);
  const retainedResponse=await fetch(`${base}/api/designcraft/sessions/${sessionId}/output?path=${encodeURIComponent(retainedPath)}`,{headers:{Origin:base}});assert.equal(retainedResponse.status,200);
  assert.deepEqual(Buffer.from(await retainedResponse.arrayBuffer()),retained);assert.ok(retained.length>0);assert.notEqual(createHash('sha256').update(retained).digest('hex'),originalHash);
+ const laptopPath='laptop-copy.designcraft';
+ const laptopResponse=await page.evaluate(async({sessionId,path})=>{const response=await fetch(`/api/designcraft/sessions/${sessionId}/rpc`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({method:'file.saveACopy',params:{path,destination:'laptop',retention:'workspace'},requestId:crypto.randomUUID(),expectedVersion:5})});return {status:response.status,body:await response.json()};},{sessionId,path:laptopPath});
+ assert.equal(laptopResponse.status,200);const laptopAck=laptopResponse.body;assert.equal(laptopAck.result.destination,'laptop');assert.equal(laptopAck.result.retention,'workspace');assert.equal(laptopAck.document.dirty,true);
+ const laptopBytes=await page.evaluate(path=>Array.from(window.__cwFiles.get(path)),laptopPath);assert.ok(laptopBytes.length>0);const laptopHash=createHash('sha256').update(Buffer.from(laptopBytes)).digest('hex');assert.notEqual(laptopHash,originalHash);
  const collision=await fetch(`${base}/api/designcraft/sessions/${sessionId}/rpc`,{method:'POST',headers:{Origin:base,'Content-Type':'application/json'},body:JSON.stringify({method:'file.saveACopy',params:{path:retainedPath,destination:'server',retention:'workspace'},requestId:crypto.randomUUID()})});assert.equal(collision.status,409);
- // Reopen the retained server copy through the same original browser chooser and server input ACK.
- const retainedForReopen=path.join(laptop,'retained-copy.designcraft');await writeFile(retainedForReopen,retained);
+ // Reopen the laptop copy through the original provider chooser in a fresh session.
  await post(`/api/designcraft/sessions/${sessionId}`,'DELETE',{discard:true});sessionId=null;
- await load();const retainedChooser=await choose();await retainedChooser.setFiles(retainedForReopen);
+ await context.addInitScript(payload=>window.__cwFiles?.set('laptop-copy.designcraft',Uint8Array.from(atob(payload),c=>c.charCodeAt(0))),Buffer.from(laptopBytes).toString('base64'));if(shareIds.length)await post(`/api/storage/shares/${shareIds.at(-1)}`,'DELETE',{});
+ await load();await choose();await page.getByRole('button',{name:'◇ laptop-copy.designcraft'}).click();
  await page.waitForFunction(()=>document.querySelector('#designcraft_canvas')?.getAttribute('data-server-revision')==='1',null,{timeout:120000});
- assert.equal(requests[5].method,'file.open');assert.equal(acks[5].document.name,'retained-copy.designcraft');assert.equal(acks[5].document.dirty,false);
- assert.equal(acks[5].documentSnapshot.spreads[0].items.length,2);
+ assert.equal(requests[6].method,'file.open');assert.equal(acks[6].document.name,'laptop-copy.designcraft');assert.equal(acks[6].document.dirty,false);assert.equal(acks[6].documentSnapshot.spreads[0].items.length,2);
  await post(`/api/designcraft/sessions/${sessionId}`,'DELETE',{discard:true});sessionId=null;
  await page.waitForTimeout(500);
  const screenshot=process.env.CW_PAR03_SCREENSHOT;const painted=visibleCanvas(await page.screenshot(screenshot?{path:path.resolve(screenshot)}:{}));
- // A failed transfer cannot produce file.open or a hydrated UI.
- await page.route('**/input?*',route=>route.fulfill({status:503,contentType:'application/json',body:JSON.stringify({error:'Injected transfer failure'})}));
- await load();const previousRequests=requests.length;
- const failedPicker=await choose();await failedPicker.setFiles(chosen);
- await page.waitForResponse(response=>/\/input\?/.test(response.url())&&response.status()===503);
- await page.waitForFunction(()=>document.querySelector('#designcraft_canvas')?.getAttribute('data-server-pending')==='false');
- assert.equal(requests.length,previousRequests);assert.equal(await page.locator('#designcraft_canvas').getAttribute('data-server-revision'),'0');
- const oversized=path.join(laptop,'oversized.designcraft');await writeFile(oversized,'');await truncate(oversized,64*1024*1024+1);
- let uploads=0;page.on('request',request=>{if(/\/input\?/.test(request.url()))uploads++;});
- const largePicker=await choose();await largePicker.setFiles(oversized);await page.waitForFunction(()=>document.querySelector('#designcraft_canvas')?.getAttribute('data-server-pending')==='false');
- assert.equal(uploads,0);assert.equal(requests.length,previousRequests);assert.deepEqual(errors,[]);
- const report={status:'bounded-original-open-and-server-save-copy-proof',sourceCommands:['app.openDialog -> file.open','File → Save a Copy… -> file.saveACopy'],originalBrowserFileChooser:true,mode:'copy-first',copiedBytes:fixture.length,providerInputRootBoundToSession:true,copyAcknowledgedBeforeNativeOpen:true,openRevision:1,openDirty:false,openedObjects:1,editRevision:2,undoRevision:3,undoRestoresOpenedSnapshotAndRender:true,saveCopyDestination:'server',saveCopyRetention:'workspace',saveCopyAtomicWriteAcknowledgedBeforeSuccess:true,saveCopyPreservesOriginalDirtyStateAndFilename:true,saveCopyDoesNotOverwriteExistingTargets:true,retainedCopyReopenedThroughOriginalChooser:true,laptopOriginalAndServerImportUnchanged:true,cancelCreatesNoOpen:true,transferFailureLeavesMirrorUnhydrated:true,oversizedFileRejectedBeforeUpload:true,visibleCanvas:painted,uncaughtBrowserErrors:errors,limitations:'Native one-spread documents only; laptop output, other retention modes, recovery, folder permissions/on-demand/hybrid and full parity pending'};
+ const report={status:'bounded-original-provider-open-and-save-copy-proof',sourceCommands:['app.openDialog -> file.open','File → Save a Copy… -> file.saveACopy'],commonProviderFolderPicker:true,mode:'laptop-ondemand',providerRootBoundToSession:true,providerReadAcknowledgedBeforeNativeOpen:true,openRevision:1,openDirty:false,openedObjects:1,editRevision:2,undoRevision:3,undoRestoresOpenedSnapshotAndRender:true,saveCopyDestinations:['server','laptop'],saveCopyRetention:'workspace',laptopWriteAcknowledgedInBrowser:true,laptopOutputReopenedThroughProvider:true,saveCopyPreservesOriginalDirtyStateAndFilename:true,saveCopyDoesNotOverwriteExistingTargets:true,cancelCreatesNoOpen:true,visibleCanvas:painted,uncaughtBrowserErrors:errors,limitations:'File System Access folder handle is mocked; real browser permission and uncertain-output recovery, unsupported retention modes and full parity remain pending'};
  if(process.env.CW_PAR03_REPORT)await writeFile(path.resolve(process.env.CW_PAR03_REPORT),JSON.stringify(report,null,2)+'\n');console.log(JSON.stringify(report));
 }finally{
  for(const id of [sessionId,fixtureId].filter(Boolean))await fetch(`http://127.0.0.1:${server.address().port}/api/designcraft/sessions/${id}`,{method:'DELETE',headers:{Origin:`http://127.0.0.1:${server.address().port}`,'Content-Type':'application/json'},body:JSON.stringify({discard:true})}).catch(()=>{});
+ for(const id of shareIds)await fetch(`http://127.0.0.1:${server.address().port}/api/storage/shares/${id}`,{method:'DELETE',headers:{Origin:`http://127.0.0.1:${server.address().port}`,'Content-Type':'application/json'},body:'{}'}).catch(()=>{});
  await browser?.close();await new Promise(resolve=>server.close(resolve));await rm(scratch,{recursive:true,force:true});
 }

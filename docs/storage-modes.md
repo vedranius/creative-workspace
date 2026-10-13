@@ -6,11 +6,11 @@ Laptop access must support more than file upload. This requirement applies to ev
 
 | Mode | Source of truth | Data access | Availability |
 | --- | --- | --- | --- |
-| Server project | Server workspace | Upload selected files/folders first; engines read the server copy | Working in RapidRAW, PhotoCraft, PdfCraft, VectorCraft and DesignCraft |
-| Laptop / on demand | User-selected local folder | Engine requests file ranges through a browser agent; save destination is selected separately | Native Linux PhotoCraft/PdfCraft/VectorCraft/DesignCraft read/edit/laptop-save flows verified with generated protocol fixtures |
-| On demand + background copy | Laptop; server retention is optional | Interactive reads take priority; remaining originals copy in the background | Available in PhotoCraft/PdfCraft/VectorCraft/DesignCraft prototype UI; background-copy stress tests pending |
+| Server project | Server workspace | Upload selected files/folders first; engines read the server copy | Working in RapidRAW, PhotoCraft, PdfCraft and VectorCraft; original DesignCraft remains an unregistered candidate |
+| Laptop / on demand | User-selected local folder | Engine requests file ranges through a browser agent; save destination is selected separately | Native Linux PhotoCraft/PdfCraft/VectorCraft flows verified; DesignCraft provider binding is an unregistered candidate with protocol-fixture ACKs only |
+| On demand + background copy | Laptop; server retention is optional | Interactive reads take priority; remaining originals copy in the background | Available in PhotoCraft/PdfCraft/VectorCraft prototype UI; DesignCraft hybrid mode is not exposed by its candidate |
 
-Storage retention is a separate choice: temporary cache or a retained server copy. Saving outputs is also separate: selected local folder or server project. Downloading saved outputs is always available. Simultaneous automatic saving to both locations is a future option. Avoid a silent change of the authoritative location when switching modes.
+Source retention and output destination are separate choices. Each app exposes only retention modes supported by evidence. DesignCraft currently offers only workspace retention in its candidate; server workspace and selected laptop folder are separate Save a Copy destinations. Downloading saved outputs is always available. Simultaneous automatic saving to both locations is a future option. Avoid a silent change of the authoritative location when switching modes.
 
 PdfCraft's headless library has one filesystem root. The adapter fetches only the selected PDF into a private session workspace for parsing; that PDF must be read in full. Its export-copy operation leaves native undo/state intact until the selected destination confirms publication. On-demand tests confirm no access to an unrelated 8 MiB file, byte-identical acknowledged laptop output, reopen, and separate server output. This does not automate a real user's directory picker or version-safe replay.
 

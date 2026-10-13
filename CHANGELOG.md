@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.2.0-alpha.31] — 2026-10-13 (draft candidate; DesignCraft common provider binding)
+
+- Bind the original DesignApp bootstrap to an explicitly selected, connected, app-scoped read/write on-demand provider. Original Open browses that share; a separate explicit local-file action retains session-rooted copy-first upload to the server workspace.
+- Separate provider write capability from each Save a Copy destination. The original dialog chooses server workspace or selected laptop folder and shows only the supported `workspace` retention. Server copies always use the server workspace; laptop copies use exclusive create and wait for provider ACK.
+- Preserve the active source dirty state, filename, collision refusal, and uncertain laptop output. Reject foreign, read-only, transfer-mode, or disconnected shares.
+- Evidence remains candidate-only: browser mocks are protocol fixtures and do not prove real browser folder permission. Keep DesignCraft planned and the release draft until real open/save ACK/reopen/recovery and full parity pass.
+
 ## [0.2.0-alpha.30] — 2026-10-13 (DesignCraft provider filename preservation)
 
 - Preserve the browser-selected `.designcraft` basename in the original server read model when the copy-first provider stores the upload under a UUID-prefixed, session-rooted path.

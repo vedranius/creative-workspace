@@ -1,0 +1,33 @@
+{
+  "status": "bounded-original-provider-open-and-save-copy-proof",
+  "sourceCommands": [
+    "app.openDialog -> file.open",
+    "File → Save a Copy… -> file.saveACopy"
+  ],
+  "commonProviderFolderPicker": true,
+  "mode": "laptop-ondemand",
+  "providerRootBoundToSession": true,
+  "providerReadAcknowledgedBeforeNativeOpen": true,
+  "openRevision": 1,
+  "openDirty": false,
+  "openedObjects": 1,
+  "editRevision": 2,
+  "undoRevision": 3,
+  "undoRestoresOpenedSnapshotAndRender": true,
+  "saveCopyDestinations": [
+    "server",
+    "laptop"
+  ],
+  "saveCopyRetention": "workspace",
+  "laptopWriteAcknowledgedInBrowser": true,
+  "laptopOutputReopenedThroughProvider": true,
+  "saveCopyPreservesOriginalDirtyStateAndFilename": true,
+  "saveCopyDoesNotOverwriteExistingTargets": true,
+  "cancelCreatesNoOpen": true,
+  "visibleCanvas": {
+    "brightPixels": 532837,
+    "distinctColorsAtLeast": 64
+  },
+  "uncaughtBrowserErrors": [],
+  "limitations": "File System Access folder handle is mocked; real browser permission and uncertain-output recovery, unsupported retention modes and full parity remain pending"
+}

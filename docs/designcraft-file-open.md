@@ -1,4 +1,6 @@
-# Original DesignCraft Open — single-file copy-first candidate
+# Original DesignCraft Open — provider and copy-first candidate
+
+Alpha.31 requires an explicit connected app-scoped read/write on-demand share at original app bootstrap. The original Open action can browse that share and open a provider-relative path; a separate local-file action retains the existing server copy-first transfer. The automated browser test uses a fake File System Access handle to exercise provider protocol and does not prove real browser permission. Save a Copy now selects server or laptop independently and offers only supported workspace retention; see [host-canvas candidate](designcraft-host-canvas.md).
 
 Creative Workspace alpha.24 (verification correction alpha.25) connects the pinned original DesignCraft welcome Open control and File/Open shortcut to the browser's native file chooser. Alpha.26 builds on that candidate with server-retained Save Copy; the cumulative scope is described in [DesignCraft host-canvas candidate](designcraft-host-canvas.md). Source remains upstream `a127c6d5c3576972bbd60445f26d893db071eef3` with reviewed integration patches; it is not a replacement editor.
 
@@ -14,7 +16,7 @@ The active candidate pin/digest is [host-canvas.json](../engines/original-ui/des
 
 Use a clean pinned source checkout with `npm run ui:designcraft:host -- <clean-source> <new-assets>`. The builder verifies the exact reviewed canonical source, compiles only a disposable copy with Rust 1.99/Trunk 0.21.14, and retains source provenance/licenses. Local compilation uses the existing cache and low-impact wrapper (one Cargo job, max two CPUs, nice 10).
 
-`scripts/smoke-designcraft-file-open-candidate.mjs` uses a disposable loopback gateway/browser/owned worker. Set `CW_DESIGNCRAFT_BINARY`, `CW_DESIGNCRAFT_UI_ASSETS`, `CW_PLAYWRIGHT_MODULE`; optionally `CW_BROWSER_EXECUTABLE`, `CW_PAR03_REPORT`, `CW_PAR03_SCREENSHOT`. It creates a native fixture with the real engine, chooses the fixture through the actual original control/browser file chooser, checks the scoped transfer acknowledgement and native open, edits/undoes, verifies originals remain byte-identical, and tests cancellation, failed upload and over-limit rejection before upload. It does not replace actual user folder permission testing.
+`scripts/smoke-designcraft-file-open-candidate.mjs` uses a disposable loopback gateway/browser/owned worker. Set `CW_DESIGNCRAFT_BINARY`, `CW_DESIGNCRAFT_UI_ASSETS`, `CW_PLAYWRIGHT_MODULE`; optionally `CW_BROWSER_EXECUTABLE`, `CW_PAR03_REPORT`, `CW_PAR03_SCREENSHOT`. It creates a native fixture with the real engine, chooses the fixture through the original provider chooser and mock File System Access folder, checks the scoped transfer acknowledgement and native open, edits/undoes, verifies originals remain byte-identical, and tests provider cancellation/disconnect and original Open/edit/Undo/Save Copy/reopen behavior. It does not replace actual user folder permission testing.
 
 ## Local acceptance evidence
 

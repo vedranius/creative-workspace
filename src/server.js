@@ -171,16 +171,16 @@ export async function createWorkspaceServer({dataDir=process.env.DATA_DIR||path.
       }
       if(url.pathname==='/api/designcraft/sessions'&&req.method==='POST'){
         const input=await body(req),root=await appWorkspace('designcraft');
-        if(input.sourceShareId){const share=storage.source(input.sourceShareId,'designcraft'),laptop=input.saveDestination==='laptop';if(laptop&&(share.access!=='readwrite'||share.mode!=='ondemand'))throw error('Laptop saving requires an on-demand folder with write permission',403);return json(await designcraft.create(share.view,{writeRoot:laptop?share.view:root,shareId:share.id,laptopOutput:laptop}),201);}
+        if(input.sourceShareId){const share=storage.source(input.sourceShareId,'designcraft');if(share.access!=='readwrite'||share.mode!=='ondemand')throw error('DesignCraft requires a connected app-scoped read/write on-demand folder',403);return json(await designcraft.create(share.view,{writeRoot:share.view,workspaceRoot:root,shareId:share.id,laptopOutput:true}),201);}
         return json(await designcraft.create(root),201);
       }
       const designSession=url.pathname.match(/^\/api\/designcraft\/sessions\/([a-f0-9]{48})(?:\/(rpc|preview.png|output|input))?$/);
       if(designSession){
-        if(req.method==='PUT'&&designSession[2]==='input')return json(await designcraft.importInput(designSession[1],req,url.searchParams.get('path')),201);
+        if(req.method==='PUT'&&designSession[2]==='input')return json(await designcraft.importInput(designSession[1],req,url.searchParams.get('path'),(url.searchParams.has('destination')?url.searchParams.get('destination'):undefined)),201);
         if(req.method==='POST'&&designSession[2]==='rpc'){
           const input=await body(req,65536),detail=designcraft.describe(designSession[1]);
           if(detail.shareId&&(['doc.open','file.open'].includes(input.method)||detail.laptopOutput&&['doc.save','file.saveACopy'].includes(input.method)))try{storage.source(detail.shareId,'designcraft');}catch{throw error('Reconnect the laptop folder before opening or saving files',503);}
-          if(['doc.open','file.open'].includes(input.method)&&detail.shareId&&typeof input.params?.path==='string')storage.focus(path.join(detail.readRoot,input.params.path));
+          if(['doc.open','file.open'].includes(input.method)&&detail.shareId&&typeof input.params?.path==='string'&&!input.params.path.startsWith('imports/'))storage.focus(path.join(detail.readRoot,input.params.path));
           storage.activity.touch();storage.activity.loading(input.requestId);try{return json(await designcraft.execute(designSession[1],input));}finally{storage.activity.loaded(input.requestId);}
         }
         if(req.method==='DELETE'&&!designSession[2])return json(await designcraft.close(designSession[1],await body(req)));

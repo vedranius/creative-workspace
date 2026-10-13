@@ -2,26 +2,24 @@
   "schemaVersion": 1,
   "app": "designcraft",
   "commit": "a127c6d5c3576972bbd60445f26d893db071eef3",
-  "id": "par-03-original-save-copy-server-redo-v2",
-  "patch": "patches/designcraft/a127c6d5/par-03-save-copy-candidate.patch",
-  "sha256": "c2d268cf6ab89a811215a119df68132ff9608e55e5f72ddf1eb1301359caa555",
+  "id": "par-03-original-provider-save-destination-v1",
+  "patch": "patches/designcraft/a127c6d5/par-03-provider-binding-candidate.patch",
+  "sha256": "27c0c700330215288d50fcefc0ef27297579bf1cc8ef2146dcf26c41f158634f",
   "status": "bounded-candidate; catalog planned",
   "scope": [
-    "Original app.openDialog / browser file chooser",
-    "Streamed selected native file through shared receiveFile transfer",
-    "Session-rooted import ACK before original server file.open",
-    "Server canonical snapshot/PNG and original filename presentation",
-    "Cancellation/upload failure/size limit block open without touching original",
-    "Original File → Save a Copy… action writes a new server-workspace copy",
-    "Native file.saveACopy preserves the source filename and dirty state",
-    "Atomic server write ACK precedes success and existing targets are never overwritten"
+    "Original app.openDialog browses the selected on-demand share and also exposes an explicit copy-first server upload option",
+    "Provider-relative file.open and server copy-first input stay session-bound and preserve the selected filename",
+    "Original A4/edit/Undo/Redo server mirror and bounded server render",
+    "Original File \u2192 Save a Copy\u2026 action uses an explicit destination and supported workspace retention",
+    "Server copies use the server workspace; laptop copies use the connected share and wait for browser provider ACK",
+    "Original app.openDialog browses only the explicitly selected app-scoped connected on-demand share",
+    "Original Save a Copy dialog explicitly selects server or laptop; workspace retention remains explicit and supported",
+    "Session write capability comes from a connected read/write provider and does not preselect each copy destination"
   ],
   "limitations": [
-    "Native one-spread .designcraft documents, single-file copy-first only",
-    "Original UI folder mode selection/on-demand/hybrid and real folder permissions remain pending",
-    "Laptop destination fails closed until browser write acknowledgement exists",
+    "Native one-spread .designcraft documents and one selected on-demand folder",
     "Only explicit workspace retention is supported; temporary and managed retention remain pending",
-    "Session recovery and full parity are not accepted",
+    "Real browser folder permission and write acknowledgement, uncertain-output recovery, and full parity remain pending",
     "Candidate not registered or activated in a live studio"
   ]
 }

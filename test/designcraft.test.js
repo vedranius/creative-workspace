@@ -41,6 +41,19 @@ test('Original file.new preset action reaches the owned worker unchanged and ret
   await design.close(session.id,{discard:true});
 });
 
+test('Design Save a Copy destinations stay independent on a writable provider session',async t=>{
+  const {project,root,design,call}=await fixture(t,{settleOutput:async()=>{}}),shareRoot=path.join(root,'selected-share');await mkdir(shareRoot);
+  const session=await design.create(shareRoot,{writeRoot:shareRoot,workspaceRoot:project,shareId:'selected-share',laptopOutput:true});
+  await call(session.id,'file.new',{preset:'A4'});await call(session.id,'frame.create',{rect:[1,1,20,20],content:'unassigned'});
+  const server=await call(session.id,'file.saveACopy',{path:'copies/server.designcraft',destination:'server',retention:'workspace'});
+  assert.equal(server.result.destination,'server');assert.ok(await readFile(path.join(project,'copies/server.designcraft')));await assert.rejects(readFile(path.join(shareRoot,'copies/server.designcraft')));
+  const laptop=await call(session.id,'file.saveACopy',{path:'copies/laptop.designcraft',destination:'laptop',retention:'workspace'});
+  assert.equal(laptop.result.destination,'laptop');assert.ok(await readFile(path.join(shareRoot,'copies/laptop.designcraft')));await assert.rejects(readFile(path.join(project,'copies/laptop.designcraft')));
+  assert.equal((await design.output(session.id,'copies/server.designcraft')),path.join(project,'copies/server.designcraft'));
+  assert.equal((await design.output(session.id,'copies/laptop.designcraft')),path.join(shareRoot,'copies/laptop.designcraft'));
+  await design.close(session.id,{discard:true});
+});
+
 test('Original file.saveACopy writes a retained server copy after byte ACK without marking the source saved and the copy reopens',async t=>{
   const {project,design,engines,call}=await fixture(t),source=await design.create(project);
   await call(source.id,'file.new',{preset:'A4'});
@@ -173,7 +186,7 @@ test('Design gateway enforces auth/origin, share ownership and approved output',
   assert.equal((await put(inputPath)).status,409);
   assert.equal((await rpc('doc.new',{width:800,height:600,pages:1})).status,200);assert.equal((await rpc('doc.save',{path:'copy.designcraft'})).status,200);assert.equal((await api(`/api/designcraft/sessions/${session.id}/output?path=copy.designcraft`)).status,200);assert.equal((await api(`/api/designcraft/sessions/${session.id}/output?path=outside.designcraft`)).status,403);
   const foreign=await (await api('/api/storage/shares','POST',{app:'photocraft',name:'Other app',mode:'transfer'})).json();assert.equal((await api('/api/designcraft/sessions','POST',{sourceShareId:foreign.id,saveDestination:'server'})).status,404);
-  const share=await (await api('/api/storage/shares','POST',{app:'designcraft',name:'Design copy',mode:'transfer',access:'read'})).json();assert.equal((await api('/api/designcraft/sessions','POST',{sourceShareId:share.id,saveDestination:'laptop'})).status,403);const shared=await (await api('/api/designcraft/sessions','POST',{sourceShareId:share.id,saveDestination:'server'})).json();assert.equal((await api(`/api/storage/shares/${share.id}`,'DELETE',{})).status,409);assert.equal((await api(`/api/designcraft/sessions/${shared.id}`,'DELETE',{})).status,200);assert.equal((await api(`/api/storage/shares/${share.id}`,'DELETE',{})).status,200);
+  const share=await (await api('/api/storage/shares','POST',{app:'designcraft',name:'Design copy',mode:'transfer',access:'readwrite'})).json();assert.equal((await api('/api/designcraft/sessions','POST',{sourceShareId:share.id})).status,403);assert.equal((await api(`/api/storage/shares/${share.id}`,'DELETE',{})).status,200);
 });
 
 test('Design readiness refuses an unrelated engine',async t=>{const {design,project}=await fixture(t,{processFactory:()=>({call:async()=>({runtimeId:'unrelated-design-tool'}),stop(){}})});assert.equal((await design.status()).ready,false);await assert.rejects(design.create(project),e=>e.status===503);});
