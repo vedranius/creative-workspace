@@ -8,6 +8,8 @@
 
 **Publication gate (2026-10-13):** Build/release Actions run `38325225198` completed successfully, including the original FilmCraft regression, DesignCraft original UI browser proof, native engine matrix, and Linux x64/macOS arm64/Windows x64 bundles. Immutable tag `v0.2.0-alpha.26` points to feature commit `16d96b3da8c1697b719f9185ef1d0057fe5720b6`; GitHub release is prerelease + draft. All six Actions-built archives and their six SHA256 sidecars were downloaded and verified ([release evidence](evidence/creative-workspace-alpha26-release.md)). The release stays draft and DesignCraft stays planned; do not promote the review archive into the registered UI root.
 
+**Alpha.27 test portability follow-up (2026-10-13):** the alpha.26 product behavior is unchanged. macOS test failure on docs commit `d46afd6` exposed `/var` vs `/private/var` path aliasing in the new Save Copy fixture. The assertion now compares `realpath(...)`; all three OS test jobs passed in run `38328093863`. Reusing alpha.26 failed the immutable-version release contract, so the test-only correction has its own fresh alpha.27 SemVer candidate. Verify the new workflow/tag/draft/assets; preserve draft-only status and DesignCraft planned state.
+
 **Next bounded task:** implement browser write acknowledgement for an explicitly selected laptop destination through the common provider, preserving dirty/uncertain outputs and refusing replay over newer local content. Keep workspace Save Copy behavior and recovery guarantees intact; run provider/native/browser QA before updating catalog claims.
 
 ## Original Open candidate (2026-10-12; alpha.24)

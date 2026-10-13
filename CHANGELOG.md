@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.2.0-alpha.27] — 2026-10-13 (cross-platform test correction candidate)
+
+- Canonicalize the reopened DesignCraft Save Copy path in its protocol fixture so macOS `/var` and `/private/var` aliases compare correctly. Product behavior and the verified alpha.26 candidate are unchanged.
+- Keep the release draft-only: this is a CI/test portability correction, not acceptance of DesignCraft as a supported app. Verify fresh Actions checks, immutable tag, all target bundles and checksums.
+
 ## [0.2.0-alpha.26] — 2026-10-13 (draft candidate)
 
 - Add an explicit server-workspace Save Copy path to the original DesignCraft File menu. It dispatches upstream `file.saveACopy` through the owned native worker, atomically publishes a new non-overwriting workspace file, and acknowledges bytes only after the server write completes.
