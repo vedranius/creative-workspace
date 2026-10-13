@@ -4,7 +4,7 @@
   "commit": "a127c6d5c3576972bbd60445f26d893db071eef3",
   "id": "par-03-original-frame-create-undo-redo-v2",
   "patch": "patches/designcraft/a127c6d5/par-03-frame-create-undo-candidate.patch",
-  "sha256": "2844846f0e72755347a76a3679ad0fddb45851b66e8ed0a97ca982ff4f0586ba",
+  "sha256": "989646f3a0e4ab2dcfbaeb7b0c424356f9647dc75ab196ea854e63f18eb632bf",
   "status": "bounded-candidate; catalog planned",
   "scope": [
     "Original A4 file.new pending/ACK",

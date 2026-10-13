@@ -30,36 +30,37 @@ index 75775c31ef8c329347d0e01250db3c44bf865728..fb1e7e1f319b92d4aab08c9a4c4a3d61
 +web-sys = { version = "0.3", features = ["Window", "Document", "Element", "HtmlElement", "HtmlCanvasElement", "HtmlAnchorElement", "Blob", "BlobPropertyBag", "Url", "Location", "CssStyleDeclaration", "Request", "RequestInit", "Response", "Headers"] }
 diff --git a/apps/designcraft-web/file-provider.js b/apps/designcraft-web/file-provider.js
 new file mode 100644
-index 0000000000000000000000000000000000000000..a4e6d22de48143b508f8427151b1d791adc9892f
+index 0000000000000000000000000000000000000000..4790a3b560798af610efb5743263b749c9a121de
 --- /dev/null
 +++ b/apps/designcraft-web/file-provider.js
-@@ -0,0 +1,24 @@
-+// Browser host service for the original File/Open workflow. Document parsing remains on server.
-+export function chooseAndCopyNativeDocument(sessionId) {
-+  return new Promise((resolve, reject) => {
-+    const input = document.createElement("input");
-+    input.type = "file"; input.accept = ".designcraft"; input.hidden = true;
-+    let settled = false;
-+    const finish = (error, path = null) => { if (settled) return; settled = true; input.remove(); error ? reject(String(error)) : resolve(path); };
-+    input.addEventListener("cancel", () => finish(null), {once:true});
-+    input.addEventListener("change", async () => {
-+      const file = input.files?.[0]; if (!file) { finish(null); return; }
-+      try {
-+        if (!/\.designcraft$/i.test(file.name) || file.name.length > 255 || /[\\/\x00]/.test(file.name)) throw new Error("Choose a native .designcraft publication");
-+        if (file.size > 64 * 1024 * 1024) throw new Error("Publication exceeds the 64 MB prototype limit");
-+        const path = `imports/${crypto.randomUUID()}/${file.name}`;
-+        const response = await fetch(`/api/designcraft/sessions/${sessionId}/input?path=${encodeURIComponent(path)}`, {method:"PUT",credentials:"same-origin",headers:{"Content-Type":"application/octet-stream"},body:file});
-+        const result = await response.json();
-+        if (!response.ok) throw new Error(result.error || `Transfer failed: HTTP ${response.status}`);
-+        if (result.sessionId !== sessionId || result.mode !== "copy-first" || result.path !== path || result.bytes !== file.size) throw new Error("Server did not acknowledge the complete selected file");
-+        finish(null, path);
-+      } catch (error) { finish(error.message || error); }
-+    }, {once:true});
-+    document.body.append(input); input.click();
-+  });
+@@ -0,0 +1,25 @@
++// Browser copy-first bridge for the original DesignApp Open action.
++export async function chooseAndCopyNativeDocument(session) {
++  const maxBytes = 64 * 1024 * 1024;
++  let file;
++  if (window.showOpenFilePicker) {
++    let handles;
++    try { handles = await window.showOpenFilePicker({multiple:false,types:[{description:"DesignCraft publication",accept:{"application/octet-stream":[".designcraft"]}}]}); }
++    catch (error) { if (error?.name === "AbortError") return null; throw error; }
++    file = await handles[0].getFile();
++  } else {
++    file = await new Promise((resolve,reject) => {
++      const input = document.createElement("input"); input.type="file"; input.accept=".designcraft"; input.hidden=true; document.body.append(input);
++      input.onchange=()=>{const selected=input.files?.[0]||null;input.remove();resolve(selected);};
++      input.oncancel=()=>{input.remove();resolve(null);}; input.click();
++    });
++  }
++  if (!file) return null;
++  if (file.size > maxBytes) throw new Error("Selected publication exceeds the 64 MB limit");
++  if (!/\.designcraft$/i.test(file.name)) throw new Error("Choose a native .designcraft publication");
++  const path = `imports/${crypto.randomUUID()}-${file.name.replace(/[\\/\0]/g,"_")}`;
++  const response = await fetch(`/api/designcraft/sessions/${encodeURIComponent(session)}/input?path=${encodeURIComponent(path)}`, {method:"PUT",credentials:"same-origin",headers:{"Content-Type":"application/octet-stream"},body:file});
++  const receipt = await response.json();
++  if (!response.ok || receipt.mode !== "copy-first" || receipt.sessionId !== session || receipt.bytes !== file.size) throw new Error(receipt.error || "Server did not acknowledge the copied publication");
++  return path;
 +}
 diff --git a/apps/designcraft-web/src/web.rs b/apps/designcraft-web/src/web.rs
-index fe7cca4ae5e51ab3101b9d0b73a543fde8beae16..78753602ffa2686ef8ca5adea6c8903507afb814 100644
+index fe7cca4ae5e51ab3101b9d0b73a543fde8beae16..241e9fb4f62357c87b8544f05e4dc3c1182f9827 100644
 --- a/apps/designcraft-web/src/web.rs
 +++ b/apps/designcraft-web/src/web.rs
 @@ -2,31 +2,15 @@
@@ -131,7 +132,7 @@ index fe7cca4ae5e51ab3101b9d0b73a543fde8beae16..78753602ffa2686ef8ca5adea6c89035
                  }),
              )
              .await;
-@@ -81,27 +71,51 @@ fn query() -> String {
+@@ -81,27 +71,52 @@ fn query() -> String {
  /// and feed them through the inbox.
  struct WebShell {
      app: DesignApp,
@@ -179,7 +180,8 @@ index fe7cca4ae5e51ab3101b9d0b73a543fde8beae16..78753602ffa2686ef8ca5adea6c89035
 +                        let result = reply.get("result").ok_or("Missing server action result")?;
 +                        let command_ack = result.get("commandId").and_then(serde_json::Value::as_str) == Some(command.as_str());
 +                        let undo_ack = command == "edit.undo" && result.get("undone").and_then(serde_json::Value::as_str).is_some_and(|label| !label.is_empty());
-+                        if !command_ack && !undo_ack { return Err("Unexpected server action acknowledgement".into()); }
++                        let redo_ack = command == "edit.redo" && result.get("redone").and_then(serde_json::Value::as_str).is_some_and(|label| !label.is_empty());
++                        if !command_ack && !undo_ack && !redo_ack { return Err("Unexpected server action acknowledgement".into()); }
 +                        let revision = reply.get("stateVersion").and_then(serde_json::Value::as_u64).filter(|v|*v>0).ok_or("Missing acknowledged revision")?;
 +                        let snapshot = reply.get("documentSnapshot").cloned().ok_or("Missing canonical document snapshot")?;
 +                        let preview_path = reply.get("preview").and_then(serde_json::Value::as_str).ok_or("Missing server preview")?;
@@ -199,7 +201,7 @@ index fe7cca4ae5e51ab3101b9d0b73a543fde8beae16..78753602ffa2686ef8ca5adea6c89035
          self.app.logic(ctx);
      }
  
-@@ -112,29 +126,29 @@ impl eframe::App for WebShell {
+@@ -112,29 +127,29 @@ impl eframe::App for WebShell {
  
      fn ui(&mut self, ui: &mut egui::Ui, _frame: &mut eframe::Frame) {
          self.app.ui(ui);
@@ -245,7 +247,7 @@ index fe7cca4ae5e51ab3101b9d0b73a543fde8beae16..78753602ffa2686ef8ca5adea6c89035
              });
          })),
          // Exports ask for a name; the browser decides where the download goes.
-@@ -146,10 +160,39 @@ fn services(inbox: Inbox, ctx: egui::Context) -> Services {
+@@ -146,10 +161,39 @@ fn services(inbox: Inbox, ctx: egui::Context) -> Services {
              }
          })),
          inbox: Some(inbox),
@@ -286,7 +288,7 @@ index fe7cca4ae5e51ab3101b9d0b73a543fde8beae16..78753602ffa2686ef8ca5adea6c89035
  fn download(path: &str, bytes: &[u8]) -> Result<(), String> {
      let js = |e: wasm_bindgen::JsValue| format!("{e:?}");
 diff --git a/crates/engine/src/lib.rs b/crates/engine/src/lib.rs
-index 771c89b13c42fe1bb874eeb855581d154f2b4494..5d74f1f05099f836c7df20be136a86ed1224b454 100644
+index 771c89b13c42fe1bb874eeb855581d154f2b4494..59cab1ce80d1c17dc6f4376f1481860b5786308d 100644
 --- a/crates/engine/src/lib.rs
 +++ b/crates/engine/src/lib.rs
 @@ -84,6 +84,7 @@ pub struct DocState {
@@ -366,8 +368,8 @@ index 771c89b13c42fe1bb874eeb855581d154f2b4494..5d74f1f05099f836c7df20be136a86ed
      /// document as it was (see [`guard`]).
      pub fn execute(&mut self, id: &str, params: &Value) -> Result<Value> {
 +        if self.server_mirror {
-+            if id == "frame.create" || id == "edit.undo" {
-+                if id == "edit.undo" && !params.as_object().is_some_and(|p| p.is_empty()) {
++            if id == "frame.create" || id == "edit.undo" || id == "edit.redo" {
++                if matches!(id, "edit.undo" | "edit.redo") && !params.as_object().is_some_and(|p| p.is_empty()) {
 +                    return Err(EngineError::Disabled(id.into(), "unexpected parameters".into()));
 +                }
 +                self.pending_host_action = Some((id.into(), params.clone()));
@@ -379,10 +381,10 @@ index 771c89b13c42fe1bb874eeb855581d154f2b4494..5d74f1f05099f836c7df20be136a86ed
      }
  
 diff --git a/crates/engine/src/tests.rs b/crates/engine/src/tests.rs
-index c1032bccf395d43e1f5d0be0275ead5a3fe8330d..4f38a673023083fcb3af2d7e380ac1ddc1ef2cec 100644
+index c1032bccf395d43e1f5d0be0275ead5a3fe8330d..c3cf747d1101a2afab6a8311f4ca619ceaa42f44 100644
 --- a/crates/engine/src/tests.rs
 +++ b/crates/engine/src/tests.rs
-@@ -561,3 +561,30 @@ fn commands_take_non_object_params_without_panicking() {
+@@ -561,3 +561,42 @@ fn commands_take_non_object_params_without_panicking() {
          assert!(r.is_ok(), "{p}: {r:?}");
      }
  }
@@ -411,6 +413,18 @@ index c1032bccf395d43e1f5d0be0275ead5a3fe8330d..4f38a673023083fcb3af2d7e380ac1dd
 +    let params = json!({});
 +    assert!(s.execute("edit.undo", &params).is_ok());
 +    assert_eq!(s.take_host_action(), Some(("edit.undo".into(), params)));
++    assert_eq!(s.active().map(|state| state.doc.clone()), Some(std::sync::Arc::new(document)));
++}
++
++#[test]
++fn server_mirror_stages_redo_without_mutating_local_document() {
++    let mut s = Session::new();
++    s.set_server_mirror();
++    let document = designcraft_doc::Document::new(&designcraft_doc::build::NewDocument::default());
++    s.add_document(DocState::new(document.clone(), None));
++    let params = json!({});
++    assert!(s.execute("edit.redo", &params).is_ok());
++    assert_eq!(s.take_host_action(), Some(("edit.redo".into(), params)));
 +    assert_eq!(s.active().map(|state| state.doc.clone()), Some(std::sync::Arc::new(document)));
 +}
 diff --git a/crates/ui-egui/src/canvas.rs b/crates/ui-egui/src/canvas.rs
@@ -551,7 +565,7 @@ index 2ab7a3bad2f589148296f0f06eb3f70c24768a7b..83d234b23b33517051ddb2593f872a85
              let margins = json!({"top": d.m("marginTop").unwrap_or(36.0), "bottom": d.m("marginBottom").unwrap_or(36.0), "inside": d.m("marginInside").unwrap_or(36.0), "outside": d.m("marginOutside").unwrap_or(36.0)});
              app.run(
 diff --git a/crates/ui-egui/src/lib.rs b/crates/ui-egui/src/lib.rs
-index fb81e9c344d4390d2e3ff8a4d0d016ad563376fc..57175688f62e01118035d8571ad36f5d3177cef0 100644
+index fb81e9c344d4390d2e3ff8a4d0d016ad563376fc..7885a40729121afcd39a73dcee09880dc4622bca 100644
 --- a/crates/ui-egui/src/lib.rs
 +++ b/crates/ui-egui/src/lib.rs
 @@ -54,6 +54,18 @@ pub type DownloadFn = Box<dyn FnMut(&str, &[u8])>;
@@ -631,7 +645,7 @@ index fb81e9c344d4390d2e3ff8a4d0d016ad563376fc..57175688f62e01118035d8571ad36f5d
 +                return Ok(json!({"tool": tool}));
 +            }
 +            let allowed = (matches!(id, "file.new" | "file.open") && self.session.active().is_none())
-+                || (matches!(id, "frame.create" | "edit.undo" | "file.saveACopy") && self.session.active().is_some());
++                || (matches!(id, "frame.create" | "edit.undo" | "edit.redo" | "file.saveACopy") && self.session.active().is_some());
 +            if !allowed {
 +                let error = "This original action is not connected to the server yet";
 +                self.status(error); return Err(error.into());
@@ -650,13 +664,13 @@ index fb81e9c344d4390d2e3ff8a4d0d016ad563376fc..57175688f62e01118035d8571ad36f5d
 +    pub fn queue_host_action(&mut self, id: &str, params: Value) -> Result<(), String> {
 +        if self.host_pending { return Err("A server action is already pending".into()); }
 +        let allowed = (matches!(id, "file.new" | "file.open") && self.session.active().is_none())
-+            || (matches!(id, "frame.create" | "edit.undo" | "file.saveACopy") && self.session.active().is_some());
++            || (matches!(id, "frame.create" | "edit.undo" | "edit.redo" | "file.saveACopy") && self.session.active().is_some());
 +        if !allowed { return Err("This original action is not connected to the server yet".into()); }
 +        let Some(host_action) = self.services.host_action.as_mut() else { return Err("Server action host is unavailable".into()); };
 +        host_action(id, params)?;
 +        self.host_pending = true;
 +        self.host_pending_command = Some(id.to_owned());
-+        self.status(match id { "file.new" => "Creating document on server…", "file.open" => "Opening the selected publication on server…", "frame.create" => "Applying frame on server…", "file.saveACopy" => "Writing a retained copy to the server workspace…", _ => "Undoing on server…" });
++        self.status(match id { "file.new" => "Creating document on server…", "file.open" => "Opening the selected publication on server…", "frame.create" => "Applying frame on server…", "edit.undo" => "Undoing on server…", "edit.redo" => "Redoing on server…", "file.saveACopy" => "Writing a retained copy to the server workspace…", _ => "Applying the server action…" });
 +        Ok(())
 +    }
 +
@@ -723,7 +737,7 @@ index fb81e9c344d4390d2e3ff8a4d0d016ad563376fc..57175688f62e01118035d8571ad36f5d
          if !self.fonts_ready {
              ctx.request_repaint();
 diff --git a/crates/ui-egui/src/menus.rs b/crates/ui-egui/src/menus.rs
-index 94e5c097179c9c19e99fd2a4970e1d471d726ca7..cd14ffadaa10d45d4018e70233ecc7cc435fda53 100644
+index 94e5c097179c9c19e99fd2a4970e1d471d726ca7..c0f79255d5d3debd9ee83ed8d0f484cea3e75c1a 100644
 --- a/crates/ui-egui/src/menus.rs
 +++ b/crates/ui-egui/src/menus.rs
 @@ -1777,6 +1777,10 @@ pub fn checked(app: &DesignApp, id: &str, params: &Value) -> Option<bool> {
@@ -731,7 +745,7 @@ index 94e5c097179c9c19e99fd2a4970e1d471d726ca7..cd14ffadaa10d45d4018e70233ecc7cc
  /// Enablement for menu display (UI commands need a document unless they're app/window-level).
  pub fn menu_enabled(app: &DesignApp, id: &str) -> bool {
 +    if app.services.host_action.is_some() && id == "app.openDialog" { return app.session.active().is_none() && !app.host_pending(); }
-+    if app.services.host_action.is_some() && id == "edit.undo" {
++    if app.services.host_action.is_some() && matches!(id, "edit.undo" | "edit.redo") {
 +        return app.session.active().is_some();
 +    }
      if ui_label(id).is_some() {

@@ -2,9 +2,9 @@
   "schemaVersion": 1,
   "app": "designcraft",
   "commit": "a127c6d5c3576972bbd60445f26d893db071eef3",
-  "id": "par-03-original-save-copy-server-v1",
+  "id": "par-03-original-save-copy-server-redo-v2",
   "patch": "patches/designcraft/a127c6d5/par-03-save-copy-candidate.patch",
-  "sha256": "373f47736bbd6878e2ee79c9bba46bbb4a5cdf32aca973fbc270bb6ae0af994e",
+  "sha256": "c2d268cf6ab89a811215a119df68132ff9608e55e5f72ddf1eb1301359caa555",
   "status": "bounded-candidate; catalog planned",
   "scope": [
     "Original app.openDialog / browser file chooser",

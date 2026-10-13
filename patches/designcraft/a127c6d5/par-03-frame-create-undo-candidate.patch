@@ -1,5 +1,5 @@
 diff --git a/Cargo.lock b/Cargo.lock
-index 9473c97..2bc5441 100644
+index 9473c974a1ffbded2d1db4455b7e44f2a1841034..2bc5441e015dece34ff2eab4accea37084a5febf 100644
 --- a/Cargo.lock
 +++ b/Cargo.lock
 @@ -1153,6 +1153,7 @@ dependencies = [
@@ -11,7 +11,7 @@ index 9473c97..2bc5441 100644
   "log",
   "rfd",
 diff --git a/apps/designcraft-web/Cargo.toml b/apps/designcraft-web/Cargo.toml
-index 75775c3..fb1e7e1 100644
+index 75775c31ef8c329347d0e01250db3c44bf865728..fb1e7e1f319b92d4aab08c9a4c4a3d61a85eb167 100644
 --- a/apps/designcraft-web/Cargo.toml
 +++ b/apps/designcraft-web/Cargo.toml
 @@ -21,6 +21,7 @@ designcraft-ui-egui = { workspace = true }
@@ -29,7 +29,7 @@ index 75775c3..fb1e7e1 100644
 -web-sys = { version = "0.3", features = ["Window", "Document", "Element", "HtmlElement", "HtmlCanvasElement", "HtmlAnchorElement", "Blob", "BlobPropertyBag", "Url", "Location", "CssStyleDeclaration"] }
 +web-sys = { version = "0.3", features = ["Window", "Document", "Element", "HtmlElement", "HtmlCanvasElement", "HtmlAnchorElement", "Blob", "BlobPropertyBag", "Url", "Location", "CssStyleDeclaration", "Request", "RequestInit", "Response", "Headers"] }
 diff --git a/apps/designcraft-web/src/web.rs b/apps/designcraft-web/src/web.rs
-index fe7cca4..29c2bee 100644
+index fe7cca4ae5e51ab3101b9d0b73a543fde8beae16..29c2beebde1ba63376f7fbf42db331ab46c5fbcf 100644
 --- a/apps/designcraft-web/src/web.rs
 +++ b/apps/designcraft-web/src/web.rs
 @@ -2,7 +2,7 @@
@@ -193,7 +193,7 @@ index fe7cca4..29c2bee 100644
  fn download(path: &str, bytes: &[u8]) -> Result<(), String> {
      let js = |e: wasm_bindgen::JsValue| format!("{e:?}");
 diff --git a/crates/engine/src/lib.rs b/crates/engine/src/lib.rs
-index 771c89b..59cab1c 100644
+index 771c89b13c42fe1bb874eeb855581d154f2b4494..59cab1ce80d1c17dc6f4376f1481860b5786308d 100644
 --- a/crates/engine/src/lib.rs
 +++ b/crates/engine/src/lib.rs
 @@ -84,6 +84,7 @@ pub struct DocState {
@@ -286,7 +286,7 @@ index 771c89b..59cab1c 100644
      }
  
 diff --git a/crates/engine/src/tests.rs b/crates/engine/src/tests.rs
-index c1032bc..c3cf747 100644
+index c1032bccf395d43e1f5d0be0275ead5a3fe8330d..c3cf747d1101a2afab6a8311f4ca619ceaa42f44 100644
 --- a/crates/engine/src/tests.rs
 +++ b/crates/engine/src/tests.rs
 @@ -561,3 +561,42 @@ fn commands_take_non_object_params_without_panicking() {
@@ -333,7 +333,7 @@ index c1032bc..c3cf747 100644
 +    assert_eq!(s.active().map(|state| state.doc.clone()), Some(std::sync::Arc::new(document)));
 +}
 diff --git a/crates/ui-egui/src/canvas.rs b/crates/ui-egui/src/canvas.rs
-index 34dd614..8a5cd27 100644
+index 34dd6144278a6bac68705fb8012f987b9909a599..8a5cd27a761788403116ba80619b45d77c38a59a 100644
 --- a/crates/ui-egui/src/canvas.rs
 +++ b/crates/ui-egui/src/canvas.rs
 @@ -243,6 +243,25 @@ pub fn show(app: &mut DesignApp, ui: &mut egui::Ui) {
@@ -379,7 +379,7 @@ index 34dd614..8a5cd27 100644
      app.after_engine();
      if resp.clicked() || resp.drag_started() {
 diff --git a/crates/ui-egui/src/chrome.rs b/crates/ui-egui/src/chrome.rs
-index 2896fcd..511fcec 100644
+index 2896fcdc40e6ecccac2824fdb1e9bf093c93ffcd..511fcec7a7662a3505fb6269d15d86ed9fa32c8a 100644
 --- a/crates/ui-egui/src/chrome.rs
 +++ b/crates/ui-egui/src/chrome.rs
 @@ -695,6 +695,7 @@ pub fn start_screen(app: &mut DesignApp, ui: &mut egui::Ui) {
@@ -391,7 +391,7 @@ index 2896fcd..511fcec 100644
                      ui.painter().rect_filled(cr, 6.0, if hov { t.hover } else { t.panel });
                      let k = (80.0 / p.width.max(p.height)) as f32;
 diff --git a/crates/ui-egui/src/lib.rs b/crates/ui-egui/src/lib.rs
-index fb81e9c..47fbf65 100644
+index fb81e9c344d4390d2e3ff8a4d0d016ad563376fc..47fbf65ced089ca1008feb021daf53a746cca7c4 100644
 --- a/crates/ui-egui/src/lib.rs
 +++ b/crates/ui-egui/src/lib.rs
 @@ -54,6 +54,17 @@ pub type DownloadFn = Box<dyn FnMut(&str, &[u8])>;
@@ -536,7 +536,7 @@ index fb81e9c..47fbf65 100644
          if !self.fonts_ready {
              ctx.request_repaint();
 diff --git a/crates/ui-egui/src/menus.rs b/crates/ui-egui/src/menus.rs
-index 94e5c09..0de6743 100644
+index 94e5c097179c9c19e99fd2a4970e1d471d726ca7..0de6743e6be6763f3e65950fae6a5c4c81514ee6 100644
 --- a/crates/ui-egui/src/menus.rs
 +++ b/crates/ui-egui/src/menus.rs
 @@ -1777,6 +1777,9 @@ pub fn checked(app: &DesignApp, id: &str, params: &Value) -> Option<bool> {
