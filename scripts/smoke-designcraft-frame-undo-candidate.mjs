@@ -95,12 +95,27 @@ try{
  assert.equal(createHash('sha256').update(JSON.stringify(replies[2].documentSnapshot)).digest('hex'),createHash('sha256').update(JSON.stringify(replies[0].documentSnapshot)).digest('hex'));
  const undoPreview=await fetch(base+replies[2].preview);assert.equal(undoPreview.headers.get('content-type'),'image/png');const undoPng=Buffer.from(await undoPreview.arrayBuffer());
  assert.notEqual(createHash('sha256').update(undoPng).digest('hex'),createHash('sha256').update(nextPng).digest('hex'));
+ // The original Edit > Redo shortcut must replay the acknowledged server edit, then Undo must return to A4.
+ await page.keyboard.press('Control+Shift+z');
+ await page.waitForFunction(()=>document.querySelector('#designcraft_canvas')?.getAttribute('data-server-revision')==='4',null,{timeout:30000});
+ assert.equal(requests.length,4);assert.equal(requests[3].method,'edit.redo');assert.equal(requests[3].expectedVersion,3);
+ assert.equal(typeof replies[3]?.result?.redone,'string');assert.equal(replies[3]?.stateVersion,4);
+ assert.equal(createHash('sha256').update(JSON.stringify(replies[3].documentSnapshot)).digest('hex'),createHash('sha256').update(JSON.stringify(replies[1].documentSnapshot)).digest('hex'));
+ const redoPreview=await fetch(base+replies[3].preview);assert.equal(redoPreview.headers.get('content-type'),'image/png');const redoPng=Buffer.from(await redoPreview.arrayBuffer());
+ assert.notEqual(createHash('sha256').update(redoPng).digest('hex'),createHash('sha256').update(undoPng).digest('hex'));
+ await page.keyboard.press('Control+z');
+ await page.waitForFunction(()=>document.querySelector('#designcraft_canvas')?.getAttribute('data-server-revision')==='5',null,{timeout:30000});
+ assert.equal(requests.length,5);assert.equal(requests[4].method,'edit.undo');assert.equal(requests[4].expectedVersion,4);
+ assert.equal(typeof replies[4]?.result?.undone,'string');assert.equal(replies[4]?.stateVersion,5);
+ assert.equal(createHash('sha256').update(JSON.stringify(replies[4].documentSnapshot)).digest('hex'),beforeSnapshot);
+ const finalPreview=await fetch(base+replies[4].preview);assert.equal(finalPreview.headers.get('content-type'),'image/png');const finalPng=Buffer.from(await finalPreview.arrayBuffer());
+ assert.notEqual(createHash('sha256').update(finalPng).digest('hex'),createHash('sha256').update(redoPng).digest('hex'));
  await page.waitForTimeout(1000);
  const screenshot=process.env.CW_PAR03_SCREENSHOT;
  const painted=visibleCanvas(await page.screenshot(screenshot?{path:path.resolve(screenshot)}:{}));
  // Unbridged original commands remain fail-closed.
- await page.keyboard.press('Control+n');await page.waitForTimeout(500);assert.equal(requests.length,3);
- assert.equal(await page.locator('#designcraft_canvas').getAttribute('data-server-revision'),'3');assert.deepEqual(errors,[]);
+ await page.keyboard.press('Control+n');await page.waitForTimeout(500);assert.equal(requests.length,5);
+ assert.equal(await page.locator('#designcraft_canvas').getAttribute('data-server-revision'),'5');assert.deepEqual(errors,[]);
  // A failed preview fetch must leave the UI unhydrated; the server document is retained.
  await fetch(`${base}/api/designcraft/sessions/${sessionId}`,{method:'DELETE',headers:{Origin:base,'Content-Type':'application/json'},body:JSON.stringify({discard:true})});sessionId=null;
  await page.route('**/preview.png?v=*',route=>route.fulfill({status:503,contentType:'text/plain',body:'Injected preview failure'}));
@@ -115,7 +130,7 @@ try{
  assert.equal(await page.locator('#designcraft_canvas').getAttribute('data-server-revision'),'0');
  assert.equal(await page.locator('#designcraft_canvas').getAttribute('data-server-render'),'false');
  assert.deepEqual(pageErrors,[]);
- const report={status:'bounded-candidate-browser-proof',originalPresetClick:click,actions:[{commandId:'file.new',preset:'A4',stateVersion:1},{commandId:'frame.create',source:'original Rectangle Tool M shortcut + pointer drag',expectedVersion:1,stateVersion:2,dirty:true,serverSnapshotRefreshed:true,serverRenderChanged:true},{commandId:'edit.undo',source:'original Ctrl+Z shortcut',expectedVersion:2,stateVersion:3,dirty:true,canonicalSnapshotRestored:true,serverRenderRestored:true}],canonicalSnapshotBytes:Buffer.byteLength(JSON.stringify(replies[2].documentSnapshot)),serverPngDimensions:[595,842],serverPngSha256:createHash('sha256').update(undoPng).digest('hex'),originalCanvasServerTexture:true,visibleCanvas:painted,unbridgedCommandsBlocked:true,uncaughtBrowserErrors:[],previewFailureLeavesMirrorUnhydrated:true,availability:'planned; provider/save/reopen/recovery/full parity pending'};
+ const report={status:'bounded-candidate-browser-proof',originalPresetClick:click,actions:[{commandId:'file.new',preset:'A4',stateVersion:1},{commandId:'frame.create',source:'original Rectangle Tool M shortcut + pointer drag',expectedVersion:1,stateVersion:2,dirty:true,serverSnapshotRefreshed:true,serverRenderChanged:true},{commandId:'edit.undo',source:'original Ctrl+Z shortcut',expectedVersion:2,stateVersion:3,canonicalSnapshotRestored:true,serverRenderRestored:true},{commandId:'edit.redo',source:'original Ctrl+Shift+Z shortcut',expectedVersion:3,stateVersion:4,canonicalEditSnapshotRestored:true,serverRenderChanged:true},{commandId:'edit.undo',source:'original Ctrl+Z shortcut',expectedVersion:4,stateVersion:5,canonicalSnapshotRestored:true,serverRenderRestored:true}],canonicalSnapshotBytes:Buffer.byteLength(JSON.stringify(replies[4].documentSnapshot)),serverPngDimensions:[595,842],serverPngSha256:createHash('sha256').update(finalPng).digest('hex'),originalCanvasServerTexture:true,visibleCanvas:painted,unbridgedCommandsBlocked:true,uncaughtBrowserErrors:[],previewFailureLeavesMirrorUnhydrated:true,availability:'planned; provider/save/reopen/recovery/full parity pending'};
  if(process.env.CW_PAR03_REPORT)await writeFile(path.resolve(process.env.CW_PAR03_REPORT),JSON.stringify(report,null,2)+'\n');
  console.log(JSON.stringify(report));
 }finally{

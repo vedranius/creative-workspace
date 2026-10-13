@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.2.0-alpha.29] — 2026-10-13 (draft candidate; DesignCraft original Redo bridge)
+
+- Extend the isolated original `DesignApp` server mirror to route the upstream `edit.redo` action through its ordered pending/ACK path. Validate the worker's redo receipt, then apply only its canonical snapshot and server PNG at the acknowledged revision.
+- Add a native mirror assertion and browser proof for original A4 → Rectangle Tool → Undo → Redo → Undo, verifying server revisions 1–5, snapshot/render transitions, and fail-closed unbridged commands.
+- This remains a bounded, unregistered candidate. Common provider binding, laptop write ACK, save/reopen recovery and full original-app parity remain incomplete; keep the Actions release draft and DesignCraft planned.
+
 ## [0.2.0-alpha.28] — 2026-10-13 (draft candidate; DesignCraft laptop ACK handler)
 
 - Add the server-side original `file.saveACopy` path for sessions bound to an explicitly selected read/write on-demand provider. Native bytes are staged and checked, destination creation is exclusive, and success waits for the provider's laptop write ACK.

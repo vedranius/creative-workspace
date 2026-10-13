@@ -1,28 +1,8 @@
 diff --git a/Cargo.lock b/Cargo.lock
-index 9473c974a1ffbded2d1db4455b7e44f2a1841034..134af1919b26229ef1082e557ed40e7863012a68 100644
+index 9473c97..2bc5441 100644
 --- a/Cargo.lock
 +++ b/Cargo.lock
-@@ -851,6 +851,19 @@ version = "1.2.0"
- source = "registry+https://github.com/rust-lang/crates.io-index"
- checksum = "f27ae1dd37df86211c42e150270f82743308803d90a6f6e6651cd730d5e1732f"
- 
-+[[package]]
-+name = "cw-designcraft-engine"
-+version = "0.1.0"
-+dependencies = [
-+ "designcraft-doc",
-+ "designcraft-engine",
-+ "designcraft-format",
-+ "designcraft-mcp",
-+ "image",
-+ "serde_json",
-+ "zip",
-+]
-+
- [[package]]
- name = "data-url"
- version = "0.3.2"
-@@ -1153,6 +1166,7 @@ dependencies = [
+@@ -1153,6 +1153,7 @@ dependencies = [
   "eframe",
   "egui",
   "form_urlencoded",
@@ -31,7 +11,7 @@ index 9473c974a1ffbded2d1db4455b7e44f2a1841034..134af1919b26229ef1082e557ed40e78
   "log",
   "rfd",
 diff --git a/apps/designcraft-web/Cargo.toml b/apps/designcraft-web/Cargo.toml
-index 75775c31ef8c329347d0e01250db3c44bf865728..fb1e7e1f319b92d4aab08c9a4c4a3d61a85eb167 100644
+index 75775c3..fb1e7e1 100644
 --- a/apps/designcraft-web/Cargo.toml
 +++ b/apps/designcraft-web/Cargo.toml
 @@ -21,6 +21,7 @@ designcraft-ui-egui = { workspace = true }
@@ -49,7 +29,7 @@ index 75775c31ef8c329347d0e01250db3c44bf865728..fb1e7e1f319b92d4aab08c9a4c4a3d61
 -web-sys = { version = "0.3", features = ["Window", "Document", "Element", "HtmlElement", "HtmlCanvasElement", "HtmlAnchorElement", "Blob", "BlobPropertyBag", "Url", "Location", "CssStyleDeclaration"] }
 +web-sys = { version = "0.3", features = ["Window", "Document", "Element", "HtmlElement", "HtmlCanvasElement", "HtmlAnchorElement", "Blob", "BlobPropertyBag", "Url", "Location", "CssStyleDeclaration", "Request", "RequestInit", "Response", "Headers"] }
 diff --git a/apps/designcraft-web/src/web.rs b/apps/designcraft-web/src/web.rs
-index fe7cca4ae5e51ab3101b9d0b73a543fde8beae16..066a70f4488c69a0ca906f20e6b71f554cdf768d 100644
+index fe7cca4..29c2bee 100644
 --- a/apps/designcraft-web/src/web.rs
 +++ b/apps/designcraft-web/src/web.rs
 @@ -2,7 +2,7 @@
@@ -90,7 +70,7 @@ index fe7cca4ae5e51ab3101b9d0b73a543fde8beae16..066a70f4488c69a0ca906f20e6b71f55
                  }),
              )
              .await;
-@@ -81,27 +86,47 @@ fn query() -> String {
+@@ -81,27 +86,48 @@ fn query() -> String {
  /// and feed them through the inbox.
  struct WebShell {
      app: DesignApp,
@@ -135,7 +115,8 @@ index fe7cca4ae5e51ab3101b9d0b73a543fde8beae16..066a70f4488c69a0ca906f20e6b71f55
 +                        let result = reply.get("result").ok_or("Missing server action result")?;
 +                        let command_ack = result.get("commandId").and_then(serde_json::Value::as_str) == Some(command.as_str());
 +                        let undo_ack = command == "edit.undo" && result.get("undone").and_then(serde_json::Value::as_str).is_some_and(|label| !label.is_empty());
-+                        if !command_ack && !undo_ack { return Err("Unexpected server action acknowledgement".into()); }
++                        let redo_ack = command == "edit.redo" && result.get("redone").and_then(serde_json::Value::as_str).is_some_and(|label| !label.is_empty());
++                        if !command_ack && !undo_ack && !redo_ack { return Err("Unexpected server action acknowledgement".into()); }
 +                        let revision = reply.get("stateVersion").and_then(serde_json::Value::as_u64).filter(|v|*v>0).ok_or("Missing acknowledged revision")?;
 +                        let snapshot = reply.get("documentSnapshot").cloned().ok_or("Missing canonical document snapshot")?;
 +                        let preview_path = reply.get("preview").and_then(serde_json::Value::as_str).ok_or("Missing server preview")?;
@@ -154,7 +135,7 @@ index fe7cca4ae5e51ab3101b9d0b73a543fde8beae16..066a70f4488c69a0ca906f20e6b71f55
          self.app.logic(ctx);
      }
  
-@@ -112,10 +137,15 @@ impl eframe::App for WebShell {
+@@ -112,10 +138,15 @@ impl eframe::App for WebShell {
  
      fn ui(&mut self, ui: &mut egui::Ui, _frame: &mut eframe::Frame) {
          self.app.ui(ui);
@@ -171,7 +152,7 @@ index fe7cca4ae5e51ab3101b9d0b73a543fde8beae16..066a70f4488c69a0ca906f20e6b71f55
      let open_inbox = inbox.clone();
      Services {
          open_async: Some(Box::new(move |request: ImportRequest| {
-@@ -146,10 +176,39 @@ fn services(inbox: Inbox, ctx: egui::Context) -> Services {
+@@ -146,10 +177,39 @@ fn services(inbox: Inbox, ctx: egui::Context) -> Services {
              }
          })),
          inbox: Some(inbox),
@@ -212,7 +193,7 @@ index fe7cca4ae5e51ab3101b9d0b73a543fde8beae16..066a70f4488c69a0ca906f20e6b71f55
  fn download(path: &str, bytes: &[u8]) -> Result<(), String> {
      let js = |e: wasm_bindgen::JsValue| format!("{e:?}");
 diff --git a/crates/engine/src/lib.rs b/crates/engine/src/lib.rs
-index 771c89b13c42fe1bb874eeb855581d154f2b4494..5d74f1f05099f836c7df20be136a86ed1224b454 100644
+index 771c89b..59cab1c 100644
 --- a/crates/engine/src/lib.rs
 +++ b/crates/engine/src/lib.rs
 @@ -84,6 +84,7 @@ pub struct DocState {
@@ -292,8 +273,8 @@ index 771c89b13c42fe1bb874eeb855581d154f2b4494..5d74f1f05099f836c7df20be136a86ed
      /// document as it was (see [`guard`]).
      pub fn execute(&mut self, id: &str, params: &Value) -> Result<Value> {
 +        if self.server_mirror {
-+            if id == "frame.create" || id == "edit.undo" {
-+                if id == "edit.undo" && !params.as_object().is_some_and(|p| p.is_empty()) {
++            if id == "frame.create" || id == "edit.undo" || id == "edit.redo" {
++                if matches!(id, "edit.undo" | "edit.redo") && !params.as_object().is_some_and(|p| p.is_empty()) {
 +                    return Err(EngineError::Disabled(id.into(), "unexpected parameters".into()));
 +                }
 +                self.pending_host_action = Some((id.into(), params.clone()));
@@ -305,10 +286,10 @@ index 771c89b13c42fe1bb874eeb855581d154f2b4494..5d74f1f05099f836c7df20be136a86ed
      }
  
 diff --git a/crates/engine/src/tests.rs b/crates/engine/src/tests.rs
-index c1032bccf395d43e1f5d0be0275ead5a3fe8330d..4f38a673023083fcb3af2d7e380ac1ddc1ef2cec 100644
+index c1032bc..c3cf747 100644
 --- a/crates/engine/src/tests.rs
 +++ b/crates/engine/src/tests.rs
-@@ -561,3 +561,30 @@ fn commands_take_non_object_params_without_panicking() {
+@@ -561,3 +561,42 @@ fn commands_take_non_object_params_without_panicking() {
          assert!(r.is_ok(), "{p}: {r:?}");
      }
  }
@@ -339,8 +320,20 @@ index c1032bccf395d43e1f5d0be0275ead5a3fe8330d..4f38a673023083fcb3af2d7e380ac1dd
 +    assert_eq!(s.take_host_action(), Some(("edit.undo".into(), params)));
 +    assert_eq!(s.active().map(|state| state.doc.clone()), Some(std::sync::Arc::new(document)));
 +}
++
++#[test]
++fn server_mirror_stages_redo_without_mutating_local_document() {
++    let mut s = Session::new();
++    s.set_server_mirror();
++    let document = designcraft_doc::Document::new(&designcraft_doc::build::NewDocument::default());
++    s.add_document(DocState::new(document.clone(), None));
++    let params = json!({});
++    assert!(s.execute("edit.redo", &params).is_ok());
++    assert_eq!(s.take_host_action(), Some(("edit.redo".into(), params)));
++    assert_eq!(s.active().map(|state| state.doc.clone()), Some(std::sync::Arc::new(document)));
++}
 diff --git a/crates/ui-egui/src/canvas.rs b/crates/ui-egui/src/canvas.rs
-index 34dd6144278a6bac68705fb8012f987b9909a599..8a5cd27a761788403116ba80619b45d77c38a59a 100644
+index 34dd614..8a5cd27 100644
 --- a/crates/ui-egui/src/canvas.rs
 +++ b/crates/ui-egui/src/canvas.rs
 @@ -243,6 +243,25 @@ pub fn show(app: &mut DesignApp, ui: &mut egui::Ui) {
@@ -386,7 +379,7 @@ index 34dd6144278a6bac68705fb8012f987b9909a599..8a5cd27a761788403116ba80619b45d7
      app.after_engine();
      if resp.clicked() || resp.drag_started() {
 diff --git a/crates/ui-egui/src/chrome.rs b/crates/ui-egui/src/chrome.rs
-index 2896fcdc40e6ecccac2824fdb1e9bf093c93ffcd..511fcec7a7662a3505fb6269d15d86ed9fa32c8a 100644
+index 2896fcd..511fcec 100644
 --- a/crates/ui-egui/src/chrome.rs
 +++ b/crates/ui-egui/src/chrome.rs
 @@ -695,6 +695,7 @@ pub fn start_screen(app: &mut DesignApp, ui: &mut egui::Ui) {
@@ -398,7 +391,7 @@ index 2896fcdc40e6ecccac2824fdb1e9bf093c93ffcd..511fcec7a7662a3505fb6269d15d86ed
                      ui.painter().rect_filled(cr, 6.0, if hov { t.hover } else { t.panel });
                      let k = (80.0 / p.width.max(p.height)) as f32;
 diff --git a/crates/ui-egui/src/lib.rs b/crates/ui-egui/src/lib.rs
-index fb81e9c344d4390d2e3ff8a4d0d016ad563376fc..17071b3bd8d8a1529ed53d51e7e509d7770d8e53 100644
+index fb81e9c..47fbf65 100644
 --- a/crates/ui-egui/src/lib.rs
 +++ b/crates/ui-egui/src/lib.rs
 @@ -54,6 +54,17 @@ pub type DownloadFn = Box<dyn FnMut(&str, &[u8])>;
@@ -461,7 +454,7 @@ index fb81e9c344d4390d2e3ff8a4d0d016ad563376fc..17071b3bd8d8a1529ed53d51e7e509d7
 +                return Ok(json!({"tool": tool}));
 +            }
 +            let allowed = (id == "file.new" && self.session.active().is_none())
-+                || (matches!(id, "frame.create" | "edit.undo") && self.session.active().is_some());
++                || (matches!(id, "frame.create" | "edit.undo" | "edit.redo") && self.session.active().is_some());
 +            if !allowed {
 +                let error = "This original action is not connected to the server yet";
 +                self.status(error); return Err(error.into());
@@ -480,13 +473,13 @@ index fb81e9c344d4390d2e3ff8a4d0d016ad563376fc..17071b3bd8d8a1529ed53d51e7e509d7
 +    pub fn queue_host_action(&mut self, id: &str, params: Value) -> Result<(), String> {
 +        if self.host_pending { return Err("A server action is already pending".into()); }
 +        let allowed = (id == "file.new" && self.session.active().is_none())
-+            || (matches!(id, "frame.create" | "edit.undo") && self.session.active().is_some());
++            || (matches!(id, "frame.create" | "edit.undo" | "edit.redo") && self.session.active().is_some());
 +        if !allowed { return Err("This original action is not connected to the server yet".into()); }
 +        let Some(host_action) = self.services.host_action.as_mut() else { return Err("Server action host is unavailable".into()); };
 +        host_action(id, params)?;
 +        self.host_pending = true;
 +        self.host_pending_command = Some(id.to_owned());
-+        self.status(match id { "file.new" => "Creating document on server…", "frame.create" => "Applying frame on server…", _ => "Undoing on server…" });
++        self.status(match id { "file.new" => "Creating document on server…", "frame.create" => "Applying frame on server…", "edit.undo" => "Undoing on server…", _ => "Redoing on server…" });
 +        Ok(())
 +    }
 +
@@ -543,14 +536,14 @@ index fb81e9c344d4390d2e3ff8a4d0d016ad563376fc..17071b3bd8d8a1529ed53d51e7e509d7
          if !self.fonts_ready {
              ctx.request_repaint();
 diff --git a/crates/ui-egui/src/menus.rs b/crates/ui-egui/src/menus.rs
-index 94e5c097179c9c19e99fd2a4970e1d471d726ca7..ef4ed4998f9fcf978b162e2a9aae0982a56635fb 100644
+index 94e5c09..0de6743 100644
 --- a/crates/ui-egui/src/menus.rs
 +++ b/crates/ui-egui/src/menus.rs
 @@ -1777,6 +1777,9 @@ pub fn checked(app: &DesignApp, id: &str, params: &Value) -> Option<bool> {
  
  /// Enablement for menu display (UI commands need a document unless they're app/window-level).
  pub fn menu_enabled(app: &DesignApp, id: &str) -> bool {
-+    if app.services.host_action.is_some() && id == "edit.undo" {
++    if app.services.host_action.is_some() && matches!(id, "edit.undo" | "edit.redo") {
 +        return app.session.active().is_some();
 +    }
      if ui_label(id).is_some() {

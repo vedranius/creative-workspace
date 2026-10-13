@@ -1,5 +1,13 @@
 # PAR-03 handoff — bounded server read-model slice verified
 
+## 2026-10-13 original Undo/Redo server mirror candidate (alpha.29)
+
+The isolated pinned DesignApp mirror now queues original `edit.redo` alongside `edit.undo`, validates the worker's non-empty `redone` receipt, and applies the canonical snapshot/read-model/server PNG only after ACK. It preserves original command IDs and revision ordering; local mirror commands do not mutate the document. Native `server_mirror_stages_redo_without_mutating_local_document` passes 1/1. The optimized source build used the low-impact wrapper and produced WASM SHA256 `6336f0d9d6da5ab2148415979aaf2401f7d9c074b3418bef1877435ba22b114a`.
+
+Chromium proves original A4 `file.new` rev 1 → Rectangle Tool `frame.create` rev 2 → Ctrl+Z `edit.undo` rev 3 → Ctrl+Shift+Z `edit.redo` rev 4 → Ctrl+Z `edit.undo` rev 5. The redo restores the edited canonical snapshot/render and the final undo restores the A4 snapshot/render. Unbridged actions remain blocked; injected preview failure leaves the UI mirror unhydrated; zero uncaught browser errors. [Browser JSON](evidence/designcraft-par03-redo-browser.json), [screenshot](evidence/designcraft-par03-redo-browser.png), [compact evidence note](evidence/designcraft-par03-redo.md).
+
+Reviewed candidate patch SHA256 `2844846f0e72755347a76a3679ad0fddb45851b66e8ed0a97ca982ff4f0586ba`; the manifest records the exact pinned source and hash. The first browser run caught a missing queue-level Redo allowlist; after fixing it, rebuilding and rerunning passed. The new draft candidate is not registered or activated, and does not change availability. Laptop provider binding/write ACK, save/reopen/recovery, remaining original actions/tools, upstream parity and staged activation/rollback remain incomplete. Keep DesignCraft planned and `v0.2.0-alpha.29` draft-only. Next: bind original Open/Save flows to the selected common provider session and prove destination/retention ACK, reopen and recovery.
+
 ## 2026-10-13 laptop Save Copy server handler candidate (unaccepted)
 
 The working tree adds a server handler for explicit `destination=laptop` to original `file.saveACopy`. It checks native bytes, uses exclusive create under the selected laptop on-demand mount, and waits on the injected common-provider `settleOutput` browser ACK before success. It fails closed if the session/provider ACK hook is missing, preserves the source dirty state, and rejects collision/retry after uncertain ACK. Protocol fixture [report](evidence/designcraft-laptop-save-copy-protocol.json); `npm run check` and `npm test` 55/55 pass. `git diff --check` passes.

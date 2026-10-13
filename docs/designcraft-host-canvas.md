@@ -4,7 +4,7 @@ Creative Workspace alpha.26 extends the bounded candidate based on upstream Desi
 
 The actual preset click queues original `file.new` and its preset parameters. The owned gateway/worker creates the document and returns a revisioned canonical snapshot, dirty state and bounded server PNG. The browser validates the ACK, snapshot and same-session preview before hydrating a read-only original UI mirror. The original canvas displays the server PNG as an egui texture; its local document renderer and pointer/tool path are bypassed. Image decoding and displaying the preview remain browser presentation work.
 
-The alpha.21 candidate extends this document action with the original Rectangle Tool edit and Undo paths described in the [PAR-03 handoff](par-03a-handoff.md#original-edit-undo-candidate-2026-10-12-not-accepted). Other original commands and tools remain blocked instead of running locally.
+The alpha.21 candidate extends this document action with the original Rectangle Tool edit and Undo paths described in the [PAR-03 handoff](par-03a-handoff.md#original-edit-undo-candidate-2026-10-12-not-accepted); alpha.29 adds the original Redo action through the same server ACK/canonical-state boundary. The exact Undo/Redo browser evidence is [here](evidence/designcraft-par03-redo.md). Other original commands and tools remain blocked instead of running locally.
 
 ## Original Save Copy
 
