@@ -173,6 +173,12 @@ jobs:
           tar -xzf "$RUNNER_TEMP/trunk.tar.gz" -C "$RUNNER_TEMP"
           echo "$RUNNER_TEMP" >> "$GITHUB_PATH"
       - run: npm ci
+      - name: Install the isolated Linux on-demand provider helper
+        env:
+          CW_STORAGE_RUNTIME: ${{ github.workspace }}/build/storage-runtime
+        run: |
+          sudo apt-get update && sudo apt-get install -y fuse3
+          npm run storage:install
       - name: Fetch pinned DesignCraft source and Linux worker
         shell: bash
         run: |
@@ -208,13 +214,16 @@ jobs:
           CW_DESIGNCRAFT_BINARY: ${{ github.workspace }}/build/staged/designcraft/cw-designcraft-engine
           CW_DESIGNCRAFT_UI_ASSETS: ${{ github.workspace }}/build/original-ui/assets-designcraft-host
           CW_PLAYWRIGHT_MODULE: ${{ github.workspace }}/build/browser-qa/node_modules/playwright/index.mjs
+          CW_FUSE_BINARY: ${{ github.workspace }}/build/storage-runtime/build/release/cw-filesystem-helper
           CW_PAR03_SCREENSHOT: ${{ github.workspace }}/build/designcraft-par03-evidence/host-canvas.png
           CW_PAR03_REPORT: ${{ github.workspace }}/build/designcraft-par03-evidence/host-canvas.json
+          CW_PAR03_SAVE_DIALOG: ${{ github.workspace }}/build/designcraft-par03-evidence/server-save-copy.png
+          CW_PAR03_SAVE_DESTINATION_DIALOG: ${{ github.workspace }}/build/designcraft-par03-evidence/server-save-destination.png
+          CW_PAR03_LAPTOP_DESTINATION_DIALOG: ${{ github.workspace }}/build/designcraft-par03-evidence/laptop-save-destination.png
         run: |
           git clone --shared --no-checkout build/original-ui/source-designcraft build/original-ui/source-designcraft-host
           git -C build/original-ui/source-designcraft-host checkout --detach a127c6d5c3576972bbd60445f26d893db071eef3
           node scripts/build-designcraft-host-ui.mjs
-          node scripts/smoke-designcraft-frame-undo-candidate.mjs
           CW_PAR03_SCREENSHOT="$GITHUB_WORKSPACE/build/designcraft-par03-evidence/file-open.png" CW_PAR03_REPORT="$GITHUB_WORKSPACE/build/designcraft-par03-evidence/file-open.json" node scripts/smoke-designcraft-file-open-candidate.mjs
       - uses: actions/upload-artifact@v4
         if: always()

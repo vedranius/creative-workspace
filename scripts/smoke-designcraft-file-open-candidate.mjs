@@ -122,8 +122,12 @@ try{
  const retainedResponse=await fetch(`${base}/api/designcraft/sessions/${sessionId}/output?path=${encodeURIComponent(retainedPath)}`,{headers:{Origin:base}});assert.equal(retainedResponse.status,200);
  assert.deepEqual(Buffer.from(await retainedResponse.arrayBuffer()),retained);assert.ok(retained.length>0);assert.notEqual(createHash('sha256').update(retained).digest('hex'),originalHash);
  const laptopPath='laptop-copy.designcraft';
- const laptopResponse=await page.evaluate(async({sessionId,path})=>{const response=await fetch(`/api/designcraft/sessions/${sessionId}/rpc`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({method:'file.saveACopy',params:{path,destination:'laptop',retention:'workspace'},requestId:crypto.randomUUID(),expectedVersion:5})});return {status:response.status,body:await response.json()};},{sessionId,path:laptopPath});
- assert.equal(laptopResponse.status,200);const laptopAck=laptopResponse.body;assert.equal(laptopAck.result.destination,'laptop');assert.equal(laptopAck.result.retention,'workspace');assert.equal(laptopAck.document.dirty,true);
+ await page.keyboard.press('Control+Alt+s');await page.waitForTimeout(250);await page.mouse.click(512,511);await page.waitForTimeout(80);
+ await page.mouse.click(515,560);await page.waitForTimeout(80);if(process.env.CW_PAR03_LAPTOP_DESTINATION_DIALOG)await page.screenshot({path:path.resolve(process.env.CW_PAR03_LAPTOP_DESTINATION_DIALOG)});
+ await page.mouse.click(610,486);await page.keyboard.press('Control+a');await page.keyboard.type(laptopPath);await page.mouse.click(1000,573);
+ await page.waitForFunction(()=>document.querySelector('#designcraft_canvas')?.getAttribute('data-server-revision')==='6',null,{timeout:30000});
+ const laptopRequest=requests[5],laptopAck=acks[5];assert.equal(laptopRequest.method,'file.saveACopy');assert.equal(laptopRequest.expectedVersion,5);assert.equal(laptopRequest.params.destination,'laptop');assert.equal(laptopRequest.params.retention,'workspace');
+ assert.equal(laptopAck.result.destination,'laptop');assert.equal(laptopAck.result.retention,'workspace');assert.equal(laptopAck.document.dirty,true);
  const laptopBytes=await page.evaluate(path=>Array.from(window.__cwFiles.get(path)),laptopPath);assert.ok(laptopBytes.length>0);const laptopHash=createHash('sha256').update(Buffer.from(laptopBytes)).digest('hex');assert.notEqual(laptopHash,originalHash);
  const collision=await fetch(`${base}/api/designcraft/sessions/${sessionId}/rpc`,{method:'POST',headers:{Origin:base,'Content-Type':'application/json'},body:JSON.stringify({method:'file.saveACopy',params:{path:retainedPath,destination:'server',retention:'workspace'},requestId:crypto.randomUUID()})});assert.equal(collision.status,409);
  // Reopen the laptop copy through the original provider chooser in a fresh session.
