@@ -5,7 +5,7 @@
 - Add the server-side original `file.saveACopy` path for sessions bound to an explicitly selected read/write on-demand provider. Native bytes are staged and checked, destination creation is exclusive, and success waits for the provider's laptop write ACK.
 - Preserve the dirty source and uncertain output on ACK failure; reject a same-path retry so newer/local output is not overwritten. Fail closed when a session or ACK hook is unavailable.
 - Protocol fixtures verify ACK gating, conflict, dirty state and uncertain-output retry. The original UI still does not expose laptop share selection or destination choice; `/dev/fuse`, Trunk and Chromium were unavailable for real browser/provider proof. Keep the release draft and DesignCraft planned.
-- Actions contract initially rejected the candidate because alpha.27 is immutable; this release uses a fresh alpha.28 version. Verify new Actions assets and checksums; do not publish the draft while browser/provider acceptance is missing.
+- Actions contract initially rejected the candidate because alpha.27 is immutable; this release uses a fresh alpha.28 version. Checks `38332923836` and Build/release `38332923828` passed; the immutable tag, draft, six Actions archives and checksums are verified in [release evidence](docs/evidence/creative-workspace-alpha28-release.md). Keep the draft while browser/provider acceptance is missing.
 
 ## [0.2.0-alpha.27] — 2026-10-13 (cross-platform test correction candidate)
 
