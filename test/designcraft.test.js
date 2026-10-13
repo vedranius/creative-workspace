@@ -49,8 +49,8 @@ test('Design Save a Copy destinations stay independent on a writable provider se
   assert.equal(server.result.destination,'server');assert.ok(await readFile(path.join(project,'copies/server.designcraft')));await assert.rejects(readFile(path.join(shareRoot,'copies/server.designcraft')));
   const laptop=await call(session.id,'file.saveACopy',{path:'copies/laptop.designcraft',destination:'laptop',retention:'workspace'});
   assert.equal(laptop.result.destination,'laptop');assert.ok(await readFile(path.join(shareRoot,'copies/laptop.designcraft')));await assert.rejects(readFile(path.join(project,'copies/laptop.designcraft')));
-  assert.equal((await design.output(session.id,'copies/server.designcraft')),path.join(project,'copies/server.designcraft'));
-  assert.equal((await design.output(session.id,'copies/laptop.designcraft')),path.join(shareRoot,'copies/laptop.designcraft'));
+  assert.equal(await realpath(await design.output(session.id,'copies/server.designcraft')),await realpath(path.join(project,'copies/server.designcraft')));
+  assert.equal(await realpath(await design.output(session.id,'copies/laptop.designcraft')),await realpath(path.join(shareRoot,'copies/laptop.designcraft')));
   await design.close(session.id,{discard:true});
 });
 
