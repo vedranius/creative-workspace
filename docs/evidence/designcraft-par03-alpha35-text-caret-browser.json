@@ -1,0 +1,56 @@
+{
+  "status": "bounded-original-ui-text-caret-and-text-insert-proof",
+  "presetAck": 1,
+  "shapeFrameAck": 2,
+  "textFrameAck": 3,
+  "textCaretActionId": "text.placeCaret",
+  "textCaretAck": 4,
+  "textCaretRestored": true,
+  "text": "Queue Ω",
+  "textCalls": [
+    "Q",
+    "u",
+    "e",
+    "u",
+    "e",
+    " ",
+    "Ω"
+  ],
+  "expectedRevisions": [
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10
+  ],
+  "ackRevisions": [
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11
+  ],
+  "serverSnapshotContainsText": true,
+  "serverRenderUpdated": true,
+  "browserErrors": [],
+  "pinnedSource": {
+    "repository": "https://github.com/storytold/designcraft",
+    "commit": "a127c6d5c3576972bbd60445f26d893db071eef3",
+    "candidatePatchSha256": "778df519bad1a675093ab11735012ebb96e92a0c78413dfe999263fd5c7023ce",
+    "wasmSha256": "f83ed19116b836e44129b448eefad20a32a71d1cbc833e9ecafb76033948e2ad"
+  },
+  "ownedWorker": {
+    "sourceCommit": "a127c6d5c3576972bbd60445f26d893db071eef3",
+    "runtimeId": "creative-workspace-designcraft-v1",
+    "target": "linux-x64",
+    "sha256": "af8a4f4eb4749facd4d37b597330c9edd436c50c846e6d3fb8001eb69ca75567"
+  },
+  "limits": [
+    "Synthetic provider-share fixture; no real folder permission",
+    "No laptop write acknowledgement, reopen/recovery, or full app parity"
+  ]
+}

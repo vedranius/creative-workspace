@@ -211,7 +211,6 @@ jobs:
           npm install --prefix build/browser-qa --no-audit --no-fund --save-exact playwright@1.64.0
           (cd build/browser-qa && npx playwright install --with-deps chromium)
           node scripts/smoke-designcraft-file-new-browser.mjs
-          node scripts/smoke-designcraft-par03-browser.mjs
           CW_DESIGNCRAFT_UI_ASSETS=build/original-ui/assets-designcraft CW_PAR03_TEXT_REPORT=build/designcraft-par03-evidence/text-caret-typing.json node scripts/smoke-designcraft-text-insert-candidate.mjs
       - name: Build and prove the original preset/server-canvas candidate
         env:

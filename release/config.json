@@ -20,7 +20,7 @@
     "CI smoke tests use generated documents; real browser folder permissions and broad format compatibility require separate acceptance.",
     "Linux requires glibc 2.35+; Windows requires the Microsoft Visual C++ 2015–2022 x64 runtime; macOS bundle targets Apple Silicon on macOS 14+.",
     "This release stays draft until original-UI asset packaging and target/browser acceptance evidence are complete; it is not a complete creative suite.",
-    "DesignCraft alpha.34 registers the bounded original Type Tool caret/typing source patch and uses an Actions smoke with a synthetic provider directory handle. That fixture does not prove real browser permission, laptop write ACK, uncertain-output recovery or full original parity. Keep this candidate draft-only and the catalog planned."
+    "DesignCraft alpha.35 keeps Actions browser verification aligned with the registered pinned UI: original file.new and Type Tool caret/typing actions reach the owned server worker and refresh its acknowledged snapshot/render. The obsolete unregistered ?serverEdit overlay smoke was removed. Synthetic provider fixtures do not prove real browser permission, laptop write ACK, uncertain-output recovery or full original parity. Keep this candidate draft-only and the catalog planned."
   ],
   "draftOnly": true,
   "originalUiPreviews": [

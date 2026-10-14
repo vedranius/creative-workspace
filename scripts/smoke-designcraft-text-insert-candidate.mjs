@@ -51,7 +51,7 @@ try{
   const page=await browser.newPage({viewport:{width:1440,height:1000}}),errors=[],failedResponses=[],requests=[],acks=[];
   page.on('pageerror',e=>errors.push(e.message));page.on('console',m=>{if(m.type()==='error')errors.push(m.text());});
   page.on('request',req=>{const match=req.url().match(/\/api\/designcraft\/sessions\/([a-f0-9]{48})\/rpc$/);if(match){sessionId=match[1];requests.push(req.postDataJSON());}});
-  page.on('response',response=>{if(response.status()>=400)failedResponses.push({status:response.status(),url:response.url()});});
+  page.on('response',async response=>{if(response.status()>=400)failedResponses.push({status:response.status(),url:response.url(),body:(await response.text()).slice(0,1024)});});
   page.on('response',async response=>{if(response.url().endsWith('/rpc'))acks.push(await response.json());});
   await page.goto(`${base}/?webgl`,{waitUntil:'domcontentloaded'});
   try { await page.waitForFunction(()=>document.querySelector('#designcraft_canvas')?.hasAttribute('data-original-preset-a4'),null,{timeout:bootTimeout}); }

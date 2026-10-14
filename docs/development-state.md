@@ -1,5 +1,9 @@
 # Development handoff
 
+## 2026-10-14 PAR-03 alpha.35 registered-action smoke alignment
+
+Coordinator run `38543280357` completed `cancelled`; the original-designcraft job spent over an hour in an obsolete `?serverEdit` preview smoke waiting for `#cw_server_render`. That selector belongs to an unregistered overlay candidate, not the guarded Type Tool patch. Removed the obsolete workflow invocation. The separately retained Type Tool browser smoke was run locally against the Actions-built Linux DesignCraft worker and exact pinned WASM candidate; it passed original `file.new` (rev 1), two original `frame.create` actions (revs 2–3), `text.placeCaret` ACK (rev 4), and seven FIFO `text.insert` ACKs (revs 5–11), with server snapshot/render refresh and zero browser errors. The folder handle in this fixture is synthetic, so no real permission/write ACK/recovery is proven. Next: run check/tests/release validation, push alpha.35 normally, inspect fresh Actions and actual draft assets; continue laptop provider acceptance and remaining original UI parity. Keep DesignCraft planned and preserve `engines/filmcraft/` plus protected runtimes.
+
 ## 2026-10-14 PAR-03 alpha.33 smoke finding; alpha.34 fixture
 
 Alpha.33 Actions run `38539379070` built/registers the guarded original DesignCraft UI and removed the helper-not-found condition, but its browser smoke stalled at the original on-demand provider chooser before canvas assertions. The chooser correctly requires a user-selected folder. Alpha.34 updates the smoke to traverse that original dialog with a synthetic directory handle; the report labels permission as unverified. This is protocol/UI smoke only. Real browser permission, laptop write ACK/reopen/recovery and full action parity remain pending. Next: validate, push, inspect fresh Actions logs/artifacts, and keep any release draft. Preserve `engines/filmcraft/` and protected runtimes.

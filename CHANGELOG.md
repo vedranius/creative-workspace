@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.2.0-alpha.35] — 2026-10-14 (DesignCraft original-action smoke alignment)
+
+- Remove the obsolete `?serverEdit` preview smoke from the release workflow. It expected a DOM server-render overlay from an unregistered candidate, so the browser waited for an element that the registered UI never creates and blocked all later verification.
+- Keep the guarded pinned UI build, original `file.new` worker smoke, and actual Type Tool browser test. The latter verifies the original `text.placeCaret` ACK, seven ordered `text.insert` ACKs, acknowledged revisions 4–11, server snapshot/render refresh, and zero browser errors.
+- The laptop-folder fixture still does not prove real browser permission, laptop write ACK/reopen/recovery, or complete DesignCraft parity; DesignCraft remains planned and the release draft-only.
+
 ## [0.2.0-alpha.34] — 2026-10-14 (DesignCraft Actions provider onboarding fixture)
 
 - Exercise the original DesignCraft provider chooser in Actions using a synthetic directory handle so the server-worker canvas and Type Tool browser assertions can run without claiming real browser permission.
