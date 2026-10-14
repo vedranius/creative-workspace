@@ -1,6 +1,10 @@
 # PAR-03 handoff — bounded server read-model slice verified
 
 
+## 2026-10-14 alpha.33 Actions chooser finding; alpha.34 smoke fixture
+
+The helper path fixed the missing-binary diagnostic, but run `38539379070` then timed out at the original folder chooser. The browser smoke had not selected a directory, which the provider correctly requires before starting. Alpha.34 uses the original chooser with a synthetic directory handle and explicitly labels the report as permission-unverified. This must not be counted as actual File System Access permission or laptop write acceptance. Next run fresh Actions and inspect the caret/typing report; keep the draft and DesignCraft planned pending real permission, laptop ACK/reopen/recovery, and remaining full parity.
+
 ## 2026-10-14 alpha.32 Actions failure; alpha.33 workflow correction
 
 Actions run `38532632621` completed. The exact pinned DesignCraft UI build/register succeeded, but the `original-designcraft` browser step failed before its PAR-03 assertions: the server displayed `rrweb-fuse not found` at the disposable session data path. The workflow had installed the helper under `build/storage-runtime/build/release/cw-filesystem-helper` but failed to set `CW_FUSE_BINARY` for this smoke. Consequently the caret/typing smoke did not run, publish was skipped, and alpha.32 has no tag/release. Alpha.33 sets that explicit path. Next run checks, push, and verify fresh Actions and draft assets. Keep DesignCraft planned pending actual browser permission, laptop write ACK/reopen/recovery, and full original action parity.

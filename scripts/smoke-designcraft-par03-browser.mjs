@@ -15,9 +15,18 @@ try{
  const base=`http://127.0.0.1:${server.address().port}`,status=await (await fetch(`${base}/api/engines/designcraft`)).json();
  if(!status.ready||!status.ownedRuntime)throw new Error('Candidate native runtime identity check failed');
  browser=await chromium.launch({headless:true,...(process.env.CW_BROWSER_EXECUTABLE?{executablePath:process.env.CW_BROWSER_EXECUTABLE}:{}),args:['--enable-webgl','--use-gl=swiftshader','--enable-unsafe-swiftshader','--disable-dev-shm-usage']});
- const page=await browser.newPage({viewport:{width:1440,height:1000}}),errors=[];page.on('pageerror',e=>errors.push(e.message));page.on('console',m=>{if(m.type()==='error')errors.push(m.text());});
+ const context=await browser.newContext({viewport:{width:1440,height:1000}});
+ // This test exercises the original provider onboarding protocol, not browser permission UI.
+ // The separate laptop acceptance still requires an actual granted File System Access handle.
+ await context.addInitScript(()=>{
+  const dir=(name='CI DesignCraft folder')=>({kind:'directory',name,async *entries(){},async getDirectoryHandle(child){return dir(child);},async getFileHandle(){throw new DOMException('No fixture files','NotFoundError');}});
+  window.showDirectoryPicker=async()=>dir();
+ });
+ const page=await context.newPage(),errors=[];page.on('pageerror',e=>errors.push(e.message));page.on('console',m=>{if(m.type()==='error')errors.push(m.text());});
  page.on('request',req=>{const match=req.url().match(/\/api\/designcraft\/sessions\/([a-f0-9]{48})\/rpc$/);if(match&&!sessionId)sessionId=match[1];});
  await page.goto(`${base}/original/designcraft/?serverEdit&webgl`,{waitUntil:'domcontentloaded'});
+ await page.getByRole('button',{name:'Choose laptop folder…'}).click();
+ await page.getByRole('button',{name:'Start this mode'}).click();
  const image=page.locator('#cw_server_render');try{await image.waitFor({state:'visible',timeout:120000});}catch(error){console.error(JSON.stringify({diagnostic:'server-render image missing',errors,body:await page.locator('body').innerText().catch(()=>''),url:page.url()}));await page.screenshot({path:path.resolve(process.env.CW_PAR03_SCREENSHOT||path.join(root,'designcraft-par03.png'))});throw error;}await page.waitForFunction(()=>{const i=document.querySelector('#cw_server_render');return i?.complete&&i.naturalWidth>0;},null,{timeout:120000});
  const ui=await image.evaluate(i=>({commandId:i.dataset.commandId,stateVersion:Number(i.dataset.stateVersion),documentTitle:i.dataset.documentTitle,pageCount:Number(i.dataset.pageCount),dirty:i.dataset.dirty==='true',width:i.naturalWidth,height:i.naturalHeight,canvas:!!document.querySelector('#designcraft_canvas')&&!document.querySelector('#designcraft_loading'),banner:document.querySelector('#cw_server_status')?.textContent}));
  if(ui.commandId!=='file.new'||ui.stateVersion!==1||ui.documentTitle!=='Server Edit Test'||ui.pageCount!==1||!ui.dirty||ui.width!==612||ui.height!==792||!ui.canvas||!ui.banner.includes('Server Edit Test'))throw new Error(`Unexpected browser read model/render: ${JSON.stringify(ui)}`);
@@ -43,7 +52,7 @@ try{
  const badOrigin=await fetch(`${base}/api/designcraft/sessions/${sessionId}/rpc`,{method:'POST',headers:{Origin:'http://evil.invalid','Content-Type':'application/json'},body:JSON.stringify({method:'doc.sample',params:{},requestId:'origin-check-001',expectedVersion:0})});
  const stale=await fetch(`${base}/api/designcraft/sessions/${sessionId}/rpc`,{method:'POST',headers:{Origin:base,'Content-Type':'application/json'},body:JSON.stringify({method:'page.select',params:{index:0},requestId:'stale-revision-001',expectedVersion:0})});
  if(foreign.status!==404||badOrigin.status!==403||stale.status!==409||errors.length)throw new Error(`Guard/browser failure: foreign=${foreign.status}, origin=${badOrigin.status}, stale=${stale.status}, errors=${errors.join('; ')}`);
- const report={url:`${base}/original/designcraft/?serverEdit&webgl`,ownedRuntime:status.ownedRuntime,...ui,originalHostAction,editCommand:edited.commandId,afterEditRevision:edited.stateVersion,afterEditDimensions:[edited.width,edited.height],initialRenderSha256,renderSha256,foreignSessionStatus:foreign.status,invalidOriginStatus:badOrigin.status,staleRevisionStatus:stale.status,uncaughtBrowserErrors:errors.length,screenshot};
+ const report={url:`${base}/original/designcraft/?serverEdit&webgl`,ownedRuntime:status.ownedRuntime,providerOnboarding:'original chooser + synthetic directory handle; permission not verified',...ui,originalHostAction,editCommand:edited.commandId,afterEditRevision:edited.stateVersion,afterEditDimensions:[edited.width,edited.height],initialRenderSha256,renderSha256,foreignSessionStatus:foreign.status,invalidOriginStatus:badOrigin.status,staleRevisionStatus:stale.status,uncaughtBrowserErrors:errors.length,screenshot};
  if(process.env.CW_PAR03_REPORT){const reportPath=path.resolve(process.env.CW_PAR03_REPORT);await mkdir(path.dirname(reportPath),{recursive:true});await writeFile(reportPath,JSON.stringify(report,null,2)+'\n');}
  console.log(JSON.stringify(report));
 }finally{

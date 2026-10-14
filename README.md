@@ -2,7 +2,7 @@
 
 # Creative Workspace
 
-**Version: 0.2.0-alpha.33** — draft candidate; fixes the Actions browser smoke server path to use the isolated installed filesystem helper. Alpha.32 built the guarded UI but the smoke failed before editor assertions because the provider helper path was omitted. Verify the new Actions run and keep DesignCraft planned.
+**Version: 0.2.0-alpha.34** — draft candidate; the DesignCraft Actions smoke now runs the original provider chooser with a synthetic directory handle before testing server-worker canvas and Type Tool ACKs. This does not verify real browser permission or laptop writes; keep DesignCraft planned.
 
 Bring your creative tools together in one browser studio. Choose an application, select your files, and access your own server from a lightweight laptop. The goal is **the original application interfaces and tools in the browser, with the server doing the heavy work**: photography, image editing, illustration, PDF, publishing, video and motion graphics. Browser controls run locally; document commands, data and previews travel to the server. No VNC or remote desktop is involved.
 

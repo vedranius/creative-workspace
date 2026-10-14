@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.2.0-alpha.34] — 2026-10-14 (DesignCraft Actions provider onboarding fixture)
+
+- Exercise the original DesignCraft provider chooser in Actions using a synthetic directory handle so the server-worker canvas and Type Tool browser assertions can run without claiming real browser permission.
+- The alpha.33 helper path reached the original chooser but the smoke stopped at its required user folder selection. Real File System Access permission, laptop write ACK/reopen/recovery, and full DesignCraft parity remain unverified; keep the release draft.
+
+
 ## [0.2.0-alpha.33] — 2026-10-14 (DesignCraft Actions provider smoke wiring)
 
 - Pass the installed, isolated Linux filesystem helper explicitly to the original DesignCraft browser smoke server. The alpha.32 pipeline installed the helper but the smoke server looked under its disposable session data root, so the provider dialog blocked before caret/typing assertions.

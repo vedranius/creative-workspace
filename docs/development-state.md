@@ -1,5 +1,10 @@
 # Development handoff
 
+## 2026-10-14 PAR-03 alpha.33 smoke finding; alpha.34 fixture
+
+Alpha.33 Actions run `38539379070` built/registers the guarded original DesignCraft UI and removed the helper-not-found condition, but its browser smoke stalled at the original on-demand provider chooser before canvas assertions. The chooser correctly requires a user-selected folder. Alpha.34 updates the smoke to traverse that original dialog with a synthetic directory handle; the report labels permission as unverified. This is protocol/UI smoke only. Real browser permission, laptop write ACK/reopen/recovery and full action parity remain pending. Next: validate, push, inspect fresh Actions logs/artifacts, and keep any release draft. Preserve `engines/filmcraft/` and protected runtimes.
+
+
 ## 2026-10-14 PAR-03 alpha.32 Actions failure and alpha.33 correction
 
 Build/release run `38532632621` completed with failure in `original-designcraft` job `115752965358`. The exact pinned optimized UI build/register step succeeded. The browser smoke then failed before the PAR-03 canvas/caret checks: the app reported `rrweb-fuse not found` beneath its temporary session data root. The workflow had installed the isolated helper at `build/storage-runtime/build/release/cw-filesystem-helper` but omitted `CW_FUSE_BINARY` in the smoke step environment. Other workflow jobs completed successfully; publication was skipped and `v0.2.0-alpha.32` does not exist.
