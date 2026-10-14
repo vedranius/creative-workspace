@@ -1,9 +1,12 @@
 # Development handoff
 
-## 2026-10-14 PAR-03 text.insert queue candidate
+## 2026-10-14 PAR-03 text.insert queue — build composition finding
 
-An unregistered candidate patch routes the original `text.insert` action through the server mirror and adds a bounded FIFO while another server action is pending (32 events, 16 KiB total, 4 KiB/event). ACKs drain one action at a time; overflow rejects new input, and failures hold queued edits without automatic replay. Patch: [candidate](patches/designcraft/a127c6d5/par-03-text-insert-queue-candidate.patch), SHA-256 `8eba5bc78553b2580943085e139e850f12442bcd66f975273e94ba351a95b5fa`. Engine and UI queue tests pass (3/3), UI crate check passes, and the 57 repository tests pass. Browser editing and original UI build remain unverified; do not register or claim availability. Next: build the pinned optimized candidate, then fast-typing browser proof. Preserve the alpha.31 draft and separately resolve genuine folder permission/ACK/recovery.
+Queue candidate patch: [candidate](patches/designcraft/a127c6d5/par-03-text-insert-queue-candidate.patch), SHA-256 `8eba5bc78553b2580943085e139e850f12442bcd66f975273e94ba351a95b5fa`. Its bounded FIFO design and native/UI tests were previously verified (3/3); repository checks (57/57), release validation and exact patch identity were also previously verified. Checks run `38486287833` passed on Linux/macOS/Windows; release packaging was skipped by design after `patches/**` was added to `paths-ignore`.
 
+This run found the saved `build/host-tmp/par03-text-insert-qa/source` is the provider-binding candidate, not the queue candidate: reverse-apply validation matches `par-03-provider-binding-candidate.patch` exactly. Its optimized Trunk build succeeded through `low-impact-build.py` (WASM SHA-256 `20a579faa3746d8c3a37e2a1cd048e2dd3c989e1b7d837c4a38e3bb2138d8e21`), but this artifact does **not** contain the text FIFO. Applying the queue patch directly or with `git apply --3way` to the provider-binding candidate fails across overlapping source hunks. The Creative Workspace gateway in `src/designcraft.js` also does not currently allow `text.insert`; therefore no actual worker/browser ACK proof for queued text can be claimed.
+
+No tracked source, owned/protected runtime, or release was changed. Disposable checkouts and output remain in ignored `build/host-tmp/par03-text-insert-qa/`. Next exact implementation: reconcile the upstream queue changes with the provider-bound source as one reviewed cumulative patch, add the bounded `text.insert` gateway/native-worker route with revision and ACK checks, then run focused native tests, optimized build, and one browser proof showing ordered text events, sequential worker ACKs, increasing revisions and updated server render. Keep DesignCraft planned and alpha.31 draft; genuine browser folder permission/write ACK/recovery remain separate acceptance work.
 
 ## 2026-10-13 PAR-03 genuine browser folder-permission attempt
 
