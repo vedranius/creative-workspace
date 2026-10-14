@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.2.0-alpha.38] — 2026-10-14 (DesignCraft ordered original text actions)
+
+- Route original `text.select` and `text.placeCaret` through the same bounded server-action FIFO as `text.insert`; selection/caret updates now wait for the prior action ACK and hydrate from the matching acknowledged server snapshot. Queue stays capped at 32 actions / 16 KiB of text and retains uncertain queued input after failure without automatic replay.
+- Add a pinned-source regression test for mixed insert/select/caret ordering and include it in the Actions DesignCraft job. The candidate patch checksum is `7554053fc7659df8346f99ae56126b95ced6b1cdbc95599c5648ff6cee3535c9`. Low-impact wasm check/build and isolated Chromium smoke passed through revision 11; the focused mixed-action Rust test passes (1/1); fresh Actions/browser/bundle/release verification is pending. See [local candidate evidence](docs/evidence/creative-workspace-alpha38-local.md). Real laptop folder permission/recovery and full parity remain pending; keep DesignCraft planned and the release draft-only.
+
 ## [0.2.0-alpha.37] — 2026-10-14 (DesignCraft browser-smoke scratch setup)
 
 - Create the host scratch parent before allocating the isolated DesignCraft Type Tool browser session. CI previously passed the original `file.new` server-worker check, then stopped before Type Tool assertions because `build/host-tmp` did not exist.

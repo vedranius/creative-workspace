@@ -13,7 +13,7 @@ export const originalUiPins={
   effectcraft:'9a7d3e76991d5372448033b473dc12c2480a6a04'
 };
 // Reviewed integration patches are explicit variants of the upstream pin, never new upstream commits.
-export const originalUiPatches={designcraft:{id:'par-03-provider-text-caret-v1',path:'patches/designcraft/a127c6d5/par-03-provider-text-caret.patch',sha256:'778df519bad1a675093ab11735012ebb96e92a0c78413dfe999263fd5c7023ce'},filmcraft:{id:'mkv-pending-v1',path:'engines/original-ui/filmcraft/mkv-pending.patch',sha256:'8aee3cdf5acc1380564965329472b92f9a02207e6e11a63bb4983f54ef5688bc'}};
+export const originalUiPatches={designcraft:{id:'par-03-provider-text-actions-v1',path:'patches/designcraft/a127c6d5/par-03-provider-text-actions.patch',sha256:'7554053fc7659df8346f99ae56126b95ced6b1cdbc95599c5648ff6cee3535c9'},filmcraft:{id:'mkv-pending-v1',path:'engines/original-ui/filmcraft/mkv-pending.patch',sha256:'8aee3cdf5acc1380564965329472b92f9a02207e6e11a63bb4983f54ef5688bc'}};
 export const originalUiPackageId=id=>originalUiPins[id]+(originalUiPatches[id]?'-'+originalUiPatches[id].sha256.slice(0,12):'');
 const MAX_FILE=96*1024*1024,MAX_TOTAL=512*1024*1024;
 export function safeAssetName(name){return typeof name==='string'&&name.length<=1024&&!name.startsWith('/')&&!name.includes('\\')&&!name.includes('\0')&&name.split('/').every(part=>part&&part!=='.'&&part!=='..'&&!part.startsWith('.'));}

@@ -8,6 +8,12 @@ Alpha.35 Actions run `38561662430` completed with contract, Linux bundle and pin
 
 # PAR-03 handoff — bounded server read-model slice verified
 
+## 2026-10-14 PAR-03 alpha.38 mixed text-action queue candidate
+
+Extended the exact pinned DesignApp source candidate so `text.select` and `text.placeCaret` share the bounded FIFO with original `text.insert`. A selection/caret cannot overtake an unacknowledged edit; each operation is dispatched only after its predecessor's matching revisioned ACK and snapshot hydration. The queue remains bounded at 32 actions / 16 KiB inserted text. A mixed insert → select → caret regression test was added to the upstream UI crate and the Actions job. Candidate patch: `patches/designcraft/a127c6d5/par-03-provider-text-actions.patch`, SHA-256 `7554053fc7659df8346f99ae56126b95ced6b1cdbc95599c5648ff6cee3535c9`.
+
+Low-impact wasm check/optimized build, exact patch registration, `npm run check`, `npm test` (60/60), release validation and isolated Chromium proof through server revision 11 pass. The focused mixed-action Rust regression passes (1/1). Next commit/push alpha.38, then inspect its actual Actions UI/browser and bundle results. The browser CUA inventory has only Codex In-app Browser/MCP Apps; real Chrome/Edge folder permission and laptop write/recovery remain unproven. Keep DesignCraft planned and release draft-only. Preserve `engines/filmcraft/` and protected runtimes.
+
 ## 2026-10-14 alpha.35 registered-action smoke alignment
 
 Actions run `38543280357` completed `cancelled`. The job had already built the guarded pinned UI and Actions-owned Linux worker. It then loaded `?serverEdit` and waited for `#cw_server_render`, an overlay element supplied only by an unregistered preview patch; the registered original UI renders through its own canvas and never creates that selector. Removed the obsolete smoke invocation. Replayed the existing Type Tool browser test locally using the Actions-built Linux worker plus the exact pinned text-caret WASM candidate: original `file.new` ACK rev 1, two `frame.create` ACKs revs 2–3, original `text.placeCaret` ACK rev 4 and caret hydration, then seven sequential `text.insert` ACKs revs 5–11. Server snapshot and render refreshed; zero browser errors. The browser's storage folder is a synthetic protocol fixture, not real permission evidence. Next: run local checks, publish alpha.35 normally, inspect fresh Actions and assets; keep DesignCraft planned until real laptop permission/write ACK/reopen/recovery and full original action parity are accepted.

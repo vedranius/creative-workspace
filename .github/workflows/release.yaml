@@ -195,6 +195,10 @@ jobs:
           path: build/staged/designcraft
       - name: Build/register the reviewed original UI variant
         run: node scripts/build-designcraft-par03-ui.mjs build/original-ui/source-designcraft build/original-ui/assets-designcraft build/original-ui/packages
+      - name: Verify original text actions wait for ordered server acknowledgements
+        env:
+          CARGO_BUILD_JOBS: '1'
+        run: cargo test --manifest-path build/original-ui/source-designcraft/Cargo.toml -p designcraft-ui-egui original_text_selection_and_caret_actions_keep_fifo_order_with_typing
       - name: Verify the original UI against the owned server worker
         env:
           CW_DESIGNCRAFT_BINARY: ${{ github.workspace }}/build/staged/designcraft/cw-designcraft-engine

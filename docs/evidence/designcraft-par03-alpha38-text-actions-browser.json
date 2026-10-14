@@ -1,0 +1,47 @@
+{
+  "status": "bounded-original-ui-text-caret-and-text-insert-proof",
+  "presetAck": 1,
+  "shapeFrameAck": 2,
+  "textFrameAck": 3,
+  "textCaretActionId": "text.placeCaret",
+  "textCaretAck": 4,
+  "textCaretRestored": true,
+  "text": "Queue \u03a9",
+  "textCalls": [
+    "Q",
+    "u",
+    "e",
+    "u",
+    "e",
+    " ",
+    "\u03a9"
+  ],
+  "expectedRevisions": [
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10
+  ],
+  "ackRevisions": [
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11
+  ],
+  "serverSnapshotContainsText": true,
+  "serverRenderUpdated": true,
+  "browserErrors": [],
+  "upstreamPin": "a127c6d5c3576972bbd60445f26d893db071eef3",
+  "sourcePatch": "patches/designcraft/a127c6d5/par-03-provider-text-actions.patch",
+  "sourcePatchSha256": "7554053fc7659df8346f99ae56126b95ced6b1cdbc95599c5648ff6cee3535c9",
+  "wasmSha256": "0a08170fc0c1ce4b9d2e788fc4dd1893b651e989cddb58521363fae4d2ec8e78",
+  "workerSha256": "af8a4f4eb4749facd4d37b597330c9edd436c50c846e6d3fb8001eb69ca75567",
+  "browser": "Google Chrome for Testing 151.0.7922.34",
+  "limitations": "isolated Chromium test; provider folder chooser is a synthetic fixture and does not prove real browser permission, laptop destination ACK, uncertain-output recovery, or complete DesignCraft parity"
+}

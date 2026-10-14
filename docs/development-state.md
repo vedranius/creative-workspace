@@ -1,3 +1,7 @@
+## 2026-10-14 PAR-03 alpha.38 original text-action queue candidate
+
+The registered-pin DesignApp candidate now queues original `text.select` and `text.placeCaret` with `text.insert`, serializing mixed selection/caret/typing updates on one server ACK boundary. Queue limits remain 32 operations and 16 KiB of text; queued operations are retained after failure and not replayed automatically. Added a pinned-source regression for mixed action ordering and scheduled it in the DesignCraft Actions job. Patch SHA-256 `7554053fc7659df8346f99ae56126b95ced6b1cdbc95599c5648ff6cee3535c9`; version 0.2.0-alpha.38. Low-impact wasm check/optimized build and isolated Chromium proof through revision 11 pass; Node suite is 60/60, canonical guard and release validation pass. Focused upstream Rust regression passes (1/1); fresh Actions result remains pending. No real browser folder permission/recovery or full parity claim; DesignCraft remains planned. Preserve `engines/filmcraft/` and protected sessions.
+
 # Development handoff
 
 ## 2026-10-14 PAR-03 alpha.37 browser-smoke scratch setup correction
