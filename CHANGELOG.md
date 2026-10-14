@@ -3,7 +3,7 @@
 ## [0.2.0-alpha.37] — 2026-10-14 (DesignCraft browser-smoke scratch setup)
 
 - Create the host scratch parent before allocating the isolated DesignCraft Type Tool browser session. CI previously passed the original `file.new` server-worker check, then stopped before Type Tool assertions because `build/host-tmp` did not exist.
-- Fresh Actions browser verification and release assets remain pending. DesignCraft remains planned; synthetic provider fixtures do not prove laptop permission, write ACK/reopen/recovery or full original parity.
+- Checks `38581450259` and Build/release `38581450222` passed. Chromium verified the registered original `file.new`, Type Tool caret/ordered text edits through the owned worker, and the separate Open/edit/Undo/Save a Copy server/laptop candidate; zero browser errors. All six Actions archives and SHA256 sidecars were downloaded and verified. This remains a partial candidate: the folder handle is mocked, so real browser permission and uncertain-output recovery are unproven. Keep DesignCraft planned and the release draft-only.
 
 ## [0.2.0-alpha.36] — 2026-10-14 (DesignCraft browser-smoke loader fix)
 
