@@ -198,6 +198,7 @@ jobs:
       - name: Verify the original UI against the owned server worker
         env:
           CW_DESIGNCRAFT_BINARY: ${{ github.workspace }}/build/staged/designcraft/cw-designcraft-engine
+          CW_FUSE_BINARY: ${{ github.workspace }}/build/storage-runtime/build/release/cw-filesystem-helper
           CW_ORIGINAL_UI_DIR: ${{ github.workspace }}/build/original-ui/packages
           CW_PLAYWRIGHT_MODULE: file://${{ github.workspace }}/build/browser-qa/node_modules/playwright/index.mjs
           CW_PAR03_SCREENSHOT: ${{ github.workspace }}/build/designcraft-par03-evidence/browser.png

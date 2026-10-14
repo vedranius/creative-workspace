@@ -1,6 +1,10 @@
 # PAR-03 handoff — bounded server read-model slice verified
 
 
+## 2026-10-14 alpha.32 Actions failure; alpha.33 workflow correction
+
+Actions run `38532632621` completed. The exact pinned DesignCraft UI build/register succeeded, but the `original-designcraft` browser step failed before its PAR-03 assertions: the server displayed `rrweb-fuse not found` at the disposable session data path. The workflow had installed the helper under `build/storage-runtime/build/release/cw-filesystem-helper` but failed to set `CW_FUSE_BINARY` for this smoke. Consequently the caret/typing smoke did not run, publish was skipped, and alpha.32 has no tag/release. Alpha.33 sets that explicit path. Next run checks, push, and verify fresh Actions and draft assets. Keep DesignCraft planned pending actual browser permission, laptop write ACK/reopen/recovery, and full original action parity.
+
 ## 2026-10-14 alpha.32 source-guard/Actions integration in progress
 
 The exact verified cumulative DesignApp patch is now registered as `par-03-provider-text-caret-v1`, SHA-256 `778df519bad1a675093ab11735012ebb96e92a0c78413dfe999263fd5c7023ce`. The normal `original-designcraft` job uses the source guard, optimized pinned build, and `smoke-designcraft-text-insert-candidate.mjs` to verify the original `text.placeCaret` ACK/hydration, sequential `text.insert` ACKs/revisions, server snapshot/render update, and browser error count. Gateway/native tests assert bounded original IDs and params. This does not prove laptop folder permission/write ACK/recovery or full parity.

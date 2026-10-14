@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.2.0-alpha.33] — 2026-10-14 (DesignCraft Actions provider smoke wiring)
+
+- Pass the installed, isolated Linux filesystem helper explicitly to the original DesignCraft browser smoke server. The alpha.32 pipeline installed the helper but the smoke server looked under its disposable session data root, so the provider dialog blocked before caret/typing assertions.
+- This is a CI wiring correction; DesignCraft remains planned, and alpha.33 stays draft until Actions and release assets are verified.
+
+
 ## [0.2.0-alpha.32] — 2026-10-14 (DesignCraft Type Tool server-action candidate)
 
 - Register the exact pinned DesignApp source patch that forwards the original `text.placeCaret` action to the server worker and restores caret selection only after ACK.

@@ -1,5 +1,12 @@
 # Development handoff
 
+## 2026-10-14 PAR-03 alpha.32 Actions failure and alpha.33 correction
+
+Build/release run `38532632621` completed with failure in `original-designcraft` job `115752965358`. The exact pinned optimized UI build/register step succeeded. The browser smoke then failed before the PAR-03 canvas/caret checks: the app reported `rrweb-fuse not found` beneath its temporary session data root. The workflow had installed the isolated helper at `build/storage-runtime/build/release/cw-filesystem-helper` but omitted `CW_FUSE_BINARY` in the smoke step environment. Other workflow jobs completed successfully; publication was skipped and `v0.2.0-alpha.32` does not exist.
+
+Alpha.33 passes that installed helper path to the smoke server and records this correction. Next run local check/release validation, commit and push normally, then verify fresh Actions, the actual draft tag/assets and checksums. Do not claim DesignCraft acceptance: real laptop permission/write ACK/reopen/recovery and full original action parity remain pending. Preserve `engines/filmcraft/` and protected runtimes.
+
+
 ## 2026-10-14 PAR-03 exact Type Tool candidate registered for Actions
 
 Registered `par-03-provider-text-caret-v1` at SHA-256 `778df519bad1a675093ab11735012ebb96e92a0c78413dfe999263fd5c7023ce` against the pinned DesignCraft source. The standard `original-designcraft` Actions job now builds through the exact source guard and runs the original caret/rapid-typing smoke, checking `text.placeCaret` ACK hydration, FIFO `text.insert` revisions, server snapshot/render refresh, and zero browser errors. Added gateway/native route regression coverage and bumped the candidate version to alpha.32.

@@ -27,6 +27,6 @@ Maintain a versioned parity inventory comparing the actual pinned native origina
 Current Creative Workspace alpha ArtCraft frontends are custom limited prototypes using genuine original engines. They have not met this original-app requirement. The DesignCraft source audit identifies an existing upstream browser shell using the shared original `DesignApp`, but it currently owns a local WASM `Session`. The next bounded implementation is to run that original source UI and establish a server backend while retaining the full original UI/tool semantics. Keep unfinished portions explicitly pending; do not repeat completed audits as progress.
 
 
-### DesignCraft PAR-03 current acceptance boundary (alpha.32)
+### DesignCraft PAR-03 current acceptance boundary (alpha.33; alpha.32 Actions smoke failed before editor assertions)
 
 The pinned Type Tool caret/typing candidate now has an exact registered source patch and a normal Actions browser smoke. Acceptance requires the original `text.placeCaret` ACK to hydrate selection, sequential `text.insert` ACKs to advance server revisions and update the server render, followed by real browser folder permission, laptop destination write ACK/reopen/recovery, and the remaining original action/tool parity. The candidate does not mark DesignCraft available.
