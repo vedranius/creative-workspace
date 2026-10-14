@@ -18,6 +18,12 @@ Alpha.35 Actions run `38561662430` completed with contract, Linux bundle and pin
 
 # PAR-03 handoff — bounded server read-model slice verified
 
+## 2026-10-15 PAR-03 alpha.39 Actions and assets verified
+
+Commit `d08ff58eeac1d11345519b90b86bccbc5d337ade` contains the registered `par-03-selection-set-v1` candidate. Actions Build/release `38640343490` and Checks `38640343523` succeeded. The original UI job built the exact pinned WASM, passed the native action-capture test and Chromium smoke: A4 `file.new`, graphic `frame.create`, empty `selection.set`, selection ID 8/read-model revision 5, caret and ordered text actions through revision 14, server render and zero browser errors. Immutable tag `v0.2.0-alpha.39` points to that commit; its draft prerelease has 12 uploaded assets (three prototype bundles, DesignCraft host-canvas candidate, DesignCraft PAR-03 preview, FilmCraft UI preview, plus six checksum sidecars). All six archive sidecars were downloaded and verified. See [release evidence](evidence/creative-workspace-alpha39-release.md) and the [Actions browser artifact](https://github.com/vedranius/creative-workspace/actions/runs/38640343490/artifacts/11932034885).
+
+This is a verified bounded server-action bridge, not an accepted DesignCraft port. Folder selection was synthetic; real browser permission, laptop write ACK/reopen/uncertain-output recovery, provider parity, and remaining original action/tool parity are still required. Keep the catalog planned and the release draft. Next: continue original DesignApp action/tool and read-model coverage, then prove laptop destination ACK and recovery in a browser with real folder access. Preserve live sessions and `engines/filmcraft/`.
+
 ## 2026-10-14 PAR-03 alpha.38 Actions, browser proof and assets verified
 
 The exact pinned DesignApp candidate queues `text.select` and `text.placeCaret` with `text.insert`; each bounded FIFO operation waits for its matching worker ACK and snapshot hydration. Limits are 32 actions and 16 KiB of inserted text; failed queued actions are retained and not replayed automatically. Patch `patches/designcraft/a127c6d5/par-03-provider-text-actions.patch`, SHA-256 `7554053fc7659df8346f99ae56126b95ced6b1cdbc95599c5648ff6cee3535c9`.

@@ -9,6 +9,7 @@ on:
       - 'README.md'
       - 'LICENSE.md'
       - 'CHANGELOG.md'
+      - 'release/config.json'
       - '.github/workflows/release.yaml'
   workflow_dispatch:
 permissions:
