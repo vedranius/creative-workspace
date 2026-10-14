@@ -1,0 +1,40 @@
+{
+  "status": "bounded-original-ui-text-caret-and-text-insert-proof",
+  "presetAck": 1,
+  "shapeFrameAck": 2,
+  "textFrameAck": 3,
+  "textCaretActionId": "text.placeCaret",
+  "textCaretAck": 4,
+  "textCaretRestored": true,
+  "text": "Queue Ω",
+  "textCalls": [
+    "Q",
+    "u",
+    "e",
+    "u",
+    "e",
+    " ",
+    "Ω"
+  ],
+  "expectedRevisions": [
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10
+  ],
+  "ackRevisions": [
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11
+  ],
+  "serverSnapshotContainsText": true,
+  "serverRenderUpdated": true,
+  "browserErrors": []
+}

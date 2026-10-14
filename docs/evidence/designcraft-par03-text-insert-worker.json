@@ -1,0 +1,32 @@
+{
+  "task": "PAR-03 text.insert server route slice",
+  "verifiedAtUtc": "2026-10-14T01:13:31Z",
+  "upstream": {
+    "repository": "https://github.com/storytold/designcraft",
+    "commit": "a127c6d5c3576972bbd60445f26d893db071eef3",
+    "sourceCandidate": "par-03-provider-binding-candidate.patch",
+    "sourceCandidateSha256": "27c0c700330215288d50fcefc0ef27297579bf1cc8ef2146dcf26c41f158634f"
+  },
+  "worker": {
+    "build": "cargo build --offline --release --manifest-path apps/cw-designcraft-engine/Cargo.toml",
+    "buildRunner": "low-impact-build.py; CARGO_BUILD_JOBS=1; at most two CPUs; nice 10",
+    "binarySha256": "96b57ae2d849b2a3037699f55e30f2f22ca92ce40d7309148c680450a8a2a678"
+  },
+  "rpcSequence": [
+    { "method": "new", "params": { "preset": "A4" }, "ok": true },
+    { "method": "command", "params": { "command": "frame.create", "params": { "rect": [20, 20, 400, 120], "shape": "rectangle", "content": "text", "text": "" } }, "ok": true },
+    { "method": "command", "params": { "command": "text.insert", "params": { "text": "Worker proof Ω", "raw": false } }, "ok": true, "result": { "pos": 15 } },
+    { "method": "state", "assertion": "server-owned story text contains Worker proof Ω", "ok": true }
+  ],
+  "repositoryChecks": {
+    "npmTest": "58/58 passed",
+    "npmRunCheck": "passed",
+    "gitDiffCheck": "passed"
+  },
+  "notProven": [
+    "Composition of UI FIFO patch with provider-binding patch",
+    "Original browser typing dispatch and ordered sequential acknowledgements",
+    "Real browser folder permission and laptop output recovery",
+    "Full original DesignCraft parity or availability"
+  ]
+}

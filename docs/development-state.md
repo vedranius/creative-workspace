@@ -1,5 +1,21 @@
 # Development handoff
 
+## 2026-10-14 PAR-03 original Type Tool caret bridge — candidate verified
+
+Extended the cumulative pinned DesignApp/provider candidate so the server mirror captures the original `text.placeCaret` action from `TypeTool::pointer` → `Session::pointer` → `run_actions`, sends the exact ID/`{frame, point}` to the owned worker, then hydrates the returned selection only after its matching ACK. Candidate patch [par-03-provider-text-caret-candidate.patch](../patches/designcraft/a127c6d5/par-03-provider-text-caret-candidate.patch), SHA-256 `4d1fe85df703328e604cb95cce66f5012b4669a86dd64ee5b0429638aff06a96`.
+
+Evidence: engine capture test 1/1, UI FIFO/ACK test 1/1, wasm target check passed, optimized Trunk build passed (WASM SHA-256 `f83ed19116b836e44129b448eefad20a32a71d1cbc833e9ecafb76033948e2ad`), and isolated Chromium proof reports `text.placeCaret` ACK at revision 4, caret restored, seven rapid `text.insert` ACKs at revisions 5–11, updated server snapshot/render, and zero browser errors ([JSON](evidence/designcraft-par03-text-caret-browser.json)). The fixture uses the server workspace; it does not prove real laptop folder permission/write ACK or recovery. Keep DesignCraft planned, candidate unregistered and release draft-only. Next: integrate this exact patch through the normal source guard/Actions, then continue genuine laptop provider ACK/recovery and remaining original action parity before availability.
+
+## 2026-10-14 PAR-03 text selection bridge — browser finding
+
+The gateway/native slice accepts bounded `text.select`, `text.insert`, and the actual Type Tool action `text.placeCaret` with `{frame, point}`; the focused `text.placeCaret` route test and `text.insert` tests pass. Source inspection confirmed the original pointer flow is `TypeTool::pointer` → `Session::pointer` → `run_actions`, which executes `text.placeCaret`; it does not dispatch `text.select`. The current browser candidate still does not capture this pointer-produced action to the server worker, so no caret ACK or browser typing FIFO proof exists. `npm run check`, focused DesignCraft tests (18/18), and `git diff --check` pass. Next extend the cumulative DesignApp server-mirror patch to capture and queue the original `text.placeCaret` ID/params and hydrate only after its ACK, then rerun browser typing/revision/server-render proof. The smoke fixture is server-workspace only, not laptop permission evidence. Keep DesignCraft planned; no release/availability claim.
+
+## 2026-10-14 PAR-03 `text.insert` server route slice
+
+The gateway and native adapter now admit the upstream `text.insert` ID with a 4 KiB UTF-8 bound and strict `{text, raw?}` params. It returns an ACKed read model/revision after the owned worker call. `npm test` 58/58, `npm run check`, and `git diff --check` pass. A low-impact optimized native worker build from pinned source plus provider-binding candidate passed; direct worker proof confirms A4 → text frame → `text.insert` stores `Worker proof Ω` in server state ([evidence](evidence/designcraft-par03-text-insert-worker.json)).
+
+This does not prove that the original browser UI dispatches the action or drains queued typing sequentially. The UI FIFO patch still conflicts with the provider-binding source patch. Next reconcile into one exact cumulative candidate including this native/gateway route; run focused native/UI tests, optimized build, and browser typing/ACK/revision/server-render proof. DesignCraft stays planned; no release, availability claim, or protected runtime change.
+
 ## 2026-10-14 PAR-03 text.insert queue — build composition finding
 
 Queue candidate patch: [candidate](patches/designcraft/a127c6d5/par-03-text-insert-queue-candidate.patch), SHA-256 `8eba5bc78553b2580943085e139e850f12442bcd66f975273e94ba351a95b5fa`. Its bounded FIFO design and native/UI tests were previously verified (3/3); repository checks (57/57), release validation and exact patch identity were also previously verified. Checks run `38486287833` passed on Linux/macOS/Windows; release packaging was skipped by design after `patches/**` was added to `paths-ignore`.
