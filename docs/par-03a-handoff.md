@@ -8,11 +8,13 @@ Alpha.35 Actions run `38561662430` completed with contract, Linux bundle and pin
 
 # PAR-03 handoff — bounded server read-model slice verified
 
-## 2026-10-14 PAR-03 alpha.38 mixed text-action queue candidate
+## 2026-10-14 PAR-03 alpha.38 Actions, browser proof and assets verified
 
-Extended the exact pinned DesignApp source candidate so `text.select` and `text.placeCaret` share the bounded FIFO with original `text.insert`. A selection/caret cannot overtake an unacknowledged edit; each operation is dispatched only after its predecessor's matching revisioned ACK and snapshot hydration. The queue remains bounded at 32 actions / 16 KiB inserted text. A mixed insert → select → caret regression test was added to the upstream UI crate and the Actions job. Candidate patch: `patches/designcraft/a127c6d5/par-03-provider-text-actions.patch`, SHA-256 `7554053fc7659df8346f99ae56126b95ced6b1cdbc95599c5648ff6cee3535c9`.
+The exact pinned DesignApp candidate queues `text.select` and `text.placeCaret` with `text.insert`; each bounded FIFO operation waits for its matching worker ACK and snapshot hydration. Limits are 32 actions and 16 KiB of inserted text; failed queued actions are retained and not replayed automatically. Patch `patches/designcraft/a127c6d5/par-03-provider-text-actions.patch`, SHA-256 `7554053fc7659df8346f99ae56126b95ced6b1cdbc95599c5648ff6cee3535c9`.
 
-Low-impact wasm check/optimized build, exact patch registration, `npm run check`, `npm test` (60/60), release validation and isolated Chromium proof through server revision 11 pass. The focused mixed-action Rust regression passes (1/1). Next commit/push alpha.38, then inspect its actual Actions UI/browser and bundle results. The browser CUA inventory has only Codex In-app Browser/MCP Apps; real Chrome/Edge folder permission and laptop write/recovery remain unproven. Keep DesignCraft planned and release draft-only. Preserve `engines/filmcraft/` and protected runtimes.
+Actions run `38603273617` passed on commit `e2e7c405e68c0f3c7f951d705a1eab5d39107294`; Checks `38603273789` passed. The job built/registered the pinned original UI, verified ordered text ACKs through revision 11 and ran the owned-worker browser candidate: A4 `file.new`, provider Open, edit/Undo, server/laptop Save a Copy ACK, laptop reopen, no overwrite, clean browser console and visible canvas. The folder handle is mocked. There is still no evidence of actual browser permission, uncertain-output recovery, other retention modes, or full original parity. Evidence plus all six downloaded/hash-checked archives: [alpha.38 release report](evidence/creative-workspace-alpha38-release.md); browser/screenshots are in [the Actions artifact](https://github.com/vedranius/creative-workspace/actions/runs/38603273617/artifacts/11917269077).
+
+Immutable tag `v0.2.0-alpha.38` exists at the verified commit. Its GitHub release is draft/prerelease and must stay draft until acceptance. Next bounded work: continue original DesignApp action/tool parity and server read-model behavior; real Chrome/Edge folder permission, destination ACK and uncertain-output recovery remain required before DesignCraft acceptance. Preserve `engines/filmcraft/` and protected runtime sessions.
 
 ## 2026-10-14 alpha.35 registered-action smoke alignment
 
