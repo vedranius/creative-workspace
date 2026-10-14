@@ -1,0 +1,55 @@
+{
+  "status": "bounded-original-ui-selection-text-actions-server-proof",
+  "selectionCommandId": "selection.set",
+  "selectionAckCommandId": "selection.set",
+  "serverSelectionRevision": 5,
+  "serverSelectionIds": [
+    8
+  ],
+  "selectionPersistedInServerReadModel": true,
+  "folderPermission": "synthetic chooser fixture; not acceptance evidence",
+  "presetAck": 1,
+  "initialSelectionAck": 2,
+  "shapeFrameAck": 3,
+  "deselectAck": 4,
+  "selectionActionId": "selection.set",
+  "selectionAck": 5,
+  "selectionItems": [
+    8
+  ],
+  "textFrameAck": 6,
+  "textCaretActionId": "text.placeCaret",
+  "textCaretAck": 7,
+  "textCaretRestored": true,
+  "text": "Queue Ω",
+  "textCalls": [
+    "Q",
+    "u",
+    "e",
+    "u",
+    "e",
+    " ",
+    "Ω"
+  ],
+  "expectedRevisions": [
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13
+  ],
+  "ackRevisions": [
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14
+  ],
+  "serverSnapshotContainsText": true,
+  "serverRenderUpdated": true,
+  "browserErrors": []
+}

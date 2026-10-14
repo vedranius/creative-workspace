@@ -1,9 +1,15 @@
 # Changelog
 
+## [0.2.0-alpha.39] — 2026-10-14 (DesignCraft original selection action)
+
+- Carry the original `selection.set` action from the Selection Tool pointer through the bounded 32-action / 16-KiB queue to the owned worker; hydrate selection only from the matching ACK. Keep exact upstream IDs and bound the accepted selection payload to 200 nonnegative safe integer IDs plus optional boolean flags.
+- Accept original graphic-frame `frame.create` payloads so the original Rectangle Frame Tool can create selectable content on the server. Correct the browser smoke to use the actual `F` Rectangle Frame Tool and verify empty selection, selected ID, persisted server read model, Type Tool caret, ordered text revisions through 14, server render, and zero browser errors.
+- Local pinned-source native/UI builds and Chromium smoke pass. Actions and release assets are pending; real browser folder permission, laptop write ACK/recovery and full DesignCraft parity remain unverified. Keep the release draft-only and the catalog planned. See [local evidence](docs/evidence/designcraft-par03-selection-set-local.md).
+
 ## [0.2.0-alpha.38] — 2026-10-14 (DesignCraft ordered original text actions)
 
 - Route original `text.select` and `text.placeCaret` through the same bounded server-action FIFO as `text.insert`; selection/caret updates now wait for the prior action ACK and hydrate from the matching acknowledged server snapshot. Queue stays capped at 32 actions / 16 KiB of text and retains uncertain queued input after failure without automatic replay.
-- Add a pinned-source regression test for mixed insert/select/caret ordering and include it in the Actions DesignCraft job. The candidate patch checksum is `7554053fc7659df8346f99ae56126b95ced6b1cdbc95599c5648ff6cee3535c9`. Low-impact wasm check/build and isolated Chromium smoke passed through revision 11; the focused mixed-action Rust test passes (1/1); fresh Actions/browser/bundle/release verification is pending. See [local candidate evidence](docs/evidence/creative-workspace-alpha38-local.md). Real laptop folder permission/recovery and full parity remain pending; keep DesignCraft planned and the release draft-only.
+- Add a pinned-source regression test for mixed insert/select/caret ordering. The original Type Tool caret and ordered text actions were confirmed through revision 11 by Actions 38603273617; alpha.38 tag and Actions assets remain immutable and draft-only. A later source review corrected the old report's `shapeFrameAck` label: revision 2 was an empty `selection.set`, not frame creation; the text frame/caret/text ACKs remain valid. See [corrected local evidence](docs/evidence/creative-workspace-alpha38-local.md). Real laptop folder permission/recovery and full parity remain pending.
 
 ## [0.2.0-alpha.37] — 2026-10-14 (DesignCraft browser-smoke scratch setup)
 

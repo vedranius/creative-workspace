@@ -9,14 +9,14 @@ import {createWorkspaceServer} from '../src/server.js';
 
 // Protocol fixture only. Actual parsing/rendering/export is verified by smoke-designcraft.mjs.
 class DesignFixture{
-  constructor(){this.closed=false;this.doc=null;this.edits=0;this.sampleCommandId=null;this.newParams=null;this.commands=[];}
+  constructor(){this.closed=false;this.doc=null;this.edits=0;this.sampleCommandId=null;this.newParams=null;this.commands=[];this.commandParams=[];}
   async call(method,p={}){
     if(method==='__cw_identity')return {runtimeId:'creative-workspace-designcraft-v1',version:'fixture'};
     if(method==='state')return this.doc?{...structuredClone(this.doc),documentSnapshot:structuredClone(this.doc.documentSnapshot||this.doc)}:null;
     if(method==='new'||method==='open'){if(method==='new')this.newParams=structuredClone(p);else this.openParams=structuredClone(p);this.doc={title:'Fixture',dirty:method==='new',pageCount:1,spreads:[{index:0,pages:[{index:0,name:'1',bounds:[0,0,800,600]}],items:[]}],stories:[],layers:[],selection:{items:[]},history:{undo:[],redo:[]}};if(method==='open'){try{this.doc=JSON.parse(await readFile(p.path,'utf8'));this.doc.dirty=false;}catch{}}return {};}
     if(method==='sample'){this.sampleCommandId='file.newSample';this.doc={title:'Original sample',dirty:true,pageCount:2,spreads:[{index:0,pages:[{index:0,name:'1',bounds:[0,0,800,600]}],items:[]}],stories:[],layers:[],selection:{items:[]},history:{undo:[],redo:[]}};return {commandId:this.sampleCommandId};}
     if(method==='render'){const png=Buffer.alloc(24);Buffer.from([137,80,78,71,13,10,26,10]).copy(png);png.writeUInt32BE(13,8);png.write('IHDR',12);png.writeUInt32BE(800,16);png.writeUInt32BE(600,20);return {pngBase64:png.toString('base64')};}
-    if(method==='command'){this.edits++;this.commands.push(p.command);this.doc.dirty=true;return {id:1};}
+    if(method==='command'){this.edits++;this.commands.push(p.command);this.commandParams.push(structuredClone(p.params));if(p.command==='selection.set')this.doc.selection={items:[...p.params.ids]};else this.doc.dirty=true;return {id:1};}
     if(method==='export'){await writeFile(p.path,'fixture design copy');return {warnings:[]};}
     if(method==='save_copy'){this.copyCommandId='file.saveACopy';const bytes=Buffer.from(JSON.stringify(this.doc));await writeFile(p.path,bytes);return {bytes:bytes.length};}
     if(method==='mark_saved'){this.doc.dirty=false;return {saved:true};}throw new Error('Unsupported fixture method');
@@ -57,6 +57,24 @@ test('Original text.select routes bounded UTF-8 caret offsets and returns an ACK
   assert.deepEqual(worker?.commands,['text.select']);assert.equal(selected.result.commandId,'text.select');assert.equal(selected.stateVersion,2);assert.equal(selected.document.dirty,true);
   for(const params of [{story:-1,anchor:0},{story:1,anchor:0,focus:16*1024*1024+1},{story:1,anchor:0,extra:true}])await assert.rejects(call(session.id,'text.select',params));
   assert.deepEqual(worker?.commands,['text.select']);await design.close(session.id,{discard:true});
+});
+
+test('Original graphic Frame Tool preserves its server command and document bounds',async t=>{
+  const {project,design,engines,call}=await fixture(t),session=await design.create(project);
+  await call(session.id,'file.new',{preset:'A4'});
+  const params={rect:[40,50,180,190],shape:'rectangle',content:'graphic'},created=await call(session.id,'frame.create',params,{expectedVersion:1}),worker=engines.find(engine=>!engine.closed);
+  assert.deepEqual(worker?.commands,['frame.create']);assert.deepEqual(worker?.commandParams,[{...params,caret:false,spread:0}]);assert.equal(created.result.commandId,'frame.create');assert.equal(created.stateVersion,2);
+  await design.close(session.id,{discard:true});
+});
+
+test('Original selection.set keeps its upstream ID through the owned worker ACK and read-model',async t=>{
+  const {project,design,engines,call}=await fixture(t),session=await design.create(project);
+  await call(session.id,'file.new',{preset:'A4'});
+  const selected=await call(session.id,'selection.set',{ids:[41,42],add:true},{expectedVersion:1}),worker=engines.find(engine=>!engine.closed);
+  assert.deepEqual(worker?.commands,['selection.set']);assert.equal(selected.result.commandId,'selection.set');assert.equal(selected.stateVersion,2);
+  assert.deepEqual(selected.document.selection.items,[41,42]);assert.equal(selected.document.dirty,true);
+  for(const params of [{ids:Array(201).fill(1)},{ids:[-1]},{ids:[1],path:'/private'}])await assert.rejects(call(session.id,'selection.set',params));
+  assert.deepEqual(worker?.commands,['selection.set']);await design.close(session.id,{discard:true});
 });
 
 test('Original Type Tool text.placeCaret routes the unchanged frame and point to the worker',async t=>{

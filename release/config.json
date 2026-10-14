@@ -15,12 +15,12 @@
   "limitations": [
     "Single-user alpha: original ArtCraft UI previews can be registered separately; original UI/server processing and provider parity are pending.",
     "RapidRAW is not bundled: its independent Linux installation remains a separate CLI workflow.",
-    "FilmCraft and the bounded DesignCraft PAR-03 bridge are separate Actions-built browser preview archives. DesignCraft routes allowlisted file.new, frame.create, edit.undo and edit.redo actions to its owned server worker and refreshes the revisioned read model/render over the original UI shell; the owned worker also returns a canonical Document snapshot capped at 16 MiB. The original DesignApp candidate supports bounded A4, Rectangle Tool and Undo/Redo workflows only; remaining actions/tools, provider/save ACK and recovery remain pending. These are not complete server-backed original-app bundles.",
+    "FilmCraft and the bounded DesignCraft PAR-03 bridge are separate Actions-built browser preview archives. DesignCraft now routes original file.new, graphic frame.create, selection.set, text.placeCaret and text.insert through bounded ACKed worker actions with canonical state/render hydration; only these bounded workflows are evidenced, while other original tools/actions, provider/save parity and recovery remain pending. These are not complete server-backed original-app bundles.",
     "The native laptop mount helper is not bundled. Use upload or copy-first mode; on-demand/hybrid mounts require a separately installed and verified helper.",
     "CI smoke tests use generated documents; real browser folder permissions and broad format compatibility require separate acceptance.",
     "Linux requires glibc 2.35+; Windows requires the Microsoft Visual C++ 2015\u20132022 x64 runtime; macOS bundle targets Apple Silicon on macOS 14+.",
     "This release stays draft until original-UI asset packaging and target/browser acceptance evidence are complete; it is not a complete creative suite.",
-    "DesignCraft 0.2.0-alpha.38 adds a guarded original DesignApp queue for text.insert, text.select and text.placeCaret, requiring one matching server ACK before the next selection or text action dispatches. Its pinned-source regression passes locally; Actions browser/bundle proof is pending. The alpha.37 laptop folder handle was mocked, so real permission, uncertain-output recovery, remaining action/tool parity and full original parity remain pending. Keep the candidate draft-only and catalog planned."
+    "DesignCraft 0.2.0-alpha.39 adds the original Selection Tool selection.set ACK bridge and original graphic-frame creation; local native/browser proof is documented. Actions release verification is pending. Real picker permission, laptop write ACK/recovery, provider parity and remaining original tools/actions are unverified; keep draft-only and catalog planned."
   ],
   "draftOnly": true,
   "originalUiPreviews": [

@@ -62,29 +62,41 @@ try{
   const canvas=page.locator('#designcraft_canvas');
   const preset=JSON.parse(await canvas.getAttribute('data-original-preset-a4'));await page.mouse.click(...preset);
   await page.waitForFunction(()=>document.querySelector('#designcraft_canvas')?.getAttribute('data-server-revision')==='1');
-  await page.mouse.click(500,300);await page.keyboard.press('m');await page.mouse.move(410,300);await page.mouse.down();await page.mouse.move(560,460,{steps:5});await page.mouse.up();
-  await page.waitForFunction(()=>document.querySelector('#designcraft_canvas')?.getAttribute('data-server-revision')==='2',null,{timeout:30000});
+  await page.mouse.click(500,300);await page.waitForFunction(()=>document.querySelector('#designcraft_canvas')?.getAttribute('data-server-revision')==='2',null,{timeout:30000});
+  await page.keyboard.press('f');await page.mouse.move(410,300);await page.mouse.down();await page.mouse.move(560,460,{steps:5});await page.mouse.up();
+  await page.waitForFunction(()=>document.querySelector('#designcraft_canvas')?.getAttribute('data-server-revision')==='3',null,{timeout:30000});
+  await page.keyboard.press('v');await page.mouse.click(800,800);
+  try { await page.waitForFunction(()=>document.querySelector('#designcraft_canvas')?.getAttribute('data-server-revision')==='4',null,{timeout:30000}); }
+  catch(error) { console.error(JSON.stringify({revision:await canvas.getAttribute('data-server-revision'),requests,acks,errors,failedResponses})); throw error; }
+  assert.equal(requests[2]?.method,'frame.create');assert.equal(acks[2]?.result?.commandId,'frame.create');assert.equal(acks[2]?.documentSnapshot?.spreads?.[0]?.items?.length,1);
+  assert.equal(requests[3]?.method,'selection.set');assert.equal(acks[3]?.result?.commandId,'selection.set');assert.deepEqual(acks[3]?.document?.selection?.items,[]);
+  await page.mouse.click(480,340);
+  try { await page.waitForFunction(()=>document.querySelector('#designcraft_canvas')?.getAttribute('data-server-revision')==='5',null,{timeout:30000}); }
+  catch(error) { console.error(JSON.stringify({revision:await canvas.getAttribute('data-server-revision'),requests,acks,errors,failedResponses})); throw error; }
+  assert.equal(requests[4]?.method,'selection.set');assert.equal(acks[4]?.result?.commandId,'selection.set');assert.equal(acks[4]?.stateVersion,5);if(!acks[4]?.document?.selection?.items?.length){if(process.env.CW_PAR03_SELECTION_DEBUG_SCREENSHOT)await page.screenshot({path:path.resolve(process.env.CW_PAR03_SELECTION_DEBUG_SCREENSHOT)});throw new Error(`Original selection.set ACK did not hydrate selected item: ${JSON.stringify({request:requests[4],selection:acks[4]?.document?.selection,frameItems:acks[2]?.documentSnapshot?.spreads?.[0]?.items})}`);}
+  const selectionReadResponse=await fetch(`${base}/api/designcraft/sessions/${sessionId}/rpc`,{method:'POST',headers:{Origin:base,'Content-Type':'application/json'},body:JSON.stringify({method:'state',params:{},requestId:'selection-set-read-proof',expectedVersion:5})});assert.equal(selectionReadResponse.status,200);const selectionRead=await selectionReadResponse.json();assert.deepEqual(selectionRead.document.selection.items,acks[4]?.document?.selection?.items);
   await page.keyboard.press('t');await page.mouse.move(700,500);await page.mouse.down();await page.mouse.move(830,560,{steps:3});await page.mouse.up();
-  try { await page.waitForFunction(()=>document.querySelector('#designcraft_canvas')?.getAttribute('data-server-revision')==='3',null,{timeout:30000}); }
+  try { await page.waitForFunction(()=>document.querySelector('#designcraft_canvas')?.getAttribute('data-server-revision')==='6',null,{timeout:30000}); }
   catch(error) { console.error(JSON.stringify({revision:await canvas.getAttribute('data-server-revision'),requests,acks,errors,failedResponses})); throw error; }
   await page.mouse.click(750,530);
-  try { await page.waitForFunction(()=>document.querySelector('#designcraft_canvas')?.getAttribute('data-server-revision')==='4',null,{timeout:30000}); }
+  try { await page.waitForFunction(()=>document.querySelector('#designcraft_canvas')?.getAttribute('data-server-revision')==='7',null,{timeout:30000}); }
   catch(error) { console.error(JSON.stringify({revision:await canvas.getAttribute('data-server-revision'),requests,ackRevisions:acks.map(reply=>reply.stateVersion),selections:acks.map(reply=>reply.document?.selection),errors,failedResponses})); throw error; }
   const typed='Queue Ω';await page.keyboard.type(typed,{delay:1});
-  try { await page.waitForFunction((count)=>document.querySelector('#designcraft_canvas')?.getAttribute('data-server-revision')===String(4+count),typed.length,{timeout:30000}); }
+  try { await page.waitForFunction((count)=>document.querySelector('#designcraft_canvas')?.getAttribute('data-server-revision')===String(7+count),typed.length,{timeout:30000}); }
   catch(error) { console.error(JSON.stringify({revision:await canvas.getAttribute('data-server-revision'),requests,ackRevisions:acks.map(reply=>reply.stateVersion),selections:acks.map(reply=>reply.document?.selection),errors,failedResponses})); throw error; }
   const textRequests=requests.filter(request=>request.method==='text.insert'),textAcks=acks.filter(reply=>reply.result?.commandId==='text.insert');
-  assert.ok(acks[3]?.document?.selection?.text,'Type Tool caret should survive the text.placeCaret server acknowledgement');
-  assert.equal(requests[3]?.method,'text.placeCaret');assert.equal(acks[3]?.result?.commandId,'text.placeCaret');
+  assert.ok(acks[6]?.document?.selection?.text,'Type Tool caret should survive the text.placeCaret server acknowledgement');
+  assert.equal(requests[6]?.method,'text.placeCaret');assert.equal(acks[6]?.result?.commandId,'text.placeCaret');
   assert.equal(textRequests.length,typed.length);assert.equal(textAcks.length,typed.length);
   assert.ok(textRequests.every(request=>request.method==='text.insert'));
-  assert.deepEqual(textRequests.map(request=>request.expectedVersion),Array.from({length:typed.length},(_,i)=>4+i));
+  assert.deepEqual(textRequests.map(request=>request.expectedVersion),Array.from({length:typed.length},(_,i)=>7+i));
   assert.deepEqual(textAcks.map(reply=>reply.result?.commandId),Array(typed.length).fill('text.insert'));
-  assert.deepEqual(textAcks.map(reply=>reply.stateVersion),Array.from({length:typed.length},(_,i)=>5+i));
-  const stateReply=await fetch(`${base}/api/designcraft/sessions/${sessionId}/rpc`,{method:'POST',headers:{Origin:base,'Content-Type':'application/json'},body:JSON.stringify({method:'state',params:{},requestId:'text-insert-state-proof',expectedVersion:4+typed.length})});
+  assert.deepEqual(textAcks.map(reply=>reply.stateVersion),Array.from({length:typed.length},(_,i)=>8+i));
+  const stateReply=await fetch(`${base}/api/designcraft/sessions/${sessionId}/rpc`,{method:'POST',headers:{Origin:base,'Content-Type':'application/json'},body:JSON.stringify({method:'state',params:{},requestId:'text-insert-state-proof',expectedVersion:7+typed.length})});
   assert.equal(stateReply.status,200);const state=await stateReply.json();assert.ok(JSON.stringify(state.documentSnapshot).includes(typed));
-  assert.equal(await canvas.getAttribute('data-server-revision'),String(4+typed.length));assert.equal(await canvas.getAttribute('data-server-render'),'true');assert.deepEqual(errors,[]);
-  const report={status:'bounded-original-ui-text-caret-and-text-insert-proof',presetAck:acks[0]?.stateVersion,shapeFrameAck:acks[1]?.stateVersion,textFrameAck:acks[2]?.stateVersion,textCaretActionId:acks[3]?.result?.commandId,textCaretAck:acks[3]?.stateVersion,textCaretRestored:!!acks[3]?.document?.selection?.text,text:typed,textCalls:textRequests.map(request=>request.params.text),expectedRevisions:textRequests.map(request=>request.expectedVersion),ackRevisions:textAcks.map(reply=>reply.stateVersion),serverSnapshotContainsText:true,serverRenderUpdated:await canvas.getAttribute('data-server-render')==='true',browserErrors:errors};
+  assert.equal(await canvas.getAttribute('data-server-revision'),String(7+typed.length));assert.equal(await canvas.getAttribute('data-server-render'),'true');assert.deepEqual(errors,[]);
+  if(process.env.CW_PAR03_SCREENSHOT)await page.screenshot({path:path.resolve(process.env.CW_PAR03_SCREENSHOT)});
+  const report={status:'bounded-original-ui-selection-text-actions-server-proof',selectionCommandId:requests[4]?.method,selectionAckCommandId:acks[4]?.result?.commandId,serverSelectionRevision:acks[4]?.stateVersion,serverSelectionIds:acks[4]?.document?.selection?.items,selectionPersistedInServerReadModel:true,folderPermission:'synthetic chooser fixture; not acceptance evidence',presetAck:acks[0]?.stateVersion,initialSelectionAck:acks[1]?.stateVersion,shapeFrameAck:acks[2]?.stateVersion,deselectAck:acks[3]?.stateVersion,selectionActionId:acks[4]?.result?.commandId,selectionAck:acks[4]?.stateVersion,selectionItems:acks[4]?.document?.selection?.items,textFrameAck:acks[5]?.stateVersion,textCaretActionId:acks[6]?.result?.commandId,textCaretAck:acks[6]?.stateVersion,textCaretRestored:!!acks[6]?.document?.selection?.text,text:typed,textCalls:textRequests.map(request=>request.params.text),expectedRevisions:textRequests.map(request=>request.expectedVersion),ackRevisions:textAcks.map(reply=>reply.stateVersion),serverSnapshotContainsText:true,serverRenderUpdated:await canvas.getAttribute('data-server-render')==='true',browserErrors:errors};
   if(process.env.CW_PAR03_TEXT_REPORT)await (await import('node:fs/promises')).writeFile(path.resolve(process.env.CW_PAR03_TEXT_REPORT),JSON.stringify(report,null,2)+'\n');
   console.log(JSON.stringify(report));
 }finally{

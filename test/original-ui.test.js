@@ -10,9 +10,9 @@ import {originalUiPins,originalUiPatches,originalUiPackageId} from '../src/origi
 
 test('DesignCraft PAR-03 variant is pinned to its exact reviewed source patch',async()=>{
   const patch=originalUiPatches.designcraft,bytes=await readFile(new URL('../'+patch.path,import.meta.url));
-  assert.equal(patch.id,'par-03-provider-text-actions-v1');
-  assert.equal(patch.path,'patches/designcraft/a127c6d5/par-03-provider-text-actions.patch');
-  assert.equal(patch.sha256,'7554053fc7659df8346f99ae56126b95ced6b1cdbc95599c5648ff6cee3535c9');
+  assert.equal(patch.id,'par-03-selection-set-v1');
+  assert.equal(patch.path,'patches/designcraft/a127c6d5/par-03-selection-set-candidate.patch');
+  assert.equal(patch.sha256,'6974d1b20b5a8b053dc8ecf1aeb094ac63d8a4c9ec595880dd4668e53d96cb35');
   assert.equal(createHash('sha256').update(bytes).digest('hex'),patch.sha256);
   assert.equal(originalUiPackageId('designcraft'),`${originalUiPins.designcraft}-${patch.sha256.slice(0,12)}`);
 });

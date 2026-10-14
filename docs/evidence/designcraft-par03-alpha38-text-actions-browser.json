@@ -1,7 +1,6 @@
 {
-  "status": "bounded-original-ui-text-caret-and-text-insert-proof",
+  "status": "bounded-original-ui-text-actions-proof-with-sequence-correction",
   "presetAck": 1,
-  "shapeFrameAck": 2,
   "textFrameAck": 3,
   "textCaretActionId": "text.placeCaret",
   "textCaretAck": 4,
@@ -43,5 +42,8 @@
   "wasmSha256": "0a08170fc0c1ce4b9d2e788fc4dd1893b651e989cddb58521363fae4d2ec8e78",
   "workerSha256": "af8a4f4eb4749facd4d37b597330c9edd436c50c846e6d3fb8001eb69ca75567",
   "browser": "Google Chrome for Testing 151.0.7922.34",
-  "limitations": "isolated Chromium test; provider folder chooser is a synthetic fixture and does not prove real browser permission, laptop destination ACK, uncertain-output recovery, or complete DesignCraft parity"
+  "limitations": "isolated Chromium test; provider folder chooser is a synthetic fixture and does not prove real browser permission, laptop destination ACK, uncertain-output recovery, or complete DesignCraft parity",
+  "initialSelectionAck": 2,
+  "shapeFrameAck": null,
+  "sequenceCorrection": "Revision 2 is the empty selection.set caused by the smoke focus click, not a frame.create ACK. The text frame, caret and text-insert ACKs are still at revisions 3\u201311; see the alpha.39 evidence for a corrected original Frame Tool and Selection Tool browser run."
 }
