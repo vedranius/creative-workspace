@@ -165,7 +165,7 @@ jobs:
             ~/.cargo/registry
             ~/.cargo/git
             build/original-ui/target
-          key: designcraft-par03-wasm-rust199-${{ hashFiles('patches/designcraft/a127c6d5/par-03-server-sample.patch') }}
+          key: designcraft-par03-wasm-rust199-${{ hashFiles('patches/designcraft/a127c6d5/par-03-provider-text-caret.patch') }}
       - name: Install checksum-pinned Trunk
         shell: bash
         run: |
@@ -204,12 +204,14 @@ jobs:
           CW_PAR03_REPORT: ${{ github.workspace }}/build/designcraft-par03-evidence/report.json
           CW_PAR03_FILE_NEW_SCREENSHOT: ${{ github.workspace }}/build/designcraft-par03-evidence/file-new-browser.png
           CW_PAR03_FILE_NEW_REPORT: ${{ github.workspace }}/build/designcraft-par03-evidence/file-new-browser.json
+          CW_PAR03_TEXT_REPORT: ${{ github.workspace }}/build/designcraft-par03-evidence/text-caret-typing.json
         run: |
           chmod +x "$CW_DESIGNCRAFT_BINARY"
           npm install --prefix build/browser-qa --no-audit --no-fund --save-exact playwright@1.64.0
           (cd build/browser-qa && npx playwright install --with-deps chromium)
           node scripts/smoke-designcraft-file-new-browser.mjs
           node scripts/smoke-designcraft-par03-browser.mjs
+          CW_DESIGNCRAFT_UI_ASSETS=build/original-ui/assets-designcraft CW_PAR03_TEXT_REPORT=build/designcraft-par03-evidence/text-caret-typing.json node scripts/smoke-designcraft-text-insert-candidate.mjs
       - name: Build and prove the original preset/server-canvas candidate
         env:
           CW_DESIGNCRAFT_BINARY: ${{ github.workspace }}/build/staged/designcraft/cw-designcraft-engine

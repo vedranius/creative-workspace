@@ -22,6 +22,9 @@ const COMMANDS: &[&str] = &[
     "object.stroke",
     "swatch.create",
     "story.setText",
+    "text.placeCaret",
+    "text.select",
+    "text.insert",
     "type.char",
     "edit.clear",
     "edit.undo",
@@ -169,6 +172,7 @@ fn answer(h: &mut Headless, saved: &mut Option<Arc<Document>>, read: &Path, writ
         "state" => {
             let Some(st) = h.session.active() else { return Ok(Value::Null) };
             let doc = st.doc.clone();
+            let selection = st.selection.clone();
             let clean = saved.as_ref().is_some_and(|d| Arc::ptr_eq(d, &doc));
             let mut v = h.call("document.inspect", json!({}))?;
             if let Some(o) = v.as_object_mut() {
@@ -176,6 +180,7 @@ fn answer(h: &mut Headless, saved: &mut Option<Arc<Document>>, read: &Path, writ
             }
             v["dirty"] = json!(!clean);
             v["documentSnapshot"] = canonical_snapshot(&doc)?;
+            v["selection"] = serde_json::to_value(selection)?;
             let history = h.call("engine.execute", json!({"command":"document.history","params":{}}))?;
             v["history"] = history;
             if let Some(st) = h.session.active()

@@ -41,6 +41,33 @@ test('Original file.new preset action reaches the owned worker unchanged and ret
   await design.close(session.id,{discard:true});
 });
 
+test('Original text.insert reaches the owned worker unchanged and returns a revisioned ACK',async t=>{
+  const {project,design,engines,call}=await fixture(t),session=await design.create(project);
+  await call(session.id,'file.new',{preset:'A4'});
+  const inserted=await call(session.id,'text.insert',{text:'Hello Ω',raw:true},{expectedVersion:1}),worker=engines.find(engine=>!engine.closed);
+  assert.deepEqual(worker?.commands,['text.insert']);assert.equal(inserted.result.commandId,'text.insert');assert.equal(inserted.stateVersion,2);assert.equal(inserted.document.dirty,true);
+  for(const params of [{text:'x'.repeat(4097)},{text:'x',raw:'yes'},{text:'x',path:'/private'}])await assert.rejects(call(session.id,'text.insert',params));
+  assert.deepEqual(worker?.commands,['text.insert']);await design.close(session.id,{discard:true});
+});
+
+test('Original text.select routes bounded UTF-8 caret offsets and returns an ACK',async t=>{
+  const {project,design,engines,call}=await fixture(t),session=await design.create(project);
+  await call(session.id,'file.new',{preset:'A4'});
+  const selected=await call(session.id,'text.select',{story:7,anchor:4,focus:6},{expectedVersion:1}),worker=engines.find(engine=>!engine.closed);
+  assert.deepEqual(worker?.commands,['text.select']);assert.equal(selected.result.commandId,'text.select');assert.equal(selected.stateVersion,2);assert.equal(selected.document.dirty,true);
+  for(const params of [{story:-1,anchor:0},{story:1,anchor:0,focus:16*1024*1024+1},{story:1,anchor:0,extra:true}])await assert.rejects(call(session.id,'text.select',params));
+  assert.deepEqual(worker?.commands,['text.select']);await design.close(session.id,{discard:true});
+});
+
+test('Original Type Tool text.placeCaret routes the unchanged frame and point to the worker',async t=>{
+  const {project,design,engines,call}=await fixture(t),session=await design.create(project);
+  await call(session.id,'file.new',{preset:'A4'});
+  const placed=await call(session.id,'text.placeCaret',{frame:41,point:[126.5,208]},{expectedVersion:1}),worker=engines.find(engine=>!engine.closed);
+  assert.deepEqual(worker?.commands,['text.placeCaret']);assert.equal(placed.result.commandId,'text.placeCaret');assert.equal(placed.stateVersion,2);
+  for(const params of [{frame:-1,point:[1,2]},{frame:1,point:[1]},{frame:1,point:[1,2,3]},{frame:1,point:[Infinity,2]},{frame:1,point:[1,2],path:'/private'}])await assert.rejects(call(session.id,'text.placeCaret',params));
+  assert.deepEqual(worker?.commands,['text.placeCaret']);await design.close(session.id,{discard:true});
+});
+
 test('Design Save a Copy destinations stay independent on a writable provider session',async t=>{
   const {project,root,design,call}=await fixture(t,{settleOutput:async()=>{}}),shareRoot=path.join(root,'selected-share');await mkdir(shareRoot);
   const session=await design.create(shareRoot,{writeRoot:shareRoot,workspaceRoot:project,shareId:'selected-share',laptopOutput:true});

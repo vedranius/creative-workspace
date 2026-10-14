@@ -1,8 +1,14 @@
 # Development handoff
 
+## 2026-10-14 PAR-03 exact Type Tool candidate registered for Actions
+
+Registered `par-03-provider-text-caret-v1` at SHA-256 `778df519bad1a675093ab11735012ebb96e92a0c78413dfe999263fd5c7023ce` against the pinned DesignCraft source. The standard `original-designcraft` Actions job now builds through the exact source guard and runs the original caret/rapid-typing smoke, checking `text.placeCaret` ACK hydration, FIFO `text.insert` revisions, server snapshot/render refresh, and zero browser errors. Added gateway/native route regression coverage and bumped the candidate version to alpha.32.
+
+Local `npm run check`, `npm test` (60/60 before version/docs edits), and `git diff --check` passed; release validation is being rerun after metadata updates. Fresh Actions, tag/assets/checksums, real laptop folder permission/write ACK/reopen/recovery, and remaining original action parity are pending. The server-workspace browser fixture does not cover laptop permission. Keep DesignCraft planned and the release draft. Preserve `engines/filmcraft/` and protected runtime sessions.
+
 ## 2026-10-14 PAR-03 original Type Tool caret bridge — candidate verified
 
-Extended the cumulative pinned DesignApp/provider candidate so the server mirror captures the original `text.placeCaret` action from `TypeTool::pointer` → `Session::pointer` → `run_actions`, sends the exact ID/`{frame, point}` to the owned worker, then hydrates the returned selection only after its matching ACK. Candidate patch [par-03-provider-text-caret-candidate.patch](../patches/designcraft/a127c6d5/par-03-provider-text-caret-candidate.patch), SHA-256 `4d1fe85df703328e604cb95cce66f5012b4669a86dd64ee5b0429638aff06a96`.
+Extended the cumulative pinned DesignApp/provider candidate so the server mirror captures the original `text.placeCaret` action from `TypeTool::pointer` → `Session::pointer` → `run_actions`, sends the exact ID/`{frame, point}` to the owned worker, then hydrates the returned selection only after its matching ACK. Candidate patch [par-03-provider-text-caret-candidate.patch](../patches/designcraft/a127c6d5/par-03-provider-text-caret-candidate.patch), SHA-256 `778df519bad1a675093ab11735012ebb96e92a0c78413dfe999263fd5c7023ce`.
 
 Evidence: engine capture test 1/1, UI FIFO/ACK test 1/1, wasm target check passed, optimized Trunk build passed (WASM SHA-256 `f83ed19116b836e44129b448eefad20a32a71d1cbc833e9ecafb76033948e2ad`), and isolated Chromium proof reports `text.placeCaret` ACK at revision 4, caret restored, seven rapid `text.insert` ACKs at revisions 5–11, updated server snapshot/render, and zero browser errors ([JSON](evidence/designcraft-par03-text-caret-browser.json)). The fixture uses the server workspace; it does not prove real laptop folder permission/write ACK or recovery. Keep DesignCraft planned, candidate unregistered and release draft-only. Next: integrate this exact patch through the normal source guard/Actions, then continue genuine laptop provider ACK/recovery and remaining original action parity before availability.
 

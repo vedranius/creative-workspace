@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.2.0-alpha.32] — 2026-10-14 (DesignCraft Type Tool server-action candidate)
+
+- Register the exact pinned DesignApp source patch that forwards the original `text.placeCaret` action to the server worker and restores caret selection only after ACK.
+- Add the original Type Tool rapid-typing browser smoke to the normal Actions `original-designcraft` job; it checks sequential `text.insert` revisions, server snapshot/render refresh, and no browser errors.
+- Gateway/native routes enforce the exact action IDs and bounded parameters. This remains a partial candidate: real laptop permission/write ACK/recovery and remaining original action parity are pending; keep DesignCraft planned and the release draft.
+
 ## [0.2.0-alpha.31] — 2026-10-13 (draft candidate; DesignCraft common provider binding)
 
 - Bind the original DesignApp bootstrap to an explicitly selected, connected, app-scoped read/write on-demand provider. Original Open browses that share; a separate explicit local-file action retains session-rooted copy-first upload to the server workspace.

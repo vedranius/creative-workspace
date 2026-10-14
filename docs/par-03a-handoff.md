@@ -1,8 +1,15 @@
 # PAR-03 handoff — bounded server read-model slice verified
 
+
+## 2026-10-14 alpha.32 source-guard/Actions integration in progress
+
+The exact verified cumulative DesignApp patch is now registered as `par-03-provider-text-caret-v1`, SHA-256 `778df519bad1a675093ab11735012ebb96e92a0c78413dfe999263fd5c7023ce`. The normal `original-designcraft` job uses the source guard, optimized pinned build, and `smoke-designcraft-text-insert-candidate.mjs` to verify the original `text.placeCaret` ACK/hydration, sequential `text.insert` ACKs/revisions, server snapshot/render update, and browser error count. Gateway/native tests assert bounded original IDs and params. This does not prove laptop folder permission/write ACK/recovery or full parity.
+
+Alpha.32 is a fresh draft candidate; verify the newly pushed commit's Checks and Build/release, then inspect the immutable tag and actual Actions assets/checksums. Keep the draft and DesignCraft planned. After that, continue real provider acceptance and remaining original actions. Preserve `engines/filmcraft/` and protected runtimes.
+
 ## 2026-10-14 original Type Tool caret bridge — isolated candidate passes
 
-The cumulative provider-bound candidate now captures the original `text.placeCaret` emitted by `TypeTool::pointer` through `Session::run_actions`, forwards its exact ID and `{frame, point}`, and restores the worker-returned selection only after the matching server ACK. The native worker allowlists this original action and includes `selection` in its state read model. Exact candidate patch: [par-03-provider-text-caret-candidate.patch](../patches/designcraft/a127c6d5/par-03-provider-text-caret-candidate.patch), SHA-256 `4d1fe85df703328e604cb95cce66f5012b4669a86dd64ee5b0429638aff06a96`.
+The cumulative provider-bound candidate now captures the original `text.placeCaret` emitted by `TypeTool::pointer` through `Session::run_actions`, forwards its exact ID and `{frame, point}`, and restores the worker-returned selection only after the matching server ACK. The native worker allowlists this original action and includes `selection` in its state read model. Exact candidate patch: [par-03-provider-text-caret-candidate.patch](../patches/designcraft/a127c6d5/par-03-provider-text-caret-candidate.patch), SHA-256 `778df519bad1a675093ab11735012ebb96e92a0c78413dfe999263fd5c7023ce`.
 
 Focused native action-capture test 1/1, UI FIFO/ACK test 1/1, `cargo check -p designcraft-web --target wasm32-unknown-unknown`, optimized Trunk release build, and isolated Chromium proof passed. Browser evidence confirms original `text.placeCaret` ACK revision 4, restored caret selection, seven rapid `text.insert` worker ACKs at revisions 5–11, server snapshot containing `Queue Ω`, updated server render, and no browser errors: [evidence JSON](evidence/designcraft-par03-text-caret-browser.json). WASM SHA-256 `f83ed19116b836e44129b448eefad20a32a71d1cbc833e9ecafb76033948e2ad`. The harness uses the server workspace and a local provider-selection fixture; genuine laptop folder permission, write ACK, collision/reopen and uncertain-output recovery remain unproven.
 
