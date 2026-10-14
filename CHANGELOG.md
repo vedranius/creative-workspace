@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.2.0-alpha.36] — 2026-10-14 (DesignCraft browser-smoke loader fix)
+
+- Accept either a filesystem path or a `file:` URL for the Playwright module in the original DesignCraft server-worker browser smoke. This fixes CI's `ERR_MODULE_NOT_FOUND` when the workflow supplies a file URL.
+- Verification of the registered original Type Tool browser flow is pending a fresh Actions run. DesignCraft remains planned; genuine laptop permission/write ACK, reopen/recovery and full parity remain unverified.
+
 ## [0.2.0-alpha.35] — 2026-10-14 (DesignCraft original-action smoke alignment)
 
 - Remove the obsolete `?serverEdit` preview smoke from the release workflow. It expected a DOM server-render overlay from an unregistered candidate, so the browser waited for an element that the registered UI never creates and blocked all later verification.

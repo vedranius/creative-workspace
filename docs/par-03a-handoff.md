@@ -1,3 +1,7 @@
+## 2026-10-14 alpha.36 DesignCraft browser-smoke loader correction
+
+Alpha.35 Actions run `38561662430` completed with contract, Linux bundle and pinned DesignCraft build/register passing. The original `file.new` worker smoke passed (A4, revision 1, server render, zero browser errors); the next Type Tool browser smoke failed before assertions because the workflow supplied `CW_PLAYWRIGHT_MODULE` as a `file:` URL and the script treated it as a filesystem path, creating an invalid nested `file:/...` URL. The smoke now imports a supplied `file:` URL directly and still converts ordinary paths with `pathToFileURL`. Alpha.36 package/lock/changelog/overview/install/release metadata is staged in source; local checks, push, fresh Actions and draft asset/checksum verification remain to do. Keep DesignCraft planned: synthetic folder fixtures do not prove real permission, laptop write ACK, reopen/recovery, or full original parity. Preserve `engines/filmcraft/` and protected runtimes.
+
 # PAR-03 handoff — bounded server read-model slice verified
 
 ## 2026-10-14 alpha.35 registered-action smoke alignment

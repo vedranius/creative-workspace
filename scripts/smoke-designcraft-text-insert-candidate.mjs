@@ -11,7 +11,8 @@ const binary=process.env.CW_DESIGNCRAFT_BINARY||'build/par03-snapshot-target/deb
 const playwrightPath=process.env.CW_PLAYWRIGHT_MODULE;
 const bootTimeout=Number(process.env.CW_BOOT_TIMEOUT||120000);
 if(!playwrightPath)throw new Error('Set CW_PLAYWRIGHT_MODULE');
-const {chromium}=await import(pathToFileURL(path.resolve(playwrightPath)).href);
+const playwrightUrl=playwrightPath.startsWith('file:')?playwrightPath:pathToFileURL(path.resolve(playwrightPath)).href;
+const {chromium}=await import(playwrightUrl);
 const scratch=await mkdtemp(path.resolve('build/host-tmp/cw-par03-text-browser-'));
 const workspaces=path.join(scratch,'workspaces');await mkdir(workspaces);
 const server=await createWorkspaceServer({dataDir:path.join(scratch,'data'),allowedRoots:[workspaces],designcraftOptions:{binary,stateDir:path.join(scratch,'sessions')}});
