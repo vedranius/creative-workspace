@@ -1,8 +1,8 @@
 # Development handoff
 
-## 2026-10-14 PAR-03 alpha.36 browser-smoke loader correction
+## 2026-10-14 PAR-03 alpha.37 browser-smoke scratch setup correction
 
-Inspected alpha.35 Actions run `38561662430`: contract and bundles passed; `original-designcraft` built/registered the pinned UI and passed original `file.new` against the owned worker, then failed before Type Tool assertions. `CW_PLAYWRIGHT_MODULE` was already a `file:` URL, but the smoke converted it to a filesystem path and wrapped it in a second file URL. The loader now accepts either form. Bumped product version/lock and release metadata to alpha.36. Next run focused script syntax/check/tests and release validation, commit/push normally, then inspect the fresh Actions run and actual draft assets/checksums. Keep DesignCraft planned; synthetic provider does not prove permission/write ACK/reopen/recovery or full parity. Preserve `engines/filmcraft/` and protected runtimes.
+Inspected alpha.36 Actions run `38572807599`: contract, native and bundle jobs passed. `original-designcraft` built/registered the pinned UI, and Chromium verified original `file.new` against the owned worker (A4, revision 1, 595×842 server render, zero browser errors). The following Type Tool test stopped before assertions because `build/host-tmp` was absent. Its script now creates the scratch parent recursively before `mkdtemp`. `npm run check`, `npm test` (60/60), smoke-script syntax, and release validation passed at alpha.37. Commit/push, fresh Actions, and draft asset/checksum inspection are pending. Keep DesignCraft planned; synthetic provider does not prove permission/write ACK/reopen/recovery or full parity. Preserve `engines/filmcraft/` and protected runtimes.
 
 ## 2026-10-14 PAR-03 alpha.35 registered-action smoke alignment
 

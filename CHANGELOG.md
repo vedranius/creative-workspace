@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.2.0-alpha.37] — 2026-10-14 (DesignCraft browser-smoke scratch setup)
+
+- Create the host scratch parent before allocating the isolated DesignCraft Type Tool browser session. CI previously passed the original `file.new` server-worker check, then stopped before Type Tool assertions because `build/host-tmp` did not exist.
+- Fresh Actions browser verification and release assets remain pending. DesignCraft remains planned; synthetic provider fixtures do not prove laptop permission, write ACK/reopen/recovery or full original parity.
+
 ## [0.2.0-alpha.36] — 2026-10-14 (DesignCraft browser-smoke loader fix)
 
 - Accept either a filesystem path or a `file:` URL for the Playwright module in the original DesignCraft server-worker browser smoke. This fixes CI's `ERR_MODULE_NOT_FOUND` when the workflow supplies a file URL.
