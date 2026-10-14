@@ -12,8 +12,9 @@ test('DesignCraft PAR-03 variant is pinned to its exact reviewed source patch',a
   const patch=originalUiPatches.designcraft,bytes=await readFile(new URL('../'+patch.path,import.meta.url));
   assert.equal(patch.id,'par-03-selection-set-v1');
   assert.equal(patch.path,'patches/designcraft/a127c6d5/par-03-selection-set-candidate.patch');
-  assert.equal(patch.sha256,'6974d1b20b5a8b053dc8ecf1aeb094ac63d8a4c9ec595880dd4668e53d96cb35');
+  assert.equal(patch.sha256,'54a1021ce9550bdf608f4593ae6178caf54423941d03c3ce8c2c6cdc2ce2215e');
   assert.equal(createHash('sha256').update(bytes).digest('hex'),patch.sha256);
+  assert.match(bytes.toString('utf8'),/diff --git a\/apps\/designcraft-web\/file-provider\.js/);
   assert.equal(originalUiPackageId('designcraft'),`${originalUiPins.designcraft}-${patch.sha256.slice(0,12)}`);
 });
 

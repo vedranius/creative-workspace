@@ -2,9 +2,9 @@
 
 ## [0.2.0-alpha.39] — 2026-10-14 (DesignCraft original selection action)
 
-- Carry the original `selection.set` action from the Selection Tool pointer through the bounded 32-action / 16-KiB queue to the owned worker; hydrate selection only from the matching ACK. Keep exact upstream IDs and bound the accepted selection payload to 200 nonnegative safe integer IDs plus optional boolean flags.
+- Carry the original `selection.set` action from the Selection Tool pointer through the bounded 32-action / 16-KiB queue to the owned worker; hydrate selection only from the matching ACK. Keep exact upstream IDs and bound the accepted selection payload to 200 nonnegative safe integer IDs plus optional boolean flags. Include the host `file-provider.js` module in the cumulative pinned patch so clean CI builds have the Rust WASM import dependency.
 - Accept original graphic-frame `frame.create` payloads so the original Rectangle Frame Tool can create selectable content on the server. Correct the browser smoke to use the actual `F` Rectangle Frame Tool and verify empty selection, selected ID, persisted server read model, Type Tool caret, ordered text revisions through 14, server render, and zero browser errors.
-- Local pinned-source native/UI builds and Chromium smoke pass. Actions and release assets are pending; real browser folder permission, laptop write ACK/recovery and full DesignCraft parity remain unverified. Keep the release draft-only and the catalog planned. See [local evidence](docs/evidence/designcraft-par03-selection-set-local.md).
+- Local pinned-source native/UI builds and Chromium smoke pass. Actions run 38635602056 caught that the host module was missing from the cumulative patch; the patch now includes it, and a clean pinned-source WASM build and fresh Actions rerun are pending. Release assets are not ready; real browser folder permission, laptop write ACK/recovery and full DesignCraft parity remain unverified. Keep the release draft-only and the catalog planned. See [local evidence](docs/evidence/designcraft-par03-selection-set-local.md).
 
 ## [0.2.0-alpha.38] — 2026-10-14 (DesignCraft ordered original text actions)
 

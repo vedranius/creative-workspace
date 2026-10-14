@@ -165,7 +165,7 @@ jobs:
             ~/.cargo/registry
             ~/.cargo/git
             build/original-ui/target
-          key: designcraft-par03-wasm-rust199-${{ hashFiles('patches/designcraft/a127c6d5/par-03-provider-text-caret.patch') }}
+          key: designcraft-par03-wasm-rust199-${{ hashFiles('patches/designcraft/a127c6d5/par-03-selection-set-candidate.patch') }}
       - name: Install checksum-pinned Trunk
         shell: bash
         run: |
