@@ -1,3 +1,7 @@
+# Alpha.40: complete ArtCraft catalog
+
+The catalog now covers all 13 ArtCraft applications plus RapidRAW. FigCraft, WordCraft, SoundCraft, DeckCraft, CADCraft and GridCraft are planned adapters with upstream links, folder configuration, copy-first transfer and release checks. They are not installed creative engines. [Expansion plan and install scope](artcraft-expansion.md). Existing four-engine prototype bundle installation instructions below remain applicable; no new OS/engine capability is claimed. Fresh alpha.40 Actions/tag/assets verification is pending; retain the draft.
+
 Creative Workspace 0.2.0-alpha.39 is the current Actions-verified DesignCraft candidate. The original Selection Tool `selection.set` reaches the server-owned worker through a bounded, revision-ordered ACK queue; native/browser evidence verifies the selected server read model and ordered Type Tool edits through revision 14. Checks 38640343523 and Build/release 38640343490 passed; the immutable tag has 12 Actions-built assets and all six archive sidecars were verified. The folder picker is synthetic; real permission/write ACK, recovery, provider parity and full original app parity remain unverified. Keep DesignCraft planned and the release draft-only. See the [alpha.39 release evidence](evidence/creative-workspace-alpha39-release.md) and [PAR-03 handoff](par-03a-handoff.md).
 
 # Releases and installation

@@ -1,0 +1,25 @@
+{
+  "status": "passed",
+  "apps": 14,
+  "artcraftApps": 13,
+  "additions": [
+    "wordcraft",
+    "gridcraft",
+    "deckcraft",
+    "cadcraft",
+    "figcraft",
+    "soundcraft"
+  ],
+  "filters": {
+    "Office": 3,
+    "CAD": 1,
+    "Audio": 1,
+    "Interface design": 1
+  },
+  "attributionLinks": true,
+  "search": true,
+  "updateRows": 14,
+  "noUnimplementedLaunchButtons": true,
+  "uncaughtBrowserErrors": [],
+  "scope": "Catalog only; six added editors not installed or server accepted; no live studio restarted"
+}

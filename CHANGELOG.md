@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.2.0-alpha.40] — 2026-10-15 (complete ArtCraft catalog)
+
+- Add FigCraft, WordCraft, SoundCraft, DeckCraft, CADCraft and GridCraft to the studio: all 13 published ArtCraft apps plus RapidRAW, with original-author repository links, Office/CAD/Audio/Interface design filters, separate server folders, common copy-first transfers and upstream GitHub release checks.
+- Record the original UI/server/provider rollout and verified upstream browser-release candidates for all six additions. These entries are planned adapters, not installed applications or new bundled engines. Preserve the ongoing DesignCraft Select All work separately.
+- Resume the user-authorized development schedule with the expanded 13-app scope. Actions builds/releases remain draft pending actual target, browser and provider acceptance.
+
 ## [0.2.0-alpha.39] — 2026-10-14 (DesignCraft original selection action)
 
 - Carry the original `selection.set` action from the Selection Tool pointer through the bounded 32-action / 16-KiB queue to the owned worker; hydrate selection only from the matching ACK. Keep exact upstream IDs and bound the accepted selection payload to 200 nonnegative safe integer IDs plus optional boolean flags. Include the host `file-provider.js` module in the cumulative pinned patch so clean CI builds have the Rust WASM import dependency.

@@ -1,6 +1,10 @@
 # Plan portanja originalnih aplikacija
 
-Datum: 11. listopada 2026. Ovaj plan provodi [obvezni zahtjev za originalne aplikacije](original-app-requirements.md) i određuje novi redoslijed u [roadmapu](roadmap.md). Stanje i sljedeći zadatak zapisujemo u [primopredaju](development-state.md).
+Datum: 11. listopada 2026. Prošireno 15. listopada 2026. Ovaj plan provodi [obvezni zahtjev za originalne aplikacije](original-app-requirements.md) i određuje novi redoslijed u [roadmapu](roadmap.md). Stanje i sljedeći zadatak zapisujemo u [primopredaju](development-state.md).
+
+## Proširenje na svih 13 ArtCraft aplikacija — 2026-10-15
+
+Korisnik je izričito dodao sve office, CAD i ostale Crafting Apps. **WordCraft, GridCraft, DeckCraft, CADCraft, FigCraft i SoundCraft** ulaze uz dosadašnjih sedam; RapidRAW ostaje zaseban dodatni projekt. [Cjeloviti inventar, upstream kandidati, šest UI/server/provider task obitelji i redoslijed](artcraft-expansion.md). Alpha.40 dodaje ih u katalog i zajedničke file/update tokove; izvorni UI paketi, vlastiti engineovi i server/provider prihvaćenost za njih još nisu implementirani. Izjave o „svim aplikacijama” u povijesnim checkpointima ispod odnose se na tadašnjih sedam, ne na prošireni skup.
 
 ## Rezultat koji gradimo
 

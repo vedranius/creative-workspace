@@ -2,9 +2,9 @@
 
 # Creative Workspace
 
-**Version: 0.2.0-alpha.39** — Actions-verified draft candidate. The pinned original Selection Tool `selection.set` reaches the owned worker in the bounded ACK queue; Chromium verified frame creation, selection ID 8 at server revision 5, persisted read-model state, Type Tool caret and ordered text through revision 14. Checks and the Actions release workflow passed, and the immutable tag has 12 uploaded assets with verified checksums ([release evidence](docs/evidence/creative-workspace-alpha39-release.md)). The provider chooser was synthetic; real browser permission, laptop write ACK/recovery and full parity remain unverified. Keep DesignCraft planned and draft-only.
+**Version: 0.2.0-alpha.40** — open-source, self-hosted, single-user prototype. The catalog now includes all 13 ArtCraft applications plus RapidRAW; office, CAD, interface design and audio adapters are planned. Native browser UI/server/provider acceptance remains incomplete; the release stays draft.
 
-Bring your creative tools together in one browser studio. Choose an application, select your files, and access your own server from a lightweight laptop. The goal is **the original application interfaces and tools in the browser, with the server doing the heavy work**: photography, image editing, illustration, PDF, publishing, video and motion graphics. Browser controls run locally; document commands, data and previews travel to the server. No VNC or remote desktop is involved.
+Bring your creative tools together in one browser studio. Choose an application, select your files, and access your own server from a lightweight laptop. The goal is **the original application interfaces and tools in the browser, with the server doing the heavy work**: photography, image editing, illustration, PDF, publishing, video, motion graphics, office documents, spreadsheets, presentations, CAD, interface design and audio. Browser controls run locally; document commands, data and previews travel to the server. No VNC or remote desktop is involved.
 
 [Download releases](https://github.com/vedranius/creative-workspace/releases) · [Install](#installation) · [Screenshots](#screenshots) · [Changelog](CHANGELOG.md) · [Roadmap](docs/original-app-port-plan.md) · [License](LICENSE.md) · [Original projects](#original-projects-and-authors)
 
@@ -28,6 +28,10 @@ Alpha.26–alpha.30 are draft candidates. Alpha.29 adds original `edit.redo` to 
 
 ## Applications and current status
 
+![All 13 ArtCraft projects plus RapidRAW in the studio catalog](docs/evidence/artcraft-all13-catalog.png)
+
+Catalog screenshot from an isolated instance without engine installations; it does not show editor availability.
+
 | Application | Creative purpose | Current integration |
 | --- | --- | --- |
 | **RapidRAW** | RAW development and photography | Owned browser/server adapter; identity-checked independent installation. Separate CLI install; not in portable bundles. |
@@ -38,8 +42,16 @@ Alpha.26–alpha.30 are draft candidates. Alpha.29 adds original `edit.redo` to 
 | **LightCraft** | Photo library and RAW development | Original UI preview and separate native CPU/recipe groundwork. Original server/provider acceptance pending; not bundled. |
 | **FilmCraft** | Video timeline, colour and audio | Original UI preview with reviewed MKV/WebM import fix. Server media/proxy/render/provider integration pending. |
 | **EffectCraft** | Motion graphics, composition and VFX | Original UI/demo preview verified. Server/GPU/render/provider integration pending; headless GPU-worker limits documented. |
+| **FigCraft** | Interface design and prototypes | Planned original UI/server/provider adapter; not installed or bundled. |
+| **WordCraft** | Word processing and document review | Planned original UI/server/provider adapter; not installed or bundled. |
+| **SoundCraft** | Audio recording, editing and mixing | Planned original UI/server/provider adapter; not installed or bundled. |
+| **DeckCraft** | Presentations and slide shows | Planned original UI/server/provider adapter; not installed or bundled. |
+| **CADCraft** | Computer-aided design and drafting | Planned original UI/server/provider adapter; not installed or bundled. |
+| **GridCraft** | Spreadsheets and data analysis | Planned original UI/server/provider adapter; not installed or bundled. |
 
 Purpose describes each upstream project, **not a promise that every upstream function is already supported here**. Screenshots show real original interfaces; launch/render evidence does not establish complete browser/native parity or file-save acceptance. [Acceptance plan for every app](docs/original-app-port-plan.md).
+
+The [full ArtCraft expansion plan](docs/artcraft-expansion.md) records the six added upstream projects, their verified release/browser-build candidates, original UI/server acceptance gates and implementation order. Every catalog entry participates in per-app server-folder configuration, copy-first file transfers and GitHub release checks. A catalog entry does not install an engine or establish its compatibility.
 
 ## How the workspace works
 
@@ -88,7 +100,7 @@ Actual browser captures with demo/generated content. The ArtCraft screenshots be
 
 ![Creative Workspace catalog with original application launchers](docs/evidence/readme/studio.png)
 
-One home for eight creative projects, with original-author links and explicit implementation status. This isolated documentation instance uses demo folders; its native prototype engines are intentionally not started.
+Historical screenshot of the earlier eight-project catalog, with original-author links and explicit implementation status. This isolated documentation instance uses demo folders; its native prototype engines are intentionally not started.
 
 ### Laptop import and server files
 
@@ -237,6 +249,8 @@ Creative Workspace by [vedranius](https://github.com/vedranius) integrates indep
 Explore [ArtCraft's application collection](https://getartcraft.com/apps) and the [storytold repositories](https://github.com/storytold). Source pins and workspace changes live in engine manifests, original UI manifests, `patches/` and the linked evidence guides. The shared file provider is explicitly derived from RapidRAW Web, with its source header and bundled AGPL text preserved.
 
 **About forks and discovery:** this repository is an integration project, not a GitHub fork of all the listed repositories. GitHub fork ancestry connects a fork to one upstream repository; a multi-project integration cannot have seven simultaneous “forked from” parents. Attribution links identify every source here, but do not automatically create reverse links from their repos. The repository description and topics help GitHub search; upstream acknowledgement or inclusion in their directories requires their maintainers' participation. [GitHub's fork model](https://docs.github.com/en/pull-requests/reference/forks). [Repository description/topics setup](docs/github-discovery.md) records the proposed metadata and current administration-permission limitation.
+
+The six new planned adapters are also authored by **ArtCraft / storytold**: [FigCraft](https://github.com/storytold/figcraft), [WordCraft](https://github.com/storytold/wordcraft), [SoundCraft](https://github.com/storytold/soundcraft), [DeckCraft](https://github.com/storytold/deckcraft), [CADCraft](https://github.com/storytold/cadcraft) and [GridCraft](https://github.com/storytold/gridcraft). No source pin or license compatibility has yet been adopted for these integrations; retain each upstream project's licenses/notices at the eventual reviewed pin. Their code is not relicensed by Creative Workspace.
 
 ## License and use
 
