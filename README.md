@@ -2,7 +2,7 @@
 
 # Creative Workspace
 
-**Version: 0.2.0-alpha.42** — open-source, self-hosted, single-user prototype. The catalog includes all 13 ArtCraft applications plus RapidRAW. The original WordCraft v0.7.0 browser UI has been built from its exact source pin and locally verified; the Actions-built preview archive and release checks are pending. Server processing/provider integration remain planned. Keep the release draft while app/server/provider acceptance is incomplete.
+**Version: 0.2.0-alpha.42** — open-source, self-hosted, single-user prototype. The catalog includes all 13 ArtCraft applications plus RapidRAW. The original WordCraft v0.7.0 browser UI has been built from its exact source pin, locally verified, and included in the Actions-built Alpha.42 draft archive with a verified SHA256 sidecar. Server processing/provider integration remain planned. Keep the release draft while app/server/provider acceptance is incomplete.
 
 Bring your creative tools together in one browser studio. Choose an application, select your files, and access your own server from a lightweight laptop. The goal is **the original application interfaces and tools in the browser, with the server doing the heavy work**: photography, image editing, illustration, PDF, publishing, video, motion graphics, office documents, spreadsheets, presentations, CAD, interface design and audio. Browser controls run locally; document commands, data and previews travel to the server. No VNC or remote desktop is involved.
 

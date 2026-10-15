@@ -28,7 +28,7 @@ GitHub release metadata and tag commit identities checked on 2026-10-15. Each li
 | `figcraft-web-0.6.0.zip` | `a414970e3857f6613efd7f90bd4c8394e5d51b31c4cf1fa0352f87820695b9c4` |
 | `soundcraft-web-0.7.0.zip` | `b735de61fbdc21716977ace2649709bd307de832eda2d848f94d1868acef7c45` |
 
-**WordCraft ORG-WORD-UI implementation completed for alpha.42:** upstream revision `fc41918814f62645b6746ed68e71e8c2c2e85d6f` was independently checked out clean and built through its original `apps/wordcraft-web` Trunk entry. The release workflow now builds a browser archive and SHA256 sidecar from this exact pin; its first run is pending. The immutable registrar pin opens the original ribbon UI. See [WordCraft build/browser evidence](wordcraft-original-ui-preview.md). The catalog remains planned because browser-WASM processing is not a server-owned engine or provider adapter.
+**WordCraft ORG-WORD-UI implementation completed for alpha.42:** upstream revision `fc41918814f62645b6746ed68e71e8c2c2e85d6f` was independently checked out clean and built through its original `apps/wordcraft-web` Trunk entry. The release workflow built the browser archive and SHA256 sidecar from this exact pin; Build and release run 38777350723 passed and the downloadable release asset checksum was verified. The immutable registrar pin opens the original ribbon UI. See [WordCraft build/browser evidence](wordcraft-original-ui-preview.md). The catalog remains planned because browser-WASM processing is not a server-owned engine or provider adapter.
 
 ## Implementation queue and acceptance
 
