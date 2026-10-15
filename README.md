@@ -2,7 +2,7 @@
 
 # Creative Workspace
 
-**Version: 0.2.0-alpha.42** — open-source, self-hosted, single-user prototype. The catalog includes all 13 ArtCraft applications plus RapidRAW. The original WordCraft v0.7.0 browser UI has been built from its exact source pin, locally verified, and included in the Actions-built Alpha.42 draft archive with a verified SHA256 sidecar. Server processing/provider integration remain planned. Keep the release draft while app/server/provider acceptance is incomplete.
+**Version: 0.2.0-alpha.43** — open-source, self-hosted, single-user prototype. The catalog includes all 13 ArtCraft applications plus RapidRAW. Original WordCraft and GridCraft v0.7.0 browser previews have been built from exact source pins and browser-verified; their Actions-built archives and checksums are part of this alpha candidate. Both remain browser-local WASM; server processing/provider integration is pending. Keep releases draft-only while app/server/provider acceptance is incomplete.
 
 Bring your creative tools together in one browser studio. Choose an application, select your files, and access your own server from a lightweight laptop. The goal is **the original application interfaces and tools in the browser, with the server doing the heavy work**: photography, image editing, illustration, PDF, publishing, video, motion graphics, office documents, spreadsheets, presentations, CAD, interface design and audio. Browser controls run locally; document commands, data and previews travel to the server. No VNC or remote desktop is involved.
 
@@ -44,11 +44,10 @@ Catalog screenshot from an isolated instance without engine installations; it do
 | **EffectCraft** | Motion graphics, composition and VFX | Original UI/demo preview verified. Server/GPU/render/provider integration pending; headless GPU-worker limits documented. |
 | **WordCraft** | Word processing and document design | Original v0.7.0 ribbon/WASM preview verified from its pinned upstream source. Editing, layout, render and browser download run in browser WASM; server processing/provider/write ACK/recovery and full parity remain pending. Catalog stays planned. |
 | **FigCraft** | Interface design and prototypes | Planned original UI/server/provider adapter; not installed or bundled. |
-| **WordCraft** | Word processing and document review | Planned original UI/server/provider adapter; not installed or bundled. |
+| **GridCraft** | Spreadsheets and data analysis | Original v0.7.0 workbook UI verified at the pinned source. Calculation/edit/export currently run in browser WASM; server/provider/write ACK/recovery, real picker permission and full parity remain pending. Catalog stays planned. |
 | **SoundCraft** | Audio recording, editing and mixing | Planned original UI/server/provider adapter; not installed or bundled. |
 | **DeckCraft** | Presentations and slide shows | Planned original UI/server/provider adapter; not installed or bundled. |
 | **CADCraft** | Computer-aided design and drafting | Planned original UI/server/provider adapter; not installed or bundled. |
-| **GridCraft** | Spreadsheets and data analysis | Planned original UI/server/provider adapter; not installed or bundled. |
 
 Purpose describes each upstream project, **not a promise that every upstream function is already supported here**. Screenshots show real original interfaces; launch/render evidence does not establish complete browser/native parity or file-save acceptance. [Acceptance plan for every app](docs/original-app-port-plan.md).
 
@@ -251,7 +250,7 @@ Explore [ArtCraft's application collection](https://getartcraft.com/apps) and th
 
 **About forks and discovery:** this repository is an integration project, not a GitHub fork of all the listed repositories. GitHub fork ancestry connects a fork to one upstream repository; a multi-project integration cannot have seven simultaneous “forked from” parents. Attribution links identify every source here, but do not automatically create reverse links from their repos. The repository description and topics help GitHub search; upstream acknowledgement or inclusion in their directories requires their maintainers' participation. [GitHub's fork model](https://docs.github.com/en/pull-requests/reference/forks). [Repository description/topics setup](docs/github-discovery.md) records the proposed metadata and current administration-permission limitation.
 
-The six new entries are authored by **ArtCraft / storytold**: [FigCraft](https://github.com/storytold/figcraft), [WordCraft](https://github.com/storytold/wordcraft), [SoundCraft](https://github.com/storytold/soundcraft), [DeckCraft](https://github.com/storytold/deckcraft), [CADCraft](https://github.com/storytold/cadcraft) and [GridCraft](https://github.com/storytold/gridcraft). WordCraft uses the reviewed source pin and retains its MIT/Apache and separate ArtCraft brand license provenance. The other five retain planned adapters and require their own source/license review. Upstream code remains under its own licenses.
+The six new entries are authored by **ArtCraft / storytold**: [FigCraft](https://github.com/storytold/figcraft), [WordCraft](https://github.com/storytold/wordcraft), [SoundCraft](https://github.com/storytold/soundcraft), [DeckCraft](https://github.com/storytold/deckcraft), [CADCraft](https://github.com/storytold/cadcraft) and [GridCraft](https://github.com/storytold/gridcraft). WordCraft and GridCraft have reviewed exact-pin original browser UI previews with MIT/Apache and separate ArtCraft brand license provenance. Their document/workbook processing is browser WASM; server/provider integration and full parity remain pending. The other four new apps still need original UI and source/license review. Upstream code remains under its own licenses. See [GridCraft preview evidence](docs/gridcraft-original-ui-preview.md) and [the expansion plan](docs/artcraft-expansion.md).
 
 ## License and use
 

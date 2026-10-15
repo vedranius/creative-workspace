@@ -1,3 +1,5 @@
+**ORG-GRID-UI — original GridCraft v0.7.0 UI (2026-10-15, alpha.43):** exact pin `d9d09f0baa912e88c5111107903fc8c640214b57` built/registered; isolated Chromium shows workbook sample, backstage, Formula/Data tabs, edit/recalculation, XLSX download and drop-reopen. Browser WASM only; adapter remains planned. Alpha.43 Actions/tag/assets/checksums await remote verification. [Evidence](gridcraft-original-ui-preview.md). Next: ORG-DECK-UI → CAD → FIG → SOUND, then server/provider acceptance for all 13. Preserve Select All WIP.
+
 **ART-ALL-01 — proširenje na svih 13 ArtCraft aplikacija (2026-10-15):** korisnik je nastavio rad i dodao WordCraft, GridCraft, DeckCraft, CADCraft, FigCraft i SoundCraft. Alpha.40 uvodi stvarne katalog/folder/copy-first/update tokove; novih šest adaptera još je planned. [Plan svih projekata, upstream kandidati, redoslijed i kriteriji](artcraft-expansion.md). Slijedi provjera alpha.40 Actions izdavanja pa originalni UI zadaci Word → Grid → Deck → CAD → Fig → Sound, zatim puni server/provider rad. Prekinuti DesignCraft Select All WIP ostaje sačuvan i odvojen.
 
 # 2026-10-15 ORG-WORD-UI alpha.41 candidate — original browser preview

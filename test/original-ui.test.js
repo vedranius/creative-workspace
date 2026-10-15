@@ -29,6 +29,17 @@ test('WordCraft registry is bound to the reviewed v0.7.0 source commit',async t=
   assert.equal(roster.wordcraft.serverIntegrated,false);
 });
 
+test('GridCraft registry keeps the original v0.7.0 spreadsheet UI planned',async t=>{
+  const f=await fixture(t),pin='d9d09f0baa912e88c5111107903fc8c640214b57';
+  assert.equal(originalUiPins.gridcraft,pin);
+  assert.equal(originalUiPackageId('gridcraft'),pin);
+  const roster=await (await fetch(f.url+'/api/original-uis',{headers:f.headers})).json();
+  assert.equal(roster.gridcraft.available,false);
+  assert.equal(roster.gridcraft.sourceCommit,pin);
+  assert.equal(roster.gridcraft.processing,'browser');
+  assert.equal(roster.gridcraft.serverIntegrated,false);
+});
+
 // Protocol fixtures; actual upstream UI browser acceptance is recorded separately.
 async function fixture(t){
   const root=await mkdtemp(path.join(os.tmpdir(),'cw-original-ui-'));t.after(()=>rm(root,{recursive:true,force:true}));

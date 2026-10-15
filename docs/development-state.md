@@ -1,3 +1,9 @@
+## 2026-10-15 ORG-GRID-UI — original GridCraft v0.7.0 browser preview, alpha.43
+
+Built and registered the original `storytold/gridcraft` WASM UI from clean pin `d9d09f0baa912e88c5111107903fc8c640214b57`. Isolated Chromium 151 verified the workbook sample, File backstage, Formula/Data tabs, edit/recalculation/chart refresh, XLSX browser download and synthetic canvas drop-reopen; no page/console errors. Build/source/license hashes and limits: [GridCraft evidence](gridcraft-original-ui-preview.md). This is browser-local processing only; GridCraft remains planned, with server engine/state/render/export, four providers, real permissions/write ACK/recovery, native OS support and full parity unverified. Alpha.43 adds the Actions archive/checksum job; verify pushed CI, immutable tag, draft and downloaded checksums before claiming release publication.
+
+Next original UI task: ORG-DECK-UI, followed by CADCraft → FigCraft → SoundCraft. Then resume DesignCraft PAR-03 and complete server/provider acceptance across all 13 apps. Preserve the prior Select All WIP, `engines/filmcraft/` and protected services/documents.
+
 ## 2026-10-15 ART-ALL-01 — all 13 ArtCraft applications in scope, alpha.40
 
 The human explicitly resumed development and added every office/CAD/other Crafting App. Added FigCraft, WordCraft, SoundCraft, DeckCraft, CADCraft and GridCraft to the actual catalog (14 entries with RapidRAW), creator/repository links, categories, independent server folders, shared copy-first transfer and GitHub release checks. [Full expansion plan](artcraft-expansion.md) records verified upstream release/tag/web-asset candidates and original UI/server/provider task families. New entries remain planned, not installed or bundled engines. [Catalog browser report/screenshot](evidence/artcraft-all13-browser.json); original editor acceptance is still required.

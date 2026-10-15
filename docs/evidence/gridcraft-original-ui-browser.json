@@ -1,0 +1,51 @@
+{
+  "schemaVersion": 1,
+  "task": "ORG-GRID-UI",
+  "result": "local_original_ui_preview_verified",
+  "source": {
+    "repository": "storytold/gridcraft",
+    "tag": "v0.7.0",
+    "commit": "d9d09f0baa912e88c5111107903fc8c640214b57",
+    "clean": true,
+    "license": "MIT OR Apache-2.0",
+    "brandTerms": "separate upstream docs/brand/LICENSE-brand.txt"
+  },
+  "build": {
+    "entry": "apps/gridcraft-web",
+    "command": "trunk build --release --dist <static-output>",
+    "rustc": "1.99.0",
+    "trunk": "0.21.14",
+    "wasmSha256": "0654d164a58698f2e624d251212d1178d78c44766efadbb389b38e15c5e75a7e",
+    "javascriptSha256": "cd4d0aa76dfb703870a6b5dbf63c88217221ebb7aac5c491f51c0e1b2d8fcbd9",
+    "registeredPackage": "d9d09f0baa912e88c5111107903fc8c640214b57"
+  },
+  "server": {
+    "isolatedPort": 8802,
+    "separateDataAndWorkspaceRoots": true,
+    "basicAuth": true,
+    "available": true,
+    "processing": "browser",
+    "serverIntegrated": false
+  },
+  "browser": {
+    "chromium": "151.0.7922.34",
+    "viewport": "1600x1000",
+    "renderer": "WebGL2/SwiftShader",
+    "sample": "Quarterly Sales Dashboard",
+    "checks": [
+      "original workbook grid, ribbon, formula bar, charts and status bar rendered",
+      "original File backstage Open and Save As pages rendered",
+      "Formula and Data ribbon pages rendered",
+      "cell edit recalculated dependent totals/growth/chart values",
+      "original Save As browser-download fallback produced a valid XLSX",
+      "XLSX was reopened into a fresh page through original canvas file-drop workflow"
+    ],
+    "pageErrors": 0,
+    "consoleErrors": 0,
+    "osPickerOrFolderPermissionVerified": false,
+    "savePickerApiDisabledForDownloadFallback": true
+  },
+  "xlsxSha256": "6fff7b41fa58f4bfca0691c4be4831e8e342a7b96b8c437d370c49b0cfef3026",
+  "availabilityClaim": false,
+  "serverProviderAndFullParity": "not_verified"
+}

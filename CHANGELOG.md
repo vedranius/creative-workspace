@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.2.0-alpha.43] — 2026-10-15 (original GridCraft browser preview)
+
+- Add exact GridCraft v0.7.0 source pin `d9d09f0baa912e88c5111107903fc8c640214b57` to immutable original-UI registration and build its original spreadsheet interface from the upstream Rust/WASM web entry. Actions produces a separate browser archive and checksum with MIT/Apache source provenance and the applicable ArtCraft mark terms.
+- Verify the original workbook sample, File backstage, Formula/Data ribbon areas and an edit that recalculates dependent values/charts in isolated Chromium. This is browser-local WASM; server processing, providers, real permission/write acknowledgement, recovery, OS support and full parity remain pending. Keep GridCraft planned.
+
 ## [0.2.0-alpha.42] — 2026-10-15 (WordCraft preview CI test path correction)
 
 - Correct test discovery to pass explicit tracked test files to Node. Alpha.41 CI showed that Node 24 does not accept the `test` directory argument, unlike the local Node 26 runtime. The original WordCraft preview implementation and browser evidence are unchanged.
