@@ -1,8 +1,14 @@
+## 2026-10-15 ORG-DECK-UI — original DeckCraft v0.7.0 browser preview, alpha.44
+
+Built and registered the original `storytold/deckcraft` WASM UI from clean pin `d78e657e4cb1e490ceb5445785c052d9cf5ad963`. Isolated Chromium 151 verified the Home ribbon, eight-slide Northern Lights sample, slide thumbnails and canvas with no page/console errors; build/source/license hashes and limitations are recorded in [DeckCraft evidence](deckcraft-original-ui-preview.md). Processing, media decode, rendering and conversion are browser-local; DeckCraft remains planned until its owned server engine/state/actions/render/export, four provider paths, real permissions/write ACK/recovery, native OS support and full parity are evidenced. Alpha.44 adds the Actions archive/checksum job; fresh CI/tag/draft/asset verification is next.
+
+Next original UI task: ORG-CAD-UI, followed by FigCraft → SoundCraft. Then resume DesignCraft PAR-03 and complete server/provider acceptance for all 13. Preserve the pre-existing Select All WIP, `engines/filmcraft/` and protected services/documents.
+
 ## 2026-10-15 ORG-GRID-UI — original GridCraft v0.7.0 browser preview, alpha.43
 
-Built and registered the original `storytold/gridcraft` WASM UI from clean pin `d9d09f0baa912e88c5111107903fc8c640214b57`. Isolated Chromium 151 verified the workbook sample, File backstage, Formula/Data tabs, edit/recalculation/chart refresh, XLSX browser download and synthetic canvas drop-reopen; no page/console errors. Build/source/license hashes and limits: [GridCraft evidence](gridcraft-original-ui-preview.md). This is browser-local processing only; GridCraft remains planned, with server engine/state/render/export, four providers, real permissions/write ACK/recovery, native OS support and full parity unverified. Alpha.43 adds the Actions archive/checksum job; verify pushed CI, immutable tag, draft and downloaded checksums before claiming release publication.
+Built and registered the original `storytold/gridcraft` WASM UI from clean pin `d9d09f0baa912e88c5111107903fc8c640214b57`. Isolated Chromium 151 verified the workbook sample, File backstage, Formula/Data tabs, edit/recalculation/chart refresh, XLSX browser download and synthetic canvas drop-reopen; no page/console errors. Build/source/license hashes and limits: [GridCraft evidence](gridcraft-original-ui-preview.md). This is browser-local processing only; GridCraft remains planned, with server engine/state/render/export, four providers, real permissions/write ACK/recovery, native OS support and full parity unverified. Alpha.43 Actions, immutable tag, draft and downloaded archive checksums are verified.
 
-Next original UI task: ORG-DECK-UI, followed by CADCraft → FigCraft → SoundCraft. Then resume DesignCraft PAR-03 and complete server/provider acceptance across all 13 apps. Preserve the prior Select All WIP, `engines/filmcraft/` and protected services/documents.
+GridCraft and DeckCraft completed; next is ORG-CAD-UI, followed by FigCraft → SoundCraft. Then resume DesignCraft PAR-03 and complete server/provider acceptance across all 13 apps. Preserve the prior Select All WIP, `engines/filmcraft/` and protected services/documents.
 
 ## 2026-10-15 ART-ALL-01 — all 13 ArtCraft applications in scope, alpha.40
 

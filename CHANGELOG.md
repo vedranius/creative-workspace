@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.2.0-alpha.44] — 2026-10-15 (original DeckCraft browser preview)
+
+- Add the exact DeckCraft v0.7.0 source pin `d78e657e4cb1e490ceb5445785c052d9cf5ad963` to immutable original-UI registration and build the unchanged original presentation interface from `apps/deckcraft-web`. Actions builds a separate browser archive and SHA256 sidecar with MIT/Apache source licences and the original ArtCraft mark terms.
+- Verify the original Home ribbon, eight-slide sample, slide thumbnails and canvas in isolated Chromium 151 with zero page/console errors. Presentation editing, media decode, rendering and conversion remain browser WASM; server processing/provider integration, real file permission/write ACK/recovery, native OS support and full parity are pending. Keep DeckCraft planned.
+
 ## [0.2.0-alpha.43] — 2026-10-15 (original GridCraft browser preview)
 
 - Add exact GridCraft v0.7.0 source pin `d9d09f0baa912e88c5111107903fc8c640214b57` to immutable original-UI registration and build its original spreadsheet interface from the upstream Rust/WASM web entry. Actions produces a separate browser archive and checksum with MIT/Apache source provenance and the applicable ArtCraft mark terms.

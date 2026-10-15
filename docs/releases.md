@@ -1,3 +1,7 @@
+# Alpha.44 candidate: original DeckCraft browser preview
+
+Alpha.44 adds the original DeckCraft v0.7.0 browser UI from exact source pin `d78e657e4cb1e490ceb5445785c052d9cf5ad963`, immutable registration and a separate Actions archive/checksum job. Local Chromium evidence covers the Home ribbon, eight-slide sample, slide thumbnails and presentation canvas. Processing, media decode, render and conversion remain browser-local WASM. Server engine/action/state/render/export, providers, real permissions/write ACK/recovery, native OS support and full parity remain pending; DeckCraft stays planned. See [DeckCraft evidence](deckcraft-original-ui-preview.md). Fresh Actions, tag, draft assets and checksum verification are pending; keep the release draft-only.
+
 # Alpha.43 candidate: original GridCraft browser preview
 
 Alpha.43 adds the original GridCraft v0.7.0 browser UI from exact source pin `d9d09f0baa912e88c5111107903fc8c640214b57`, immutable registration and a separate Actions archive/checksum job. Local Chromium evidence covers its workbook sample, File backstage, Formula/Data ribbons, edit/recalculation/charts, XLSX download and drop-reopen. This remains a browser-local WASM preview; GridCraft stays planned because server engine/state/render/export, all provider paths, real permissions/write ACK/recovery, native OS support and full parity are pending. See [GridCraft evidence](gridcraft-original-ui-preview.md). Actions, tag, draft assets and checksum verification are pending. Keep any release draft-only.

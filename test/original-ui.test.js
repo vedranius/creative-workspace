@@ -29,6 +29,17 @@ test('WordCraft registry is bound to the reviewed v0.7.0 source commit',async t=
   assert.equal(roster.wordcraft.serverIntegrated,false);
 });
 
+test('DeckCraft registry keeps the original v0.7.0 presentation UI planned',async t=>{
+  const f=await fixture(t),pin='d78e657e4cb1e490ceb5445785c052d9cf5ad963';
+  assert.equal(originalUiPins.deckcraft,pin);
+  assert.equal(originalUiPackageId('deckcraft'),pin);
+  const roster=await (await fetch(f.url+'/api/original-uis',{headers:f.headers})).json();
+  assert.equal(roster.deckcraft.available,false);
+  assert.equal(roster.deckcraft.sourceCommit,pin);
+  assert.equal(roster.deckcraft.processing,'browser');
+  assert.equal(roster.deckcraft.serverIntegrated,false);
+});
+
 test('GridCraft registry keeps the original v0.7.0 spreadsheet UI planned',async t=>{
   const f=await fixture(t),pin='d9d09f0baa912e88c5111107903fc8c640214b57';
   assert.equal(originalUiPins.gridcraft,pin);

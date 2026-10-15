@@ -1,0 +1,58 @@
+{
+  "url": "http://127.0.0.1:8895/original/deckcraft/?webgl",
+  "sourceCommit": "d78e657e4cb1e490ceb5445785c052d9cf5ad963",
+  "registryAvailable": true,
+  "processing": "browser",
+  "serverIntegrated": false,
+  "browser": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/151.0.0.0 Safari/537.36",
+  "info": {
+    "title": "DeckCraft",
+    "canvas": {
+      "width": 1440,
+      "height": 900
+    },
+    "bodyText": "",
+    "location": "http://127.0.0.1:8895/original/deckcraft/?webgl"
+  },
+  "errors": [],
+  "upstreamRepository": "https://github.com/storytold/deckcraft",
+  "upstreamTag": "v0.7.0",
+  "upstreamCommit": "d78e657e4cb1e490ceb5445785c052d9cf5ad963",
+  "build": {
+    "entry": "apps/deckcraft-web",
+    "rust": "1.99.0",
+    "target": "wasm32-unknown-unknown",
+    "trunk": "0.21.14",
+    "wasmOpt": "-Oz",
+    "status": "success",
+    "processing": "browser"
+  },
+  "uiObserved": [
+    "Original Home ribbon",
+    "Eight-slide Northern Lights sample",
+    "Slide thumbnail pane",
+    "Presentation canvas",
+    "Notes/status region",
+    "Present control",
+    "Original File backstage: Home, New, Open, Info, Save, Save As, Print, Export and Close"
+  ],
+  "optionalCraftFonts": "Not present; original build uses system fonts.",
+  "hashes": {
+    "index.html": "ed61575951dc1401301fddc9b4ea32dda6d3c045318a9a9e69893859903893a0",
+    "js": "1b8c7293cea0fc2bc38169c07dcefc71bfcd126e9453d5116da442c2a61c709c",
+    "wasm": "ce3dfc1cad6a45458d6fa148cd5f17d7b1d4961b57ebe109d01b2445c1108ec6",
+    "appIcon": "61ce7f8438d6738d42cb6a1697b561ba11b25f43d1ab7f9c7a2ef07bbcf72f4c",
+    "licenseMIT": "90e96fef569474cd526350e716e4b05dd32f179ca96d39d61e6b928485e35406",
+    "licenseApache": "0d542e0c8804e39aa7f37eb00da5a762149dc682d7829451287e11b938e94594",
+    "brandTerms": "c5ad8e77d0dd8939161b4c4eca7aaba2437d6340c29e7809fa4679f0f2a82f62",
+    "screenshot": "4b8c069517fa6880bb633ffb3a5eaf9d29676dfbb35fc120e81c248a2bb9da1e",
+    "fileBackstageScreenshot": "9fc7de8c75fa8833169dca8734af9e8298845ccc56076beb1adfec13178a5888"
+  },
+  "limitations": [
+    "Browser-local WASM processing only; not a server adapter.",
+    "No native engine, provider paths, real OS folder permission/write ACK, or recovery acceptance.",
+    "Optional craft-fonts absent; system fonts used.",
+    "Browser/mode verified only on Chromium 151 with WebGL2/SwiftShader.",
+    "Full command/menu/dialog/format parity and native OS support remain unverified."
+  ]
+}

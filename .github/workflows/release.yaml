@@ -402,8 +402,67 @@ jobs:
           path: dist/*
           if-no-files-found: error
           retention-days: 30
+  original-deckcraft:
+    needs: contract
+    runs-on: ubuntu-22.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - uses: dtolnay/rust-toolchain@1.99.0
+        with:
+          targets: wasm32-unknown-unknown
+      - id: deckcraft-cache
+        uses: actions/cache/restore@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            ~/.cargo/bin/wasm-bindgen
+            build/original-ui/target
+          key: deckcraft-original-wasm-rust199-bindgen129-${{ hashFiles('src/original-ui.js') }}
+          restore-keys: deckcraft-original-wasm-rust199-bindgen129-
+      - run: npm ci
+      - name: Install checksum-pinned Trunk
+        shell: bash
+        run: |
+          curl -fsSLo "$RUNNER_TEMP/trunk.tar.gz" https://github.com/trunk-rs/trunk/releases/download/v0.21.14/trunk-x86_64-unknown-linux-gnu.tar.gz
+          echo 'f2b4680cd239693a646a2795e4633c625328d7b2a044fbe749fa3a2fe9e7036b  trunk.tar.gz' | (cd "$RUNNER_TEMP" && sha256sum -c -)
+          tar -xzf "$RUNNER_TEMP/trunk.tar.gz" -C "$RUNNER_TEMP"
+          echo "$RUNNER_TEMP" >> "$GITHUB_PATH"
+      - name: Fetch only the contracted original source revision
+        shell: bash
+        run: |
+          mkdir -p build/original-ui/source-deckcraft
+          git -C build/original-ui/source-deckcraft init
+          git -C build/original-ui/source-deckcraft remote add origin https://github.com/storytold/deckcraft.git
+          git -C build/original-ui/source-deckcraft fetch --depth=1 origin d78e657e4cb1e490ceb5445785c052d9cf5ad963
+          git -C build/original-ui/source-deckcraft checkout --detach FETCH_HEAD
+          if ! wasm-bindgen --version | grep -q '^wasm-bindgen 0.2.129$'; then
+            cargo install wasm-bindgen-cli --version 0.2.129 --locked --force
+          fi
+      - name: Build and register the pinned original DeckCraft browser UI
+        run: nice -n 10 npm run ui:deckcraft:build -- build/original-ui/source-deckcraft build/original-ui/assets-deckcraft build/original-ui/packages
+      - name: Preserve pinned compile cache after later failure
+        if: always() && steps.deckcraft-cache.outputs.cache-primary-key != '' && steps.deckcraft-cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            ~/.cargo/bin/wasm-bindgen
+            build/original-ui/target
+          key: ${{ steps.deckcraft-cache.outputs.cache-primary-key }}
+      - uses: actions/upload-artifact@v4
+        with:
+          name: release-deckcraft-original-ui
+          path: dist/*
+          if-no-files-found: error
+          retention-days: 30
   publish:
-    needs: [contract, bundle, original-filmcraft, original-designcraft, original-wordcraft, original-gridcraft]
+    needs: [contract, bundle, original-filmcraft, original-designcraft, original-wordcraft, original-gridcraft, original-deckcraft]
     runs-on: ubuntu-22.04
     permissions:
       contents: write
@@ -422,14 +481,14 @@ jobs:
           node scripts/release.mjs notes release-notes.md
           cd dist
           sha256sum -c *.sha256
-          test "$(find . -name '*.sha256' | wc -l)" -eq 8
+          test "$(find . -name '*.sha256' | wc -l)" -eq 9
       - name: Publish verified alpha through GitHub Actions
         env:
           GH_TOKEN: ${{ github.token }}
           VERSION: ${{ needs.contract.outputs.version }}
         run: |
           gh release create "v$VERSION" dist/* --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" --draft --prerelease --title "Creative Workspace $VERSION (alpha)" --notes-file release-notes.md
-          test "$(gh release view "v$VERSION" --repo "$GITHUB_REPOSITORY" --json assets --jq '.assets | length')" -eq 16
+          test "$(gh release view "v$VERSION" --repo "$GITHUB_REPOSITORY" --json assets --jq '.assets | length')" -eq 18
           # A draft release alone does not create its immutable Git tag.
           git tag "v$VERSION" "$GITHUB_SHA"
           git push origin "refs/tags/v$VERSION"

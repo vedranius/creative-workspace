@@ -1,5 +1,12 @@
 # ART-ALL-01 handoff — 2026-10-15
 
+# ORG-DECK-UI handoff — 2026-10-15
+
+Built and registered the original DeckCraft v0.7.0 browser UI from exact pin `d78e657e4cb1e490ceb5445785c052d9cf5ad963`; isolated Chromium 151 verified the original Home ribbon, eight-slide sample, slide thumbnails and canvas with zero page/console errors. Evidence and exact build/license hashes: [DeckCraft preview](deckcraft-original-ui-preview.md). Browser WASM owns processing; DeckCraft remains planned until server engine/action/state/render/export, all provider paths, real permission/write ACK/recovery, native OS and full parity acceptance. Alpha.44 adds the Actions archive/checksum job; tag/draft/assets still require fresh remote verification.
+
+Next: ORG-CAD-UI → FigCraft → SoundCraft, then resume DesignCraft PAR-03 and server/provider acceptance across all 13. Preserve uncommitted DesignCraft Select All WIP, `engines/filmcraft/` and protected runtimes.
+
+
 Scope: real catalog foundation and implementation queue for all 13 ArtCraft apps plus RapidRAW. Six added original-author entries share server-folder/copy-first/update infrastructure; none is an installed editor or accepted server adapter. Full source/release candidates and rollout: [expansion plan](artcraft-expansion.md). New catalog test checks all six independent folder round-trips, collision refusal, cross-folder denial, foreign Origin and GitHub endpoint tracking without marking compatibility accepted.
 
 Validation: npm run check, npm run release:validate, npm test 64/64 locally (including preserved DesignCraft WIP), git diff --check; real isolated Chromium catalog/filter/search/attribution/update-row proof, zero uncaught errors. [Report](evidence/artcraft-all13-browser.json), [screenshot](evidence/artcraft-all13-catalog.png). QA browser/server closed. No original native rebuild or live session restart. Version alpha.40; fresh Actions tag/draft/archives remain pending until explicitly verified. Do not claim publication/download availability from a workflow file.
