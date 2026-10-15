@@ -284,8 +284,67 @@ jobs:
           path: dist/*
           if-no-files-found: error
           retention-days: 30
+  original-wordcraft:
+    needs: contract
+    runs-on: ubuntu-22.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - uses: dtolnay/rust-toolchain@1.99.0
+        with:
+          targets: wasm32-unknown-unknown
+      - id: wordcraft-cache
+        uses: actions/cache/restore@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            ~/.cargo/bin/wasm-bindgen
+            build/original-ui/target
+          key: wordcraft-original-wasm-rust199-bindgen129-${{ hashFiles('src/original-ui.js') }}
+          restore-keys: wordcraft-original-wasm-rust199-bindgen129-
+      - run: npm ci
+      - name: Install checksum-pinned Trunk
+        shell: bash
+        run: |
+          curl -fsSLo "$RUNNER_TEMP/trunk.tar.gz" https://github.com/trunk-rs/trunk/releases/download/v0.21.14/trunk-x86_64-unknown-linux-gnu.tar.gz
+          echo 'f2b4680cd239693a646a2795e4633c625328d7b2a044fbe749fa3a2fe9e7036b  trunk.tar.gz' | (cd "$RUNNER_TEMP" && sha256sum -c -)
+          tar -xzf "$RUNNER_TEMP/trunk.tar.gz" -C "$RUNNER_TEMP"
+          echo "$RUNNER_TEMP" >> "$GITHUB_PATH"
+      - name: Fetch only the contracted original source revision
+        shell: bash
+        run: |
+          mkdir -p build/original-ui/source-wordcraft
+          git -C build/original-ui/source-wordcraft init
+          git -C build/original-ui/source-wordcraft remote add origin https://github.com/storytold/wordcraft.git
+          git -C build/original-ui/source-wordcraft fetch --depth=1 origin fc41918814f62645b6746ed68e71e8c2c2e85d6f
+          git -C build/original-ui/source-wordcraft checkout --detach FETCH_HEAD
+          if ! wasm-bindgen --version | grep -q '^wasm-bindgen 0.2.129$'; then
+            cargo install wasm-bindgen-cli --version 0.2.129 --locked --force
+          fi
+      - name: Build and register the pinned original WordCraft browser UI
+        run: nice -n 10 npm run ui:wordcraft:build -- build/original-ui/source-wordcraft build/original-ui/assets-wordcraft build/original-ui/packages
+      - name: Preserve pinned compile cache after later failure
+        if: always() && steps.wordcraft-cache.outputs.cache-primary-key != '' && steps.wordcraft-cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            ~/.cargo/bin/wasm-bindgen
+            build/original-ui/target
+          key: ${{ steps.wordcraft-cache.outputs.cache-primary-key }}
+      - uses: actions/upload-artifact@v4
+        with:
+          name: release-wordcraft-original-ui
+          path: dist/*
+          if-no-files-found: error
+          retention-days: 30
   publish:
-    needs: [contract, bundle, original-filmcraft, original-designcraft]
+    needs: [contract, bundle, original-filmcraft, original-designcraft, original-wordcraft]
     runs-on: ubuntu-22.04
     permissions:
       contents: write
@@ -304,14 +363,14 @@ jobs:
           node scripts/release.mjs notes release-notes.md
           cd dist
           sha256sum -c *.sha256
-          test "$(find . -name '*.sha256' | wc -l)" -eq 6
+          test "$(find . -name '*.sha256' | wc -l)" -eq 7
       - name: Publish verified alpha through GitHub Actions
         env:
           GH_TOKEN: ${{ github.token }}
           VERSION: ${{ needs.contract.outputs.version }}
         run: |
           gh release create "v$VERSION" dist/* --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" --draft --prerelease --title "Creative Workspace $VERSION (alpha)" --notes-file release-notes.md
-          test "$(gh release view "v$VERSION" --repo "$GITHUB_REPOSITORY" --json assets --jq '.assets | length')" -eq 12
+          test "$(gh release view "v$VERSION" --repo "$GITHUB_REPOSITORY" --json assets --jq '.assets | length')" -eq 14
           # A draft release alone does not create its immutable Git tag.
           git tag "v$VERSION" "$GITHUB_SHA"
           git push origin "refs/tags/v$VERSION"

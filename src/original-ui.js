@@ -10,7 +10,8 @@ export const originalUiPins={
   designcraft:'a127c6d5c3576972bbd60445f26d893db071eef3',
   lightcraft:'9e6c4c6fc9c7a7f192ce846c00ceb531e0f64dda',
   filmcraft:'4e2d0bc2d3646f9cf27ef7aa8b2095c6858c7efe',
-  effectcraft:'9a7d3e76991d5372448033b473dc12c2480a6a04'
+  effectcraft:'9a7d3e76991d5372448033b473dc12c2480a6a04',
+  wordcraft:'fc41918814f62645b6746ed68e71e8c2c2e85d6f'
 };
 // Reviewed integration patches are explicit variants of the upstream pin, never new upstream commits.
 export const originalUiPatches={designcraft:{id:'par-03-selection-set-v1',path:'patches/designcraft/a127c6d5/par-03-selection-set-candidate.patch',sha256:'54a1021ce9550bdf608f4593ae6178caf54423941d03c3ce8c2c6cdc2ce2215e'},filmcraft:{id:'mkv-pending-v1',path:'engines/original-ui/filmcraft/mkv-pending.patch',sha256:'8aee3cdf5acc1380564965329472b92f9a02207e6e11a63bb4983f54ef5688bc'}};

@@ -1,0 +1,51 @@
+{
+  "app": "wordcraft",
+  "upstream": "https://github.com/storytold/wordcraft",
+  "upstreamRelease": "v0.7.0",
+  "sourceCommit": "fc41918814f62645b6746ed68e71e8c2c2e85d6f",
+  "sourceCheckoutClean": true,
+  "sourcePatch": null,
+  "build": {
+    "entry": "apps/wordcraft-web",
+    "command": "trunk build --release",
+    "wasmBytes": 39840834,
+    "wasmSha256": "2ff802d0065f90c0ab92848e2beb7a580ec1030ffeb3d9eab05a168c8a419a2a",
+    "javascriptSha256": "bcf168738f6d86c4812c8c736fb8b0382b37ec5b70c12c90d44285bd226a2d5b",
+    "indexHtmlSha256": "b652a5ce6db086a0c2b91c75d357b9d00ed17672f1b0a633650fd7095a1a05b8",
+    "license": "MIT OR Apache-2.0",
+    "brandLicense": "provenance/docs/brand/LICENSE-brand.txt"
+  },
+  "registration": {
+    "packageId": "fc41918814f62645b6746ed68e71e8c2c2e85d6f",
+    "manifestPerFileHashes": true,
+    "processing": "browser",
+    "serverIntegrated": false
+  },
+  "browser": {
+    "browser": "Chromium 151.0.7922.173",
+    "port": 8801,
+    "auth": "isolated QA-only Basic auth",
+    "originalSampleRibbonAndFileBackstage": true,
+    "edit": "typed 'Browser QA edit.' into the built-in Studio Handbook Sample",
+    "savedFile": "The Open Studio Handbook.docx",
+    "savedFileContainsEdit": true,
+    "reopenedThroughOriginalBrowserFileInput": true,
+    "reopenedStatus": "Saved",
+    "reopenedWordCount": 364,
+    "uncaughtPageOrConsoleErrors": 0,
+    "fileChooser": "Playwright set the already-downloaded file on the original browser file input; this is not OS folder permission evidence",
+    "screenshots": [
+      "wordcraft-original-ui.png",
+      "wordcraft-original-ui-file-menu.png",
+      "wordcraft-original-ui-edited.png",
+      "wordcraft-original-ui-reopened.png"
+    ]
+  },
+  "limitations": [
+    "Document edit, layout, render and save execute in browser WASM",
+    "No owned server processing or provider integration",
+    "No native desktop OS or cross-browser acceptance",
+    "Real OS folder permission, laptop write acknowledgement and recovery unverified",
+    "Full WordCraft parity unverified; catalog remains planned"
+  ]
+}

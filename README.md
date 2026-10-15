@@ -2,7 +2,7 @@
 
 # Creative Workspace
 
-**Version: 0.2.0-alpha.40** — open-source, self-hosted, single-user prototype. The catalog now includes all 13 ArtCraft applications plus RapidRAW; office, CAD, interface design and audio adapters are planned. Native browser UI/server/provider acceptance remains incomplete; the release stays draft.
+**Version: 0.2.0-alpha.41** — open-source, self-hosted, single-user prototype. The catalog includes all 13 ArtCraft applications plus RapidRAW. The original WordCraft v0.7.0 browser UI has been built from its exact source pin and locally verified; the Actions-built preview archive and release checks are pending. Server processing/provider integration remain planned. Keep the release draft while app/server/provider acceptance is incomplete.
 
 Bring your creative tools together in one browser studio. Choose an application, select your files, and access your own server from a lightweight laptop. The goal is **the original application interfaces and tools in the browser, with the server doing the heavy work**: photography, image editing, illustration, PDF, publishing, video, motion graphics, office documents, spreadsheets, presentations, CAD, interface design and audio. Browser controls run locally; document commands, data and previews travel to the server. No VNC or remote desktop is involved.
 
@@ -14,7 +14,7 @@ Alpha.24 adds an original Open-dialog candidate for a selected laptop `.designcr
 
 ## What is new
 
-- **Original interfaces from one studio:** registered PhotoCraft, VectorCraft, PdfCraft, DesignCraft, LightCraft, FilmCraft and EffectCraft launch on the studio's own origin at `/original/<app>/`. Invalid or missing packages stay unavailable. [Installation and browser evidence](docs/studio-original-uis.md).
+- **Original interfaces from one studio:** registered PhotoCraft, VectorCraft, PdfCraft, DesignCraft, LightCraft, FilmCraft, EffectCraft and WordCraft launch on the studio's own origin at `/original/<app>/`. Invalid or missing packages stay unavailable. [Installation and browser evidence](docs/studio-original-uis.md).
 - **FilmCraft MKV/WebM import fix:** a reviewed patch to the original media browser handles pending reads, duplicate requests, selection/bin changes, cancellation and metadata retry. Eight isolated browser cases passed; this is not a claim that every codec or video export works. [Fix and evidence](docs/filmcraft-mkv-import-handoff.md).
 - **DesignCraft PAR-03 edit/read-model candidate:** original `file.new`, graphic `frame.create`, Selection Tool `selection.set`, Type Tool caret and ordered text actions reach the owned native worker. Chromium confirms selection ID 8 and server read-model hydration at revision 5, then Type Tool actions through revision 14 with server render. Actions passed and the alpha.39 release assets/checksums are verified. Real browser permission, laptop write ACK/recovery and full original tool parity remain pending; the catalog stays planned. [Bridge scope and evidence](docs/designcraft-par03-sample-bridge.md).
 - **DesignCraft original preset action seam (alpha.17):** the gateway accepts the original `file.new` action with exactly one bounded `preset` parameter and forwards it unchanged to its owned worker. A protocol fixture verifies the action ID, params and acknowledged read model. The original UI click is not wired yet; this does not add an availability claim.
@@ -42,6 +42,7 @@ Catalog screenshot from an isolated instance without engine installations; it do
 | **LightCraft** | Photo library and RAW development | Original UI preview and separate native CPU/recipe groundwork. Original server/provider acceptance pending; not bundled. |
 | **FilmCraft** | Video timeline, colour and audio | Original UI preview with reviewed MKV/WebM import fix. Server media/proxy/render/provider integration pending. |
 | **EffectCraft** | Motion graphics, composition and VFX | Original UI/demo preview verified. Server/GPU/render/provider integration pending; headless GPU-worker limits documented. |
+| **WordCraft** | Word processing and document design | Original v0.7.0 ribbon/WASM preview verified from its pinned upstream source. Editing, layout, render and browser download run in browser WASM; server processing/provider/write ACK/recovery and full parity remain pending. Catalog stays planned. |
 | **FigCraft** | Interface design and prototypes | Planned original UI/server/provider adapter; not installed or bundled. |
 | **WordCraft** | Word processing and document review | Planned original UI/server/provider adapter; not installed or bundled. |
 | **SoundCraft** | Audio recording, editing and mixing | Planned original UI/server/provider adapter; not installed or bundled. |
@@ -250,7 +251,7 @@ Explore [ArtCraft's application collection](https://getartcraft.com/apps) and th
 
 **About forks and discovery:** this repository is an integration project, not a GitHub fork of all the listed repositories. GitHub fork ancestry connects a fork to one upstream repository; a multi-project integration cannot have seven simultaneous “forked from” parents. Attribution links identify every source here, but do not automatically create reverse links from their repos. The repository description and topics help GitHub search; upstream acknowledgement or inclusion in their directories requires their maintainers' participation. [GitHub's fork model](https://docs.github.com/en/pull-requests/reference/forks). [Repository description/topics setup](docs/github-discovery.md) records the proposed metadata and current administration-permission limitation.
 
-The six new planned adapters are also authored by **ArtCraft / storytold**: [FigCraft](https://github.com/storytold/figcraft), [WordCraft](https://github.com/storytold/wordcraft), [SoundCraft](https://github.com/storytold/soundcraft), [DeckCraft](https://github.com/storytold/deckcraft), [CADCraft](https://github.com/storytold/cadcraft) and [GridCraft](https://github.com/storytold/gridcraft). No source pin or license compatibility has yet been adopted for these integrations; retain each upstream project's licenses/notices at the eventual reviewed pin. Their code is not relicensed by Creative Workspace.
+The six new entries are authored by **ArtCraft / storytold**: [FigCraft](https://github.com/storytold/figcraft), [WordCraft](https://github.com/storytold/wordcraft), [SoundCraft](https://github.com/storytold/soundcraft), [DeckCraft](https://github.com/storytold/deckcraft), [CADCraft](https://github.com/storytold/cadcraft) and [GridCraft](https://github.com/storytold/gridcraft). WordCraft uses the reviewed source pin and retains its MIT/Apache and separate ArtCraft brand license provenance. The other five retain planned adapters and require their own source/license review. Upstream code remains under its own licenses.
 
 ## License and use
 

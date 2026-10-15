@@ -18,6 +18,17 @@ test('DesignCraft PAR-03 variant is pinned to its exact reviewed source patch',a
   assert.equal(originalUiPackageId('designcraft'),`${originalUiPins.designcraft}-${patch.sha256.slice(0,12)}`);
 });
 
+test('WordCraft registry is bound to the reviewed v0.7.0 source commit',async t=>{
+  const f=await fixture(t),pin='fc41918814f62645b6746ed68e71e8c2c2e85d6f';
+  assert.equal(originalUiPins.wordcraft,pin);
+  assert.equal(originalUiPackageId('wordcraft'),pin);
+  const roster=await (await fetch(f.url+'/api/original-uis',{headers:f.headers})).json();
+  assert.equal(roster.wordcraft.available,false);
+  assert.equal(roster.wordcraft.sourceCommit,pin);
+  assert.equal(roster.wordcraft.processing,'browser');
+  assert.equal(roster.wordcraft.serverIntegrated,false);
+});
+
 // Protocol fixtures; actual upstream UI browser acceptance is recorded separately.
 async function fixture(t){
   const root=await mkdtemp(path.join(os.tmpdir(),'cw-original-ui-'));t.after(()=>rm(root,{recursive:true,force:true}));

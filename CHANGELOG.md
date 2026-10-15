@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.2.0-alpha.41] — 2026-10-15 (original WordCraft browser preview)
+
+- Add the exact WordCraft v0.7.0 source pin `fc41918814f62645b6746ed68e71e8c2c2e85d6f` to immutable original-UI registration and build its original ribbon/document interface from the upstream Rust/WASM web entry. The release workflow builds a separate browser preview archive with its license provenance and checksum; no replacement editor is used.
+- Verify the original Sample, ribbon/backstage, document edit, browser DOCX download and reopen in isolated Chromium. WordCraft processing remains in browser WASM; server-side document processing, provider paths, real browser folder permission/recovery and full parity remain pending. Keep WordCraft planned.
+
 ## [0.2.0-alpha.40] — 2026-10-15 (complete ArtCraft catalog)
 
 - Add FigCraft, WordCraft, SoundCraft, DeckCraft, CADCraft and GridCraft to the studio: all 13 published ArtCraft apps plus RapidRAW, with original-author repository links, Office/CAD/Audio/Interface design filters, separate server folders, common copy-first transfers and upstream GitHub release checks.
