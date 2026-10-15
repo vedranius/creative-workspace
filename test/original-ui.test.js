@@ -51,6 +51,17 @@ test('GridCraft registry keeps the original v0.7.0 spreadsheet UI planned',async
   assert.equal(roster.gridcraft.serverIntegrated,false);
 });
 
+test('CADCraft registry keeps the original v0.7.0 drafting UI planned',async t=>{
+  const f=await fixture(t),pin='fc4e98315a8d771b5ab832f0ade0b5e7b106df7f';
+  assert.equal(originalUiPins.cadcraft,pin);
+  assert.equal(originalUiPackageId('cadcraft'),pin);
+  const roster=await (await fetch(f.url+'/api/original-uis',{headers:f.headers})).json();
+  assert.equal(roster.cadcraft.available,false);
+  assert.equal(roster.cadcraft.sourceCommit,pin);
+  assert.equal(roster.cadcraft.processing,'browser');
+  assert.equal(roster.cadcraft.serverIntegrated,false);
+});
+
 // Protocol fixtures; actual upstream UI browser acceptance is recorded separately.
 async function fixture(t){
   const root=await mkdtemp(path.join(os.tmpdir(),'cw-original-ui-'));t.after(()=>rm(root,{recursive:true,force:true}));

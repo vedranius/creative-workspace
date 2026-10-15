@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.2.0-alpha.45] — 2026-10-16 (original CADCraft browser preview)
+
+- Add the exact CADCraft v0.7.0 source pin `fc4e98315a8d771b5ab832f0ade0b5e7b106df7f` to immutable original-UI registration and build its unchanged original drafting UI. GitHub Actions builds the separate browser archive and checksum sidecar with source licenses, attribution and ArtCraft brand terms.
+- Verify the sample drawing, original File menu, command-line circle edit, DXF browser download and reopen in isolated Chromium. CAD commands, geometry, rendering and file conversion remain browser WASM; server engine/actions/state/render/export, provider paths, real browser permissions/write ACK/recovery, native OS support and full parity remain pending. Keep CADCraft planned and the release draft-only.
+
 ## [0.2.0-alpha.44] — 2026-10-15 (original DeckCraft browser preview)
 
 - Add the exact DeckCraft v0.7.0 source pin `d78e657e4cb1e490ceb5445785c052d9cf5ad963` to immutable original-UI registration and build the unchanged original presentation interface from `apps/deckcraft-web`. Actions builds a separate browser archive and SHA256 sidecar with MIT/Apache source licences and the original ArtCraft mark terms.

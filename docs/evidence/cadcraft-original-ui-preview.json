@@ -1,0 +1,56 @@
+{
+  "task": "ORG-CAD-UI",
+  "app": "cadcraft",
+  "repository": "https://github.com/storytold/cadcraft",
+  "sourceCommit": "fc4e98315a8d771b5ab832f0ade0b5e7b106df7f",
+  "sourceClean": true,
+  "upstreamLicense": "MIT OR Apache-2.0",
+  "build": {
+    "command": "trunk build --release --dist <isolated assets>",
+    "rust": "1.99.0",
+    "trunk": "0.21.14",
+    "lowImpactWrapper": true,
+    "maxCpu": 2,
+    "cargoJobs": 1,
+    "nice": 10,
+    "result": "success",
+    "wasmBytes": 22546717
+  },
+  "hashes": {
+    "creative-workspace-ui.json": "9d933a439589c8676026513e20f71ab89765ebc5a029126d2cfaf8deda73706f",
+    "cadcraft-web-bf4f07cd3e48dc82_bg.wasm": "f221b19a2dfc3939782a39081f53cf3826c1350ed8a332ad145db5097b968c92",
+    "LICENSE-MIT": "54b0fc87ed7b61b59c20340070dd2b8c7f9d0b53795347819c3bd7c67ea2508a",
+    "LICENSE-APACHE": "0d542e0c8804e39aa7f37eb00da5a762149dc682d7829451287e11b938e94594",
+    "provenance/docs/brand/LICENSE-brand.txt": "382b7443d4346ba31115a9d7a1f3fcfc16e44c39c94654b01998e09cef8a2679"
+  },
+  "browser": {
+    "browser": "Chromium 151",
+    "viewport": "1440x1000",
+    "serverOrigin": "http://127.0.0.1:8896",
+    "applicationUrl": "/original/cadcraft/?webgl&sample",
+    "originalSampleRendered": true,
+    "fileMenuRendered": true,
+    "command": "CIRCLE 22,3 1",
+    "circleVisibleAfterEdit": true,
+    "save": "Ctrl+S downloaded Bracket.dxf",
+    "downloadBytes": 41311,
+    "downloadSha256": "a994f126a601f311d6d02c14b468446bdf9142511ac61424a76c9d1c5990a236",
+    "reopen": "Original File > Open with Playwright file chooser; Bracket.dxf reopened and added circle visible",
+    "fileChooser": "programmatic; real OS permission not tested",
+    "pageErrors": 0,
+    "consoleErrors": 0,
+    "failedRequests": 0
+  },
+  "screenshots": {
+    "cadcraft-original-sample.png": "3bda1983d8bd4b23d858dd85336a78fc12b83741f44147e941cbbc4ebb26ed0e",
+    "cadcraft-original-file-menu.png": "f2e5ac1c824c0eb6914e19b82a35e32fa6c7c67a66b030d3f3d21ff71dbd3b80",
+    "cadcraft-original-edit-save-reopen.png": "6ffe91ee20efd749c55be43b89588c63c08d77b41efd9315c52e87c13eab16a6"
+  },
+  "limitations": [
+    "Browser WASM performs CAD commands, geometry and rendering.",
+    "No server-owned CAD engine/action/state/render/export or provider path was tested.",
+    "Synthetic browser chooser is not real browser permission or laptop write ACK.",
+    "No native OS application support, staged update/rollback, or full menu/tool/dialog parity claim.",
+    "Keep CADCraft catalog adapter planned."
+  ]
+}

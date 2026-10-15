@@ -461,8 +461,67 @@ jobs:
           path: dist/*
           if-no-files-found: error
           retention-days: 30
+  original-cadcraft:
+    needs: contract
+    runs-on: ubuntu-22.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - uses: dtolnay/rust-toolchain@1.99.0
+        with:
+          targets: wasm32-unknown-unknown
+      - id: cadcraft-cache
+        uses: actions/cache/restore@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            ~/.cargo/bin/wasm-bindgen
+            build/original-ui/target
+          key: cadcraft-original-wasm-rust199-bindgen129-${{ hashFiles('src/original-ui.js') }}
+          restore-keys: cadcraft-original-wasm-rust199-bindgen129-
+      - run: npm ci
+      - name: Install checksum-pinned Trunk
+        shell: bash
+        run: |
+          curl -fsSLo "$RUNNER_TEMP/trunk.tar.gz" https://github.com/trunk-rs/trunk/releases/download/v0.21.14/trunk-x86_64-unknown-linux-gnu.tar.gz
+          echo 'f2b4680cd239693a646a2795e4633c625328d7b2a044fbe749fa3a2fe9e7036b  trunk.tar.gz' | (cd "$RUNNER_TEMP" && sha256sum -c -)
+          tar -xzf "$RUNNER_TEMP/trunk.tar.gz" -C "$RUNNER_TEMP"
+          echo "$RUNNER_TEMP" >> "$GITHUB_PATH"
+      - name: Fetch only the contracted original source revision
+        shell: bash
+        run: |
+          mkdir -p build/original-ui/source-cadcraft
+          git -C build/original-ui/source-cadcraft init
+          git -C build/original-ui/source-cadcraft remote add origin https://github.com/storytold/cadcraft.git
+          git -C build/original-ui/source-cadcraft fetch --depth=1 origin fc4e98315a8d771b5ab832f0ade0b5e7b106df7f
+          git -C build/original-ui/source-cadcraft checkout --detach FETCH_HEAD
+          if ! wasm-bindgen --version | grep -q '^wasm-bindgen 0.2.129$'; then
+            cargo install wasm-bindgen-cli --version 0.2.129 --locked --force
+          fi
+      - name: Build and register the pinned original CADCraft browser UI
+        run: nice -n 10 npm run ui:cadcraft:build -- build/original-ui/source-cadcraft build/original-ui/assets-cadcraft build/original-ui/packages
+      - name: Preserve pinned compile cache after later failure
+        if: always() && steps.cadcraft-cache.outputs.cache-primary-key != '' && steps.cadcraft-cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            ~/.cargo/bin/wasm-bindgen
+            build/original-ui/target
+          key: ${{ steps.cadcraft-cache.outputs.cache-primary-key }}
+      - uses: actions/upload-artifact@v4
+        with:
+          name: release-cadcraft-original-ui
+          path: dist/*
+          if-no-files-found: error
+          retention-days: 30
   publish:
-    needs: [contract, bundle, original-filmcraft, original-designcraft, original-wordcraft, original-gridcraft, original-deckcraft]
+    needs: [contract, bundle, original-filmcraft, original-designcraft, original-wordcraft, original-gridcraft, original-deckcraft, original-cadcraft]
     runs-on: ubuntu-22.04
     permissions:
       contents: write
