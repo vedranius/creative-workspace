@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.2.0-alpha.42] — 2026-10-15 (WordCraft preview CI test path correction)
+
+- Correct test discovery to pass explicit tracked test files to Node. Alpha.41 CI showed that Node 24 does not accept the `test` directory argument, unlike the local Node 26 runtime. The original WordCraft preview implementation and browser evidence are unchanged.
+
 ## [0.2.0-alpha.41] — 2026-10-15 (original WordCraft browser preview)
 
 - Add the exact WordCraft v0.7.0 source pin `fc41918814f62645b6746ed68e71e8c2c2e85d6f` to immutable original-UI registration and build its original ribbon/document interface from the upstream Rust/WASM web entry. The release workflow builds a separate browser preview archive with its license provenance and checksum; no replacement editor is used.
