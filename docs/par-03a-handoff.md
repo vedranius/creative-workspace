@@ -1,5 +1,11 @@
 # 2026-10-16 PAR-03 `edit.undo` ACK identity — alpha.51 candidate
 
+## Original Ctrl+Shift+Z `edit.redo` verified (2026-10-16)
+
+Extended the isolated Chromium run through original Edit > Clear → Ctrl+Z → Ctrl+Shift+Z. The exact-pinned DesignApp queues `edit.redo` with empty params; the owned worker ACKs `commandId: edit.redo` at revision 11, restores the cleared server story, and returns the same server PNG SHA-256 as immediately after Clear. Original canvas remains server-rendered; zero browser errors and failed responses. Worker SHA-256 `7056a27e4e0f3b03a43ca60f4fcf0d19d3e51636399cc5b24dcb2a297ff85368`. [Report](evidence/designcraft-par03-edit-clear-undo-redo-browser.json) · [Screenshot](evidence/designcraft-par03-edit-clear-undo-redo-browser.png).
+
+This uses a synthetic chooser and proves no real folder permission, laptop write ACK/recovery, complete open/edit/save/reopen, or full action/tool parity. Keep DesignCraft planned and the prerelease draft-only. Next: continue provider acceptance and remaining original DesignCraft action/tool parity; preserve `engines/filmcraft/` and protected sessions.
+
 The alpha.50 browser roundtrip exposed that the owned worker returned `{undone:"Clear"}` but the DesignCraft gateway omitted the original command ID from Undo/Redo acknowledgements. Alpha.51 now adds `commandId: "edit.undo"` / `"edit.redo"` and rejects non-empty parameters for both commands. A protocol regression verifies both original IDs, worker results and revisions.
 
 Chromium used the exact pinned original UI and owned worker: original A4 → frames → Type Tool `INK` → Select All → Edit > Clear (revision 9) → original Ctrl+Z (revision 10). The server text returns to `INK`, the server PNG SHA-256 exactly matches the pre-Clear render, and browser errors/failed responses are zero. Worker SHA-256 is recorded in the [browser JSON](evidence/designcraft-par03-edit-clear-undo-browser.json); the [screenshot](evidence/designcraft-par03-edit-clear-undo-browser.png) captures the original canvas. `npm run check`, `npm test` (73/73), release validation and `git diff --check` pass.
