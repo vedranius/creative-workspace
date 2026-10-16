@@ -2,7 +2,7 @@
 
 # Creative Workspace
 
-**Version: 0.2.0-alpha.51** — open-source, self-hosted, single-user prototype. The catalog includes all 13 ArtCraft applications plus RapidRAW. WordCraft, GridCraft, DeckCraft, CADCraft, FigCraft and SoundCraft original browser previews have been built from exact source pins and browser-verified. Alpha.51 preserves the original DesignCraft `edit.undo`/`edit.redo` command IDs in gateway ACKs; Chromium verifies Clear then Ctrl+Z restores server text and the same server-render PNG at revision 10. Alpha.50 added Edit > Clear. DesignCraft remains a partial candidate; provider parity and full application acceptance remain pending.
+**Version: 0.2.0-alpha.52** — open-source, self-hosted, single-user prototype. The catalog includes all 13 ArtCraft applications plus RapidRAW. WordCraft, GridCraft, DeckCraft, CADCraft, FigCraft and SoundCraft original browser previews have been built from exact source pins and browser-verified. Alpha.52 adds original DesignCraft Text Tool Backspace/Delete through the owned worker, with a matching ACK and changed server render. Alpha.51 preserves original `edit.undo`/`edit.redo` IDs; alpha.50 added Edit > Clear. DesignCraft remains a partial candidate; provider parity and full application acceptance remain pending.
 
 Bring your creative tools together in one browser studio. Choose an application, select your files, and access your own server from a lightweight laptop. The goal is **the original application interfaces and tools in the browser, with the server doing the heavy work**: photography, image editing, illustration, PDF, publishing, video, motion graphics, office documents, spreadsheets, presentations, CAD, interface design and audio. Browser controls run locally; document commands, data and previews travel to the server. No VNC or remote desktop is involved.
 
@@ -13,6 +13,8 @@ Bring your creative tools together in one browser studio. Choose an application,
 Alpha.24 adds an original Open-dialog candidate for a selected laptop `.designcraft` file: streaming copy-first upload is acknowledged in the same isolated session before the native server opens it and returns original UI state/server preview. Alpha.26 adds the original File → Save a Copy… candidate for an explicit new server-workspace path with workspace retention; native and atomic write ACKs precede success, the source stays dirty under its original name, and an existing path is never overwritten. Laptop output is refused until browser write ACK exists. This remains an isolated review candidate; catalog and full parity stay planned. [Open and Save Copy scope](docs/designcraft-host-canvas.md).
 
 ## What is new
+
+- **DesignCraft Text Tool Backspace/Delete (alpha.52):** the original Backspace action reaches the owned worker as `text.delete`; Chromium verifies `INK` → `IN`, revision 9 and a changed server-render PNG. Provider permission/write ACK/recovery and full parity remain pending. [Browser evidence](docs/evidence/designcraft-par03-text-delete-browser.json).
 
 - **DesignCraft Undo ACK identity (alpha.51):** gateway responses now echo the exact `edit.undo`/`edit.redo` command ID and reject extra parameters. Original Clear → Ctrl+Z restores server-owned `INK` and the exact pre-Clear server PNG at revision 10. The provider chooser is synthetic; DesignCraft remains planned. [Browser evidence](docs/evidence/designcraft-par03-edit-clear-undo-browser.json).
 
@@ -101,7 +103,7 @@ On-demand/hybrid require a compatible secure browser page, granted folder access
 
 These are genuine owned upstream engines behind **limited custom HTML interfaces**, retained for existing work. They do not fulfill the original-UI requirement. PhotoCraft covers brush/layers/adjustments/history and layered saves; PdfCraft covers server page rendering, rotate/move/delete, notes and PDF export; VectorCraft covers shapes/paths, position/colour, editable native and SVG/PDF/PNG output; DesignCraft covers text frames, typography, overset/reflow and native/PDF/PNG output. LightCraft has a separate CPU/recipe foundation but stays planned.
 
-Native Linux and generated on-demand proofs exist for the four main prototypes, including selected-file reads, separate outputs and save acknowledgement. They are distinct from real user folder permissions, broad format compatibility and the acceptance of an original UI. [Detailed validation](docs/validation.md).
+Native Linux and generated on-demand proofs exist for the four main prototypes, including selected-file reads, separate outputs and save acknowledgement. DesignCraft also has a bounded original-UI/server action bridge for its Type Tool text insertion and Backspace/Delete, with worker ACK and server-render refresh. This is one verified slice, not full DesignCraft availability: real folder permission, laptop write ACK/recovery, open/edit/save/reopen and broad original parity remain open. These proofs are distinct from real user folder permissions, broad format compatibility and acceptance of an original UI. [PAR-03 action evidence](docs/evidence/designcraft-par03-text-delete-browser.json) · [Detailed validation](docs/validation.md).
 
 ## Screenshots
 

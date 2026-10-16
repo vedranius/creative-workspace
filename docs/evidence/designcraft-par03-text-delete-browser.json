@@ -1,0 +1,50 @@
+{
+  "status": "original-text-tool-backspace-server-ack-browser-proof",
+  "browser": "Chromium",
+  "sourcePin": "a127c6d5c3576972bbd60445f26d893db071eef3",
+  "workerSha256": "533a201c9c2d61ad428515f32e604dc4ebf47b488ef28efcd0d36dca894c7239",
+  "fileNew": {
+    "commandId": "file.new",
+    "revision": 1
+  },
+  "textFrame": {
+    "commandId": "frame.create",
+    "revision": 3,
+    "story": 10
+  },
+  "textCaret": {
+    "commandId": "text.placeCaret",
+    "revision": 4
+  },
+  "inserted": {
+    "text": "INK",
+    "revisions": [
+      5,
+      6,
+      7
+    ]
+  },
+  "caretPlacedAgain": {
+    "commandId": "text.placeCaret",
+    "revision": 8
+  },
+  "backspace": {
+    "originalTool": "Text Tool",
+    "method": "text.delete",
+    "params": {
+      "forward": false,
+      "word": false
+    },
+    "ackCommandId": "text.delete",
+    "revision": 9,
+    "serverText": "IN",
+    "dirty": true,
+    "beforeRenderSha256": "9c7e6ae9a4f573b3da61967a4b9e560bbdf97d5bfaa4524361c95aefdaeec9e0",
+    "afterRenderSha256": "a12944414145cbca2c4df8aa0822226511b3dbd98a735f37cb1564b05096adf2",
+    "renderChanged": true
+  },
+  "serverRenderPresented": true,
+  "permission": "synthetic provider chooser fixture; not permission evidence",
+  "browserErrors": [],
+  "failedResponses": []
+}

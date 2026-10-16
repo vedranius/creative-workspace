@@ -1,5 +1,15 @@
 # 2026-10-16 PAR-03 `edit.undo` ACK identity — alpha.51 candidate
 
+## PAR-03 original Text Tool Backspace/Delete — alpha.52 candidate
+
+The exact-pinned original Type Tool sends Backspace as unchanged `text.delete` with `{forward:false,word:false}`. The first browser request reached the gateway but the owned worker rejected it with `Unsupported workspace layout command`: the selected debug binary predated the source patch. Added `text.delete` to the native adapter allowlist in the cumulative patch. Patch `par-03-text-delete-v1` SHA-256: `3414aabcb4de72d1bbb6466a55614b31d7e97d3dc7074ddca29da52d3dcf511f`; fresh exact-pin apply and byte-identical registration pass.
+
+Rebuilt the native worker through `low-impact-build.py` from the exact pin/patch (SHA-256 `533a201c9c2d61ad428515f32e604dc4ebf47b488ef28efcd0d36dca894c7239`). Isolated Chromium proves original A4 → graphic frame → Type Tool `INK` → Backspace: worker ACK `text.delete` at revision 9, text `IN`, dirty=true and changed server PNG; zero browser errors/failed responses. [Browser report](evidence/designcraft-par03-text-delete-browser.json) · [screenshot](evidence/designcraft-par03-text-delete-browser.png). Local browser WASM included temporary diagnostic attributes for raw-key/focus tracing; those attributes are not in the reviewed patch. Actions must rebuild the clean exact patch and rerun the browser smoke.
+
+The chooser is synthetic. Real folder permission, laptop write ACK/recovery, full open/edit/save/reopen and remaining original actions/tools remain pending. Keep DesignCraft planned; no availability claim. Product version alpha.52; Actions, immutable tag/draft and downloadable checksum verification pending. Preserve `engines/filmcraft/` and protected live sessions.
+
+Next: verify product Build/release and Checks for the pushed commit, confirm immutable alpha.52 tag/draft and fresh downloads/checksums; then continue DesignCraft provider permission, destination/retention, save ACK/reopen/recovery and remaining original action/tool parity before starting the all-13 server/provider acceptance order.
+
 ## Original Ctrl+Shift+Z `edit.redo` verified (2026-10-16)
 
 Extended the isolated Chromium run through original Edit > Clear → Ctrl+Z → Ctrl+Shift+Z. The exact-pinned DesignApp queues `edit.redo` with empty params; the owned worker ACKs `commandId: edit.redo` at revision 11, restores the cleared server story, and returns the same server PNG SHA-256 as immediately after Clear. Original canvas remains server-rendered; zero browser errors and failed responses. Worker SHA-256 `7056a27e4e0f3b03a43ca60f4fcf0d19d3e51636399cc5b24dcb2a297ff85368`. [Report](evidence/designcraft-par03-edit-clear-undo-redo-browser.json) · [Screenshot](evidence/designcraft-par03-edit-clear-undo-redo-browser.png).

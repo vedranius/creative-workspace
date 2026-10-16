@@ -212,6 +212,14 @@ jobs:
         env:
           CARGO_BUILD_JOBS: '1'
         run: cargo test --manifest-path build/original-ui/source-designcraft/Cargo.toml -p designcraft-ui-egui original_edit_clear_waits_for_worker_ack_before_hydrating
+      - name: Verify original Text Tool deletion waits for the server action ACK
+        env:
+          CARGO_BUILD_JOBS: '1'
+        run: cargo test --manifest-path build/original-ui/source-designcraft/Cargo.toml -p designcraft-ui-egui original_text_delete_waits_for_worker_ack_before_hydrating
+      - name: Verify original Text Tool deletion stages the upstream command ID
+        env:
+          CARGO_BUILD_JOBS: '1'
+        run: cargo test --manifest-path build/original-ui/source-designcraft/Cargo.toml -p designcraft-engine server_mirror_stages_original_text_delete_id_and_params_without_local_mutation
       - name: Verify the original UI against the owned server worker
         env:
           CW_DESIGNCRAFT_BINARY: ${{ github.workspace }}/build/staged/designcraft/cw-designcraft-engine
@@ -228,6 +236,8 @@ jobs:
           CW_PAR03_SELECT_ALL_REPORT: ${{ github.workspace }}/build/designcraft-par03-evidence/select-all-browser.json
           CW_PAR03_EDIT_CLEAR_REPORT: ${{ github.workspace }}/build/designcraft-par03-evidence/edit-clear-browser.json
           CW_PAR03_EDIT_CLEAR_SCREENSHOT: ${{ github.workspace }}/build/designcraft-par03-evidence/edit-clear-browser.png
+          CW_PAR03_TEXT_DELETE_REPORT: ${{ github.workspace }}/build/designcraft-par03-evidence/text-delete-browser.json
+          CW_PAR03_TEXT_DELETE_SCREENSHOT: ${{ github.workspace }}/build/designcraft-par03-evidence/text-delete-browser.png
         run: |
           chmod +x "$CW_DESIGNCRAFT_BINARY"
           npm install --prefix build/browser-qa --no-audit --no-fund --save-exact playwright@1.64.0
@@ -236,6 +246,7 @@ jobs:
           CW_DESIGNCRAFT_UI_ASSETS=build/original-ui/assets-designcraft CW_PAR03_TEXT_REPORT=build/designcraft-par03-evidence/selection-text-actions.json node scripts/smoke-designcraft-text-insert-candidate.mjs
           node scripts/smoke-designcraft-select-all-candidate.mjs
           node scripts/smoke-designcraft-edit-clear-candidate.mjs
+          node scripts/smoke-designcraft-text-delete-candidate.mjs
       - name: Build and prove the original preset/server-canvas candidate
         env:
           CW_DESIGNCRAFT_BINARY: ${{ github.workspace }}/build/staged/designcraft/cw-designcraft-engine

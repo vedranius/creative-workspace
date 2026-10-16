@@ -91,6 +91,15 @@ test('Original text.insert reaches the owned worker unchanged and returns a revi
   assert.deepEqual(worker?.commands,['text.insert']);await design.close(session.id,{discard:true});
 });
 
+test('Original Text Tool text.delete preserves upstream direction flags and ACK identity',async t=>{
+  const {project,design,engines,call}=await fixture(t),session=await design.create(project);
+  await call(session.id,'file.new',{preset:'A4'});
+  const deleted=await call(session.id,'text.delete',{forward:true,word:true},{expectedVersion:1}),worker=engines.find(engine=>!engine.closed);
+  assert.deepEqual(worker?.commands,['text.delete']);assert.deepEqual(worker?.commandParams,[{forward:true,word:true}]);assert.equal(deleted.result.commandId,'text.delete');assert.equal(deleted.stateVersion,2);assert.equal(deleted.document.dirty,true);
+  for(const params of [{forward:'yes'},{word:1},{forward:true,path:'/private'}])await assert.rejects(call(session.id,'text.delete',params));
+  assert.deepEqual(worker?.commands,['text.delete']);await design.close(session.id,{discard:true});
+});
+
 test('Original text.select routes bounded UTF-8 caret offsets and returns an ACK',async t=>{
   const {project,design,engines,call}=await fixture(t),session=await design.create(project);
   await call(session.id,'file.new',{preset:'A4'});

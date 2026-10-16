@@ -1,3 +1,8 @@
+## [0.2.0-alpha.52] - 2026-10-16
+
+- Connect original DesignCraft Text Tool Backspace/Delete to the owned worker as the upstream `text.delete` action, with the matching revisioned ACK and server-render refresh.
+- Add the native worker allowlist entry and verify the original browser action end to end; keep DesignCraft planned while provider permission/write ACK/recovery and full parity remain incomplete.
+
 ## [0.2.0-alpha.48] - 2026-10-16
 
 - Route the original DesignCraft Edit > Select All command (`edit.selectAll`) through the bounded server-action queue and hydrate its acknowledged server selection/render in the original UI.
