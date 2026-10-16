@@ -10,6 +10,11 @@
 
 # Changelog
 
+## [0.2.0-alpha.50] - 2026-10-16
+
+- Bridge the original DesignCraft Edit > Clear action (`edit.clear`) to the owned server worker through the revisioned ACK/read-model/render queue.
+- Verify text deletion in the original UI and server PNG after the matching ACK; retain planned status while providers, recovery and full parity remain open.
+
 ## [0.2.0-alpha.49] - 2026-10-16
 
 - Bridge the original DesignCraft Edit > Deselect All/Escape action (`edit.deselectAll`) through the server queue; hydrate selection/render only after the matching worker ACK and preserve clean document state.

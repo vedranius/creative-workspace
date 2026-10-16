@@ -1,4 +1,18 @@
-# PAR-03 original DesignCraft UI → owned server worker — alpha.49 candidate
+# PAR-03 original DesignCraft UI → owned server worker — alpha.50 candidate
+
+## Completed bounded action: `edit.clear`
+
+The exact pinned original DesignApp Edit > Clear action now passes through the guarded queue as `edit.clear`. It keeps the previous read-model until the matching server-worker ACK, then hydrates canonical state and the server render. Clearing selected text marks the document dirty only after the acknowledged native command succeeds.
+
+- Pin: `a127c6d5c3576972bbd60445f26d893db071eef3`; cumulative patch: [`par-03-edit-clear-v1.patch`](../patches/designcraft/a127c6d5/par-03-edit-clear-v1.patch), 76,511 bytes, SHA-256 `b67863c51d1050d9e080643824a043d3ef1fbd95c2fd42cc64caeacb688093fb`. A fresh detached checkout accepted the patch and regenerated a byte-identical diff.
+- `original_edit_clear_waits_for_worker_ack_before_hydrating` passed 1/1. It verifies unchanged original ID, no local revision advance before ACK, and dirty state only after ACK.
+- The optimized original WASM build came from a file tree byte-identical to the exact pin plus patch and passed exact-pin package registration. Chromium used original A4, Rectangle Frame Tool, Type Tool and text `INK`, then Edit > Select All and Edit > Clear. The owned worker ACKed `file.new` 1, frame creation 2–3, caret 4, text insertion 5–7, Select All 8 and Clear 9. The server story became empty, dirty=true, its PNG changed, and the browser had no errors or failed requests. [Browser report](evidence/designcraft-par03-edit-clear-browser.json) · [screenshot](evidence/designcraft-par03-edit-clear-browser.png).
+- The chooser remains a synthetic fixture. Real browser folder permission, laptop destination-write ACK, uncertain-output recovery, complete open/edit/save/reopen and all other original actions/tools remain pending. Keep DesignCraft planned.
+
+Next bounded action: continue original DesignCraft action/tool parity, then finish the common-provider and save/reopen/recovery acceptance before starting the all-thirteen server/provider order in [`artcraft-expansion.md`](artcraft-expansion.md). Preserve `engines/filmcraft/` and protected sessions. Alpha.50 CI/release verification is pending.
+
+---
+
 
 ## Completed bounded action: `edit.deselectAll`
 

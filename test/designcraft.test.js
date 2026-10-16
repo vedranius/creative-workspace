@@ -60,6 +60,15 @@ test('Original Edit > Deselect All reaches the owned worker without dirtying the
   await design.close(session.id,{discard:true});
 });
 
+test('Original Edit > Clear reaches the owned worker with a revisioned dirty ACK',async t=>{
+  const {project,design,engines,call}=await fixture(t),session=await design.create(project);
+  await call(session.id,'file.new',{preset:'A4'});
+  const cleared=await call(session.id,'edit.clear',{}, {expectedVersion:1}),worker=engines.find(engine=>!engine.closed);
+  assert.deepEqual(worker?.commands,['edit.clear']);assert.equal(cleared.result.commandId,'edit.clear');assert.equal(cleared.stateVersion,2);assert.equal(cleared.document.dirty,true);
+  await assert.rejects(call(session.id,'edit.clear',{ids:[999]}),/unsupported|parameters/i);
+  assert.deepEqual(worker?.commands,['edit.clear']);await design.close(session.id,{discard:true});
+});
+
 test('Original text.insert reaches the owned worker unchanged and returns a revisioned ACK',async t=>{
   const {project,design,engines,call}=await fixture(t),session=await design.create(project);
   await call(session.id,'file.new',{preset:'A4'});
