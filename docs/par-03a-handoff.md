@@ -1,3 +1,11 @@
+# 2026-10-16 PAR-03 `edit.clear` original UI/server action — alpha.50 verified
+
+The original DesignCraft Edit > Clear bridge from product commit `ad921cb8b6431b484bfe6ee66a1556b7b73ca02f` passed Actions Build/release run `38890067623`. Its `original-designcraft` job built and registered the reviewed pinned UI variant, then passed original Selection Tool and Type Tool actions, Edit > Select All, Deselect All, Clear, owned-worker UI checks, and the original preset/server-canvas candidate. Checks `38890067614` also passed.
+
+Immutable tag `v0.2.0-alpha.50` points to the product commit. The GitHub prerelease remains a draft; all 12 Actions-built archive/checksum pairs were downloaded and verified with `sha256sum -c`. See [release evidence](evidence/creative-workspace-alpha50-release.md).
+
+The chooser is synthetic: real browser folder permission, laptop write ACK/recovery, complete DesignCraft open/edit/save/reopen, remaining original actions/tools, and all-13 provider/parity acceptance remain open. Keep DesignCraft planned and the release draft. Next bounded work: continue the original DesignCraft action/read-model bridge and provider acceptance; do not treat this release gate as application acceptance. Preserve `engines/filmcraft/` and protected sessions.
+
 # PAR-03 original DesignCraft UI → owned server worker — alpha.50 candidate
 
 ## Completed bounded action: `edit.clear`
