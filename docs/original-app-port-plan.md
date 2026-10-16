@@ -4,7 +4,7 @@ Datum: 11. listopada 2026. Prošireno 15. listopada 2026. Ovaj plan provodi [obv
 
 ## Proširenje na svih 13 ArtCraft aplikacija — 2026-10-15
 
-Korisnik je izričito dodao sve office, CAD i ostale Crafting Apps. **WordCraft, GridCraft, DeckCraft, CADCraft, FigCraft i SoundCraft** ulaze uz dosadašnjih sedam; RapidRAW ostaje zaseban dodatni projekt. [Cjeloviti inventar, upstream kandidati, šest UI/server/provider task obitelji i redoslijed](artcraft-expansion.md). Alpha.40 dodaje ih u katalog i zajedničke file/update tokove. WordCraft, GridCraft, DeckCraft, CADCraft i FigCraft sada imaju exact-pin original browser preview pakete; nijedan od tih previewa nije server adapter ili dostupna aplikacija. Izjave o „svim aplikacijama” u povijesnim checkpointima ispod odnose se na tadašnjih sedam, ne na prošireni skup.
+Korisnik je izričito dodao sve office, CAD i ostale Crafting Apps. **WordCraft, GridCraft, DeckCraft, CADCraft, FigCraft i SoundCraft** ulaze uz dosadašnjih sedam; RapidRAW ostaje zaseban dodatni projekt. [Cjeloviti inventar, upstream kandidati, šest UI/server/provider task obitelji i redoslijed](artcraft-expansion.md). Alpha.40 dodaje ih u katalog i zajedničke file/update tokove. WordCraft, GridCraft, DeckCraft, CADCraft, FigCraft i SoundCraft sada imaju exact-pin original browser preview pakete; nijedan od tih previewa nije server adapter ili dostupna aplikacija. Izjave o „svim aplikacijama” u povijesnim checkpointima ispod odnose se na tadašnjih sedam, ne na prošireni skup.
 
 ## Rezultat koji gradimo
 
@@ -14,7 +14,7 @@ Korisnik je pregledao originalni DesignCraft UI na portu 8813 i potvrdio smjer. 
 
 ## Polazište i izvorni kod
 
-Izvori su provjereni na navedenim revizijama; to nisu tvrdnje da su njihove browser verzije već izgrađene ili integrirane. Putanje su unutar odgovarajućeg upstream repozitorija. Izvorni UI i engine uvijek prate istu reviziju.
+Izvori su vezani za navedene revizije. Originalni UI previews su zasebno browser-provjereni; to nije tvrdnja da su server-integrirani ili dostupni adapteri. Putanje su unutar odgovarajućeg upstream repozitorija. Izvorni UI i engine uvijek prate istu reviziju.
 
 | Aplikacija / originalni projekt | Kandidat revizije | Izvorni browser ulaz | Trenutni dokaz |
 | --- | --- | --- | --- |
@@ -25,6 +25,7 @@ Izvori su provjereni na navedenim revizijama; to nisu tvrdnje da su njihove brow
 | [LightCraft — storytold](https://github.com/storytold/lightcraft) | `9e6c4c6fc9c7a7f192ce846c00ceb531e0f64dda` | `apps/lightcraft-web`, zajednički `lightcraft-ui-egui` | Originalni UI build i browser preview dokazani na `127.0.0.1:8817`; server/provider integracija slijedi — [dokaz](lightcraft-original-ui-preview.md) |
 | [FilmCraft — storytold](https://github.com/storytold/filmcraft) | `4e2d0bc2d3646f9cf27ef7aa8b2095c6858c7efe` | `apps/filmcraft-web`, zajednički `FilmcraftApp` | Originalni WASM UI izgrađen i provjeren na `127.0.0.1:8818`; server processing/provider integracija slijede — [dokaz](filmcraft-original-ui-preview.md) |
 | [EffectCraft — storytold](https://github.com/storytold/effectcraft) | `9a7d3e76991d5372448033b473dc12c2480a6a04` | `apps/effectcraft-web`, shared `effectcraft-ui-egui` | Originalni UI izgrađen i provjeren na `127.0.0.1:8819`; headless frame-worker smoke blokira WebGPU adapter u SwiftShaderu — [dokaz](effectcraft-original-ui-preview.md) |
+| [SoundCraft — storytold](https://github.com/storytold/soundcraft) | `3a28a657692c1b98b28c276d8f61df9471074f0f` | `apps/soundcraft-web`, shared `SoundApp` | Exact-pin browser preview runs its original demo UI in WASM; server processing/provider integration pending — [evidence](soundcraft-original-ui-preview.md) |
 | [DeckCraft — storytold](https://github.com/storytold/deckcraft) | `d78e657e4cb1e490ceb5445785c052d9cf5ad963` | `apps/deckcraft-web`, original `SlideApp` | Original v0.7.0 UI built/registered; Chromium verifies Home ribbon, eight-slide sample, thumbnails and canvas. Browser WASM only; server/provider/full parity pending — [evidence](deckcraft-original-ui-preview.md) |
 | [RapidRAW — CyberTimon](https://github.com/CyberTimon/RapidRAW), [web fork — vedranius](https://github.com/vedranius/rapidraw-web) | `38ddc8af1bc51552fcab8781c4838b17082f97bd` web forka | Postojeći izvorni web fork, zasebna upravljana instalacija | Postojeća integracija ostaje; zasebna provjera/pakiranje datoteka i OS podrške |
 
@@ -101,4 +102,4 @@ Svaka aplikacija ima odvojena stanja: **originalni UI source potvrđen → origi
 
 Jedna nova sesija po malom zadatku, jedan writer u checkoutu. Plan → implementacija → relevantne provjere → compact handoff → normalni commit/push → CI; produktne promjene uključuju verziju i Actions release. Čisti plan/evidence docs koriste docs-only gate bez ponovnog izdavanja iste verzije. Automatizacija čita ovaj redoslijed i posljednju primopredaju; ne otvara retry petlje niti ponavlja dovršene audite/buildove.
 
-**Sljedeći UI zadatak: ORG-SOUND-UI** iz [proširenog plana](artcraft-expansion.md). Nakon šest novih original UI previewa nastavi DesignCraft PAR-03 iz konkretnog [handoffa](par-03a-handoff.md), zatim server/provider acceptance redom PhotoCraft → VectorCraft → PdfCraft → LightCraft → FilmCraft → EffectCraft → WordCraft → GridCraft → DeckCraft → CADCraft → FigCraft → SoundCraft. Svaki preview i dalje ostaje browser-local WASM dok server-owned akcije/stanje/render/export, odgovarajući provider modovi, write ACK, reopen/recovery i parity ne budu zasebno dokazani.
+**Nakon šest novih original UI previewa nastavi DesignCraft PAR-03** iz konkretnog [handoffa](par-03a-handoff.md), zatim server/provider acceptance redom PhotoCraft → VectorCraft → PdfCraft → LightCraft → FilmCraft → EffectCraft → WordCraft → GridCraft → DeckCraft → CADCraft → FigCraft → SoundCraft. Svaki preview i dalje ostaje browser-local WASM dok server-owned akcije/stanje/render/export, odgovarajući provider modovi, write ACK, reopen/recovery i parity ne budu zasebno dokazani.

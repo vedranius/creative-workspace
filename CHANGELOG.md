@@ -1,3 +1,8 @@
+## [0.2.0-alpha.47] - 2026-10-16
+
+- Add the exact-pinned original SoundCraft v0.7.0 browser UI preview and Actions-built archive/checksum.
+- Keep SoundCraft planned: audio processing remains browser-local; server engine/actions/providers and full parity are pending.
+
 # Changelog
 
 ## [0.2.0-alpha.46] — 2026-10-16 (original FigCraft browser preview)

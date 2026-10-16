@@ -1,0 +1,50 @@
+{
+  "ok": true,
+  "browser": "Chromium for Testing 151.0.7922.34",
+  "viewport": {
+    "width": 1600,
+    "height": 1000
+  },
+  "url": "http://127.0.0.1:33951/original/soundcraft/?webgl",
+  "sourceCommit": "3a28a657692c1b98b28c276d8f61df9471074f0f",
+  "processing": "browser",
+  "serverIntegrated": false,
+  "available": true,
+  "title": "SoundCraft",
+  "canvases": [
+    {
+      "width": 1600,
+      "height": 1000,
+      "rect": {
+        "x": 0,
+        "y": 0,
+        "width": 1600,
+        "height": 1000
+      }
+    }
+  ],
+  "bodyText": "",
+  "pageErrors": [],
+  "consoleErrors": [],
+  "failedRequests": [],
+  "screenshot": {
+    "path": "docs/evidence/soundcraft-original-ui.png",
+    "sha256": "5482496c97da53336c1af6eb7e637bfba4a6a27ec946b3d585fa8a002bc07f63"
+  },
+  "webAssembly": {
+    "bytes": 15496493,
+    "sha256": "71b932a3712190b599dcd9341a689926625ed70c4ed7890431049daac8907654"
+  },
+  "javascript": {
+    "bytes": 158155,
+    "sha256": "c0bd744aa3ca80ca452bde418cc78cad8521eb12095fabb9a100e167df529c02"
+  },
+  "packageId": "3a28a657692c1b98b28c276d8f61df9471074f0f",
+  "uiInteractions": [
+    "Original SoundCraft session and transport interface rendered",
+    "Synthetic Midnight Groove demo session, track list, waveform/MIDI clips and timeline ruler are visible"
+  ],
+  "serverProcessingVerified": false,
+  "realFilePermissionVerified": false,
+  "playbackVerified": false
+}

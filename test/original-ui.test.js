@@ -73,6 +73,17 @@ test('FigCraft registry keeps the original v0.6.0 interface-design UI planned',a
   assert.equal(roster.figcraft.serverIntegrated,false);
 });
 
+test('SoundCraft registry keeps the original v0.7.0 audio UI planned',async t=>{
+  const f=await fixture(t),pin='3a28a657692c1b98b28c276d8f61df9471074f0f';
+  assert.equal(originalUiPins.soundcraft,pin);
+  assert.equal(originalUiPackageId('soundcraft'),pin);
+  const roster=await (await fetch(f.url+'/api/original-uis',{headers:f.headers})).json();
+  assert.equal(roster.soundcraft.available,false);
+  assert.equal(roster.soundcraft.sourceCommit,pin);
+  assert.equal(roster.soundcraft.processing,'browser');
+  assert.equal(roster.soundcraft.serverIntegrated,false);
+});
+
 // Protocol fixtures; actual upstream UI browser acceptance is recorded separately.
 async function fixture(t){
   const root=await mkdtemp(path.join(os.tmpdir(),'cw-original-ui-'));t.after(()=>rm(root,{recursive:true,force:true}));

@@ -15,7 +15,8 @@ export const originalUiPins={
   gridcraft:'d9d09f0baa912e88c5111107903fc8c640214b57',
   deckcraft:'d78e657e4cb1e490ceb5445785c052d9cf5ad963',
   cadcraft:'fc4e98315a8d771b5ab832f0ade0b5e7b106df7f',
-  figcraft:'833f0d2c27f0acbae5394848930ae531fc89c724'
+  figcraft:'833f0d2c27f0acbae5394848930ae531fc89c724',
+  soundcraft:'3a28a657692c1b98b28c276d8f61df9471074f0f'
 };
 // Reviewed integration patches are explicit variants of the upstream pin, never new upstream commits.
 export const originalUiPatches={designcraft:{id:'par-03-selection-set-v1',path:'patches/designcraft/a127c6d5/par-03-selection-set-candidate.patch',sha256:'54a1021ce9550bdf608f4593ae6178caf54423941d03c3ce8c2c6cdc2ce2215e'},filmcraft:{id:'mkv-pending-v1',path:'engines/original-ui/filmcraft/mkv-pending.patch',sha256:'8aee3cdf5acc1380564965329472b92f9a02207e6e11a63bb4983f54ef5688bc'}};

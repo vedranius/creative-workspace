@@ -1,3 +1,9 @@
+# 2026-10-16 ORG-SOUND-UI — original SoundCraft v0.7.0 browser preview, alpha.47
+
+Built and immutably registered exact upstream pin `3a28a657692c1b98b28c276d8f61df9471074f0f` through its original `apps/soundcraft-web` Trunk project. Isolated Chromium rendered the full original DAW interface and demo session at 1600×1000 with zero page/console/request errors. Browser registry evidence correctly reports `processing: browser`, `serverIntegrated: false`. WASM audio decode/DSP/edit/export stays browser-local; do not claim server processing, provider parity, acknowledged saving or availability. [Build, hashes, license provenance and browser evidence](soundcraft-original-ui-preview.md).
+
+Alpha.47 adds the Actions-built preview archive/checksum job and the 12-pair release gate. Local checks and 12 original-UI tests pass. Next verify Checks/Build-and-release runs, immutable tag/draft and all 12 downloaded archive/checksum pairs; keep the draft. Then resume the preserved DesignCraft PAR-03 Select All WIP from [its handoff](par-03a-handoff.md), followed by server/provider acceptance across all 13 per [the expansion plan](artcraft-expansion.md). Preserve `engines/filmcraft/` and protected sessions.
+
 # 2026-10-16 ORG-FIG-UI — original FigCraft v0.6.0 browser preview, alpha.46
 
 Built and immutably registered the unchanged original FigCraft web UI from clean pin `833f0d2c27f0acbae5394848930ae531fc89c724`, preserving MIT/Apache licenses, NOTICE, attribution and separate ArtCraft mark terms. Chromium 151 rendered the original editor and used the original Frame tool to create a 360×250 frame; no page/console errors or failed requests. The web build starts blank, and upstream web open/save methods do not write files. Design actions/rendering stay in browser WASM; keep FigCraft planned. [Evidence](figcraft-original-ui-preview.md).
