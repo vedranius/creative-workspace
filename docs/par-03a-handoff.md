@@ -1,3 +1,9 @@
+# 2026-10-16 alpha.52 Actions release gate — blocked
+
+The current coordinator state and prior handoff were rechecked. Authenticated CLI identity is `vedranius`. Actions run `38940743052` (head `b800e651dcb62fe2bb9ac2826999b389b10b4f4d`) is failed: contract, DesignCraft native Linux, and original DeckCraft jobs succeeded; only macOS PhotoCraft job setup failed before steps ran; DesignCraft browser and publish jobs were skipped. The failed setup is the unresolved `dtolnay/rust-toolchain` download/DNS failure, not a product test failure. Remote tag/release inspection shows alpha.51 is still latest; `v0.2.0-alpha.52` and its assets do not exist.
+
+Verified CLI `gh run rerun --failed` is already known to lack Actions write. This session made one additional rerun request through the connected GitHub integration; GitHub returned HTTP 403 `Resource not accessible by integration`. No retry loop. **Exact next step:** provide a `vedranius` credential/integration with Actions write permission, rerun failed setup plus dependent DesignCraft/publish jobs for run `38940743052` (or dispatch a fresh run at the alpha.52 commit), then verify clean exact-patch DesignCraft browser evidence, immutable tag/draft, and every freshly downloaded Actions archive/checksum pair. Continue DesignCraft provider permission, destination/retention, write-ACK/reopen/recovery and remaining original parity only after that gate. Preserve `engines/filmcraft/` and protected live sessions. No product release or availability claim is made.
+
 # 2026-10-16 PAR-03 `edit.undo` ACK identity — alpha.51 candidate
 
 ## PAR-03 original Text Tool Backspace/Delete — alpha.52 candidate
