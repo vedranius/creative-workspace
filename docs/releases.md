@@ -1,6 +1,6 @@
-# Alpha.51 candidate: original DesignCraft Undo/Redo ACK identity
+# Alpha.51 verified draft: original DesignCraft Undo/Redo ACK identity
 
-Alpha.51 adds the original `edit.undo` and `edit.redo` command IDs to gateway acknowledgements and rejects extra parameters. Focused regression tests verify both IDs. Chromium exercised original Clear → Ctrl+Z through the owned worker at revisions 9–10; `INK` and the exact pre-Clear server-render PNG return. Full DesignCraft provider permission/write ACK/recovery and original UI parity remain pending, so keep the catalog planned and any release draft-only. [Evidence and handoff](par-03a-handoff.md).
+Alpha.51 adds the original `edit.undo` and `edit.redo` command IDs to gateway acknowledgements and rejects extra parameters. Focused regression tests verify both IDs. Chromium exercised original Clear → Ctrl+Z through the owned worker at revisions 9–10; `INK` and the exact pre-Clear server-render PNG return. Checks `38905204890` and Build/release `38905204975` passed; immutable tag `v0.2.0-alpha.51` and its 24 Actions-built assets are verified, including all 12 downloaded archive/checksum pairs. Full DesignCraft provider permission/write ACK/recovery and original UI parity remain pending, so keep the catalog planned and the release draft-only. [Evidence and handoff](par-03a-handoff.md); [release verification](evidence/creative-workspace-alpha51-release.md).
 
 # Alpha.50: original DesignCraft Edit > Clear server action
 

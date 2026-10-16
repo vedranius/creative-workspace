@@ -4,7 +4,7 @@ The alpha.50 browser roundtrip exposed that the owned worker returned `{undone:"
 
 Chromium used the exact pinned original UI and owned worker: original A4 → frames → Type Tool `INK` → Select All → Edit > Clear (revision 9) → original Ctrl+Z (revision 10). The server text returns to `INK`, the server PNG SHA-256 exactly matches the pre-Clear render, and browser errors/failed responses are zero. Worker SHA-256 is recorded in the [browser JSON](evidence/designcraft-par03-edit-clear-undo-browser.json); the [screenshot](evidence/designcraft-par03-edit-clear-undo-browser.png) captures the original canvas. `npm run check`, `npm test` (73/73), release validation and `git diff --check` pass.
 
-The chooser is synthetic; real browser folder permission, laptop write ACK/recovery, full open/edit/save/reopen and remaining original action/tool parity are unverified. Keep DesignCraft planned and release draft-only. Next continue one bounded original action/read-model slice, then provider acceptance. Preserve `engines/filmcraft/` and protected sessions.
+The chooser is synthetic; real browser folder permission, laptop write ACK/recovery, full open/edit/save/reopen and remaining original action/tool parity are unverified. Keep DesignCraft planned and release draft-only. Alpha.51 Actions run `38905204975` and Checks `38905204890` passed; immutable tag/draft and all 12 downloaded archive/checksum pairs are verified ([release evidence](evidence/creative-workspace-alpha51-release.md)). Next continue one bounded original action/read-model slice, then provider acceptance. Preserve `engines/filmcraft/` and protected sessions.
 
 # 2026-10-16 PAR-03 `edit.clear` original UI/server action — alpha.50 verified
 
