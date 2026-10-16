@@ -18,3 +18,7 @@ One isolated Chromium 151 context opened `/original/cadcraft/?webgl&sample` from
 ## Acceptance boundary
 
 CAD commands, geometry, rendering and file conversion execute locally in browser WASM. No owned server engine, server action/state/render/export bridge, common provider, real browser permission, destination write acknowledgement, recovery, native OS support, staged engine/UI activation or complete original menu/tool/dialog parity is claimed. Keep CADCraft planned until its separate server/provider acceptance passes, including units/precision, representative format round-trips, bounds, save/reopen and all four provider paths.
+
+## Release verification
+
+Alpha.45 Actions build, immutable tag, draft release and all 10 downloadable archive/checksum pairs are verified. See [release evidence](evidence/creative-workspace-alpha45-release.md). The release remains a draft because original suite and provider acceptance are incomplete.
