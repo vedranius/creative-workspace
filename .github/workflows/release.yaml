@@ -540,7 +540,7 @@ jobs:
           node scripts/release.mjs notes release-notes.md
           cd dist
           sha256sum -c *.sha256
-          test "$(find . -name '*.sha256' | wc -l)" -eq 9
+          test "$(find . -name '*.sha256' | wc -l)" -eq 10
       - name: Publish verified alpha through GitHub Actions
         env:
           GH_TOKEN: ${{ github.token }}
