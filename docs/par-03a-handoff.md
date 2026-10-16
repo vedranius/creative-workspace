@@ -1,4 +1,23 @@
-# PAR-03 `edit.selectAll` original UI → owned server worker — alpha.48 candidate
+# PAR-03 original DesignCraft UI → owned server worker — alpha.49 candidate
+
+## Completed bounded action: `edit.deselectAll`
+
+The exact pinned original DesignApp Edit > Deselect All action now passes through the paired source queue as `edit.deselectAll`. The original UI holds its prior revision until the matching worker ACK, then hydrates the acknowledged selection, canonical state and server PNG. Selection-only actions preserve the existing dirty flag; the focused Rust test also proves a clean document stays clean.
+
+- Pin: `a127c6d5c3576972bbd60445f26d893db071eef3`; cumulative reviewed patch: [`par-03-selection-set-select-all-v1.patch`](../patches/designcraft/a127c6d5/par-03-selection-set-select-all-v1.patch), SHA-256 `f67f7fb23e3804a8949df4ae641a54d47891d6c4e158c1be862bca1dc5d4e24e`.
+- `original_edit_deselect_all_waits_for_worker_ack` passed 1/1. The optimized original WASM UI built through the low-impact wrapper and exact source registration matched all 75,351 patch bytes.
+- Isolated Chromium used original A4, Rectangle Frame Tool, Ctrl+A and Edit > Deselect All. The owned worker ACKed `file.new` revision 1, `frame.create` revision 2, `edit.selectAll` revision 3 (selecting server item 8), then `edit.deselectAll` revision 4 (empty selection). The dirty state remained true across deselection; the original canvas displayed the server render. Zero browser errors and failed requests. [Browser JSON](evidence/designcraft-par03-edit-deselect-all-browser.json) · [screenshot](evidence/designcraft-par03-edit-deselect-all-browser.png).
+- The provider chooser is synthetic. Real browser folder permission, laptop destination-write ACK, uncertain-output recovery, complete open/edit/save/reopen and all other original actions/tools remain pending. Keep DesignCraft planned; this candidate does not meet availability or full-parity acceptance.
+
+Next bounded action: bridge original `edit.clear` through the same guarded queue and server ACK/read-model path. After DesignCraft action parity, finish provider/save/reopen/recovery acceptance, then follow the thirteen-app server/provider order in [`artcraft-expansion.md`](artcraft-expansion.md). Preserve `engines/filmcraft/` and protected live sessions.
+
+## Alpha.48 Select All checkpoint
+
+## Next bounded action route: `edit.deselectAll` (gateway protocol only, incomplete)
+
+The server gateway now allowlists the pinned original `edit.deselectAll` ID, accepts no parameters, forwards that ID unchanged to the owned worker, returns the ID in the revisioned ACK, and preserves the document's clean state for selection-only changes. `node --test test/designcraft.test.js` passes 22/22, including parameter rejection, empty selection ACK and clean-document assertion; `npm run check` and `git diff --check` pass.
+
+This is protocol-fixture evidence only. The original DesignApp canvas already invokes `edit.deselectAll` when clicking blank canvas, but the source mirror queue does not yet permit/bridge it; no paired source patch, native worker or browser proof exists. Keep it unclaimed as a completed original UI action and do not create a release/availability claim. Next add the ID to the paired pinned DesignApp action queue, wait for the matching worker ACK before hydrating selection/render, then run focused Rust, low-impact native/WASM builds and a real Chromium roundtrip using the existing deselect gesture. Preserve the Select All candidate, `engines/filmcraft/`, and live sessions.
 
 The interrupted DesignCraft Select All WIP now uses cumulative exact-pin patch `par-03-selection-set-select-all-v1` (`patches/designcraft/a127c6d5/par-03-selection-set-select-all-v1.patch`, SHA-256 `94455817266eef18445f97800f4a231b0e73ebc18492231ed57c48d66130351e`) against `a127c6d5c3576972bbd60445f26d893db071eef3`. The patch applies cleanly to a fresh checkout and `originalUiSourceDiff` matches all 74,022 bytes. The immutable original UI package is registered from that pin and patch.
 

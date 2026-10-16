@@ -204,6 +204,10 @@ jobs:
         env:
           CARGO_BUILD_JOBS: '1'
         run: cargo test --manifest-path build/original-ui/source-designcraft/Cargo.toml -p designcraft-ui-egui original_edit_select_all_waits_for_worker_ack
+      - name: Verify original Edit > Deselect All waits for the server action ACK
+        env:
+          CARGO_BUILD_JOBS: '1'
+        run: cargo test --manifest-path build/original-ui/source-designcraft/Cargo.toml -p designcraft-ui-egui original_edit_deselect_all_waits_for_worker_ack
       - name: Verify the original UI against the owned server worker
         env:
           CW_DESIGNCRAFT_BINARY: ${{ github.workspace }}/build/staged/designcraft/cw-designcraft-engine

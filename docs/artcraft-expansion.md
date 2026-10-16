@@ -55,7 +55,9 @@ Each row is a separate bounded feature/session. Only one writer/build/browser co
 
 **PAR-03 Select All candidate completed locally for alpha.48:** the exact pinned original DesignApp Ctrl+A/Edit > Select All command reaches the owned worker as `edit.selectAll`, waits for its matching ACK and refreshes the server read model/render. Focused Rust and Chromium checks pass at revisions 1–3; the chooser is synthetic and this does not complete DesignCraft. [Evidence and handoff](par-03a-handoff.md).
 
-Next: verify alpha.48 Checks, immutable draft/tag and every Actions-built archive/checksum pair. Continue the remaining DesignCraft original action/tool and provider acceptance, then PhotoCraft → VectorCraft → PdfCraft → LightCraft → FilmCraft → EffectCraft → WordCraft → GridCraft → DeckCraft → CADCraft → FigCraft → SoundCraft. Preview completion does not remove any of the thirteen applications from server/provider acceptance.
+**PAR-03 Deselect All candidate completed locally for alpha.49:** original Edit > Deselect All sends exact `edit.deselectAll` through the source queue; Chromium reaches matching worker ACK revision 4, clears the server selection and preserves the existing dirty state. Rust focused test, exact source registration and optimized UI build pass. Provider remains synthetic and DesignCraft stays planned. [Evidence and handoff](par-03a-handoff.md).
+
+Next: verify alpha.49 Checks, immutable draft/tag and every Actions-built archive/checksum pair. Continue the remaining DesignCraft original action/tool and provider acceptance, then PhotoCraft → VectorCraft → PdfCraft → LightCraft → FilmCraft → EffectCraft → WordCraft → GridCraft → DeckCraft → CADCraft → FigCraft → SoundCraft. Preview completion does not remove any of the thirteen applications from server/provider acceptance.
 
 ## Common rules for every app
 

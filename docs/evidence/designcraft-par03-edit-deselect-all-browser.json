@@ -1,0 +1,37 @@
+{
+  "status": "original-edit-deselectAll-server-ack-browser-proof",
+  "browser": "Chromium",
+  "workerSha256": "7056a27e4e0f3b03a43ca60f4fcf0d19d3e51636399cc5b24dcb2a297ff85368",
+  "sourcePin": "a127c6d5c3576972bbd60445f26d893db071eef3",
+  "fileNew": {
+    "commandId": "file.new",
+    "revision": 1
+  },
+  "frameCreate": {
+    "commandId": "frame.create",
+    "revision": 2,
+    "pageItemCount": 1
+  },
+  "selectAll": {
+    "method": "edit.selectAll",
+    "params": {},
+    "ackCommandId": "edit.selectAll",
+    "revision": 3,
+    "selectedItemIds": [
+      8
+    ],
+    "selectionMatchesAllServerPageItems": true
+  },
+  "deselectAll": {
+    "method": "edit.deselectAll",
+    "params": {},
+    "ackCommandId": "edit.deselectAll",
+    "revision": 4,
+    "selectionCleared": true,
+    "documentDirty": true
+  },
+  "serverRenderPresented": true,
+  "permission": "synthetic provider chooser fixture; not permission evidence",
+  "browserErrors": [],
+  "failedResponses": []
+}

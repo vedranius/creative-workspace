@@ -16,7 +16,7 @@ class DesignFixture{
     if(method==='new'||method==='open'){if(method==='new')this.newParams=structuredClone(p);else this.openParams=structuredClone(p);this.doc={title:'Fixture',dirty:method==='new',pageCount:1,spreads:[{index:0,pages:[{index:0,name:'1',bounds:[0,0,800,600]}],items:[]}],stories:[],layers:[],selection:{items:[]},history:{undo:[],redo:[]}};if(method==='open'){try{this.doc=JSON.parse(await readFile(p.path,'utf8'));this.doc.dirty=false;}catch{}}return {};}
     if(method==='sample'){this.sampleCommandId='file.newSample';this.doc={title:'Original sample',dirty:true,pageCount:2,spreads:[{index:0,pages:[{index:0,name:'1',bounds:[0,0,800,600]}],items:[]}],stories:[],layers:[],selection:{items:[]},history:{undo:[],redo:[]}};return {commandId:this.sampleCommandId};}
     if(method==='render'){const png=Buffer.alloc(24);Buffer.from([137,80,78,71,13,10,26,10]).copy(png);png.writeUInt32BE(13,8);png.write('IHDR',12);png.writeUInt32BE(800,16);png.writeUInt32BE(600,20);return {pngBase64:png.toString('base64')};}
-    if(method==='command'){this.edits++;this.commands.push(p.command);this.commandParams.push(structuredClone(p.params));if(p.command==='selection.set')this.doc.selection={items:[...p.params.ids]};else this.doc.dirty=true;return {id:1};}
+    if(method==='command'){this.edits++;this.commands.push(p.command);this.commandParams.push(structuredClone(p.params));if(p.command==='selection.set')this.doc.selection={items:[...p.params.ids]};else if(p.command==='edit.deselectAll')this.doc.selection={items:[]};else this.doc.dirty=true;return {id:1};}
     if(method==='export'){await writeFile(p.path,'fixture design copy');return {warnings:[]};}
     if(method==='save_copy'){this.copyCommandId='file.saveACopy';const bytes=Buffer.from(JSON.stringify(this.doc));await writeFile(p.path,bytes);return {bytes:bytes.length};}
     if(method==='mark_saved'){this.doc.dirty=false;return {saved:true};}throw new Error('Unsupported fixture method');
@@ -48,6 +48,16 @@ test('Original Edit > Select All action reaches the owned worker with a revision
   assert.deepEqual(worker?.commands,['edit.selectAll']);assert.equal(selected.result.commandId,'edit.selectAll');assert.equal(selected.stateVersion,2);assert.equal(selected.document.dirty,true);
   await assert.rejects(call(session.id,'edit.selectAll',{path:'/private'}),/unsupported|parameters/i);
   assert.deepEqual(worker?.commands,['edit.selectAll']);await design.close(session.id,{discard:true});
+});
+
+test('Original Edit > Deselect All reaches the owned worker without dirtying the document',async t=>{
+  const {project,design,engines,call}=await fixture(t),session=await design.create(project);
+  await call(session.id,'file.new',{preset:'A4'});
+  const worker=engines.find(engine=>!engine.closed);worker.doc.selection={items:[7]};worker.doc.dirty=false;
+  const cleared=await call(session.id,'edit.deselectAll',{}, {expectedVersion:1});
+  assert.deepEqual(worker.commands,['edit.deselectAll']);assert.equal(cleared.result.commandId,'edit.deselectAll');assert.equal(cleared.stateVersion,2);assert.deepEqual(cleared.document.selection.items,[]);assert.equal(cleared.document.dirty,false);
+  await assert.rejects(call(session.id,'edit.deselectAll',{path:'/private'}),/unsupported|parameters/i);
+  await design.close(session.id,{discard:true});
 });
 
 test('Original text.insert reaches the owned worker unchanged and returns a revisioned ACK',async t=>{

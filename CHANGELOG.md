@@ -10,6 +10,11 @@
 
 # Changelog
 
+## [0.2.0-alpha.49] - 2026-10-16
+
+- Bridge the original DesignCraft Edit > Deselect All/Escape action (`edit.deselectAll`) through the server queue; hydrate selection/render only after the matching worker ACK and preserve clean document state.
+- Verify the exact pinned source patch with a focused Rust test and Chromium worker roundtrip. Real folder permission, laptop write ACK/recovery and full original application parity remain pending.
+
 ## [0.2.0-alpha.46] — 2026-10-16 (original FigCraft browser preview)
 
 - Add the exact FigCraft v0.6.0 source pin `833f0d2c27f0acbae5394848930ae531fc89c724` to immutable original-UI registration and build the original `apps/figcraft-web` interface. The Actions workflow produces a separate browser archive and SHA256 sidecar with MIT/Apache licenses, NOTICE, attribution and the applicable ArtCraft mark terms.

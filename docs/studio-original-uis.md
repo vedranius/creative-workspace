@@ -6,6 +6,8 @@ Creative Workspace `0.2.0-alpha.8` introduced the studio's primary launchers to 
 
 Registered PhotoCraft, VectorCraft, PdfCraft, DesignCraft, LightCraft, FilmCraft, EffectCraft, WordCraft, GridCraft, DeckCraft, CADCraft, FigCraft and SoundCraft packages open at `/original/<app>/` on the same studio origin. They use their original upstream browser UI and WASM engine. The dashboard does not replace an unavailable original package with a limited HTML editor. Existing prototype routes remain for old work, behind collapsed legacy links.
 
+The alpha.49 DesignCraft candidate additionally routes the original Edit > Deselect All/Escape action to its owned worker. The original selection read-model/render updates only after a matching ACK, and selection-only changes preserve the clean document state. It remains an incomplete candidate: the source UI's other actions/tools, real provider permission and laptop write ACK/recovery still need acceptance.
+
 On the development host, the alpha.9 candidate with the FilmCraft MKV fix is [http://127.0.0.1:8794/](http://127.0.0.1:8794/). The previous original studio [8793](http://127.0.0.1:8793/) stays running to protect existing browser documents. Old `8792` remains alive because four existing native editing sessions were found there. It is not the original-UI launch portal. Original clients currently execute document processing locally in WASM; the control panel clearly says so.
 
 ## Register an original build

@@ -66,9 +66,16 @@ try{
   const selected=acks[2]?.document?.selection?.items||[];
   assert.ok(pageItems.length>0,'the original Rectangle Frame Tool must create a selectable page item');
   assert.deepEqual(selected,pageItems.map(item=>item.id),'the worker must select every item in the server-owned document');
+  await page.mouse.click(96,17);await page.waitForTimeout(300);
+  await page.mouse.click(112,397);
+  await page.waitForFunction(()=>document.querySelector('#designcraft_canvas')?.getAttribute('data-server-revision')==='4',null,{timeout:30000});
+  assert.equal(requests[3]?.method,'edit.deselectAll');assert.equal(requests[3]?.params&&Object.keys(requests[3].params).length,0);
+  assert.equal(acks[3]?.result?.commandId,'edit.deselectAll');assert.equal(acks[3]?.stateVersion,4);
+  assert.deepEqual(acks[3]?.document?.selection?.items,[],'the worker ACK must clear the server selection');
+  assert.equal(acks[3]?.document?.dirty,acks[2]?.document?.dirty,'selection-only action must preserve the existing dirty state');
   assert.equal(await canvas.getAttribute('data-server-render'),'true');assert.equal(await canvas.getAttribute('data-server-pending'),'false');
   assert.deepEqual(errors,[]);assert.deepEqual(failedResponses,[]);
-  const report={status:'original-edit-selectAll-server-ack-browser-proof',browser:'Chromium',workerSha256:createHash('sha256').update(await readFile(binary)).digest('hex'),sourcePin:'a127c6d5c3576972bbd60445f26d893db071eef3',fileNew:{commandId:acks[0]?.result?.commandId,revision:acks[0]?.stateVersion},frameCreate:{commandId:acks[1]?.result?.commandId,revision:acks[1]?.stateVersion,pageItemCount:pageItems.length},selectAll:{method:requests[2]?.method,params:requests[2]?.params,ackCommandId:acks[2]?.result?.commandId,revision:acks[2]?.stateVersion,selectedItemIds:selected,selectionMatchesAllServerPageItems:selected.length===pageItems.length},serverRenderPresented:await canvas.getAttribute('data-server-render')==='true',permission:'synthetic provider chooser fixture; not permission evidence',browserErrors:errors,failedResponses};
+  const report={status:'original-edit-deselectAll-server-ack-browser-proof',browser:'Chromium',workerSha256:createHash('sha256').update(await readFile(binary)).digest('hex'),sourcePin:'a127c6d5c3576972bbd60445f26d893db071eef3',fileNew:{commandId:acks[0]?.result?.commandId,revision:acks[0]?.stateVersion},frameCreate:{commandId:acks[1]?.result?.commandId,revision:acks[1]?.stateVersion,pageItemCount:pageItems.length},selectAll:{method:requests[2]?.method,params:requests[2]?.params,ackCommandId:acks[2]?.result?.commandId,revision:acks[2]?.stateVersion,selectedItemIds:selected,selectionMatchesAllServerPageItems:selected.length===pageItems.length},deselectAll:{method:requests[3]?.method,params:requests[3]?.params,ackCommandId:acks[3]?.result?.commandId,revision:acks[3]?.stateVersion,selectionCleared:acks[3]?.document?.selection?.items?.length===0,documentDirty:acks[3]?.document?.dirty},serverRenderPresented:await canvas.getAttribute('data-server-render')==='true',permission:'synthetic provider chooser fixture; not permission evidence',browserErrors:errors,failedResponses};
   if(process.env.CW_PAR03_SELECT_ALL_REPORT)await writeFile(path.resolve(process.env.CW_PAR03_SELECT_ALL_REPORT),JSON.stringify(report,null,2)+'\n');
   if(process.env.CW_PAR03_SELECT_ALL_SCREENSHOT)await page.screenshot({path:path.resolve(process.env.CW_PAR03_SELECT_ALL_SCREENSHOT)});
   console.log(JSON.stringify(report));

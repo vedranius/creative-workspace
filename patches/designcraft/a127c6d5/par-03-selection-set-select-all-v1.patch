@@ -1012,7 +1012,7 @@ index 2ab7a3bad2f589148296f0f06eb3f70c24768a7b..0c05cc8294ff00539c799c4b8164f130
              let margins = json!({"top": d.m("marginTop").unwrap_or(36.0), "bottom": d.m("marginBottom").unwrap_or(36.0), "inside": d.m("marginInside").unwrap_or(36.0), "outside": d.m("marginOutside").unwrap_or(36.0)});
              app.run(
 diff --git a/crates/ui-egui/src/lib.rs b/crates/ui-egui/src/lib.rs
-index fb81e9c344d4390d2e3ff8a4d0d016ad563376fc..7b59c0fd6fd7d2cb047fb67494bf165f7a528787 100644
+index fb81e9c344d4390d2e3ff8a4d0d016ad563376fc..e64fda30731b3800eb4e31183507e374b44357a1 100644
 --- a/crates/ui-egui/src/lib.rs
 +++ b/crates/ui-egui/src/lib.rs
 @@ -25,7 +25,7 @@ pub mod theme;
@@ -1110,7 +1110,7 @@ index fb81e9c344d4390d2e3ff8a4d0d016ad563376fc..7b59c0fd6fd7d2cb047fb67494bf165f
 +                return Ok(json!({"pending": true, "queued": queued, "commandId": id}));
 +            }
 +            let allowed = (matches!(id, "file.new" | "file.open") && self.session.active().is_none())
-+                || (matches!(id, "frame.create" | "selection.set" | "edit.selectAll" | "edit.undo" | "edit.redo" | "file.saveACopy" | "text.insert" | "text.select" | "text.placeCaret") && self.session.active().is_some());
++                || (matches!(id, "frame.create" | "selection.set" | "edit.selectAll" | "edit.deselectAll" | "edit.undo" | "edit.redo" | "file.saveACopy" | "text.insert" | "text.select" | "text.placeCaret") && self.session.active().is_some());
 +            if !allowed {
 +                let error = "This original action is not connected to the server yet";
 +                self.status(error); return Err(error.into());
@@ -1146,13 +1146,13 @@ index fb81e9c344d4390d2e3ff8a4d0d016ad563376fc..7b59c0fd6fd7d2cb047fb67494bf165f
 +            return Ok(());
 +        }
 +        let allowed = (matches!(id, "file.new" | "file.open") && self.session.active().is_none())
-+            || (matches!(id, "frame.create" | "selection.set" | "edit.selectAll" | "text.placeCaret" | "text.select" | "edit.undo" | "edit.redo" | "file.saveACopy" | "text.insert") && self.session.active().is_some());
++            || (matches!(id, "frame.create" | "selection.set" | "edit.selectAll" | "edit.deselectAll" | "text.placeCaret" | "text.select" | "edit.undo" | "edit.redo" | "file.saveACopy" | "text.insert") && self.session.active().is_some());
 +        if !allowed { return Err("This original action is not connected to the server yet".into()); }
 +        let Some(host_action) = self.services.host_action.as_mut() else { return Err("Server action host is unavailable".into()); };
 +        host_action(id, params)?;
 +        self.host_pending = true;
 +        self.host_pending_command = Some(id.to_owned());
-+        self.status(match id { "file.new" => "Creating document on server…", "file.open" => "Opening the selected publication on server…", "frame.create" => "Applying frame on server…", "selection.set" | "edit.selectAll" => "Updating selection on server…", "text.placeCaret" => "Placing text cursor on server…", "edit.undo" => "Undoing on server…", "edit.redo" => "Redoing on server…", "file.saveACopy" => "Writing a retained copy to the server workspace…", _ => "Applying the server action…" });
++        self.status(match id { "file.new" => "Creating document on server…", "file.open" => "Opening the selected publication on server…", "frame.create" => "Applying frame on server…", "selection.set" | "edit.selectAll" | "edit.deselectAll" => "Updating selection on server…", "text.placeCaret" => "Placing text cursor on server…", "edit.undo" => "Undoing on server…", "edit.redo" => "Redoing on server…", "file.saveACopy" => "Writing a retained copy to the server workspace…", _ => "Applying the server action…" });
 +        Ok(())
 +    }
 +
@@ -1231,7 +1231,7 @@ index fb81e9c344d4390d2e3ff8a4d0d016ad563376fc..7b59c0fd6fd7d2cb047fb67494bf165f
          let ctx = ui.ctx().clone();
          if !self.fonts_ready {
              ctx.request_repaint();
-@@ -1047,6 +1194,88 @@ pub fn drop_key_name_text(raw: &mut egui::RawInput, text_field_focused: bool) {
+@@ -1047,6 +1194,107 @@ pub fn drop_key_name_text(raw: &mut egui::RawInput, text_field_focused: bool) {
  mod tests {
      use super::*;
  
@@ -1265,6 +1265,25 @@ index fb81e9c344d4390d2e3ff8a4d0d016ad563376fc..7b59c0fd6fd7d2cb047fb67494bf165f
 +        app.apply_host_action_ack(server_ack("edit.selectAll", 2)).unwrap();
 +        assert!(!app.host_pending());
 +        assert_eq!(app.host_revision(), 2);
++    }
++
++    #[test]
++    fn original_edit_deselect_all_waits_for_worker_ack() {
++        let actions = std::sync::Arc::new(std::sync::Mutex::new(Vec::new()));
++        let mut app = host_mirror_app(actions.clone());
++        app.queue_host_action("file.new", json!({"preset":"A4"})).unwrap();
++        app.apply_host_action_ack(server_ack("file.new", 1)).unwrap();
++        app.queue_host_action("edit.selectAll", json!({})).unwrap();
++        app.apply_host_action_ack(server_ack("edit.selectAll", 2)).unwrap();
++        assert_eq!(app.run("edit.deselectAll", json!({})).unwrap(), json!({"pending":true,"commandId":"edit.deselectAll"}));
++        assert_eq!(actions.lock().unwrap_or_else(|e| e.into_inner()).last(), Some(&("edit.deselectAll".into(), json!({}))));
++        assert!(app.host_pending());
++        assert_eq!(app.host_revision(), 2, "local revision must not advance before worker ACK");
++        app.apply_host_action_ack(server_ack("edit.deselectAll", 3)).unwrap();
++        assert!(!app.host_pending());
++        assert_eq!(app.host_revision(), 3);
++        assert_eq!(app.session.active().unwrap().selection.items.len(), 0);
++        assert!(!app.session.active().unwrap().is_dirty(), "selection-only action must preserve clean document state");
 +    }
 +
 +    #[test]
