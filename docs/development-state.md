@@ -2,7 +2,7 @@
 
 Built and immutably registered the unchanged original FigCraft web UI from clean pin `833f0d2c27f0acbae5394848930ae531fc89c724`, preserving MIT/Apache licenses, NOTICE, attribution and separate ArtCraft mark terms. Chromium 151 rendered the original editor and used the original Frame tool to create a 360×250 frame; no page/console errors or failed requests. The web build starts blank, and upstream web open/save methods do not write files. Design actions/rendering stay in browser WASM; keep FigCraft planned. [Evidence](figcraft-original-ui-preview.md).
 
-Alpha.46 adds the pin, build/registrar and Actions browser archive/checksum job. Checks, Build/release, immutable tag/draft/assets and downloaded checksum verification are pending. Next original UI task: ORG-SOUND-UI. Then return to DesignCraft PAR-03 and server/provider acceptance across all 13. Preserve the independent DesignCraft Select All WIP, `engines/filmcraft/` and all live sessions.
+Alpha.46 adds the pin, build/registrar and Actions browser archive/checksum job. Checks `38832882522` passed; Build/release `38832882686` passed against `8a47d7f48fece46a05d9736b11c79cc8e6a4b887`. Immutable `v0.2.0-alpha.46` points to that commit; its 11 Actions-built archives and 11 SHA256 sidecars were freshly downloaded and verified. The release remains a prerelease draft while original application/provider acceptance is incomplete. [Release evidence](evidence/creative-workspace-alpha46-release.md). Next original UI task: ORG-SOUND-UI. Then return to DesignCraft PAR-03 and server/provider acceptance across all 13. Preserve the independent DesignCraft Select All WIP, `engines/filmcraft/` and all live sessions.
 
 ## 2026-10-15 ORG-DECK-UI — original DeckCraft v0.7.0 browser preview, alpha.44
 
