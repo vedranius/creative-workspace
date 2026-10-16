@@ -10,6 +10,11 @@
 
 # Changelog
 
+## [0.2.0-alpha.51] - 2026-10-16
+
+- Preserve the original `edit.undo` and `edit.redo` command IDs in DesignCraft gateway ACKs, and reject unexpected parameters for both commands.
+- Verify original Clear → Ctrl+Z through the owned worker: revision 9 → 10 restores the server text and the exact pre-Clear server-render PNG. Browser chooser remains synthetic; keep DesignCraft planned.
+
 ## [0.2.0-alpha.50] - 2026-10-16
 
 - Bridge the original DesignCraft Edit > Clear action (`edit.clear`) to the owned server worker through the revisioned ACK/read-model/render queue.

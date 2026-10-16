@@ -1,4 +1,8 @@
-# Alpha.49 candidate: original DesignCraft Edit > Deselect All server action
+# Alpha.51 candidate: original DesignCraft Undo/Redo ACK identity
+
+Alpha.51 adds the original `edit.undo` and `edit.redo` command IDs to gateway acknowledgements and rejects extra parameters. Focused regression tests verify both IDs. Chromium exercised original Clear → Ctrl+Z through the owned worker at revisions 9–10; `INK` and the exact pre-Clear server-render PNG return. Full DesignCraft provider permission/write ACK/recovery and original UI parity remain pending, so keep the catalog planned and any release draft-only. [Evidence and handoff](par-03a-handoff.md).
+
+# Alpha.50: original DesignCraft Edit > Clear server action
 
 Alpha.50 adds original DesignCraft Edit > Clear (`edit.clear`) to the guarded server-action queue. Chromium used the pinned original A4 UI to create a visible story, type `INK`, select all text, and invoke Edit > Clear. The owned worker ACK at revision 9 cleared the server story, marked the document dirty, and returned a changed server-render PNG with no browser errors. The 76,511-byte cumulative source patch applies byte-for-byte to exact pin `a127c6d5c3576972bbd60445f26d893db071eef3`; focused Rust test passed 1/1. The browser chooser is synthetic; real folder permission, laptop write ACK/recovery, full open/edit/save/reopen and remaining application parity are pending. Keep DesignCraft planned and any alpha.50 release draft-only. [Source and browser evidence](par-03a-handoff.md).
 

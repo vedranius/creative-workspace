@@ -1,0 +1,66 @@
+{
+  "status": "original-edit-clear-undo-server-ack-browser-proof",
+  "browser": "Chromium",
+  "workerSha256": "7056a27e4e0f3b03a43ca60f4fcf0d19d3e51636399cc5b24dcb2a297ff85368",
+  "sourcePin": "a127c6d5c3576972bbd60445f26d893db071eef3",
+  "fileNew": {
+    "commandId": "file.new",
+    "revision": 1
+  },
+  "graphicFrame": {
+    "commandId": "frame.create",
+    "revision": 2
+  },
+  "textFrame": {
+    "commandId": "frame.create",
+    "revision": 3,
+    "story": 10
+  },
+  "textCaret": {
+    "commandId": "text.placeCaret",
+    "revision": 4
+  },
+  "serverText": {
+    "text": "INK",
+    "insertRevisions": [
+      5,
+      6,
+      7
+    ]
+  },
+  "selectAll": {
+    "method": "edit.selectAll",
+    "ackCommandId": "edit.selectAll",
+    "revision": 8,
+    "selectedText": {
+      "anchor": 0,
+      "focus": 3,
+      "frame": 9,
+      "story": 10
+    }
+  },
+  "editClear": {
+    "method": "edit.clear",
+    "params": {},
+    "ackCommandId": "edit.clear",
+    "revision": 9,
+    "serverTextCleared": true,
+    "documentDirty": true,
+    "beforeServerRenderSha256": "9c7e6ae9a4f573b3da61967a4b9e560bbdf97d5bfaa4524361c95aefdaeec9e0",
+    "afterServerRenderSha256": "40402e053fbcda7f6379931420bdbea7192004fd1973c890cafb6cd40efdc273",
+    "serverRenderChanged": true
+  },
+  "editUndo": {
+    "method": "edit.undo",
+    "ackCommandId": "edit.undo",
+    "revision": 10,
+    "serverTextRestored": true,
+    "documentDirty": true,
+    "serverRenderSha256": "9c7e6ae9a4f573b3da61967a4b9e560bbdf97d5bfaa4524361c95aefdaeec9e0",
+    "renderRestored": true
+  },
+  "serverRenderPresented": true,
+  "permission": "synthetic provider chooser fixture; not permission evidence",
+  "browserErrors": [],
+  "failedResponses": []
+}
