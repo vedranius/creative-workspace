@@ -1,3 +1,19 @@
+# PAR-03 `edit.selectAll` original UI → owned server worker — alpha.48 candidate
+
+The interrupted DesignCraft Select All WIP now uses cumulative exact-pin patch `par-03-selection-set-select-all-v1` (`patches/designcraft/a127c6d5/par-03-selection-set-select-all-v1.patch`, SHA-256 `94455817266eef18445f97800f4a231b0e73ebc18492231ed57c48d66130351e`) against `a127c6d5c3576972bbd60445f26d893db071eef3`. The patch applies cleanly to a fresh checkout and `originalUiSourceDiff` matches all 74,022 bytes. The immutable original UI package is registered from that pin and patch.
+
+Focused source test `original_edit_select_all_waits_for_worker_ack` passes 1/1. The owned native worker built from the same patched source has SHA-256 `7056a27e4e0f3b03a43ca60f4fcf0d19d3e51636399cc5b24dcb2a297ff85368`. Isolated Chromium drove original file.new (revision 1), Rectangle Frame Tool `frame.create` (revision 2), and original Ctrl+A/Edit > Select All. The exact request was `edit.selectAll` with `{}`; its matching ACK advanced revision to 3, selected every server-owned page item (ID 8), and refreshed the server PNG in the original canvas. No browser console/page errors or failed requests. [JSON and screenshot](evidence/designcraft-par03-edit-select-all-browser.json).
+
+The provider chooser was synthetic. This proves the original action to owned server worker ACK/read-model/render path only; real browser folder permission, laptop destination-write acknowledgement, uncertain-output recovery, the rest of original action/tool parity and complete open/edit/save/reopen remain pending. Keep DesignCraft planned and alpha.48 draft-only.
+
+Next: run the repository checks, focused gateway/original-UI tests, release metadata validation and `git diff --check`. Push the feature normally, verify Actions Checks and Build/release, then verify the immutable alpha.48 tag/draft and every Actions-built asset/checksum pair. Preserve `engines/filmcraft/` and protected live sessions. Continue remaining DesignCraft original actions/providers after the release gate.
+
+## 2026-10-15 PAR-03 `edit.selectAll` server route candidate
+
+`src/designcraft.js` now allowlists the original `edit.selectAll` ID, rejects unexpected parameters, forwards it unchanged to the owned engine, returns that ID in the ACK, and avoids marking the document dirty for selection-only state. `test/designcraft.test.js` verifies the route with a protocol fixture. `npm run check`, `npm test` (63/63), and `git diff --check` pass. No native engine/browser run was made; fixture coverage does not prove real engine execution.
+
+Next: integrate this operation into the guarded pinned DesignApp source mirror so the original Edit > Select All menu/shortcut queues it, waits for its server ACK and consumes the acknowledged selection. Prove exact native command and browser hydration, then do standard release acceptance for a completed feature. Keep the current catalog planned; preserve `engines/filmcraft/`, dirty `/work/designcraft`, live runtimes and unsaved sessions.
+
 ## 2026-10-14 PAR-03 original Selection Tool ACK bridge — alpha.39 candidate
 
 Registered locally as `par-03-selection-set-v1`, cumulative patch SHA-256 `54a1021ce9550bdf608f4593ae6178caf54423941d03c3ce8c2c6cdc2ce2215e` against pinned DesignCraft `a127c6d5c3576972bbd60445f26d893db071eef3`. The patch includes the original UI host `file-provider.js` module required by the WASM import. The source mirror captures committed original `selection.set`, sends the exact command ID through the 32-action/16-KiB queue, and hydrates canonical selection only after matching server ACK. Gateway bounds IDs to 200 safe nonnegative integers and optional boolean flags; graphic `frame.create` allows the original Rectangle Frame Tool to create selectable content.

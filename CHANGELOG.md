@@ -1,3 +1,8 @@
+## [0.2.0-alpha.48] - 2026-10-16
+
+- Route the original DesignCraft Edit > Select All command (`edit.selectAll`) through the bounded server-action queue and hydrate its acknowledged server selection/render in the original UI.
+- Verify the source ACK boundary with a focused Rust test and Chromium against the owned DesignCraft worker; keep DesignCraft planned while provider and full parity gates remain open.
+
 ## [0.2.0-alpha.47] - 2026-10-16
 
 - Add the exact-pinned original SoundCraft v0.7.0 browser UI preview and Actions-built archive/checksum.

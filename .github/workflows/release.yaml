@@ -200,9 +200,14 @@ jobs:
         env:
           CARGO_BUILD_JOBS: '1'
         run: cargo test --manifest-path build/original-ui/source-designcraft/Cargo.toml -p designcraft-ui-egui original_text_selection_and_caret_actions_keep_fifo_order_with_typing
+      - name: Verify original Edit > Select All waits for the server action ACK
+        env:
+          CARGO_BUILD_JOBS: '1'
+        run: cargo test --manifest-path build/original-ui/source-designcraft/Cargo.toml -p designcraft-ui-egui original_edit_select_all_waits_for_worker_ack
       - name: Verify the original UI against the owned server worker
         env:
           CW_DESIGNCRAFT_BINARY: ${{ github.workspace }}/build/staged/designcraft/cw-designcraft-engine
+          CW_DESIGNCRAFT_UI_ASSETS: ${{ github.workspace }}/build/original-ui/assets-designcraft
           CW_FUSE_BINARY: ${{ github.workspace }}/build/storage-runtime/build/release/cw-filesystem-helper
           CW_ORIGINAL_UI_DIR: ${{ github.workspace }}/build/original-ui/packages
           CW_PLAYWRIGHT_MODULE: file://${{ github.workspace }}/build/browser-qa/node_modules/playwright/index.mjs
@@ -211,12 +216,15 @@ jobs:
           CW_PAR03_FILE_NEW_SCREENSHOT: ${{ github.workspace }}/build/designcraft-par03-evidence/file-new-browser.png
           CW_PAR03_FILE_NEW_REPORT: ${{ github.workspace }}/build/designcraft-par03-evidence/file-new-browser.json
           CW_PAR03_TEXT_REPORT: ${{ github.workspace }}/build/designcraft-par03-evidence/selection-text-actions.json
+          CW_PAR03_SELECT_ALL_SCREENSHOT: ${{ github.workspace }}/build/designcraft-par03-evidence/select-all-browser.png
+          CW_PAR03_SELECT_ALL_REPORT: ${{ github.workspace }}/build/designcraft-par03-evidence/select-all-browser.json
         run: |
           chmod +x "$CW_DESIGNCRAFT_BINARY"
           npm install --prefix build/browser-qa --no-audit --no-fund --save-exact playwright@1.64.0
           (cd build/browser-qa && npx playwright install --with-deps chromium)
           node scripts/smoke-designcraft-file-new-browser.mjs
           CW_DESIGNCRAFT_UI_ASSETS=build/original-ui/assets-designcraft CW_PAR03_TEXT_REPORT=build/designcraft-par03-evidence/selection-text-actions.json node scripts/smoke-designcraft-text-insert-candidate.mjs
+          node scripts/smoke-designcraft-select-all-candidate.mjs
       - name: Build and prove the original preset/server-canvas candidate
         env:
           CW_DESIGNCRAFT_BINARY: ${{ github.workspace }}/build/staged/designcraft/cw-designcraft-engine

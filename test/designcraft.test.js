@@ -41,6 +41,15 @@ test('Original file.new preset action reaches the owned worker unchanged and ret
   await design.close(session.id,{discard:true});
 });
 
+test('Original Edit > Select All action reaches the owned worker with a revisioned selection ACK',async t=>{
+  const {project,design,engines,call}=await fixture(t),session=await design.create(project);
+  await call(session.id,'file.new',{preset:'A4'});
+  const selected=await call(session.id,'edit.selectAll',{}, {expectedVersion:1}),worker=engines.find(engine=>!engine.closed);
+  assert.deepEqual(worker?.commands,['edit.selectAll']);assert.equal(selected.result.commandId,'edit.selectAll');assert.equal(selected.stateVersion,2);assert.equal(selected.document.dirty,true);
+  await assert.rejects(call(session.id,'edit.selectAll',{path:'/private'}),/unsupported|parameters/i);
+  assert.deepEqual(worker?.commands,['edit.selectAll']);await design.close(session.id,{discard:true});
+});
+
 test('Original text.insert reaches the owned worker unchanged and returns a revisioned ACK',async t=>{
   const {project,design,engines,call}=await fixture(t),session=await design.create(project);
   await call(session.id,'file.new',{preset:'A4'});

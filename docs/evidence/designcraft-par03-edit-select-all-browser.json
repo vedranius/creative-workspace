@@ -1,0 +1,40 @@
+{
+  "status": "original-edit-selectAll-server-ack-browser-proof",
+  "browser": "Chromium",
+  "workerSha256": "7056a27e4e0f3b03a43ca60f4fcf0d19d3e51636399cc5b24dcb2a297ff85368",
+  "sourcePin": "a127c6d5c3576972bbd60445f26d893db071eef3",
+  "fileNew": {
+    "commandId": "file.new",
+    "revision": 1
+  },
+  "frameCreate": {
+    "commandId": "frame.create",
+    "revision": 2,
+    "pageItemCount": 1
+  },
+  "selectAll": {
+    "method": "edit.selectAll",
+    "params": {},
+    "ackCommandId": "edit.selectAll",
+    "revision": 3,
+    "selectedItemIds": [
+      8
+    ],
+    "selectionMatchesAllServerPageItems": true
+  },
+  "serverRenderPresented": true,
+  "permission": "synthetic provider chooser fixture; not permission evidence",
+  "browserErrors": [],
+  "failedResponses": [],
+  "artifacts": {
+    "patch": "patches/designcraft/a127c6d5/par-03-selection-set-select-all-v1.patch",
+    "patchSha256": "94455817266eef18445f97800f4a231b0e73ebc18492231ed57c48d66130351e",
+    "uiWasmSha256": "11d5eaf2bfa6279da94f512a6f80078be4507f85a474c0035f2def321b178131",
+    "uiJavaScriptSha256": "924d3f2281bf1bff114fe97613bedd091cc9f12aba8c482661b6dd45d3ae2056",
+    "workerSha256": "7056a27e4e0f3b03a43ca60f4fcf0d19d3e51636399cc5b24dcb2a297ff85368",
+    "sourcePin": "a127c6d5c3576972bbd60445f26d893db071eef3",
+    "buildRunner": "low-impact-build.py; Cargo jobs 1; affinity max two CPUs; nice 10"
+  },
+  "sourcePinContentVerified": true,
+  "focusedRustTest": "original_edit_select_all_waits_for_worker_ack passed 1/1"
+}

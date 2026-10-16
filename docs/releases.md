@@ -1,3 +1,7 @@
+# Alpha.48 candidate: original DesignCraft Edit > Select All server action
+
+Alpha.48 extends the registered original DesignCraft UI patch so Edit > Select All/Ctrl+A sends the unchanged `edit.selectAll` ID to the owned native worker. The focused upstream ACK test and isolated Chromium proof pass: A4 at revision 1, original graphic frame at revision 2, then Select All ACK/read-model/server render at revision 3. It selects every server-owned page item. The folder chooser is synthetic, so real permission, laptop write acknowledgement, recovery, remaining action/tool parity and full original-app acceptance are pending. Keep DesignCraft planned and alpha.48 draft-only until the Actions-built release artifacts and checksums are verified. [Evidence and exact source patch](par-03a-handoff.md).
+
 ## Alpha.47: original SoundCraft browser preview
 
 Alpha.47 adds the original SoundCraft v0.7.0 browser UI from exact pin `3a28a657692c1b98b28c276d8f61df9471074f0f`; Actions builds a separate preview archive and SHA256 sidecar. Audio editing, decode/DSP, playback and export are browser-local WASM; the server-owned engine/actions/state/render/export and providers remain pending. See [SoundCraft preview evidence](soundcraft-original-ui-preview.md).
