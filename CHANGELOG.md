@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.2.0-alpha.46] — 2026-10-16 (original FigCraft browser preview)
+
+- Add the exact FigCraft v0.6.0 source pin `833f0d2c27f0acbae5394848930ae531fc89c724` to immutable original-UI registration and build the original `apps/figcraft-web` interface. The Actions workflow produces a separate browser archive and SHA256 sidecar with MIT/Apache licenses, NOTICE, attribution and the applicable ArtCraft mark terms.
+- Verify the authenticated same-origin registration, original FigCraft interface and Frame tool in isolated Chromium. The browser WASM owns design state and processing; upstream web open/save dialogs are not wired up. Server-owned actions/state/layout/render/export, provider writes/ACK/recovery, native OS support and full parity remain pending. Keep FigCraft planned and the release draft-only.
+
 ## [0.2.0-alpha.45] — 2026-10-16 (original CADCraft browser preview)
 
 - Add the exact CADCraft v0.7.0 source pin `fc4e98315a8d771b5ab832f0ade0b5e7b106df7f` to immutable original-UI registration and build its unchanged original drafting UI. GitHub Actions builds the separate browser archive and checksum sidecar with source licenses, attribution and ArtCraft brand terms.

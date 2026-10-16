@@ -1,8 +1,8 @@
-# 2026-10-16 ORG-CAD-UI — original CADCraft v0.7.0 preview, alpha.45
+# 2026-10-16 ORG-FIG-UI — original FigCraft v0.6.0 browser preview, alpha.46
 
-Built and immutably registered the unchanged original CADCraft web UI from clean source pin `fc4e98315a8d771b5ab832f0ade0b5e7b106df7f`, preserving MIT/Apache licenses, attribution and ArtCraft brand terms. Isolated Chromium 151 rendered the original bracket sample/File menu, ran `CIRCLE 22,3 1`, downloaded `Bracket.dxf` and reopened it through the original File > Open chooser; the circle remains visible. Zero page/console errors or failed requests. Browser chooser is automated, not real folder permission/provider evidence. Geometry, processing and export remain browser WASM; keep CADCraft planned. [Evidence](cadcraft-original-ui-preview.md).
+Built and immutably registered the unchanged original FigCraft web UI from clean pin `833f0d2c27f0acbae5394848930ae531fc89c724`, preserving MIT/Apache licenses, NOTICE, attribution and separate ArtCraft mark terms. Chromium 151 rendered the original editor and used the original Frame tool to create a 360×250 frame; no page/console errors or failed requests. The web build starts blank, and upstream web open/save methods do not write files. Design actions/rendering stay in browser WASM; keep FigCraft planned. [Evidence](figcraft-original-ui-preview.md).
 
-Alpha.45 adds the pin, builder/registrar and Actions browser archive/checksum job; release assets are pending CI and immutable draft verification. Next original UI task: ORG-FIG-UI, then SoundCraft. Preserve the independent DesignCraft Select All WIP, `engines/filmcraft/` and all live sessions. After six new original previews, resume DesignCraft PAR-03 and server/provider acceptance across all 13.
+Alpha.46 adds the pin, build/registrar and Actions browser archive/checksum job. Checks, Build/release, immutable tag/draft/assets and downloaded checksum verification are pending. Next original UI task: ORG-SOUND-UI. Then return to DesignCraft PAR-03 and server/provider acceptance across all 13. Preserve the independent DesignCraft Select All WIP, `engines/filmcraft/` and all live sessions.
 
 ## 2026-10-15 ORG-DECK-UI — original DeckCraft v0.7.0 browser preview, alpha.44
 

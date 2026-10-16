@@ -62,6 +62,17 @@ test('CADCraft registry keeps the original v0.7.0 drafting UI planned',async t=>
   assert.equal(roster.cadcraft.serverIntegrated,false);
 });
 
+test('FigCraft registry keeps the original v0.6.0 interface-design UI planned',async t=>{
+  const f=await fixture(t),pin='833f0d2c27f0acbae5394848930ae531fc89c724';
+  assert.equal(originalUiPins.figcraft,pin);
+  assert.equal(originalUiPackageId('figcraft'),pin);
+  const roster=await (await fetch(f.url+'/api/original-uis',{headers:f.headers})).json();
+  assert.equal(roster.figcraft.available,false);
+  assert.equal(roster.figcraft.sourceCommit,pin);
+  assert.equal(roster.figcraft.processing,'browser');
+  assert.equal(roster.figcraft.serverIntegrated,false);
+});
+
 // Protocol fixtures; actual upstream UI browser acceptance is recorded separately.
 async function fixture(t){
   const root=await mkdtemp(path.join(os.tmpdir(),'cw-original-ui-'));t.after(()=>rm(root,{recursive:true,force:true}));

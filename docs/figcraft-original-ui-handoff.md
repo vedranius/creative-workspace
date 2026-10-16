@@ -1,0 +1,7 @@
+# ORG-FIG-UI handoff — FigCraft v0.6.0
+
+Built and immutably registered the unchanged original `storytold/figcraft` web UI at `833f0d2c27f0acbae5394848930ae531fc89c724`. Source instructions, MIT/Apache licenses, NOTICE, attribution and separate brand terms were reviewed. The browser build uses system fonts because optional `craft-fonts` was not checked out. Local WASM/archive hashes, registry response and isolated Chromium evidence are in [the FigCraft preview report](figcraft-original-ui-preview.md).
+
+Chromium rendered the full original interface and created a 360×250 frame with the original Frame tool, with zero page/console/request errors. The page shows the original file, assets, variables, layer, design/prototype and property UI. The upstream web build starts blank and has no browser open/save implementation; its export action uses the no-op web save service. No provider, server processing, destination ACK, reopen/recovery, native OS or full parity acceptance was made. Keep FigCraft planned.
+
+Alpha.46 pins the source, registers it, and adds a GitHub Actions-built browser archive plus SHA256 sidecar. Next: verify Checks and Build/release, immutable tag/draft, all Actions assets and downloaded checksum sidecars. Then proceed to ORG-SOUND-UI. After all six added original UIs, return to the full server/provider acceptance order in `docs/artcraft-expansion.md`. Preserve the existing DesignCraft Select All WIP, untracked `engines/filmcraft/`, and protected services/documents.

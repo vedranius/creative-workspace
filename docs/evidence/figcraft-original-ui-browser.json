@@ -1,0 +1,54 @@
+{
+  "app": "figcraft",
+  "repository": "https://github.com/storytold/figcraft",
+  "upstreamVersion": "0.6.0",
+  "sourceCommit": "833f0d2c27f0acbae5394848930ae531fc89c724",
+  "sourceClean": true,
+  "build": {
+    "entry": "apps/figcraft-web",
+    "command": "trunk build --release --dist <static-output>",
+    "trunk": "0.21.14",
+    "rust": "1.99.0",
+    "target": "wasm32-unknown-unknown",
+    "wasmBindgen": "0.2.129",
+    "optionalCraftFonts": "not checked out; upstream supports system-font fallback",
+    "wasmBytes": 20859132,
+    "wasmSha256": "c5f4a1d89b888363fb1710c1f3b7167ad9c6ee45235b52e2ed5ece95554635a0",
+    "archiveBytes": 8013918,
+    "archiveSha256": "c83550a5b5c74ff05c88e35ea3abd93814a1f3002d86a7f25766f496ddee6956"
+  },
+  "provenance": [
+    "LICENSE-MIT",
+    "LICENSE-APACHE",
+    "NOTICE",
+    "ATTRIBUTION.md",
+    "docs/brand/LICENSE-brand.txt"
+  ],
+  "registration": {
+    "sourceCommit": "833f0d2c27f0acbae5394848930ae531fc89c724",
+    "processing": "browser",
+    "serverIntegrated": false,
+    "status": "available-preview"
+  },
+  "browser": {
+    "process": "isolated Creative Workspace on loopback port 49273 with separate data/workspace roots and QA auth",
+    "browser": "Chromium 151.0.7922.173",
+    "viewport": "1440x1000",
+    "renderer": "WebGL2 / SwiftShader via ?webgl",
+    "status": 200,
+    "canvas": "1440x1000",
+    "workflow": "Created a 360x250 frame with the original Frame tool (F). PNG export was attempted; upstream web save service is a no-op and no download was produced.",
+    "pageErrors": [],
+    "consoleErrors": [],
+    "failedRequests": [],
+    "screenshots": {
+      "figcraft-original-ui.png": "e8debc94de8e1125bbaae0e8d1d631aae44b4afb0ad8ab97dca58c3a4d6db173",
+      "figcraft-original-edit.png": "e92d35e54963bc16981462b376c56a9d443537169b8cee32e62970965eb84212"
+    }
+  },
+  "limitations": [
+    "Web build starts with a blank document.",
+    "Native file open/save dialogs are not wired in the upstream web build; browser file providers and writes are not accepted.",
+    "Document state, actions, rendering and export remain browser-local; no server engine/provider acceptance, real destination ACK, reopen/recovery, native OS support or full parity claim."
+  ]
+}

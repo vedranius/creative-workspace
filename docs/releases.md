@@ -1,3 +1,7 @@
+# Alpha.46 candidate: original FigCraft browser preview
+
+Alpha.46 pins FigCraft v0.6.0 at `833f0d2c27f0acbae5394848930ae531fc89c724`, immutably registers its original web UI and adds an Actions browser archive/checksum job. Local Chromium verifies the original interface and Frame tool; the browser build starts blank and its upstream web open/save methods do not provide file writes. Server processing/provider, real destination ACK/recovery and full parity remain pending. Keep FigCraft planned and the release draft-only. See [FigCraft build and evidence](figcraft-original-ui-preview.md).
+
 # Alpha.45 candidate: original CADCraft browser preview
 
 Alpha.45 adds an Actions job for the original CADCraft v0.7.0 browser archive at exact source pin `fc4e98315a8d771b5ab832f0ade0b5e7b106df7f`, preserving licenses, attribution and ArtCraft brand terms with a SHA256 sidecar. The local Chromium flow verifies the sample, original File menu, circle command, DXF download and chooser reopen. Geometry and file conversion remain browser WASM. This is not a server adapter; keep CADCraft planned. Alpha.45 Actions, tag, draft assets and downloaded checksums are pending. See [CADCraft evidence](cadcraft-original-ui-preview.md).
@@ -104,3 +108,7 @@ Alpha.42 carries a separate Actions-built browser preview archive for the origin
 ## Original CADCraft browser preview
 
 Alpha.45 adds a dedicated Actions job for the original CADCraft v0.7.0 browser archive at exact source pin `fc4e98315a8d771b5ab832f0ade0b5e7b106df7f`, including source licenses, attribution and ArtCraft brand terms plus a SHA256 sidecar. Its archive, tag and release verification are pending that Actions run. The original command line, bracket drawing, DXF download and browser-chooser reopen were verified in isolated Chromium; see [preview report and screenshots](cadcraft-original-ui-preview.md). CAD geometry, rendering and export execute in browser WASM. This is not a native engine bundle or server/provider integration. Keep CADCraft planned until server processing, four provider modes, real browser permission/write ACK/recovery and broader parity are accepted.
+
+## Original FigCraft browser preview
+
+Alpha.46 adds a dedicated Actions job for the original FigCraft v0.6.0 browser archive at exact source pin `833f0d2c27f0acbae5394848930ae531fc89c724`, with its MIT/Apache licenses, NOTICE, attribution, ArtCraft mark terms and SHA256 sidecar. Local Chromium verified the editor and original Frame tool; see [preview report and screenshots](figcraft-original-ui-preview.md). The browser build starts blank and native open/save dialogs are not wired up; state/rendering remain in browser WASM. This is not a native bundle or a server/provider adapter. Keep FigCraft planned until the original server engine/actions/state/render/export, provider write ACK/recovery and full parity are accepted.
