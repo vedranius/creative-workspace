@@ -27,9 +27,9 @@ wasm-bindgen /private/target/wasm32-unknown-unknown/release/cw_rapidraw_wasm_pro
 node scripts/smoke-rapidraw-exposure.mjs /private/qa-artifact /private/qa-report.json
 ```
 
-## Next concrete work
+## Progress after this scalar slice
 
-This slice returns **compensation stops only**. It does not develop RAW pixels, parse camera exposure metadata, change image exposure, connect original React UI or export. Do not call it a completed RapidRAW port or add it to the public demo as an editor.
+This slice returns **compensation stops only**. Subsequent work added exact native/Chromium parity for the pinned Speed-mode developed pixels; see the [current development handoff](rapidraw-wasm-development-handoff.md). PPG Quality remains explicitly unsupported on `wasm32-unknown-unknown` because the pinned source timer panics. Exposure is still not applied to pixels, and metadata parsing, original React UI, export and editor acceptance remain open. Do not call this a completed RapidRAW port or add it to the public demo as an editor.
 
 Advance the original `raw_processing::develop_internal` / `RawDevelop::develop_intermediate` path in the shared crate. Preserve native demosaic, rescale, clipping, crop/orientation and color behavior; use the same pinned original sources as native pixel reference. Start with a small licensed RAW fixture, then the already permitted single private RAF copy. Keep preflight/worker/resource limits. Publish no private input, preview, EXIF or personal paths. Require a developed-pixel comparison before moving to pixel exposure/export, and preserve original UI architecture. Scalar compensation parity is not developed-image parity.
 
