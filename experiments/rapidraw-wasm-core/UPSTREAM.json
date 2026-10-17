@@ -3,7 +3,7 @@
   "nativeApplication": {
     "repo": "CyberTimon/RapidRAW",
     "commit": "b39884b38d8f148caef6fd0d52afd264951be329",
-    "author": "Timon K\u00e4ch",
+    "author": "Timon Käch",
     "license": "AGPL-3.0",
     "rawProcessingSha256": "806f84653c1bf9e4e4d2285be903a0faaa6fd8adb89d2414fee5b3a3f9daacec"
   },
@@ -43,5 +43,20 @@
     "afterSha256": "02fc66b032a6bb98f8ed5c03a261e119de17739cb8a72fffcc5c395334d91e4d",
     "scope": "Only wasm32 profiling timer/debug log cfgs; all PPG pixel arithmetic unchanged; native timing retained",
     "license": "LGPL-2.1"
+  },
+  "exposurePixelsReference": {
+    "path": "src-tauri/src/image_processing.rs",
+    "sourceLines": "1205-1230",
+    "function": "apply_exposure",
+    "referenceCopy": "tests/reference/exposure_pixels.rs",
+    "referenceCopySha256": "49f8dcf64b4e7baa594bd913c4f9eda107190246b9506f9aff5b4d9917942f42",
+    "license": "AGPL-3.0",
+    "scope": "Pinned native CPU exposure helper applied to interleaved RGB float pixels; this helper is used for analysis previews, while the editor adjustment path uses its separate WGSL shader"
+  },
+  "editorExposureShaderReference": {
+    "path": "src-tauri/src/shaders/shader.wgsl",
+    "function": "apply_linear_exposure",
+    "sourceLines": "543-548",
+    "scope": "Editor GPU pipeline multiplies linear RGB by pow(2.0, exposure_adj), after local contrast and before later effects and tone mapping; not implemented as a whole shader pipeline here"
   }
 }

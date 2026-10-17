@@ -48,6 +48,11 @@ pub fn baseline_exposure_compensation(
     Ok(result)
 }
 
+/// Apply native RapidRAW exposure compensation to interleaved linear RGB pixels.
+pub fn apply_rgb_exposure(pixels: &[f32], exposure: f32) -> Result<Vec<f32>, String> {
+    exposure::apply_rgb_exposure(pixels, exposure)
+}
+
 const MAX_INPUT_BYTES: usize = 128 * 1024 * 1024;
 const MAX_SENSOR_DIMENSION: usize = 32_768;
 const MAX_SENSOR_BYTES: usize = 64 * 1024 * 1024;
@@ -382,6 +387,11 @@ mod browser {
             compensate_highlight_preservation,
         )
         .map_err(|e| JsValue::from_str(&e))
+    }
+
+    #[wasm_bindgen]
+    pub fn apply_rgb_exposure(pixels: &[f32], exposure: f32) -> Result<Vec<f32>, JsValue> {
+        super::apply_rgb_exposure(pixels, exposure).map_err(|e| JsValue::from_str(&e))
     }
 
     #[wasm_bindgen]

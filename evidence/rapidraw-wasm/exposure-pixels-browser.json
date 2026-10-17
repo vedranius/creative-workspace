@@ -1,0 +1,13 @@
+{
+  "stage": "RWASM-02 native exposure-to-RGB-pixels slice",
+  "nativeSource": "b39884b38d8f148caef6fd0d52afd264951be329",
+  "nativeReference": "pinned image_processing.rs apply_exposure(map_color_channels) excerpt; synthetic RGB f32 pixels only",
+  "cases": 8,
+  "exactF32PixelMatches": 72,
+  "rejectedInvalidCases": 5,
+  "pageErrors": [],
+  "failedRequests": [],
+  "wasmBytes": 6798143,
+  "wasmSha256": "e17aeee7dac325823c012c416e81ce7e3197f35f745f64a2d0d82c2ac2207c58",
+  "scope": "Dedicated Chromium WASM worker applies native 2^stops RGB multiplication to synthetic developed-style pixels; no RAW development integration, original UI, GPU shader parity or export-byte acceptance"
+}

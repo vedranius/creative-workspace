@@ -25,6 +25,8 @@ try{
  const input=path.join(temp,'fixture.dng');
  const response=await fetch(fixture.sourceUrl,{redirect:'error'});assert.equal(response.status,200,`Fixture download HTTP ${response.status}`);
  const bytes=Buffer.from(await response.arrayBuffer());assert.equal(digest(bytes),fixture.sourceSha256,'Public fixture SHA256 mismatch');await writeFile(input,bytes);
+ await run('cargo',['test','--locked','--manifest-path','experiments/rapidraw-wasm-core/Cargo.toml','--test','exposure_pixels']);
+ const exposureReference=JSON.parse(await run('cargo',['run','--locked','--release','--manifest-path','experiments/rapidraw-wasm-core/Cargo.toml','--example','exposure_pixels_reference']));
  const stage=path.join(temp,'quality-stage');
  await run('node',['scripts/prepare-rapidraw-quality.mjs',stage]);
  await copyFile(path.join(root,'patches/rapidraw-rawler/a32bc1ff/ppg-wasm-profiling.patch'),path.join(output,'ppg-wasm-profiling.patch'));
@@ -47,6 +49,11 @@ try{
    {env:{PLAYWRIGHT_MODULE:process.env.PLAYWRIGHT_MODULE||'playwright',CHROMIUM_PATH:process.env.CHROMIUM_PATH||''}});
   reports[mode]=JSON.parse(await readFile(report,'utf8'));
  }
+ const exposureReport=path.join(output,'exposure-pixels-browser.json');
+ await run('node',['scripts/smoke-rapidraw-exposure-pixels.mjs',wasmOut,
+  await writeJson(temp,'exposure-pixels-native.json',exposureReference),exposureReport],
+  {env:{PLAYWRIGHT_MODULE:process.env.PLAYWRIGHT_MODULE||'playwright',CHROMIUM_PATH:process.env.CHROMIUM_PATH||''}});
+ reports.exposurePixels=JSON.parse(await readFile(exposureReport,'utf8'));
  const provenance={schemaVersion:1,fixture:{id:fixture.id,sourceUrl:fixture.sourceUrl,sourceSha256:fixture.sourceSha256,license:fixture.license,licenseSourceUrl:fixture.licenseSourceUrl,licenseUrl:fixture.licenseUrl},nativeSource:{repo:'CyberTimon/RapidRAW',commit:evidence.nativeSource,license:'AGPL-3.0',licenseText:'RapidRAW-LICENSE'},decoder:{repo:'CyberTimon/RapidRAW-DngLab',commit:evidence.decoderSource,license:'LGPL-2.1',licenseUrl:'https://www.gnu.org/licenses/old-licenses/lgpl-2.1.html'},qualityPatch:{...JSON.parse(await readFile(path.join(stage,'quality-timer-compat.json'),'utf8')).patch,artifact:'ppg-wasm-profiling.patch'},toolchain:{rustc:(await run('rustc',['--version'])),wasmBindgen:(await run('wasm-bindgen',['--version']))},fixtureBytes:bytes.length,results:Object.fromEntries(Object.entries(reports).map(([mode,report])=>[mode,{dimensions:report.dimensions,pixelHash:report.pixelHash,exactRGBF32BitsSha256Matches:report.exactRGBF32BitsSha256Matches,pageErrors:report.pageErrors,failedRequests:report.failedRequests}]))};
  await writeFile(path.join(output,'provenance-and-license.json'),JSON.stringify(provenance,null,2)+'\n');
  console.log(JSON.stringify({quality:provenance.results.quality,speed:provenance.results.speed,output}));

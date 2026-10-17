@@ -34,8 +34,11 @@ fn reference_source_is_pinned_and_extracted_formula_is_unchanged() {
     let extracted_start = extracted
         .find("#[derive(Clone, Copy, Debug, Default)]")
         .unwrap();
+    let extracted_end = extracted
+        .find("\n/// Apply RapidRAW's native exposure helper")
+        .unwrap();
     assert_eq!(
-        extracted[extracted_start..].trim(),
+        extracted[extracted_start..extracted_end].trim(),
         source[start..end].trim()
     );
 }

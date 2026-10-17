@@ -1,5 +1,13 @@
 # RWASM-02 — Quality and Speed developed pixels verified
 
+## Native exposure-to-pixels checkpoint
+
+Pinned RapidRAW `b39884b38d8f148caef6fd0d52afd264951be329` has a CPU `image_processing::apply_exposure` helper at `src-tauri/src/image_processing.rs`: zero stops returns the image; otherwise the helper calculates `exposure.exp2()` once and multiplies RGB channels. The helper is used by auto-analysis previews. The interactive editor has a separate path: `get_global_adjustments_from_json` converts the basic exposure control to stops and adds enabled baseline compensation; `shaders/shader.wgsl::apply_linear_exposure` multiplies linear RGB by `pow(2.0, exposure_adj)` after local contrast and before glow/halation/dehaze/white balance/tonal/color operations and tone mapping. The implementation in this checkpoint extracts the CPU helper's RGB operation only; it does not claim the GPU shader or the complete editor order.
+
+Native tests compare the extracted operation against a pinned reference copy for eight synthetic stop values, and an optimized WASM build matches all72 output f32 bit patterns in a dedicated Chromium worker. The worker rejects five invalid/overflow inputs and reports no page errors or failed requests. [Browser evidence](../evidence/rapidraw-wasm/exposure-pixels-browser.json). The test source is synthetic and contains no photo data.
+
+Export is source-traced: `export_processing` sends `RenderRequest` to `process_and_get_dynamic_image_with_precision`, then calls the format encoder and metadata writer. This experimental probe has neither that renderer nor the export encoder, so this checkpoint verifies no exported file, browser download/write acknowledgment or UI adjustment contract. Next: bound a native/WASM render/export slice tied to the traced processing order; keep UI and complete export acceptance open.
+
 ## Completed checkpoint
 
 The shared core uses the pinned original `RawDevelop::develop_intermediate` path and native `develop_internal` postprocessing: demosaic, crop, white balance/calibration, black/white rescale, clipped-pixel recovery, clamp and EXIF orientation. Output is an interleaved Float32Array from a dedicated WASM worker.
