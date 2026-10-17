@@ -119,6 +119,10 @@ Alpha.35 Actions run `38561662430` completed with contract, Linux bundle and pin
 
 # PAR-03 handoff — bounded server read-model slice verified
 
+## 2026-10-17 alpha.55 Actions timing correction
+
+The first alpha.55 Build/release run `39012283039` passed contract, all 12 native targets, all three OS bundles and the exact-pin DesignCraft UI build/native source tests. The existing Text Tool browser smoke then timed out because rapid `keyboard.type` emitted only three of seven expected `text.insert` ACKs; this happened before the new Save Copy recovery smoke. Updated the smoke to send one key and wait for its matching worker revision before continuing. Local Chromium now verifies `Queue Ω` with all seven server ACKs through revision 14 and zero browser errors. No alpha.55 tag/release was created. Remote tag and release lookup confirmed v0.2.0-alpha.55 are absent. Next: push this correction under the same unpublished alpha.55 candidate, rerun Actions once and verify the new recovery gate/artifacts.
+
 ## 2026-10-17 PAR-03 Save a Copy ACK-failure Actions gate
 
 Added `scripts/smoke-designcraft-save-copy-ack-failure.mjs` to the paired `original-designcraft` Actions browser job. Local Chromium ran the exact-pinned original UI and owned worker with a real Linux FUSE/common provider mount; the injected browser destination close returned EIO after server output was retained. The original `file.saveACopy` produced no success ACK, `chosen.designcraft` remained dirty at revision 5, recovery download matched the 2,954-byte mirror output (SHA-256 `36996a89ae782f65b73aa90a40227d9b5e7d876c0e9312a9164e33937855a3b9`), and same-target retry returned 409 with no local bytes. Visible canvas and zero browser errors verified. Folder handle/failure are fixtures; native browser permission and successful laptop write/reopen remain unproven. [Gate evidence](evidence/designcraft-par03-save-copy-ack-failure-actions-smoke.md).

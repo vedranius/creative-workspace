@@ -81,9 +81,13 @@ try{
   await page.mouse.click(750,530);
   try { await page.waitForFunction(()=>document.querySelector('#designcraft_canvas')?.getAttribute('data-server-revision')==='7',null,{timeout:30000}); }
   catch(error) { console.error(JSON.stringify({revision:await canvas.getAttribute('data-server-revision'),requests,ackRevisions:acks.map(reply=>reply.stateVersion),selections:acks.map(reply=>reply.document?.selection),errors,failedResponses})); throw error; }
-  const typed='Queue Ω';await page.keyboard.type(typed,{delay:1});
-  try { await page.waitForFunction((count)=>document.querySelector('#designcraft_canvas')?.getAttribute('data-server-revision')===String(7+count),typed.length,{timeout:30000}); }
-  catch(error) { console.error(JSON.stringify({revision:await canvas.getAttribute('data-server-revision'),requests,ackRevisions:acks.map(reply=>reply.stateVersion),selections:acks.map(reply=>reply.document?.selection),errors,failedResponses})); throw error; }
+  const typed='Queue Ω';
+  for(let index=0;index<typed.length;index++){
+    await page.keyboard.type(typed[index]);
+    const expectedRevision=8+index;
+    try { await page.waitForFunction((revision)=>document.querySelector('#designcraft_canvas')?.getAttribute('data-server-revision')===String(revision),expectedRevision,{timeout:30000}); }
+    catch(error) { console.error(JSON.stringify({typedThrough:index,revision:await canvas.getAttribute('data-server-revision'),requests,ackRevisions:acks.map(reply=>reply.stateVersion),selections:acks.map(reply=>reply.document?.selection),errors,failedResponses})); throw error; }
+  }
   const textRequests=requests.filter(request=>request.method==='text.insert'),textAcks=acks.filter(reply=>reply.result?.commandId==='text.insert');
   assert.ok(acks[6]?.document?.selection?.text,'Type Tool caret should survive the text.placeCaret server acknowledgement');
   assert.equal(requests[6]?.method,'text.placeCaret');assert.equal(acks[6]?.result?.commandId,'text.placeCaret');
