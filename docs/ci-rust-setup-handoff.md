@@ -6,7 +6,7 @@ Checks `38998538182` and Build/release `38998538184` passed on product commit `1
 
 All Linux, Windows and macOS native/bundle jobs passed. The clean exact-pin DesignCraft job built the original UI, passed its upstream action tests, and verified the original worker/browser sequence: Select All, Deselect All, Clear/Undo/Redo, Text Tool `text.delete`, shared recovery entry and the final preset/server-canvas candidate. The recovery smoke generated an actual `.designcraft` server copy through the owned worker, assigned a synthetic unacknowledged journal state, then confirmed the original page could list and download byte-identical output through the existing recovery API. Browser errors and failed responses were zero. [Browser report and screenshot](evidence/designcraft-par03-recovery-entry.md); [release evidence](evidence/creative-workspace-alpha54-release.md).
 
-All three platform bundles and six original-UI preview archives are Actions-built. The draft contains 12 archives and 12 SHA256 sidecars. All 12 downloaded pairs passed `sha256sum -c`, and the SHA-256 hashes of all 24 downloaded files matched GitHub's asset digests.
+All three platform bundles and nine original-UI preview archives are Actions-built. The draft contains 12 archives and 12 SHA256 sidecars. All 12 downloaded pairs passed `sha256sum -c`, and the SHA-256 hashes of all 24 downloaded files matched GitHub's asset digests.
 
 ## Failures corrected during the candidate
 
