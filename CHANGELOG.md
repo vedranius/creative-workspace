@@ -1,3 +1,9 @@
+## [0.2.0-alpha.56] - 2026-10-17
+
+- Bridge the original DesignCraft Layout → Pages → Duplicate Spread action to the owned native worker as `layout.pages.duplicateSpread`; preserve its command ID, bound the spread index/page count, and hydrate the revisioned server read-model/render only after worker ACK.
+- Verify the original menu action in isolated Chromium with the exact pinned UI and worker; report remains limited to this action, with real OS folder permission and full DesignCraft parity still open. Keep DesignCraft planned and release draft-only.
+- Local full suite (80/80), `npm run check`, release validation, focused upstream Rust test, native worker build and original UI browser smoke pass. Actions builds/checks and asset verification are pending.
+
 ## [0.2.0-alpha.55] - 2026-10-17
 
 - Add an exact-pin Chromium Actions gate for original DesignCraft File → Save a Copy laptop ACK failure and shared recovery. It verifies retained server bytes, unchanged dirty/name state, zero false success ACKs, and same-target retry refusal.

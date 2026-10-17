@@ -1,0 +1,26 @@
+{
+  "status": "original-duplicate-spread-server-ack-browser-proof",
+  "browser": "Chromium",
+  "sourcePin": "a127c6d5c3576972bbd60445f26d893db071eef3",
+  "sourcePatch": "par-03-duplicate-spread-v1",
+  "workerSha256": "f2b2de2527c53b65049ac3a513917fcc32171673d88963771d06b0d95a637775",
+  "uiPackage": "a127c6d5c3576972bbd60445f26d893db071eef3-0b82795c99c1",
+  "action": {
+    "originalMenu": "Layout > Pages > Duplicate Spread",
+    "engineMethod": "layout.pages.duplicateSpread",
+    "params": {
+      "spread": 0
+    },
+    "ackCommandId": "layout.pages.duplicateSpread",
+    "revision": 2,
+    "pageCount": 2,
+    "spreadCount": 2,
+    "dirty": true,
+    "render": "/api/designcraft/sessions/c5f1a4a779bacb081983a6c72a106b5033d0f924d734bb49/preview.png?v=2",
+    "renderStatus": 200
+  },
+  "permission": "synthetic connected-folder chooser fixture; not real OS permission evidence",
+  "browserErrors": [],
+  "failedResponses": [],
+  "requestFailures": []
+}

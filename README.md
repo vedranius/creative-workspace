@@ -2,7 +2,7 @@
 
 # Creative Workspace
 
-**Version: 0.2.0-alpha.55** — verified draft prerelease of the open-source, self-hosted, single-user prototype. Checks and the Actions-built Linux, Windows and macOS bundles passed; all 24 release assets match GitHub digests and all 12 archive/checksum pairs verify. Actions Chromium passed the original DesignCraft worker sequence, provider open/edit/save/reopen candidate, and laptop-save failure recovery. The browser folder handle and failure are fixtures; native permission and full original-app acceptance remain incomplete. Keep DesignCraft planned and the release draft-only. [Alpha.55 release verification](docs/evidence/creative-workspace-alpha55-release.md) · [Alpha.54 baseline](docs/evidence/creative-workspace-alpha54-release.md). The protected alpha.51 [local test studio](docs/test-suite-alpha51-20261017.md) stays separate.
+**Version: 0.2.0-alpha.56** — verified draft prerelease of the open-source, self-hosted, single-user prototype. Checks and the Actions-built Linux, Windows and macOS bundles passed; all 24 release assets match GitHub digests and all 12 archive/checksum pairs verify. Actions Chromium passed the original DesignCraft worker sequence, provider open/edit/save/reopen candidate, and laptop-save failure recovery. The browser folder handle and failure are fixtures; native permission and full original-app acceptance remain incomplete. Keep DesignCraft planned and the release draft-only. [Alpha.55 release verification](docs/evidence/creative-workspace-alpha55-release.md) · [Alpha.54 baseline](docs/evidence/creative-workspace-alpha54-release.md). The protected alpha.51 [local test studio](docs/test-suite-alpha51-20261017.md) stays separate.
 
 Bring your creative tools together in one browser studio. Choose an application, select your files, and access your own server from a lightweight laptop. The goal is **the original application interfaces and tools in the browser, with the server doing the heavy work**: photography, image editing, illustration, PDF, publishing, video, motion graphics, office documents, spreadsheets, presentations, CAD, interface design and audio. Browser controls run locally; document commands, data and previews travel to the server. No VNC or remote desktop is involved.
 
@@ -14,6 +14,7 @@ Alpha.24 adds an original Open-dialog candidate for a selected laptop `.designcr
 
 ## What is new
 
+- **DesignCraft PAR-03 Duplicate Spread (alpha.56 candidate):** the exact-pinned original Layout → Pages → Duplicate Spread menu action reaches the owned server worker as `layout.pages.duplicateSpread`; Chromium confirms matching ACK, two-spread server read-model and revisioned render. This proves one action only. Real folder permission and full parity remain open; DesignCraft stays planned pending Actions/release verification. [Browser JSON](docs/evidence/designcraft-par03-duplicate-spread-browser.json).
 - **DesignCraft PAR-03 Actions gate (alpha.55):** original File → Save a Copy passed server and laptop-on-demand write/reopen checks in a browser fixture; injected close failure retained recovery bytes, preserved the dirty source/name, returned no false success ACK, and refused same-target retry. Real OS folder permission and full parity remain unverified. [Release verification](docs/evidence/creative-workspace-alpha55-release.md).
 
 

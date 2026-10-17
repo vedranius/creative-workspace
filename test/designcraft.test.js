@@ -16,7 +16,7 @@ class DesignFixture{
     if(method==='new'||method==='open'){if(method==='new')this.newParams=structuredClone(p);else this.openParams=structuredClone(p);this.doc={title:'Fixture',dirty:method==='new',pageCount:1,spreads:[{index:0,pages:[{index:0,name:'1',bounds:[0,0,800,600]}],items:[]}],stories:[],layers:[],selection:{items:[]},history:{undo:[],redo:[]}};if(method==='open'){try{this.doc=JSON.parse(await readFile(p.path,'utf8'));this.doc.dirty=false;}catch{}}return {};}
     if(method==='sample'){this.sampleCommandId='file.newSample';this.doc={title:'Original sample',dirty:true,pageCount:2,spreads:[{index:0,pages:[{index:0,name:'1',bounds:[0,0,800,600]}],items:[]}],stories:[],layers:[],selection:{items:[]},history:{undo:[],redo:[]}};return {commandId:this.sampleCommandId};}
     if(method==='render'){const png=Buffer.alloc(24);Buffer.from([137,80,78,71,13,10,26,10]).copy(png);png.writeUInt32BE(13,8);png.write('IHDR',12);png.writeUInt32BE(800,16);png.writeUInt32BE(600,20);return {pngBase64:png.toString('base64')};}
-    if(method==='command'){this.edits++;this.commands.push(p.command);this.commandParams.push(structuredClone(p.params));if(p.command==='selection.set')this.doc.selection={items:[...p.params.ids]};else if(p.command==='edit.deselectAll')this.doc.selection={items:[]};else this.doc.dirty=true;if(p.command==='edit.undo')return {undone:'Clear'};if(p.command==='edit.redo')return {redone:'Clear'};return {id:1};}
+    if(method==='command'){this.edits++;this.commands.push(p.command);this.commandParams.push(structuredClone(p.params));if(p.command==='selection.set')this.doc.selection={items:[...p.params.ids]};else if(p.command==='edit.deselectAll')this.doc.selection={items:[]};else if(p.command==='layout.pages.duplicateSpread'){const source=this.doc.spreads[p.params.spread],pages=structuredClone(source.pages),base=this.doc.pageCount;pages.forEach((page,index)=>{page.index=base+index;page.name=String(base+index+1);});this.doc.spreads.splice(p.params.spread+1,0,{...structuredClone(source),index:p.params.spread+1,pages});this.doc.pageCount+=pages.length;this.doc.spreads.forEach((spread,index)=>spread.index=index);this.doc.dirty=true;}else this.doc.dirty=true;if(p.command==='edit.undo')return {undone:'Clear'};if(p.command==='edit.redo')return {redone:'Clear'};return {id:1};}
     if(method==='export'){await writeFile(p.path,'fixture design copy');return {warnings:[]};}
     if(method==='save_copy'){this.copyCommandId='file.saveACopy';const bytes=Buffer.from(JSON.stringify(this.doc));await writeFile(p.path,bytes);return {bytes:bytes.length};}
     if(method==='mark_saved'){this.doc.dirty=false;return {saved:true};}throw new Error('Unsupported fixture method');
@@ -48,6 +48,29 @@ test('Original Edit > Select All action reaches the owned worker with a revision
   assert.deepEqual(worker?.commands,['edit.selectAll']);assert.equal(selected.result.commandId,'edit.selectAll');assert.equal(selected.stateVersion,2);assert.equal(selected.document.dirty,true);
   await assert.rejects(call(session.id,'edit.selectAll',{path:'/private'}),/unsupported|parameters/i);
   assert.deepEqual(worker?.commands,['edit.selectAll']);await design.close(session.id,{discard:true});
+});
+
+test('Original Duplicate Spread command preserves its engine ID, waits for worker ACK and renders the updated read-model',async t=>{
+  const {project,design,engines,call}=await fixture(t),session=await design.create(project);
+  await call(session.id,'file.new',{preset:'A4'});
+  const worker=engines.find(engine=>!engine.closed),command=worker.call.bind(worker);
+  worker.call=async(method,p)=>{if(method==='command'&&p.command==='layout.pages.duplicateSpread')throw new Error('worker rejected the command');return command(method,p);};
+  await assert.rejects(call(session.id,'layout.pages.duplicateSpread',{spread:0},{expectedVersion:1}),/worker rejected/);
+  assert.equal((await call(session.id,'state')).stateVersion,1,'a failed engine command cannot consume a server revision');
+  let release;const gate=new Promise(resolve=>{release=resolve;});let entered;
+  const started=new Promise(resolve=>{entered=resolve;});
+  worker.call=async(method,p)=>{if(method==='command'&&p.command==='layout.pages.duplicateSpread'){entered();await gate;}return command(method,p);};
+  const pending=call(session.id,'layout.pages.duplicateSpread',{spread:0},{expectedVersion:1});
+  await started;
+  assert.equal(worker.doc.pageCount,1);
+  release();
+  const duplicated=await pending;
+  assert.deepEqual(worker.commands,['layout.pages.duplicateSpread']);assert.deepEqual(worker.commandParams,[{spread:0}]);
+  assert.equal(duplicated.result.commandId,'layout.pages.duplicateSpread');assert.equal(duplicated.stateVersion,2);assert.equal(duplicated.document.pageCount,2);assert.equal(duplicated.document.spreads.length,2);assert.equal(duplicated.document.dirty,true);assert.match(duplicated.preview,/preview\.png\?v=3$/);assert.ok(design.preview(session.id,2).length>0);
+  await assert.rejects(call(session.id,'layout.pages.duplicateSpread',{spread:1,path:'/private'},{expectedVersion:2}));
+  await assert.rejects(call(session.id,'layout.pages.duplicateSpread',{spread:2},{expectedVersion:2}),/Unknown spread/);
+  await assert.rejects(call(session.id,'layout.pages.duplicateSpread',{spread:0},{expectedVersion:1}),e=>e.code==='STATE_VERSION_CONFLICT');
+  assert.deepEqual(worker.commands,['layout.pages.duplicateSpread']);await design.close(session.id,{discard:true});
 });
 
 test('Original Edit > Deselect All reaches the owned worker without dirtying the document',async t=>{

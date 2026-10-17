@@ -1,3 +1,7 @@
+## 2026-10-17 PAR-03 Duplicate Spread server-action candidate — alpha.56
+
+Original `app.duplicateSpread` now maps to engine command `layout.pages.duplicateSpread` through the ordered server host-action queue. The owned worker ACK gates revision/state hydration and server render; spread index and page count are bounded and worker failure does not advance state. Exact pinned-source Rust test (1/1), native worker build, original-menu Chromium smoke, `npm test` (80/80), `npm run check`, release validation and `git diff --check` pass. Browser JSON and screenshot are in [evidence](evidence/designcraft-par03-duplicate-spread-browser.json). Actions Checks/release/assets are pending. This is one original action, not application acceptance; real OS folder permission and full parity remain unverified. Keep DesignCraft planned. Next: inspect alpha.56 Actions and verify any draft/tag/assets, then select the next bounded original action. Preserve `engines/filmcraft/` and protected sessions.
+
 ## 2026-10-17 PAR-03 alpha.55 release gate verified
 
 ### Follow-up: host browser picker capability check

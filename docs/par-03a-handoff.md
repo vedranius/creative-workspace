@@ -1,3 +1,13 @@
+# 2026-10-17 PAR-03 Duplicate Spread action candidate — alpha.56
+
+The exact pinned original DesignCraft menu action Layout → Pages → Duplicate Spread now reaches the owned native server worker as `layout.pages.duplicateSpread`. The upstream source patch intercepts only `app.duplicateSpread`, invokes the original menu mapping, and retains the engine command identity. Server gateway rejects extra fields, invalid/missing spreads and page-cap overflow; worker failure does not consume a server revision. State/render hydration occurs after matching ACK.
+
+Focused upstream Rust test passed 1/1, owned native worker build passed, isolated Chromium exercised the original menu against that worker and confirmed ACK, two spreads/pages, dirty state and the revisioned server-render PNG with no browser/network errors. The provider chooser was a synthetic fixture; this proves neither real folder permission nor broad DesignCraft parity. Local `npm test` 80/80, `npm run check`, release validation and diff check pass. Actions Checks/release and downloadable assets are pending. [Browser report](evidence/designcraft-par03-duplicate-spread-browser.json) · [screenshot](evidence/designcraft-par03-duplicate-spread-browser.png).
+
+Next: verify alpha.56 Actions, immutable tag/draft and all generated asset/checksum pairs. If successful, advance one original DesignCraft action slice. Keep DesignCraft planned; real OS folder permission, complete original tools/actions, open/edit/save/reopen and all-13 server/provider acceptance remain open. Preserve `engines/filmcraft/`, studio8795/RapidRAW8791/user RapidRAW8780, and immutable packages/workspaces.
+
+---
+
 # PAR-03 current handoff — Save Copy ACK-failure recovery verified
 
 ## 2026-10-17 headed browser capability check and next action

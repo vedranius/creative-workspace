@@ -13,6 +13,7 @@ const MAX: u64 = 64 * 1024 * 1024;
 const MAX_CANONICAL_STATE: usize = 16 * 1024 * 1024;
 const COMMANDS: &[&str] = &[
     "frame.create",
+    "layout.pages.duplicateSpread",
     "selection.set",
     "edit.selectAll",
     "edit.deselectAll",

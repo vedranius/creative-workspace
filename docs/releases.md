@@ -1,3 +1,9 @@
+# Alpha.56 candidate: DesignCraft Duplicate Spread server action
+
+The exact-pinned original Layout → Pages → Duplicate Spread menu action routes `layout.pages.duplicateSpread` through the owned worker. Isolated Chromium verified matching worker ACK, hydrated two-spread read-model, dirty state and revisioned server render. Local tests/builds pass; Actions Checks, platform bundles, immutable tag/draft and asset checksums are pending. Keep the candidate unpublished until Actions completes successfully.
+
+Real OS folder permission, full DesignCraft action/tool parity, open/edit/save/reopen and all-13 server/provider acceptance remain open. DesignCraft remains planned. [Browser evidence](evidence/designcraft-par03-duplicate-spread-browser.json) · [PAR-03 handoff](par-03a-handoff.md).
+
 # Alpha.55 verified draft: DesignCraft original actions and provider save recovery
 
 Checks `39023934892` and Build/release `39023934919` passed at `1b2ca33c30f7cd1c36728c714f52216c63e53021`. Immutable tag `v0.2.0-alpha.55` points to that commit. The GitHub Release is a draft prerelease. All three platform bundles and nine original-UI/DesignCraft candidate archives were built by Actions. All 24 downloaded assets match GitHub digests and all 12 archive/checksum pairs pass. [Full release evidence](evidence/creative-workspace-alpha55-release.md).
