@@ -1,0 +1,14 @@
+[package]
+name = "cw-rapidraw-wasm-probe"
+version = "0.0.0"
+edition = "2024"
+license = "AGPL-3.0-only"
+publish = false
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+rawler = { git = "https://github.com/CyberTimon/RapidRAW-DngLab.git", rev = "a32bc1ff1f4f3c56d4d3226082f6eb17414f9159" }
+wasm-bindgen = "0.2.115"
+uuid = { version = "1", features = ["js"] }

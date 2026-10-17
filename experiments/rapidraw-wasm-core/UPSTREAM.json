@@ -1,0 +1,20 @@
+{
+  "status": "experimental-compile-probe-not-browser-editor",
+  "nativeApplication": {
+    "repo": "CyberTimon/RapidRAW",
+    "commit": "b39884b38d8f148caef6fd0d52afd264951be329",
+    "author": "Timon Käch",
+    "license": "AGPL-3.0",
+    "rawProcessingSha256": "806f84653c1bf9e4e4d2285be903a0faaa6fd8adb89d2414fee5b3a3f9daacec"
+  },
+  "decoder": {
+    "repo": "CyberTimon/RapidRAW-DngLab",
+    "commit": "a32bc1ff1f4f3c56d4d3226082f6eb17414f9159",
+    "package": "rawler",
+    "license": "LGPL-2.1"
+  },
+  "architectureReference": {
+    "repo": "storytold/lightcraft",
+    "commit": "9e6c4c6fc9c7a7f192ce846c00ceb531e0f64dda"
+  }
+}

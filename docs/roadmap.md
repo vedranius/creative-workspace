@@ -1,3 +1,7 @@
+# RWASM — native RapidRAW to browser (authorized 2026-10-17)
+
+A separate browser-processing port preserves original RapidRAW UI and algorithms for independent public-demo users. Source and decoder are pinned; the first decoder compiler seam passes wasm32 cargo check. This is not runtime RAW/edit/export acceptance and does not replace the main server-processing work. Next: RWASM-01 real decoder WASM worker/native-reference proof. [Full milestones and gates](rapidraw-wasm-port.md).
+
 # CF-DEMO — explicit browser-processing alternative (2026-10-17)
 
 The user explicitly authorized a separate public Cloudflare demo using the visitor’s laptop, provided that mode is clearly disclosed. Twelve original preview UIs are exported without a document backend, RapidRAW, DesignCraft server candidate or private workspaces. This does not replace PAR-03 or all-13 server/provider development. See [deployment and verification](cloudflare-demo.md).

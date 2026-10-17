@@ -14,6 +14,8 @@ Alpha.24 adds an original Open-dialog candidate for a selected laptop `.designcr
 
 ## What is new
 
+- **Native RapidRAW WASM experiment:** a separate, pinned-source effort to preserve the original UI and image pipeline in the browser. The exact RAW decoder passes the first wasm32 compiler check; runtime RAW development, editing/export and UI parity are not implemented yet. [Milestones and acceptance](docs/rapidraw-wasm-port.md).
+
 - **Browser playground (alpha.57):** twelve original interfaces with explicit consent that processing uses the visitor's computer. The independent Cloudflare Pages export preserves licenses and source provenance while excluding private workspaces/backends. The main product continues toward server processing. [Demo and deployment](docs/cloudflare-demo.md).
 
 - **DesignCraft PAR-03 Delete Page (alpha.59 candidate):** the pinned original `app.deletePage` action sends unchanged `layout.pages.delete` to the owned worker; gateway bounds page indexes and refuses deleting the final page. UI hydration waits for its ACK. Alpha.59 fixes its exact-source Rust test setup; production behavior and browser evidence remain from alpha.58. This is one action only; real folder permission and full parity remain open, so DesignCraft stays planned pending Actions and asset verification. [Handoff](docs/par-03a-handoff.md).
