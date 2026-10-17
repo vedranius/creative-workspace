@@ -1,6 +1,6 @@
 # 2026-10-18 RWASM-03 — original WebGPU host boundary
 
-Pinned full RapidRAW WGSL (`b39884b`, SHA-256 recorded in evidence), all14 bindings, upstream `AllAdjustments` byte input, compute dispatch and async RGBA16F readback are implemented in the experimental WASM host module. Five protocol tests pass and run in the RapidRAW Actions workflow. Both local headless and isolated headed Chromium lack `navigator.gpu`; tests do not establish GPU execution. Original preprocessing integration and native rendered-frame comparison remain the next task. This is not a renderer/editor availability claim. [Compact handoff](rapidraw-wasm-webgpu-handoff.md), [evidence](evidence/rapidraw-wasm/webgpu-host-boundary.json).
+Pinned full RapidRAW WGSL (`b39884b`, SHA-256 recorded in evidence), all14 bindings, a source-layout `AllAdjustments` neutral/exposure WASM packer (45,232 bytes), compute dispatch and async RGBA16F readback are implemented in the experimental host. Native layout/payload tests 2/2, WebGPU host protocol tests 7/7, and `npm run check` pass; wasm32 `cargo check` passes. Both local headless and isolated headed Chromium lack `navigator.gpu`; no GPU shader execution or rendered-frame parity is claimed. The packer is a neutral fixture, not the original UI JSON/baseline parser. Minimum preprocessing-resource integration and native rendered-frame comparison remain open. [Compact handoff](rapidraw-wasm-webgpu-handoff.md), [evidence](evidence/rapidraw-wasm/webgpu-host-boundary.json).
 
 # 2026-10-18 RWASM-02 — original PNG codec bytes and browser download
 

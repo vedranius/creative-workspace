@@ -9,14 +9,25 @@
   },
   "implementation": {
     "module": "experiments/rapidraw-wasm-core/webgpu-renderer.js",
+    "adjustmentPackerCommit": "87b1676",
     "completeMainShader": true,
     "originalBindingCount": 14,
-    "adjustmentPacking": "caller supplies original AllAdjustments Pod bytes unchanged",
+    "adjustmentPacking": {
+      "source": "CyberTimon/RapidRAW image_processing.rs AllAdjustments repr(C) Pod layout",
+      "sourceCommit": "b39884b38d8f148caef6fd0d52afd264951be329",
+      "bytes": 45232,
+      "wasmApi": "pack_neutral_renderer_adjustments(exposure)",
+      "browserAdapter": "packNeutralExposureAdjustments(wasm, exposure)",
+      "scope": "neutral fixture and one finite exposure value; not the UI JSON/as-shot/baseline parser"
+    },
     "output": "rgba16float",
     "readback": "mapAsync with 256-byte row padding removed"
   },
   "verification": {
-    "protocolTests": "node --test experiments/rapidraw-wasm-core/webgpu-renderer.test.mjs: 5 passed",
+    "protocolTests": "node --test experiments/rapidraw-wasm-core/webgpu-renderer.test.mjs: 7 passed",
+    "nativeAdjustmentTests": "cargo test renderer_adjustments: 2 passed; complete experimental core: 25 passed",
+    "wasm32Check": "cargo check --locked --target wasm32-unknown-unknown: passed",
+    "repositoryCheck": "npm run check: passed",
     "browserCapability": {
       "headlessChromium": "navigator.gpu absent",
       "headedIsolatedChromium": "navigator.gpu absent"
@@ -25,7 +36,7 @@
     "nativeRenderedFrameComparison": false
   },
   "openGates": [
-    "Wire original RapidRAW preprocessing outputs and source-packed adjustments into the browser host",
+    "Wire minimum original RapidRAW preprocessing resources into the browser host; the current neutral packer does not parse original UI settings or baseline exposure",
     "Run the complete shader in a real browser WebGPU device",
     "Compare a bounded neutral/exposure frame against the pinned native renderer",
     "Verify async readback with real browser downloads/UI after renderer comparison"
