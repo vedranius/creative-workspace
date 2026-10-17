@@ -1,0 +1,217 @@
+{
+  "base": "http://127.0.0.1:8795",
+  "version": "0.2.0-alpha.51",
+  "excluded": [
+    "designcraft"
+  ],
+  "checks": [
+    {
+      "app": "photocraft",
+      "url": "http://127.0.0.1:8795/original/photocraft/?webgl",
+      "processing": "browser",
+      "serverIntegrated": false,
+      "title": "PhotoCraft",
+      "canvas": true,
+      "screenshot": "photocraft.png",
+      "pageErrors": [],
+      "failedRequests": [],
+      "distinctScreenshotColors": 17126
+    },
+    {
+      "app": "vectorcraft",
+      "url": "http://127.0.0.1:8795/original/vectorcraft/?webgl",
+      "processing": "browser",
+      "serverIntegrated": false,
+      "title": "VectorCraft",
+      "canvas": true,
+      "screenshot": "vectorcraft.png",
+      "pageErrors": [],
+      "failedRequests": [],
+      "distinctScreenshotColors": 1243
+    },
+    {
+      "app": "pdfcraft",
+      "url": "http://127.0.0.1:8795/original/pdfcraft/?webgl",
+      "processing": "browser",
+      "serverIntegrated": false,
+      "title": "PdfCraft",
+      "canvas": true,
+      "screenshot": "pdfcraft.png",
+      "pageErrors": [],
+      "failedRequests": [],
+      "distinctScreenshotColors": 2077
+    },
+    {
+      "app": "lightcraft",
+      "url": "http://127.0.0.1:8795/original/lightcraft/?webgl",
+      "processing": "browser",
+      "serverIntegrated": false,
+      "title": "LightCraft",
+      "canvas": true,
+      "screenshot": "lightcraft.png",
+      "pageErrors": [],
+      "failedRequests": [],
+      "distinctScreenshotColors": 14270
+    },
+    {
+      "app": "filmcraft",
+      "url": "http://127.0.0.1:8795/original/filmcraft/?webgl",
+      "processing": "browser",
+      "serverIntegrated": false,
+      "title": "FilmCraft",
+      "canvas": true,
+      "screenshot": "filmcraft.png",
+      "pageErrors": [],
+      "failedRequests": [],
+      "distinctScreenshotColors": 22908
+    },
+    {
+      "app": "effectcraft",
+      "url": "http://127.0.0.1:8795/original/effectcraft/?webgl",
+      "processing": "browser",
+      "serverIntegrated": false,
+      "title": "EffectCraft",
+      "canvas": true,
+      "screenshot": "effectcraft.png",
+      "pageErrors": [],
+      "failedRequests": [],
+      "distinctScreenshotColors": 12509
+    },
+    {
+      "app": "wordcraft",
+      "url": "http://127.0.0.1:8795/original/wordcraft/?sample&webgl",
+      "processing": "browser",
+      "serverIntegrated": false,
+      "title": "WordCraft",
+      "canvas": true,
+      "screenshot": "wordcraft.png",
+      "pageErrors": [],
+      "failedRequests": [],
+      "distinctScreenshotColors": 2776
+    },
+    {
+      "app": "gridcraft",
+      "url": "http://127.0.0.1:8795/original/gridcraft/?sample&webgl",
+      "processing": "browser",
+      "serverIntegrated": false,
+      "title": "GridCraft",
+      "canvas": true,
+      "screenshot": "gridcraft.png",
+      "pageErrors": [],
+      "failedRequests": [],
+      "distinctScreenshotColors": 4573
+    },
+    {
+      "app": "deckcraft",
+      "url": "http://127.0.0.1:8795/original/deckcraft/?sample&webgl",
+      "processing": "browser",
+      "serverIntegrated": false,
+      "title": "DeckCraft",
+      "canvas": true,
+      "screenshot": "deckcraft.png",
+      "pageErrors": [],
+      "failedRequests": [],
+      "distinctScreenshotColors": 5520
+    },
+    {
+      "app": "cadcraft",
+      "url": "http://127.0.0.1:8795/original/cadcraft/?webgl",
+      "processing": "browser",
+      "serverIntegrated": false,
+      "title": "CADCraft",
+      "canvas": true,
+      "screenshot": "cadcraft.png",
+      "pageErrors": [],
+      "failedRequests": [],
+      "distinctScreenshotColors": 3808
+    },
+    {
+      "app": "figcraft",
+      "url": "http://127.0.0.1:8795/original/figcraft/?webgl",
+      "processing": "browser",
+      "serverIntegrated": false,
+      "title": "FigCraft",
+      "canvas": true,
+      "screenshot": "figcraft.png",
+      "pageErrors": [],
+      "failedRequests": [],
+      "distinctScreenshotColors": 457
+    },
+    {
+      "app": "soundcraft",
+      "url": "http://127.0.0.1:8795/original/soundcraft/?webgl",
+      "processing": "browser",
+      "serverIntegrated": false,
+      "title": "SoundCraft",
+      "canvas": true,
+      "screenshot": "soundcraft.png",
+      "pageErrors": [],
+      "failedRequests": [],
+      "distinctScreenshotColors": 5335
+    }
+  ],
+  "scope": "Fresh original UI launch/render checks only; no new open/edit/save/reopen, permission or server-processing acceptance",
+  "dashboard": {
+    "launchLinks": [
+      {
+        "title": "Open RapidRAW editor \u2197",
+        "url": "/apps/rapidraw/"
+      },
+      {
+        "title": "Open original PhotoCraft \u2197",
+        "url": "/original/photocraft/"
+      },
+      {
+        "title": "Open original VectorCraft \u2197",
+        "url": "/original/vectorcraft/"
+      },
+      {
+        "title": "Open original FilmCraft \u2197",
+        "url": "/original/filmcraft/"
+      },
+      {
+        "title": "Open original LightCraft \u2197",
+        "url": "/original/lightcraft/"
+      },
+      {
+        "title": "Open original PdfCraft \u2197",
+        "url": "/original/pdfcraft/"
+      },
+      {
+        "title": "Open original EffectCraft \u2197",
+        "url": "/original/effectcraft/"
+      },
+      {
+        "title": "Open original FigCraft \u2197",
+        "url": "/original/figcraft/"
+      },
+      {
+        "title": "Open original WordCraft \u2197",
+        "url": "/original/wordcraft/"
+      },
+      {
+        "title": "Open original SoundCraft \u2197",
+        "url": "/original/soundcraft/"
+      },
+      {
+        "title": "Open original DeckCraft \u2197",
+        "url": "/original/deckcraft/"
+      },
+      {
+        "title": "Open original CADCraft \u2197",
+        "url": "/original/cadcraft/"
+      },
+      {
+        "title": "Open original GridCraft \u2197",
+        "url": "/original/gridcraft/"
+      }
+    ]
+  },
+  "rapidraw": {
+    "ready": true,
+    "url": "/apps/rapidraw/",
+    "singleSession": true,
+    "ownedRuntime": true,
+    "title": "RapidRAW"
+  }
+}

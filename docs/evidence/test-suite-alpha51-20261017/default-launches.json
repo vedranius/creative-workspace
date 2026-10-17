@@ -1,0 +1,74 @@
+[
+  {
+    "app": "photocraft",
+    "url": "http://127.0.0.1:8795/original/photocraft/",
+    "pageErrors": [],
+    "defaultLaunch": true
+  },
+  {
+    "app": "vectorcraft",
+    "url": "http://127.0.0.1:8795/original/vectorcraft/",
+    "pageErrors": [],
+    "defaultLaunch": true
+  },
+  {
+    "app": "pdfcraft",
+    "url": "http://127.0.0.1:8795/original/pdfcraft/",
+    "pageErrors": [],
+    "defaultLaunch": true
+  },
+  {
+    "app": "lightcraft",
+    "url": "http://127.0.0.1:8795/original/lightcraft/",
+    "pageErrors": [],
+    "defaultLaunch": true
+  },
+  {
+    "app": "filmcraft",
+    "url": "http://127.0.0.1:8795/original/filmcraft/",
+    "pageErrors": [],
+    "defaultLaunch": true
+  },
+  {
+    "app": "effectcraft",
+    "url": "http://127.0.0.1:8795/original/effectcraft/",
+    "pageErrors": [],
+    "defaultLaunch": true
+  },
+  {
+    "app": "wordcraft",
+    "url": "http://127.0.0.1:8795/original/wordcraft/",
+    "pageErrors": [],
+    "defaultLaunch": true
+  },
+  {
+    "app": "gridcraft",
+    "url": "http://127.0.0.1:8795/original/gridcraft/",
+    "pageErrors": [],
+    "defaultLaunch": true
+  },
+  {
+    "app": "deckcraft",
+    "url": "http://127.0.0.1:8795/original/deckcraft/",
+    "pageErrors": [],
+    "defaultLaunch": true
+  },
+  {
+    "app": "cadcraft",
+    "url": "http://127.0.0.1:8795/original/cadcraft/",
+    "pageErrors": [],
+    "defaultLaunch": true
+  },
+  {
+    "app": "figcraft",
+    "url": "http://127.0.0.1:8795/original/figcraft/",
+    "pageErrors": [],
+    "defaultLaunch": true
+  },
+  {
+    "app": "soundcraft",
+    "url": "http://127.0.0.1:8795/original/soundcraft/",
+    "pageErrors": [],
+    "defaultLaunch": true
+  }
+]
