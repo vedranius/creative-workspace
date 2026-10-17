@@ -14,6 +14,38 @@ use rawler::{
 };
 use sha2::{Digest, Sha256};
 
+pub mod exposure;
+
+/// Preserve the native compensation formula behind a finite-value host boundary.
+/// This returns stops only; it does not develop or modify image pixels.
+pub fn baseline_exposure_compensation(
+    scene_referred: bool,
+    dng_baseline: f32,
+    highlight_preservation: f32,
+    baseline_exposure: Option<f32>,
+    compensate_highlight_preservation: bool,
+) -> Result<f32, String> {
+    if !dng_baseline.is_finite()
+        || !highlight_preservation.is_finite()
+        || baseline_exposure.is_some_and(|v| !v.is_finite())
+    {
+        return Err("Exposure values must be finite".into());
+    }
+    let result = exposure::RawExposure {
+        scene_referred,
+        dng_baseline,
+        highlight_preservation,
+    }
+    .compensation(exposure::BaselineOptions {
+        baseline_exposure,
+        compensate_highlight_preservation,
+    });
+    if !result.is_finite() {
+        return Err("Exposure compensation overflows".into());
+    }
+    Ok(result)
+}
+
 const MAX_INPUT_BYTES: usize = 128 * 1024 * 1024;
 const MAX_SENSOR_DIMENSION: usize = 32_768;
 const MAX_SENSOR_BYTES: usize = 64 * 1024 * 1024;
@@ -330,6 +362,24 @@ fn hex_digest(digest: impl AsRef<[u8]>) -> String {
 #[cfg(target_arch = "wasm32")]
 mod browser {
     use wasm_bindgen::prelude::*;
+
+    #[wasm_bindgen]
+    pub fn baseline_exposure_compensation(
+        scene_referred: bool,
+        dng_baseline: f32,
+        highlight_preservation: f32,
+        baseline_exposure: Option<f32>,
+        compensate_highlight_preservation: bool,
+    ) -> Result<f32, JsValue> {
+        super::baseline_exposure_compensation(
+            scene_referred,
+            dng_baseline,
+            highlight_preservation,
+            baseline_exposure,
+            compensate_highlight_preservation,
+        )
+        .map_err(|e| JsValue::from_str(&e))
+    }
 
     #[wasm_bindgen]
     pub fn decode_sensor_report(bytes: &[u8]) -> Result<String, JsValue> {

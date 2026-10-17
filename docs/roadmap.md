@@ -1,3 +1,7 @@
+# RWASM-02 — verified original compensation slice (2026-10-17)
+
+The original RawExposure/BaselineOptions formula/types now run in native and dedicated browser WASM worker: 144 exact f32 bit matches against unchanged native source, 10 invalid-value rejections, all14 native/84Node tests pass. This is scalar stops only; pixels/UI/export remain unimplemented. Next: original native develop pixel path and native-reference comparison, then exposure application/export. [Evidence](evidence/rapidraw-wasm/exposure-compensation.json) · [handoff](rapidraw-wasm-exposure-handoff.md).
+
 # RWASM — native RapidRAW to browser (authorized 2026-10-17)
 
 **RWASM-02 boundary trace (2026-10-17):** CI run `39067115698` passed for `aefefea`. Native `read_as_shot` couples decoder output, camera-neutral white balance, Canon multi-exposure handling, and `baseline_exposure::read`; the smallest host-independent slice is `RawExposure::compensation(BaselineOptions)`. First extract only that formula/types, validate against native reference cases for scene-referred state, optional baseline and highlight compensation, and leave metadata parsing and pixel development native. The next downstream boundary is `RawDevelop::develop_intermediate`, with exposure/white-balance/native pixel references required before claiming parity. [Handoff](development-state.md).

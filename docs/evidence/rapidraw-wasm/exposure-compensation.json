@@ -1,0 +1,13 @@
+{
+  "stage": "RWASM-02 baseline exposure compensation only",
+  "nativeSource": "b39884b38d8f148caef6fd0d52afd264951be329",
+  "referenceSource": "Byte-identical pinned src-tauri/src/baseline_exposure.rs, compiled natively with only AppSettings host type stubbed",
+  "cases": 144,
+  "exactF32BitMatches": 144,
+  "rejectedNonfiniteOrOverflowCases": 10,
+  "pageErrors": [],
+  "failedRequests": [],
+  "wasmBytes": 6480620,
+  "wasmSha256": "002bf6c860c619d9c4e44d8184b48d253de728f0a6e4c5071a2652f3a4f9eb10",
+  "scope": "Scalar compensation in exposure stops, executed in a dedicated Chromium WASM worker; no image pixel processing, metadata parsing, original UI or export acceptance"
+}
