@@ -1,0 +1,11 @@
+{
+  "status": "original-designcraft-shared-save-recovery-browser-proof",
+  "sourcePin": "a127c6d5c3576972bbd60445f26d893db071eef3",
+  "recoveryRoute": "existing /api/storage/recovery inventory and retained-output download",
+  "recordState": "unacknowledged",
+  "relativePath": "exports/uncertain.designcraft",
+  "downloadHash": "7b0f89ba78e2fcbf7315d3d087deb77998a71b0194bc80bd43465558080b4a01",
+  "permission": "synthetic provider journal fixture; does not prove native folder picker permission or a real laptop write",
+  "browserErrors": [],
+  "failedResponses": []
+}

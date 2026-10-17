@@ -1,3 +1,9 @@
+## [0.2.0-alpha.54] - 2026-10-17
+
+- Add an accessible recovery entry to the exact-pinned original DesignCraft UI. It opens the existing shared recovery inventory and retained-output download path; no new recovery endpoint or replay behavior is introduced.
+- Add `text.delete` to the owned DesignCraft native worker command allowlist. Alpha.53's clean Actions browser run exposed that omission; alpha.53 has no tag or release.
+- Keep DesignCraft planned: recovery manifest and browser folder chooser are fixtures, and original Save a Copy, real laptop permission/write ACK, reopen/recovery and full app parity remain open.
+
 ## [0.2.0-alpha.53] - 2026-10-17
 
 - Replace the nine release-job Rust setup action downloads with a local helper using the runner's existing Rustup. Preserve exact native Rust 1.95.0 and browser Rust 1.99.0 pins and the explicit wasm32 target; reuse cached installations, retry failed downloads at most three times, and activate only after compiler/target verification. Do not change the global default or fall back to a different compiler.
@@ -7,7 +13,7 @@
 ## [0.2.0-alpha.52] - 2026-10-16
 
 - Connect original DesignCraft Text Tool Backspace/Delete to the owned worker as the upstream `text.delete` action, with the matching revisioned ACK and server-render refresh.
-- Add the native worker allowlist entry and verify the original browser action end to end; keep DesignCraft planned while provider permission/write ACK/recovery and full parity remain incomplete.
+- Add `text.delete` to the upstream source-mirror action allowlist. Alpha.53 clean Actions testing later found a second, independent omission in Creative Workspace’s owned native adapter, fixed by alpha.54; keep DesignCraft planned pending provider permission/write ACK/recovery and full parity.
 
 ## [0.2.0-alpha.48] - 2026-10-16
 

@@ -10,11 +10,13 @@ import {originalUiPins,originalUiPatches,originalUiPackageId} from '../src/origi
 
 test('DesignCraft PAR-03 variant is pinned to its exact reviewed source patch',async()=>{
   const patch=originalUiPatches.designcraft,bytes=await readFile(new URL('../'+patch.path,import.meta.url));
-  assert.equal(patch.id,'par-03-text-delete-v1');
-  assert.equal(patch.path,'patches/designcraft/a127c6d5/par-03-text-delete-v1.patch');
-  assert.equal(patch.sha256,'3414aabcb4de72d1bbb6466a55614b31d7e97d3dc7074ddca29da52d3dcf511f');
+  assert.equal(patch.id,'par-03-save-recovery-v1');
+  assert.equal(patch.path,'patches/designcraft/a127c6d5/par-03-save-recovery-v1.patch');
+  assert.equal(patch.sha256,'68ab6bf82dacf0cb23d6b6964ffe2f006f9d4ac3d2ffb35b86e66dceb1ad4688');
   assert.equal(createHash('sha256').update(bytes).digest('hex'),patch.sha256);
   assert.match(bytes.toString('utf8'),/diff --git a\/apps\/designcraft-web\/file-provider\.js/);
+  assert.match(bytes.toString('utf8'),/openRecovery\(\{app:"designcraft"/);
+  assert.match(bytes.toString('utf8'),/js_name = installDesignCraftRecovery/);
   assert.equal(originalUiPackageId('designcraft'),`${originalUiPins.designcraft}-${patch.sha256.slice(0,12)}`);
 });
 

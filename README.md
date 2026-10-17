@@ -2,7 +2,7 @@
 
 # Creative Workspace
 
-**Version: 0.2.0-alpha.53** — open-source, self-hosted, single-user prototype. Actions now sets up the exact native/WebAssembly Rust pins directly through the runner's Rustup with bounded download retries and verified activation. This addresses the setup dependency that stopped alpha.52 before its DesignCraft build. Fresh Actions/package verification is pending; original ArtCraft server/provider acceptance remains incomplete. The protected alpha.51 [local test studio](docs/test-suite-alpha51-20261017.md) stays separate.
+**Version: 0.2.0-alpha.54** (release candidate) — open-source, self-hosted, single-user prototype. The original DesignCraft page now opens the shared retained-output recovery view, and the native worker allowlist accepts its original Text Tool `text.delete` action. Alpha.53 passed Checks but failed the clean DesignCraft browser run because the native allowlist omitted `text.delete`; no alpha.53 tag or release was created. Alpha.54 Actions/browser/package verification is pending. Original ArtCraft server/provider acceptance remains incomplete. The protected alpha.51 [local test studio](docs/test-suite-alpha51-20261017.md) stays separate.
 
 Bring your creative tools together in one browser studio. Choose an application, select your files, and access your own server from a lightweight laptop. The goal is **the original application interfaces and tools in the browser, with the server doing the heavy work**: photography, image editing, illustration, PDF, publishing, video, motion graphics, office documents, spreadsheets, presentations, CAD, interface design and audio. Browser controls run locally; document commands, data and previews travel to the server. No VNC or remote desktop is involved.
 
@@ -14,7 +14,9 @@ Alpha.24 adds an original Open-dialog candidate for a selected laptop `.designcr
 
 ## What is new
 
-- **DesignCraft Text Tool Backspace/Delete (alpha.52):** the original Backspace action reaches the owned worker as `text.delete`; Chromium verifies `INK` → `IN`, revision 9 and a changed server-render PNG. Provider permission/write ACK/recovery and full parity remain pending. [Browser evidence](docs/evidence/designcraft-par03-text-delete-browser.json).
+- **DesignCraft recovery access and native `text.delete` fix (alpha.54 candidate):** the original page opens the existing shared recovery view and can download a retained unacknowledged copy. Alpha.53 exposed the worker allowlist omission during its clean browser job; the native adapter now includes the original action ID. The recovery manifest and folder chooser used in the local browser proof are fixtures. Real folder permission, original Save a Copy failure/recovery and full parity remain unverified. [Evidence](docs/evidence/designcraft-par03-recovery-entry.md) · [handoff](docs/par-03a-handoff.md).
+
+- **DesignCraft Text Tool Backspace/Delete (alpha.52):** the original Backspace action reaches the owned worker as `text.delete`; Chromium verifies `INK` → `IN`, revision 9 and a changed server-render PNG. The upstream source mirror accepted the action; alpha.53 clean Actions later exposed a separate omission in the owned native adapter, corrected in alpha.54. Provider permission/write ACK/recovery and full parity remain pending. [Browser evidence](docs/evidence/designcraft-par03-text-delete-browser.json).
 
 - **DesignCraft Undo ACK identity (alpha.51):** gateway responses now echo the exact `edit.undo`/`edit.redo` command ID and reject extra parameters. Original Clear → Ctrl+Z restores server-owned `INK` and the exact pre-Clear server PNG at revision 10. The provider chooser is synthetic; DesignCraft remains planned. [Browser evidence](docs/evidence/designcraft-par03-edit-clear-undo-browser.json).
 

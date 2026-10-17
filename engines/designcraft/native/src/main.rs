@@ -25,6 +25,7 @@ const COMMANDS: &[&str] = &[
     "text.placeCaret",
     "text.select",
     "text.insert",
+    "text.delete",
     "type.char",
     "edit.clear",
     "edit.undo",
