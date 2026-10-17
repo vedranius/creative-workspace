@@ -19,7 +19,7 @@
     "pageErrors": 0,
     "worker": "Dedicated module worker; one RAW at a time; terminated after response",
     "workerSource": "experiments/rapidraw-wasm-core/decoder-worker.js",
-    "workerSha256": "f4ef9b44ae9a2d1e9def446c2d0844c38b783806afeeba6e9d94aebc1431b51c",
+    "workerSha256": "c5b3e821fdd7c5c746b095c61d042b5ab831193d443f78774c1606dd5f42b0cd",
     "emptyInputRejectedBeforeWasmInitialization": true,
     "inputBound": "Worker rejects empty or over-128-MiB buffers before wasm-bindgen copies them; a UI host must also preflight before reading or transferring a file"
   },
@@ -78,11 +78,29 @@
     "cargoTestNative": "1 passed",
     "nativeReferenceDecode": "pass for CC0 Canon DNG and private Fujifilm RAF; Blackmagic DNG unsupported by pinned decoder",
     "browserWorkerParity": "pass for CC0 Canon DNG and private Fujifilm RAF; Blackmagic DNG returns the same unsupported-decoder error as native",
-    "workerCancellationDuringDecode": "not tested",
+    "workerCancellationDuringDecode": "Chromium AbortSignal test terminated the worker after its immediate pre-decode status; no completed report was received",
     "malformedRawCorpus": "not tested",
     "decodedAllocationAndDimensionLimits": "not implemented; the input bound does not constrain decoded allocations",
     "privateOriginalIntegrity": "read-only O_NOFOLLOW|O_NOATIME SHA-256 and size/mtime/inode matched the pre-test baseline"
   },
+  "workerLifecycleGate": {
+    "clientSource": "experiments/rapidraw-wasm-core/decoder-client.js",
+    "clientSha256": "9e1a2fee523bd60523855e932d3f0a49db5ff027ceb867ff8ce6c8f1a9d322be",
+    "unitTestSource": "experiments/rapidraw-wasm-core/decoder-client.test.mjs",
+    "unitTestSha256": "1b8f64b208c49a83048ce97dfa2903f120b3e611029d32de3d6869e782fe556a",
+    "inputPreflight": "1 byte to 128 MiB; client exposes a size predicate for File.size before reading, and worker rechecks before wasm-bindgen copies the buffer",
+    "timeout": "30-second default, capped at 120 seconds; timer termination covered by a deterministic fake-worker test, not by waiting for a real RAW timeout",
+    "cancellation": "AbortSignal terminates the worker synchronously",
+    "unitTests": "3 passed: size/timeout bounds, abort resolution/termination, timer resolution/termination",
+    "realBrowserTest": {
+      "engine": "Chromium 1234 headless, one context",
+      "input": "one local user-authorized read-only RAW buffer; image pixels, metadata and input hash were not logged",
+      "sequence": "Worker sent its decode-start status immediately before synchronous rawler decode; the page aborted via AbortSignal and received reason=aborted",
+      "workerTerminated": true,
+      "pageErrors": 0,
+      "completedReportCaptured": false
+    }
+  },
   "publiclyAvailable": false,
-  "next": "Investigate a narrow, source-pinned path for the CC0 Blackmagic DNG's 12-bit lossy JPEG compression or retain it as explicitly unsupported; then add malformed-input, decoded-dimension/memory, timeout and worker-termination gates before any public input. Original RapidRAW processing, exposure/export and UI integration remain subsequent milestones."
+  "next": "Add a pinned-decoder preflight for decoded dimensions/allocation (or reject safely before rawler allocates), and malformed-input tests; also exercise the real-worker timeout rather than only the deterministic timer unit test. Keep Blackmagic 12-bit CinemaDNG explicitly unsupported unless a safe source-pinned decoder path is established."
 }

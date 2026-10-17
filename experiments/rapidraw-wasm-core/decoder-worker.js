@@ -19,6 +19,7 @@ self.onmessage = async ({ data }) => {
   try {
     if (!ready) ready = init();
     await ready;
+    self.postMessage({ id, ok: true, status: "decoding" });
     const report = JSON.parse(decode_sensor_report(new Uint8Array(bytes)));
     self.postMessage({ id, ok: true, report });
   } catch (error) {
