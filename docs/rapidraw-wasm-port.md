@@ -24,6 +24,10 @@ The probe currently bounds input bytes only. It is not exposed publicly: decoded
 cargo check --locked --manifest-path experiments/rapidraw-wasm-core/Cargo.toml --target wasm32-unknown-unknown
 ```
 
+### RWASM-01 partial runtime evidence
+
+The pinned probe also builds as an optimized WASM module (6,407,677 bytes before transport compression) and its matching wasm-bindgen 0.2.129 web glue runs in a dedicated Chromium module worker. Eight deterministic non-RAW bytes initialize the real module, reach rawler, and produce `No decoder found`, with zero page errors. The worker source is `experiments/rapidraw-wasm-core/decoder-worker.js`; [runtime evidence](evidence/rapidraw-wasm/runtime-smoke.json) records the exact artifact hash and limits. This is browser runtime evidence, not successful RAW decode evidence. No CC-0 fixture bytes were present locally; until a fixture and provenance/hash are obtained, RWASM-01 remains open. The fixture source's sample policy requires CC-0: [DngLab contribution instructions](https://github.com/CyberTimon/RapidRAW-DngLab/blob/a32bc1ff1f4f3c56d4d3226082f6eb17414f9159/CONTRIBUTE_SAMPLES.md).
+
 ## Bounded implementation sequence
 
 1. **RWASM-01 — real decoder runtime.** Build the probe to WASM with the matching wasm-bindgen CLI, run it in a dedicated browser worker, and decode licensed real RAW fixtures. Check full sensor dimensions and values against a native execution of the same locked code. Include malformed files, unsupported formats and worker cancellation. Successful compilation alone does not pass this gate.

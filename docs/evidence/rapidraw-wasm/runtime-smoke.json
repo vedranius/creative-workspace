@@ -1,0 +1,32 @@
+{
+  "stage": "RWASM-01 partial: wasm build and dedicated worker runtime",
+  "date": "2026-10-17",
+  "sourceCommit": "1efb849",
+  "nativeSource": "b39884b38d8f148caef6fd0d52afd264951be329",
+  "decoderSource": "a32bc1ff1f4f3c56d4d3226082f6eb17414f9159",
+  "rustc": "1.99.0 (b940084d7 2026-09-28)",
+  "wasmBindgen": "0.2.129",
+  "command": "cargo build --locked --manifest-path experiments/rapidraw-wasm-core/Cargo.toml --target wasm32-unknown-unknown --release",
+  "buildExitCode": 0,
+  "wasmBytes": 6407677,
+  "wasmSha256": "580fd6b36390b518945960ab081fbd439c50bb9bd90f5baf33f652d47fc0f570",
+  "wasmBindgen": "wasm-bindgen --target web",
+  "browser": "Chromium 1234, headless, one page/context",
+  "browserScenario": {
+    "input": "8 deterministic non-RAW bytes [0,1,2,3,4,5,6,7] transferred to a dedicated module worker",
+    "result": "WASM initialized and actual rawler decoder returned No decoder found",
+    "pageErrors": 0
+  },
+  "workerSource": "experiments/rapidraw-wasm-core/decoder-worker.js",
+  "workerSha256": "35e8c49336a890e5093248321a676d183836f5167b40ac8d23ad5720bc408390",
+  "rawFixtureDecoded": false,
+  "nativeSensorComparison": false,
+  "workerCancellation": "Caller can terminate the dedicated worker; in-flight cancellation was not separately exercised",
+  "publiclyAvailable": false,
+  "limitations": [
+    "No CC-0 RAW fixture bytes were available in the pinned source checkout or local workspace; DngLab documents its sample license requirement at https://github.com/dnglab/dnglab/blob/main/CONTRIBUTE_SAMPLES.md.",
+    "No real RAW decode, sensor dimensions/sample comparison, allocation guard, malformed RAW corpus, timeout test, original RapidRAW processing pipeline, or UI integration is proven.",
+    "Probe is not exposed to users. The current input-length limit does not bound decoded allocations."
+  ],
+  "next": "Obtain and record a CC-0 RAW fixture plus provenance/hash; run this exact WASM worker and the locked decoder natively on it; compare dimensions and sensor samples, then design pre-allocation limits and cancellation/malformed-input acceptance before expanding the probe."
+}

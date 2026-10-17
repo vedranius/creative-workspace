@@ -1,6 +1,6 @@
 # RWASM — native RapidRAW to browser (authorized 2026-10-17)
 
-A separate browser-processing port preserves original RapidRAW UI and algorithms for independent public-demo users. Source and decoder are pinned; the first decoder compiler seam passes wasm32 cargo check. This is not runtime RAW/edit/export acceptance and does not replace the main server-processing work. Next: RWASM-01 real decoder WASM worker/native-reference proof. [Full milestones and gates](rapidraw-wasm-port.md).
+A separate browser-processing port preserves original RapidRAW UI and algorithms for independent public-demo users. Pinned decoder now builds to WASM and runs in a dedicated Chromium worker; only an unsupported non-RAW input rejection is evidenced. RWASM-01 remains open: obtain a CC-0 RAW fixture and compare actual decoded dimensions/sensor samples with the same locked native decoder. No edit/export/UI acceptance; this does not replace main server-processing work. [Full milestones and gates](rapidraw-wasm-port.md) · [runtime smoke evidence](evidence/rapidraw-wasm/runtime-smoke.json).
 
 # CF-DEMO — explicit browser-processing alternative (2026-10-17)
 
