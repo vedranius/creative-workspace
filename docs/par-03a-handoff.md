@@ -1,5 +1,9 @@
 # PAR-03 current handoff — Save Copy ACK-failure recovery verified
 
+## 2026-10-17 headed browser capability check and next action
+
+The current host's CUA inventory contains only Codex In-app Browser and Codex MCP Apps, with no Chrome/Edge/CDP browser or headed local browser window. It cannot present or accept a real OS directory picker; alpha.55's folder handle remains a fixture, not native permission evidence. Next bounded original action is DesignCraft's menu action `app.duplicateSpread`, which invokes engine command `layout.pages.duplicateSpread` for the visible spread. Route that exact engine command through the existing ordered server host-action queue; hydrate only after matching worker ACK and render revision, then verify in the original UI against the owned worker. Preserve source/action identity, reject stale revisions and keep the picker gate separate. DesignCraft remains planned.
+
 ## 2026-10-17 alpha.55 Actions and release gate verified
 
 The correction in commit `1b2ca33` waits for the `file.new` and `frame.create` ACKs before the Select All smoke asserts. Checks `39023934892` and Build/release `39023934919` passed. Authenticated as `vedranius`; immutable tag `v0.2.0-alpha.55` points to the commit, and the GitHub prerelease is draft-only. All 24 downloaded assets match their GitHub digests and 12 archive/sidecar pairs pass.
