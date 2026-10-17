@@ -1,0 +1,51 @@
+{
+  "status": "original-save-copy-ack-failure-recovery-browser-candidate",
+  "sourceCommands": [
+    "app.openDialog -> file.open",
+    "File → Save a Copy… -> file.saveACopy"
+  ],
+  "commonProviderFolderPicker": true,
+  "mode": "laptop-ondemand",
+  "providerRootBoundToSession": true,
+  "providerReadAcknowledgedBeforeNativeOpen": true,
+  "openRevision": 1,
+  "openDirty": false,
+  "openedObjects": 1,
+  "editRevision": 2,
+  "undoRevision": 3,
+  "undoRestoresOpenedSnapshotAndRender": true,
+  "saveCopyDestinations": [
+    "server",
+    "laptop"
+  ],
+  "saveCopyRetention": "workspace",
+  "laptopWriteAcknowledgedInBrowser": false,
+  "laptopOutputReopenedThroughProvider": false,
+  "recoveryAfterDestinationCloseFailure": true,
+  "retryCollisionRefused": true,
+  "saveCopyPreservesOriginalDirtyStateAndFilename": true,
+  "saveCopyDoesNotOverwriteExistingTargets": true,
+  "cancelCreatesNoOpen": true,
+  "visibleCanvas": {
+    "brightPixels": 534954,
+    "distinctColorsAtLeast": 64
+  },
+  "uncaughtBrowserErrors": [],
+  "saveFailure": {
+    "method": "file.saveACopy",
+    "expectedVersion": 5,
+    "destination": "laptop",
+    "previousAcknowledgedDocument": {
+      "name": "chosen.designcraft",
+      "dirty": true
+    },
+    "ackAfterFailure": null,
+    "revisionAfterFailure": "5",
+    "recoveryState": "Laptop save failed — recovery record retained",
+    "recoveryBytes": 2954,
+    "recoverySha256": "36996a89ae782f65b73aa90a40227d9b5e7d876c0e9312a9164e33937855a3b9",
+    "retryStatus": 409,
+    "localDestinationBytes": 0
+  },
+  "limitations": "File System Access folder handle is mocked; real browser permission and uncertain-output recovery, unsupported retention modes and full parity remain pending"
+}

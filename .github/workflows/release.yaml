@@ -240,6 +240,9 @@ jobs:
           CW_PAR03_TEXT_DELETE_SCREENSHOT: ${{ github.workspace }}/build/designcraft-par03-evidence/text-delete-browser.png
           CW_DESIGNCRAFT_RECOVERY_REPORT: ${{ github.workspace }}/build/designcraft-par03-evidence/recovery-entry-browser.json
           CW_DESIGNCRAFT_RECOVERY_SCREENSHOT: ${{ github.workspace }}/build/designcraft-par03-evidence/recovery-entry-browser.png
+          CW_DESIGNCRAFT_ACK_FAILURE_REPORT: ${{ github.workspace }}/build/designcraft-par03-evidence/save-copy-ack-failure-browser.json
+          CW_DESIGNCRAFT_ACK_FAILURE_SCREENSHOT: ${{ github.workspace }}/build/designcraft-par03-evidence/save-copy-ack-failure-browser.png
+          CW_DESIGNCRAFT_ACK_FAILURE_RECOVERY_SCREENSHOT: ${{ github.workspace }}/build/designcraft-par03-evidence/save-copy-ack-failure-recovery.png
         run: |
           chmod +x "$CW_DESIGNCRAFT_BINARY"
           npm install --prefix build/browser-qa --no-audit --no-fund --save-exact playwright@1.64.0
@@ -250,6 +253,7 @@ jobs:
           node scripts/smoke-designcraft-edit-clear-candidate.mjs
           node scripts/smoke-designcraft-text-delete-candidate.mjs
           node scripts/smoke-designcraft-recovery-entry.mjs
+          node scripts/smoke-designcraft-save-copy-ack-failure.mjs
       - name: Build and prove the original preset/server-canvas candidate
         env:
           CW_DESIGNCRAFT_BINARY: ${{ github.workspace }}/build/staged/designcraft/cw-designcraft-engine

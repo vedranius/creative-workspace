@@ -119,6 +119,13 @@ Alpha.35 Actions run `38561662430` completed with contract, Linux bundle and pin
 
 # PAR-03 handoff — bounded server read-model slice verified
 
+## 2026-10-17 PAR-03 Save a Copy ACK-failure Actions gate
+
+Added `scripts/smoke-designcraft-save-copy-ack-failure.mjs` to the paired `original-designcraft` Actions browser job. Local Chromium ran the exact-pinned original UI and owned worker with a real Linux FUSE/common provider mount; the injected browser destination close returned EIO after server output was retained. The original `file.saveACopy` produced no success ACK, `chosen.designcraft` remained dirty at revision 5, recovery download matched the 2,954-byte mirror output (SHA-256 `36996a89ae782f65b73aa90a40227d9b5e7d876c0e9312a9164e33937855a3b9`), and same-target retry returned 409 with no local bytes. Visible canvas and zero browser errors verified. Folder handle/failure are fixtures; native browser permission and successful laptop write/reopen remain unproven. [Gate evidence](evidence/designcraft-par03-save-copy-ack-failure-actions-smoke.md).
+
+Next: run the paired Actions job on the pushed commit and inspect its browser artifact. Then continue real folder permission, open/edit/save/reopen and remaining original parity. Keep DesignCraft planned and alpha.54 immutable draft-only; do not create a product release for this CI/test-only gate. Preserve `engines/filmcraft/` and protected sessions.
+
+
 ## 2026-10-15 PAR-03 alpha.39 Actions and assets verified
 
 Commit `d08ff58eeac1d11345519b90b86bccbc5d337ade` contains the registered `par-03-selection-set-v1` candidate. Actions Build/release `38640343490` and Checks `38640343523` succeeded. The original UI job built the exact pinned WASM, passed the native action-capture test and Chromium smoke: A4 `file.new`, graphic `frame.create`, empty `selection.set`, selection ID 8/read-model revision 5, caret and ordered text actions through revision 14, server render and zero browser errors. Immutable tag `v0.2.0-alpha.39` points to that commit; its draft prerelease has 12 uploaded assets (three prototype bundles, DesignCraft host-canvas candidate, DesignCraft PAR-03 preview, FilmCraft UI preview, plus six checksum sidecars). All six archive sidecars were downloaded and verified. See [release evidence](evidence/creative-workspace-alpha39-release.md) and the [Actions browser artifact](https://github.com/vedranius/creative-workspace/actions/runs/38640343490/artifacts/11932034885).
