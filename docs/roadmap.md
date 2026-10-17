@@ -39,6 +39,10 @@ The user explicitly authorized a separate public Cloudflare demo using the visit
 
 **PAR-03 `edit.selectAll` backend route candidate (2026-10-15):** gateway allowlist forwards the original ID with empty parameters and revisioned ACK; fixture test passes. Original UI mirror caller is not connected and native/browser proof is pending. Keep DesignCraft planned. Next wire the source action and verify it in the owned worker and original UI.
 
+# PAR-03 next: bridge original `layout.pages.move`
+
+The pinned Pages panel emits `{from,to}` but current patch/gateway/native allowlists omit it. Implement its original caller through ordered server ACK/read-model/render and verify in isolated Chromium. Keep DesignCraft planned. See [handoff](par-03a-handoff.md).
+
 # Creative Workspace — plan razvoja
 
 # 2026-10-15 ORG-WORD-UI alpha.42 candidate — original browser preview
