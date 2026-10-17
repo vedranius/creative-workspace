@@ -1,32 +1,88 @@
 {
-  "stage": "RWASM-01 partial: wasm build and dedicated worker runtime",
+  "stage": "RWASM-01 partial: real RAW decode and native parity",
   "date": "2026-10-17",
-  "sourceCommit": "1efb849",
   "nativeSource": "b39884b38d8f148caef6fd0d52afd264951be329",
   "decoderSource": "a32bc1ff1f4f3c56d4d3226082f6eb17414f9159",
+  "rawlerVersion": "0.7.1",
   "rustc": "1.99.0 (b940084d7 2026-09-28)",
   "wasmBindgen": "0.2.129",
-  "command": "cargo build --locked --manifest-path experiments/rapidraw-wasm-core/Cargo.toml --target wasm32-unknown-unknown --release",
-  "buildExitCode": 0,
-  "wasmBytes": 6407677,
-  "wasmSha256": "580fd6b36390b518945960ab081fbd439c50bb9bd90f5baf33f652d47fc0f570",
-  "wasmBindgen": "wasm-bindgen --target web",
-  "browser": "Chromium 1234, headless, one page/context",
-  "browserScenario": {
-    "input": "8 deterministic non-RAW bytes [0,1,2,3,4,5,6,7] transferred to a dedicated module worker",
-    "result": "WASM initialized and actual rawler decoder returned No decoder found",
-    "pageErrors": 0
+  "wasmBuild": {
+    "command": "cargo build --locked --manifest-path experiments/rapidraw-wasm-core/Cargo.toml --target wasm32-unknown-unknown --release",
+    "exitCode": 0,
+    "wasmBytes": 6426077,
+    "wasmSha256": "6533bcd1fef2d59848892f8700eb572bf1e92c05f64befa67e3c727d6a0ef2fb"
   },
-  "workerSource": "experiments/rapidraw-wasm-core/decoder-worker.js",
-  "workerSha256": "35e8c49336a890e5093248321a676d183836f5167b40ac8d23ad5720bc408390",
-  "rawFixtureDecoded": false,
-  "nativeSensorComparison": false,
-  "workerCancellation": "Caller can terminate the dedicated worker; in-flight cancellation was not separately exercised",
-  "publiclyAvailable": false,
-  "limitations": [
-    "No CC-0 RAW fixture bytes were available in the pinned source checkout or local workspace; DngLab documents its sample license requirement at https://github.com/dnglab/dnglab/blob/main/CONTRIBUTE_SAMPLES.md.",
-    "No real RAW decode, sensor dimensions/sample comparison, allocation guard, malformed RAW corpus, timeout test, original RapidRAW processing pipeline, or UI integration is proven.",
-    "Probe is not exposed to users. The current input-length limit does not bound decoded allocations."
+  "sharedDecodeImplementation": "The same crate function decodes and reports on native and wasm32; SHA-256 covers every decoded sensor sample in canonical little-endian form; the JSON also contains dimensions, bit depth, sample count and five deterministic values.",
+  "browser": {
+    "engine": "Chromium 1234 headless",
+    "contexts": 1,
+    "pageErrors": 0,
+    "worker": "Dedicated module worker; one RAW at a time; terminated after response",
+    "workerSource": "experiments/rapidraw-wasm-core/decoder-worker.js",
+    "workerSha256": "f4ef9b44ae9a2d1e9def446c2d0844c38b783806afeeba6e9d94aebc1431b51c",
+    "emptyInputRejectedBeforeWasmInitialization": true,
+    "inputBound": "Worker rejects empty or over-128-MiB buffers before wasm-bindgen copies them; a UI host must also preflight before reading or transferring a file"
+  },
+  "fixtures": [
+    {
+      "id": "raw.pixls.us 1327",
+      "camera": "Canon PowerShot A410",
+      "format": "DNG from CHDK RAW",
+      "license": "CC0-1.0",
+      "licenseSourceUrl": "https://raw.pixls.us/json/getrepository.php",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "sourceUrl": "https://raw.pixls.us/getfile.php/1327/nice/Canon%20-%20Canon%20PowerShot%20A410%20-%2010bit%2010bit%20CHDK%20ver.%201.5.0%20%284%3A3%29.DNG",
+      "sourceSha256": "f0d2fe47507fadf50008bddbc6bd2c5e39fddbe90cca6bca72dd360fa0e0eb38",
+      "nativeDecoded": true,
+      "wasmWorkerDecoded": true,
+      "nativeAndWasmReportExactMatch": true,
+      "width": 2144,
+      "height": 1560,
+      "componentsPerPixel": 1,
+      "bitsPerSample": 10,
+      "sampleCount": 3344640,
+      "decodedSensorSha256": "17124596990a87b26c4ea02994e0b0ddd5e65897d5661041142311a1e727a208"
+    },
+    {
+      "id": "raw.pixls.us 7317",
+      "camera": "Blackmagic Micro Cinema Camera",
+      "format": "12-bit 3:1 CinemaDNG",
+      "license": "CC0-1.0",
+      "licenseSourceUrl": "https://raw.pixls.us/json/getrepository.php",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "sourceUrl": "https://raw.pixls.us/getfile.php/7317/nice/Blackmagic%20-%20Micro%20Cinema%20Camera%20-%2012bit%20%2816%3A9%29.dng",
+      "sourceSha256": "4c65b8cda205087cfb94d8931811e53e15eb4df538ad67c1b4a3e76c1185b277",
+      "nativeDecoded": false,
+      "wasmWorkerDecoded": false,
+      "nativeAndWasmError": "Failed to decode image, possibly corrupt image. Origin error was: ljpeg: not a valid raw file, found DQT",
+      "decoderPath": "DngDecoder::raw_image -> plain_image_from_ifd selects LJpegDecompressor for 12-bit ModernJPEG -> LJpegDecompressor::new rejects DQT"
+    },
+    {
+      "camera": "Fujifilm (model and capture metadata withheld)",
+      "format": "RAF",
+      "authorization": "One local user-authorized read-only test copy; not CC0 and not shared",
+      "nativeDecoded": true,
+      "wasmWorkerDecoded": true,
+      "nativeAndWasmReportExactMatch": true,
+      "width": 6384,
+      "height": 4182,
+      "componentsPerPixel": 1,
+      "bitsPerSample": 16,
+      "sampleCount": 26697888,
+      "decodedSensorSha256": "084bf4d0f61d04fe2776afd37d60c40e7489accf494b9886ca8f1d1989ecaef0",
+      "sourcePathInputHashExifAndSampleValues": "withheld; private native report remains outside repository"
+    }
   ],
-  "next": "Obtain and record a CC-0 RAW fixture plus provenance/hash; run this exact WASM worker and the locked decoder natively on it; compare dimensions and sensor samples, then design pre-allocation limits and cancellation/malformed-input acceptance before expanding the probe."
+  "checks": {
+    "cargoCheckWasmTargetLocked": "pass",
+    "cargoTestNative": "1 passed",
+    "nativeReferenceDecode": "pass for CC0 Canon DNG and private Fujifilm RAF; Blackmagic DNG unsupported by pinned decoder",
+    "browserWorkerParity": "pass for CC0 Canon DNG and private Fujifilm RAF; Blackmagic DNG returns the same unsupported-decoder error as native",
+    "workerCancellationDuringDecode": "not tested",
+    "malformedRawCorpus": "not tested",
+    "decodedAllocationAndDimensionLimits": "not implemented; the input bound does not constrain decoded allocations",
+    "privateOriginalIntegrity": "read-only O_NOFOLLOW|O_NOATIME SHA-256 and size/mtime/inode matched the pre-test baseline"
+  },
+  "publiclyAvailable": false,
+  "next": "Investigate a narrow, source-pinned path for the CC0 Blackmagic DNG's 12-bit lossy JPEG compression or retain it as explicitly unsupported; then add malformed-input, decoded-dimension/memory, timeout and worker-termination gates before any public input. Original RapidRAW processing, exposure/export and UI integration remain subsequent milestones."
 }
