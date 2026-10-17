@@ -1,3 +1,9 @@
+## [0.2.0-alpha.60] - 2026-10-17
+
+- Bridge the original DesignCraft Properties → Page → Insert Page action to the owned server worker as `layout.pages.insert`; validate index/count and the 64-page session limit before mutation, then hydrate read-model and render only after matching ACK.
+- Exact-pinned Rust ACK test, bounded gateway test and isolated Chromium proof pass. Browser verified revision 2, two pages, dirty server state, HTTP 200 server PNG and no browser/network errors. Folder chooser remains synthetic; this single action does not establish DesignCraft availability.
+- Fresh Actions-built OS bundles and alpha.60 immutable draft/tag/checksum verification remain pending.
+
 ## [0.2.0-alpha.59] - 2026-10-17
 
 - Fix the exact-pinned DesignCraft Delete Page Rust test setup: queue original Duplicate Spread in the client mirror before applying its ACK, so the test exercises a real pending action and revisioned state hydration.

@@ -1,0 +1,26 @@
+{
+  "status": "original-pages-insert-server-ack-browser-proof",
+  "browser": "Chromium",
+  "sourcePin": "a127c6d5c3576972bbd60445f26d893db071eef3",
+  "sourcePatch": "par-03-pages-insert-v1",
+  "workerSha256": "85a1b1a45f42226bcb9febcd125b7e64cfd3941d776b8f25139c4b71e12f1b99",
+  "uiPackage": "a127c6d5c3576972bbd60445f26d893db071eef3-b1530ec9c973",
+  "action": {
+    "originalAction": "Properties > Page > Insert Page",
+    "engineMethod": "layout.pages.insert",
+    "params": {
+      "after": 0,
+      "count": 1
+    },
+    "ackCommandId": "layout.pages.insert",
+    "revision": 2,
+    "pageCount": 2,
+    "dirty": true,
+    "render": "/api/designcraft/sessions/eb876db05787a160100b527f648c5eddf99cc17937963e71/preview.png?v=2",
+    "renderStatus": 200
+  },
+  "permission": "synthetic connected-folder chooser fixture; not real OS permission evidence",
+  "browserErrors": [],
+  "failedResponses": [],
+  "requestFailures": []
+}

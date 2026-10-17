@@ -1,3 +1,7 @@
+# PAR-03 alpha.60 — original Insert Page ACK candidate
+
+The original Properties → Page → Insert Page action is bridged to the owned worker as `layout.pages.insert`; gateway validates the original `after`/`count` payload and 64-page cap, and the UI applies server document/render only after matching ACK. Exact-source Rust UI test, gateway fixture, optimized worker/UI builds and isolated Chromium pass. Chromium confirms revision 2, two pages, dirty server document, server PNG HTTP 200 and no browser/network errors. [Evidence](evidence/designcraft-par03-pages-insert-browser.json). Folder chooser is synthetic; DesignCraft stays planned. Alpha.60 Actions/tag/assets pending. Next: one bounded original DesignCraft server action, preserving original IDs and ACK gating.
+
 # CF-DEMO — explicit browser-processing alternative (2026-10-17)
 
 The user explicitly authorized a separate public Cloudflare demo using the visitor’s laptop, provided that mode is clearly disclosed. Twelve original preview UIs are exported without a document backend, RapidRAW, DesignCraft server candidate or private workspaces. This does not replace PAR-03 or all-13 server/provider development. See [deployment and verification](cloudflare-demo.md).

@@ -10,14 +10,14 @@ import {originalUiPins,originalUiPatches,originalUiPackageId} from '../src/origi
 
 test('DesignCraft PAR-03 variant is pinned to its exact reviewed source patch',async()=>{
   const patch=originalUiPatches.designcraft,bytes=await readFile(new URL('../'+patch.path,import.meta.url));
-  assert.equal(patch.id,'par-03-delete-page-v1');
-  assert.equal(patch.path,'patches/designcraft/a127c6d5/par-03-delete-page-v1.patch');
-  assert.equal(patch.sha256,'2e925ecbd9d5e437f11fd9b4dc6faf86b95a01ed34c57f8ab1daa7e6c2deeea6');
+  assert.equal(patch.id,'par-03-pages-insert-v1');
+  assert.equal(patch.path,'patches/designcraft/a127c6d5/par-03-pages-insert-v1.patch');
+  assert.equal(patch.sha256,'b1530ec9c973e8534f23850941035043273e9fc6a6e6ce2f3b400c2a1b9887df');
   assert.equal(createHash('sha256').update(bytes).digest('hex'),patch.sha256);
   assert.match(bytes.toString('utf8'),/diff --git a\/apps\/designcraft-web\/file-provider\.js/);
   assert.match(bytes.toString('utf8'),/openRecovery\(\{app:"designcraft"/);
   assert.match(bytes.toString('utf8'),/js_name = installDesignCraftRecovery/);
-  assert.match(bytes.toString('utf8'),/original_delete_page_queues_engine_command_and_hydrates_only_after_ack/);
+  assert.match(bytes.toString('utf8'),/original_page_insert_queues_exact_engine_command_and_hydrates_only_after_ack/);
   assert.equal(originalUiPackageId('designcraft'),`${originalUiPins.designcraft}-${patch.sha256.slice(0,12)}`);
 });
 

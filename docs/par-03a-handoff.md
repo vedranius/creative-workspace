@@ -1,3 +1,11 @@
+# 2026-10-17 PAR-03 `layout.pages.insert` server ACK candidate — alpha.60
+
+The original DesignCraft Properties → Page → Insert Page button now passes its unchanged engine action `layout.pages.insert` (`after`, `count`) through the existing ordered host-action lifecycle. The owned server worker is authoritative. The gateway rejects malformed parameters, an index outside current page count, or a result over 64 pages before mutation. The original UI keeps its prior revision until the matching command-ID ACK supplies the canonical document and server-render PNG.
+
+Evidence: exact-pin Rust queue/ACK test 1/1, gateway protocol test with invalid-index and overflow refusals, optimized owned worker build, optimized original UI build and isolated Chromium button smoke. Browser report: revision 2, pageCount 2, dirty=true, rendered PNG HTTP 200, zero console errors/failed responses. Screenshot/report are in `docs/evidence/designcraft-par03-pages-insert-browser.*`. The provider chooser is synthetic; real folder permission, full original parity, all provider modes and complete open/edit/save/reopen remain unaccepted. Keep DesignCraft planned.
+
+Alpha.60 must pass its own Actions checks, target builds, immutable tag/draft and fresh asset/checksum verification. Next: choose one bounded original DesignCraft PAR-03 server action after this release gate. Preserve `engines/filmcraft/`, protected live sessions and unsaved documents.
+
 # 2026-10-17 PAR-03 Delete Page ACK test-fixture correction — alpha.59
 
 ## Current status and next step

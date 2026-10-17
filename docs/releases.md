@@ -1,3 +1,7 @@
+# Alpha.60 candidate: DesignCraft Insert Page server action
+
+The original Properties → Page → Insert Page control now routes the exact `layout.pages.insert` command through the owned worker. Gateway bounds the insertion index/count and refuses exceeding 64 pages. The exact-source UI test verifies queued command identity and hydration after its matching ACK; Chromium verified revision 2, two pages and a fresh server render with no browser/network errors. The chooser was synthetic, and broad parity/provider acceptance remains open; keep DesignCraft planned. Actions, immutable tag/draft and asset checksums remain pending. [Browser evidence](evidence/designcraft-par03-pages-insert-browser.json) · [PAR-03 handoff](par-03a-handoff.md).
+
 # Alpha.59 candidate: DesignCraft Delete Page ACK test fixture correction
 
 Corrects the exact-pinned upstream Rust test setup to queue the original Duplicate Spread action in the client mirror before applying its server ACK. The focused native test passes 1/1 and verifies pending state before ACK and hydration after ACK. Production UI/worker behavior is unchanged from alpha.58; the Chromium report is explicitly evidence for the alpha.58 package identity. Fresh alpha.59 Actions builds, immutable tag/draft and asset checksums remain to verify. DesignCraft stays planned; real folder permission, broader original parity and all-provider acceptance remain open. [PAR-03 handoff](par-03a-handoff.md) · [prior runtime browser evidence](evidence/designcraft-par03-delete-page-browser.json).

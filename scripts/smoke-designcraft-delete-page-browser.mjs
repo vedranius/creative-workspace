@@ -87,7 +87,7 @@ try{
   const deleteRender=await fetch(`${base}${deletion.preview}`,{headers:{Origin:base}});assert.equal(deleteRender.status,200);assert.equal(deleteRender.headers.get('content-type'),'image/png');
   assert.equal(await canvas.getAttribute('data-server-render'),'true');assert.equal(await canvas.getAttribute('data-server-pending'),'false');
   assert.deepEqual(errors,[]);assert.deepEqual(failedResponses,[]);assert.deepEqual(requestFailures,[]);
-  const report={status:'original-delete-page-server-ack-browser-proof',browser:'Chromium',sourcePin:'a127c6d5c3576972bbd60445f26d893db071eef3',sourcePatch:'par-03-delete-page-v1',workerSha256:createHash('sha256').update(await readFile(binary)).digest('hex'),uiPackage:await readdirPackage(packages),setup:{engineMethod:requests[1]?.method,revision:duplicate?.stateVersion,pageCount:duplicate?.document?.pageCount},action:{originalMenu:'Layout > Pages > Delete Page',engineMethod:requests[2]?.method,params:requests[2]?.params,ackCommandId:deletion?.result?.commandId,revision:deletion?.stateVersion,pageCount:deletion?.document?.pageCount,dirty:deletion?.document?.dirty,render:deletion?.preview,renderStatus:deleteRender.status},permission:'synthetic connected-folder chooser fixture; not real OS permission evidence',browserErrors:errors,failedResponses,requestFailures};
+  const report={status:'original-delete-page-server-ack-browser-proof',browser:'Chromium',sourcePin:'a127c6d5c3576972bbd60445f26d893db071eef3',sourcePatch:'par-03-pages-insert-v1',workerSha256:createHash('sha256').update(await readFile(binary)).digest('hex'),uiPackage:await readdirPackage(packages),setup:{engineMethod:requests[1]?.method,revision:duplicate?.stateVersion,pageCount:duplicate?.document?.pageCount},action:{originalMenu:'Layout > Pages > Delete Page',engineMethod:requests[2]?.method,params:requests[2]?.params,ackCommandId:deletion?.result?.commandId,revision:deletion?.stateVersion,pageCount:deletion?.document?.pageCount,dirty:deletion?.document?.dirty,render:deletion?.preview,renderStatus:deleteRender.status},permission:'synthetic connected-folder chooser fixture; not real OS permission evidence',browserErrors:errors,failedResponses,requestFailures};
   const reportPath=process.env.CW_PAR03_DELETE_PAGE_REPORT;if(reportPath)await writeFile(path.resolve(reportPath),JSON.stringify(report,null,2)+'\n');
   const screenshotPath=process.env.CW_PAR03_DELETE_PAGE_SCREENSHOT;if(screenshotPath)await page.screenshot({path:path.resolve(screenshotPath)});
   console.log(JSON.stringify(report));
@@ -100,7 +100,7 @@ async function readdirPackage(root){
   const {readdir,readFile}=await import('node:fs/promises');
   for(const entry of await readdir(path.join(root,'designcraft'))){
     const manifest=JSON.parse(await readFile(path.join(root,'designcraft',entry,'creative-workspace-ui.json'),'utf8'));
-    if(manifest.sourcePatch?.id==='par-03-delete-page-v1')return entry;
+    if(manifest.sourcePatch?.id==='par-03-pages-insert-v1')return entry;
   }
   throw new Error('Registered Delete Page DesignCraft package is missing');
 }

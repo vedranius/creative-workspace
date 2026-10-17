@@ -14,6 +14,7 @@ const MAX_CANONICAL_STATE: usize = 16 * 1024 * 1024;
 const COMMANDS: &[&str] = &[
     "frame.create",
     "layout.pages.duplicateSpread",
+    "layout.pages.insert",
     "layout.pages.delete",
     "selection.set",
     "edit.selectAll",

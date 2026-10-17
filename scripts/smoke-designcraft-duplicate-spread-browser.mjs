@@ -74,7 +74,7 @@ try{
   const render=await fetch(`${base}${duplicate.preview}`,{headers:{Origin:base}});assert.equal(render.status,200);assert.equal(render.headers.get('content-type'),'image/png');
   assert.equal(await canvas.getAttribute('data-server-render'),'true');assert.equal(await canvas.getAttribute('data-server-pending'),'false');
   assert.deepEqual(errors,[]);assert.deepEqual(failedResponses,[]);assert.deepEqual(requestFailures,[]);
-  const report={status:'original-duplicate-spread-server-ack-browser-proof',browser:'Chromium',sourcePin:'a127c6d5c3576972bbd60445f26d893db071eef3',sourcePatch:'par-03-duplicate-spread-v1',workerSha256:createHash('sha256').update(await readFile(binary)).digest('hex'),uiPackage:await readdirPackage(packages),action:{originalMenu:'Layout > Pages > Duplicate Spread',engineMethod:requests[1]?.method,params:requests[1]?.params,ackCommandId:duplicate?.result?.commandId,revision:duplicate?.stateVersion,pageCount:duplicate?.document?.pageCount,spreadCount:duplicate?.documentSnapshot?.spreads?.length,dirty:duplicate?.document?.dirty,render:duplicate?.preview,renderStatus:render.status},permission:'synthetic connected-folder chooser fixture; not real OS permission evidence',browserErrors:errors,failedResponses,requestFailures};
+  const report={status:'original-duplicate-spread-server-ack-browser-proof',browser:'Chromium',sourcePin:'a127c6d5c3576972bbd60445f26d893db071eef3',sourcePatch:'par-03-pages-insert-v1',workerSha256:createHash('sha256').update(await readFile(binary)).digest('hex'),uiPackage:await readdirPackage(packages),action:{originalMenu:'Layout > Pages > Duplicate Spread',engineMethod:requests[1]?.method,params:requests[1]?.params,ackCommandId:duplicate?.result?.commandId,revision:duplicate?.stateVersion,pageCount:duplicate?.document?.pageCount,spreadCount:duplicate?.documentSnapshot?.spreads?.length,dirty:duplicate?.document?.dirty,render:duplicate?.preview,renderStatus:render.status},permission:'synthetic connected-folder chooser fixture; not real OS permission evidence',browserErrors:errors,failedResponses,requestFailures};
   const reportPath=process.env.CW_PAR03_DUPLICATE_SPREAD_REPORT;if(reportPath)await writeFile(path.resolve(reportPath),JSON.stringify(report,null,2)+'\n');
   const screenshotPath=process.env.CW_PAR03_DUPLICATE_SPREAD_SCREENSHOT;if(screenshotPath)await page.screenshot({path:path.resolve(screenshotPath)});
   console.log(JSON.stringify(report));
@@ -87,7 +87,7 @@ async function readdirPackage(root){
   const {readdir,readFile}=await import('node:fs/promises');
   for(const entry of await readdir(path.join(root,'designcraft'))){
     const manifest=JSON.parse(await readFile(path.join(root,'designcraft',entry,'creative-workspace-ui.json'),'utf8'));
-    if(manifest.sourcePatch?.id==='par-03-duplicate-spread-v1')return entry;
+    if(manifest.sourcePatch?.id==='par-03-pages-insert-v1')return entry;
   }
   throw new Error('Registered Duplicate Spread DesignCraft package is missing');
 }
