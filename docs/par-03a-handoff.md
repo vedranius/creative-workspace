@@ -123,7 +123,7 @@ Alpha.35 Actions run `38561662430` completed with contract, Linux bundle and pin
 
 Added `scripts/smoke-designcraft-save-copy-ack-failure.mjs` to the paired `original-designcraft` Actions browser job. Local Chromium ran the exact-pinned original UI and owned worker with a real Linux FUSE/common provider mount; the injected browser destination close returned EIO after server output was retained. The original `file.saveACopy` produced no success ACK, `chosen.designcraft` remained dirty at revision 5, recovery download matched the 2,954-byte mirror output (SHA-256 `36996a89ae782f65b73aa90a40227d9b5e7d876c0e9312a9164e33937855a3b9`), and same-target retry returned 409 with no local bytes. Visible canvas and zero browser errors verified. Folder handle/failure are fixtures; native browser permission and successful laptop write/reopen remain unproven. [Gate evidence](evidence/designcraft-par03-save-copy-ack-failure-actions-smoke.md).
 
-Next: run the paired Actions job on the pushed commit and inspect its browser artifact. Then continue real folder permission, open/edit/save/reopen and remaining original parity. Keep DesignCraft planned and alpha.54 immutable draft-only; do not create a product release for this CI/test-only gate. Preserve `engines/filmcraft/` and protected sessions.
+Next: finish alpha.55 Checks and Build/release, inspect the Actions browser artifact, immutable draft and all archive/checksum pairs. Then continue real folder permission, open/edit/save/reopen and remaining original parity. Keep DesignCraft planned and the release draft-only. Preserve `engines/filmcraft/` and protected sessions.
 
 
 ## 2026-10-15 PAR-03 alpha.39 Actions and assets verified

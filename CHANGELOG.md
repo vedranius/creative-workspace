@@ -1,3 +1,9 @@
+## [0.2.0-alpha.55] - 2026-10-17
+
+- Add an exact-pin Chromium Actions gate for original DesignCraft File → Save a Copy laptop ACK failure and shared recovery. It verifies retained server bytes, unchanged dirty/name state, zero false success ACKs, and same-target retry refusal.
+- Local Chromium + owned worker + Linux FUSE/common provider pass; browser folder handle and injected close failure are fixtures. Native OS picker permission, successful laptop write/reopen, and full DesignCraft parity remain unverified. Keep DesignCraft planned and the prerelease draft-only.
+- Actions checks and target builds are pending. No live service or user document was changed.
+
 ## [0.2.0-alpha.54] - 2026-10-17
 
 - Add an accessible recovery entry to the exact-pinned original DesignCraft UI. It opens the existing shared recovery inventory and retained-output download path; no new recovery endpoint or replay behavior is introduced.
