@@ -340,8 +340,8 @@ mod browser {
 #[cfg(test)]
 mod tests {
     use super::{
-        MAX_SENSOR_BYTES, preflight_ifd, preflight_values, raw_image_after_preflight,
-        selected_indices,
+        MAX_SENSOR_BYTES, preflight_ifd, preflight_raf_dimensions, preflight_values,
+        raw_image_after_preflight, selected_indices,
     };
     use rawler::analyze::FormatDump;
     use rawler::decoders::{Decoder, FormatHint, RawDecodeParams, RawMetadata, WellKnownIFD};
@@ -501,5 +501,10 @@ mod tests {
     fn truncated_or_unrecognized_input_is_rejected_before_decode() {
         let source = rawler::rawsource::RawSource::new_from_slice(b"II*\0\x08\0\0\0");
         assert!(rawler::get_decoder(&source).is_err());
+        assert!(
+            preflight_raf_dimensions(b"FUJIFILM")
+                .unwrap_err()
+                .contains("truncated")
+        );
     }
 }

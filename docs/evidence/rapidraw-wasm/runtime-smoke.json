@@ -9,8 +9,8 @@
   "wasmBuild": {
     "command": "cargo build --locked --manifest-path experiments/rapidraw-wasm-core/Cargo.toml --target wasm32-unknown-unknown --release",
     "exitCode": 0,
-    "wasmBytes": 6410621,
-    "wasmSha256": "57ba298f894714b16cc8ef0ef4e72ff9ddfe2210f30174436db9991d506533e1"
+    "wasmBytes": 6477108,
+    "wasmSha256": "39f7f68d1a2ff3faf419a9cfc7ebfeac939bebc2a426deff9e00e7a50370e72c"
   },
   "sharedDecodeImplementation": "The same crate function decodes and reports on native and wasm32; SHA-256 covers every decoded sensor sample in canonical little-endian form; the JSON also contains dimensions, bit depth, sample count and five deterministic values.",
   "browser": {
@@ -76,15 +76,15 @@
   ],
   "checks": {
     "cargoCheckWasmTargetLocked": "pass",
-    "cargoTestNative": "6 passed",
+    "cargoTestNative": "8 passed",
     "nativeReferenceDecode": "pass for CC0 Canon DNG and private Fujifilm RAF; Blackmagic DNG unsupported by pinned decoder",
-    "browserWorkerParity": "pass in Chromium for CC0 Canon DNG and one private Fujifilm RAF; native/WASM sensor reports match exactly; zero page errors",
+    "browserWorkerParity": "pass in isolated Google Chrome 151 headless worker; full native/WASM JSON reports exactly match for CC0 Canon DNG and one previously authorized RAF copy; zero page errors",
     "workerCancellationDuringDecode": "Chromium AbortSignal test terminated the worker after its immediate pre-decode status; no completed report was received",
     "malformedRawCorpus": "Only a 256-byte truncated prefix of the public CC0 Canon DNG was verified rejected before raw_image; broader malformed corpus remains untested.",
-    "decodedAllocationAndDimensionLimits": "Before raw_image: axis <=32768, cpp 1..=4, estimated decoded sensor output <=64 MiB using u16 for unsigned samples or f32 for IEEE float; dimensions/components checked against decoded output. This is not a cap on decoder intermediate allocations.",
+    "decodedAllocationAndDimensionLimits": "Before raw_image: axis <=32768, cpp 1..=4, estimated decoded sensor output <=64 MiB using 2 bytes/sample for rawler Uint Vec<u16> and RAF PixU16, or 4 bytes/sample for IEEEFP Vec<f32>; oversized synthetic IFD test verifies raw_image is not called. Dimensions/components checked against decoded output. Not a cap on decoder intermediate allocations.",
     "privateOriginalIntegrity": "read-only O_NOFOLLOW|O_NOATIME SHA-256 and size/mtime/inode matched the pre-test baseline",
     "optimizedWasmBuild": "pass with pinned wasm-bindgen 0.2.129",
-    "truncatedRaw": "256-byte prefix of CC0 DNG rejected in Chromium worker before decode"
+    "truncatedRaw": "256-byte public CC0 DNG prefix rejected by the real WASM worker before pixel decode; zero browser page errors."
   },
   "workerLifecycleGate": {
     "clientSource": "experiments/rapidraw-wasm-core/decoder-client.js",
@@ -105,35 +105,61 @@
     }
   },
   "publiclyAvailable": false,
-  "next": "Extend bounded malformed-input coverage and exercise the real-worker timeout. Keep RAF refused by the guarded helper until its pinned decoder exposes safe pre-decode dimensions. Keep Blackmagic 12-bit CinemaDNG explicitly unsupported unless a safe source-pinned decoder path is established.",
+  "next": "Next production priority: RWASM-02 original native develop/exposure/export extraction and browser verification. Broader malformed corpus and real stalled-worker timeout are separate QA follow-ups. Keep the probe private and Blackmagic 12-bit CinemaDNG explicitly unsupported.",
   "dimensionPreflight": {
     "source": "experiments/rapidraw-wasm-core/src/lib.rs::preflight_sensor_bytes",
-    "metadataPath": "pinned rawler Decoder::ifd(WellKnownIFD::Raw), before Decoder::raw_image",
+    "metadataPath": "DNG uses pinned rawler Decoder::ifd(WellKnownIFD::Raw). RAF uses the pinned public Fuji/TIFF IFD parser and mirrors RafDecoder::raw_image dimension selection; no upstream source patch or hardcoded image dimensions.",
     "limits": {
       "maxAxis": 32768,
       "componentsPerPixel": "1..=4",
-      "maxSamples": 16777216,
       "estimatedSensorStorageBytes": 67108864,
-      "bytesPerSampleEstimate": 4
+      "decodedBytesPerSample": {
+        "rawlerUintVecU16": 2,
+        "rawlerIEEEFPVecF32": 4,
+        "rafPixU16": 2
+      }
     },
-    "limitation": "Estimated sensor buffer only; decompressor and intermediate allocations are not globally capped.",
-    "unsupportedMetadataPath": "Decoders without Raw IFD metadata fail closed. Pinned RAF decoder is refused by the guarded entry point; historical RAF parity above predates this gate.",
-    "nativeMetadataOnlyFixture": {
-      "id": "raw.pixls.us 1327",
-      "decodedPixels": false,
-      "width": 2144,
-      "height": 1560,
-      "componentsPerPixel": 1,
-      "sampleCount": 3344640,
-      "estimatedSensorBytes": 13378560
+    "limitation": "Bounds the decoded sensor output estimate only; decompressor/intermediate and process-wide allocations are not globally capped.",
+    "fixtures": [
+      {
+        "id": "raw.pixls.us 1327",
+        "decodedPixels": false,
+        "width": 2144,
+        "height": 1560,
+        "cpp": 1,
+        "sampleCount": 3344640,
+        "decodedBytesPerSample": 2,
+        "estimatedSensorBytes": 6689280
+      },
+      {
+        "id": "one previously authorized local RAF copy",
+        "preflightBeforeDecode": true,
+        "width": 6384,
+        "height": 4182,
+        "cpp": 1,
+        "sampleCount": 26697888,
+        "decodedBytesPerSample": 2,
+        "estimatedSensorBytes": 53395776
+      }
+    ],
+    "oversizedMetadataProof": "Native synthetic Decoder advertises width 32769; guard rejects dimensions and the test confirms its raw_image() method was not called.",
+    "truncatedFixtureProof": "A 256-byte prefix of the CC0 Canon DNG is rejected by the real WASM worker during decoder identification before raw_image; no pixel decode.",
+    "nativeTests": "8 passed: dimensions/sample budget, unsupported/malformed/missing IFD metadata, output sample width, oversized rejection before raw_image, RAF u16 budget and truncated/unrecognized input.",
+    "wasmBuildAfterPreflight": {
+      "rust": "1.99.0 (b940084d7 2026-09-28)",
+      "wasmBindgen": "0.2.129",
+      "optimizedWasmBytes": 6477108,
+      "optimizedWasmSha256": "39f7f68d1a2ff3faf419a9cfc7ebfeac939bebc2a426deff9e00e7a50370e72c"
     },
-    "truncatedFixture": {
-      "source": "256-byte prefix of the same public CC0 DNG",
-      "exitCode": 1,
-      "result": "Rejected during decoder identification: No decoder found; raw_image was not called."
-    },
-    "unitTests": "5 passed: stable selected indices; bounded metadata; oversized axis/sample count rejection; missing/malformed tags; truncated/unrecognized input refusal",
-    "wasmTargetCheck": "pass",
-    "optimizedWasmBuildAfterPreflight": "not built; this turn verified the shared implementation with wasm32 cargo check --locked only"
+    "guardedBrowserParity": {
+      "engine": "Google Chrome 151.0.7922.173 headless, isolated profile, localhost-only test server",
+      "nativeAndWasmFullReportExactMatch": {
+        "cc0CanonDng": true,
+        "authorizedRafCopy": true
+      },
+      "truncatedDngWorkerRejectedBeforePixelDecode": true,
+      "pageErrors": 0,
+      "privateInputPathHashExifPreviewAndSampleValuesSavedOrLogged": false
+    }
   }
 }
