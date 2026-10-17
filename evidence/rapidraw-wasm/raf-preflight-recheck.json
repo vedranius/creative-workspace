@@ -1,0 +1,53 @@
+{
+  "dateUtc": "2026-10-17T21:01:00Z",
+  "sourceCommit": "6acb831e7b5800f08ca9d8811ac2d370ca3956c7",
+  "result": "pass",
+  "finding": "The reported Fujifilm RAF preflight regression was not present at this source commit; the guard admits the previously verified RAF while retaining bounded input checks.",
+  "policy": {
+    "maxInputBytes": 134217728,
+    "maxAxisPixels": 32768,
+    "maxComponents": 4,
+    "maxEstimatedSensorOutputBytes": 67108864,
+    "limitation": "Sensor-output estimate only; it is not a cap on decoder intermediates or total memory use."
+  },
+  "privateFujifilmRaf": {
+    "disclosure": "One user-authorized local fixture; no source path, camera model, input hash, EXIF, preview, or sample values disclosed.",
+    "preflight": {
+      "width": 6384,
+      "height": 4182,
+      "components": 1,
+      "sampleCount": 26697888,
+      "decodedBytesPerSample": 2,
+      "estimatedSensorOutputBytes": 53395776,
+      "accepted": true
+    },
+    "nativeDecode": {
+      "accepted": true,
+      "sensorDigestSha256": "084bf4d0f61d04fe2776afd37d60c40e7489accf494b9886ca8f1d1989ecaef0"
+    },
+    "browserWorkerWasm": {
+      "accepted": true,
+      "sensorDigestSha256": "084bf4d0f61d04fe2776afd37d60c40e7489accf494b9886ca8f1d1989ecaef0",
+      "nativeParity": "exact"
+    }
+  },
+  "cc0CanonDng": {
+    "nativeAndBrowserWorkerParity": "exact",
+    "width": 2144,
+    "height": 1560,
+    "sensorDigestSha256": "17124596990a87b26c4ea02994e0b0ddd5e65897d5661041142311a1e727a208"
+  },
+  "truncatedCc0DngPrefix": {
+    "browserWorkerRejected": true,
+    "reason": "No decoder found"
+  },
+  "nativeGuardTests": {
+    "passed": 10,
+    "failed": 0,
+    "oversizedIfdRefusedBeforeRawImage": true,
+    "truncatedInputRejected": true,
+    "dimensionAndSampleBudgetRejection": true
+  },
+  "wasmSha256": "84be89cf00a552d66ff80e555eb8264f347c318bb7a782501c3dea6b7f105bbf",
+  "privateOriginalVerification": "SHA-256, size, mtime and inode matched the existing private fixture record after the run using O_RDONLY|O_NOFOLLOW|O_NOATIME."
+}

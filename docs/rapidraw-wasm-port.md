@@ -24,6 +24,8 @@ The shared helper checks bounded metadata before `raw_image()`. DNG uses its Raw
 
 ## RWASM-01 runtime evidence
 
+The current guard was rechecked after a reported Fuji RAF regression. The verified 6384×4182 fixture is accepted, decodes natively and in the dedicated browser WASM worker with exact sensor digest parity, and the existing bounded-oversize/truncated refusals remain effective. The report is anonymized and the original was verified read-only after testing. This recheck found no reproducible regression and made no decoder source change. See [recheck evidence](evidence/rapidraw-wasm/raf-preflight-recheck.json).
+
 - CC0 raw.pixls.us sample 1327 (Canon PowerShot A410 CHDK DNG): native and browser reports match exactly at 2144×1560, one component, 10 bits and 3,344,640 samples. Whole-sensor SHA-256: `17124596990a87b26c4ea02994e0b0ddd5e65897d5661041142311a1e727a208`.
 - CC0 raw.pixls.us sample 7317 (Blackmagic Micro Cinema Camera, 12-bit 3:1 CinemaDNG): both native and WASM fail with `ljpeg: not a valid raw file, found DQT`. Pinned source path: `DngDecoder::raw_image` → `plain_image_from_ifd` routes 12-bit `ModernJPEG` to `LJpegDecompressor` → its constructor rejects DQT. This is a decoder format gap, not a WASM-only failure.
 - One local user-authorized Fujifilm RAF copy: native and WASM reports match exactly at 6384×4182, one component, 16 bits and 26,697,888 samples. Whole-sensor SHA-256: `084bf4d0f61d04fe2776afd37d60c40e7489accf494b9886ca8f1d1989ecaef0`. Exact camera model, source path, input hash, EXIF and sample values are withheld; only this anonymized summary is committed. Read-only O_NOFOLLOW|O_NOATIME verification confirmed the original source's hash and size/mtime/inode match the pre-test baseline.

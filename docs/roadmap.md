@@ -1,5 +1,7 @@
 # RWASM-02 — native Speed-mode RAW pixels verified (2026-10-17)
 
+**RWASM-01 RAF guard recheck:** At `6acb831`, the one authorized 6384×4182 Fujifilm RAF is admitted by pinned metadata preflight (53,395,776 estimated sensor-output bytes), and native plus dedicated browser WASM worker sensor digests match. Oversize/sample-count refusal, pre-`raw_image()` guard, ten native tests, and truncated CC0 DNG worker refusal pass. The claimed current regression was not reproducible, so no code change was warranted. This sensor estimate does not bound decoder intermediates or total memory. [Evidence](evidence/rapidraw-wasm/raf-preflight-recheck.json).
+
 The original pinned RAW path now returns real float pixels in native and optimized browser WASM for RapidRAW's Speed demosaic mode. A byte-identical pinned native `raw_processing.rs` reference and Chromium worker match exactly on every RGB f32 bit for one CC0 Canon DNG (512×384); the worker hashes pixels in-browser without storing the image. PPG Quality mode is explicitly refused because its pinned `std::time::Instant::now()` panics on `wasm32-unknown-unknown`. [Evidence](evidence/rapidraw-wasm/raw-development-pixels.json) · [handoff](rapidraw-wasm-development-handoff.md).
 
 Next: investigate a source-faithful WASM timer compatibility path that leaves Quality demosaic arithmetic unchanged. Then apply the already verified scalar exposure compensation to developed pixels and continue through native-reference export checks. No product availability or format claim; original UI and save acceptance remain open.
