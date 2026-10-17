@@ -2,7 +2,7 @@
 
 Original DesignCraft Properties → Page → Insert Page sends unchanged `layout.pages.insert` through the ordered host-action bridge. The owned worker validates page index/count and the 64-page cap, executes the original command, then returns matching command ID, revisioned state and server PNG. Exact-pin UI test passes 1/1; gateway fixture verifies inserted pages and rejects invalid index/overflow before further worker calls; isolated Chromium verified the original button, ACK revision 2, two pages, dirty state, HTTP 200 render and zero browser errors/failed requests. [Evidence](evidence/designcraft-par03-pages-insert-browser.json). Browser folder chooser is synthetic. Keep DesignCraft planned.
 
-Fresh version `0.2.0-alpha.60` is a candidate; commit/push, Actions checks and builds, immutable draft/tag and downloaded asset/checksum pairs remain. After release gate, continue the next bounded original DesignCraft PAR-03 action. Preserve `engines/filmcraft/`, protected services and unsaved sessions.
+Version `0.2.0-alpha.60` is committed as `0773db1` and pushed. Checks `39060796105` and Build/release `39060796090` passed; immutable `v0.2.0-alpha.60` points to the commit, draft prerelease is retained, and all 24 downloaded assets plus 12 archive/checksum pairs verify. [Release evidence](evidence/creative-workspace-alpha60-release.md). Continue with the next bounded original DesignCraft PAR-03 action. Preserve `engines/filmcraft/`, protected services and unsaved sessions.
 
 # 2026-10-17 PAR-03 alpha.59 release gate verified
 

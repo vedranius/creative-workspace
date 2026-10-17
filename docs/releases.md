@@ -1,6 +1,6 @@
-# Alpha.60 candidate: DesignCraft Insert Page server action
+# Alpha.60 verified draft: DesignCraft Insert Page server action
 
-The original Properties → Page → Insert Page control now routes the exact `layout.pages.insert` command through the owned worker. Gateway bounds the insertion index/count and refuses exceeding 64 pages. The exact-source UI test verifies queued command identity and hydration after its matching ACK; Chromium verified revision 2, two pages and a fresh server render with no browser/network errors. The chooser was synthetic, and broad parity/provider acceptance remains open; keep DesignCraft planned. Actions, immutable tag/draft and asset checksums remain pending. [Browser evidence](evidence/designcraft-par03-pages-insert-browser.json) · [PAR-03 handoff](par-03a-handoff.md).
+The original Properties → Page → Insert Page control routes the exact `layout.pages.insert` command through the owned worker. Gateway bounds insertion index/count and refuses exceeding 64 pages. Exact-source tests and Chromium verify command identity, matching ACK, revision 2, two pages and a fresh server render with no browser/network errors. Actions Build/release `39060796090` and Checks `39060796105` passed on `0773db1`; immutable tag `v0.2.0-alpha.60` and its draft prerelease point to that commit. All 24 downloaded assets and 12 archive/checksum pairs verify. The chooser was synthetic, and broad parity/provider acceptance remains open; keep DesignCraft planned and the release draft. [Release evidence](evidence/creative-workspace-alpha60-release.md) · [Browser evidence](evidence/designcraft-par03-pages-insert-browser.json) · [PAR-03 handoff](par-03a-handoff.md).
 
 # Alpha.59 candidate: DesignCraft Delete Page ACK test fixture correction
 

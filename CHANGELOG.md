@@ -2,7 +2,7 @@
 
 - Bridge the original DesignCraft Properties → Page → Insert Page action to the owned server worker as `layout.pages.insert`; validate index/count and the 64-page session limit before mutation, then hydrate read-model and render only after matching ACK.
 - Exact-pinned Rust ACK test, bounded gateway test and isolated Chromium proof pass. Browser verified revision 2, two pages, dirty server state, HTTP 200 server PNG and no browser/network errors. Folder chooser remains synthetic; this single action does not establish DesignCraft availability.
-- Fresh Actions-built OS bundles and alpha.60 immutable draft/tag/checksum verification remain pending.
+- Alpha.60 Actions Build/release `39060796090` and Checks `39060796105` passed on `0773db1`. Immutable `v0.2.0-alpha.60` points to that commit; its prototype/prerelease remains draft. Downloaded all 24 assets and verified all 12 archive/checksum pairs. Full DesignCraft parity and real provider acceptance remain incomplete, so keep the release draft.
 
 ## [0.2.0-alpha.59] - 2026-10-17
 
