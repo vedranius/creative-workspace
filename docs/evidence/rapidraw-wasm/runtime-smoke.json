@@ -79,8 +79,8 @@
     "nativeReferenceDecode": "pass for CC0 Canon DNG and private Fujifilm RAF; Blackmagic DNG unsupported by pinned decoder",
     "browserWorkerParity": "pass for CC0 Canon DNG and private Fujifilm RAF; Blackmagic DNG returns the same unsupported-decoder error as native",
     "workerCancellationDuringDecode": "Chromium AbortSignal test terminated the worker after its immediate pre-decode status; no completed report was received",
-    "malformedRawCorpus": "not tested",
-    "decodedAllocationAndDimensionLimits": "not implemented; the input bound does not constrain decoded allocations",
+    "malformedRawCorpus": "Only a 256-byte truncated prefix of the public CC0 Canon DNG was verified rejected before raw_image; broader malformed corpus remains untested.",
+    "decodedAllocationAndDimensionLimits": "Raw IFD sensor preflight enforced before raw_image: axis <= 32768, cpp 1..=4, sample count <= 16777216, estimated sensor buffer <= 64 MiB; decoder intermediate allocations remain unbounded.",
     "privateOriginalIntegrity": "read-only O_NOFOLLOW|O_NOATIME SHA-256 and size/mtime/inode matched the pre-test baseline"
   },
   "workerLifecycleGate": {
@@ -102,5 +102,35 @@
     }
   },
   "publiclyAvailable": false,
-  "next": "Add a pinned-decoder preflight for decoded dimensions/allocation (or reject safely before rawler allocates), and malformed-input tests; also exercise the real-worker timeout rather than only the deterministic timer unit test. Keep Blackmagic 12-bit CinemaDNG explicitly unsupported unless a safe source-pinned decoder path is established."
+  "next": "Extend bounded malformed-input coverage and exercise the real-worker timeout. Keep RAF refused by the guarded helper until its pinned decoder exposes safe pre-decode dimensions. Keep Blackmagic 12-bit CinemaDNG explicitly unsupported unless a safe source-pinned decoder path is established.",
+  "dimensionPreflight": {
+    "source": "experiments/rapidraw-wasm-core/src/lib.rs::preflight_sensor_bytes",
+    "metadataPath": "pinned rawler Decoder::ifd(WellKnownIFD::Raw), before Decoder::raw_image",
+    "limits": {
+      "maxAxis": 32768,
+      "componentsPerPixel": "1..=4",
+      "maxSamples": 16777216,
+      "estimatedSensorStorageBytes": 67108864,
+      "bytesPerSampleEstimate": 4
+    },
+    "limitation": "Estimated sensor buffer only; decompressor and intermediate allocations are not globally capped.",
+    "unsupportedMetadataPath": "Decoders without Raw IFD metadata fail closed. Pinned RAF decoder is refused by the guarded entry point; historical RAF parity above predates this gate.",
+    "nativeMetadataOnlyFixture": {
+      "id": "raw.pixls.us 1327",
+      "decodedPixels": false,
+      "width": 2144,
+      "height": 1560,
+      "componentsPerPixel": 1,
+      "sampleCount": 3344640,
+      "estimatedSensorBytes": 13378560
+    },
+    "truncatedFixture": {
+      "source": "256-byte prefix of the same public CC0 DNG",
+      "exitCode": 1,
+      "result": "Rejected during decoder identification: No decoder found; raw_image was not called."
+    },
+    "unitTests": "5 passed: stable selected indices; bounded metadata; oversized axis/sample count rejection; missing/malformed tags; truncated/unrecognized input refusal",
+    "wasmTargetCheck": "pass",
+    "optimizedWasmBuildAfterPreflight": "not built; this turn verified the shared implementation with wasm32 cargo check --locked only"
+  }
 }
