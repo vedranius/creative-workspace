@@ -1103,7 +1103,7 @@ index 2ab7a3bad2f589148296f0f06eb3f70c24768a7b..0c05cc8294ff00539c799c4b8164f130
              let margins = json!({"top": d.m("marginTop").unwrap_or(36.0), "bottom": d.m("marginBottom").unwrap_or(36.0), "inside": d.m("marginInside").unwrap_or(36.0), "outside": d.m("marginOutside").unwrap_or(36.0)});
              app.run(
 diff --git a/crates/ui-egui/src/lib.rs b/crates/ui-egui/src/lib.rs
-index fb81e9c344d4390d2e3ff8a4d0d016ad563376fc..e5a3784c82dfac9cc716c0a181ff67c330e556e3 100644
+index fb81e9c344d4390d2e3ff8a4d0d016ad563376fc..ac380877efb224dec353778cac33429916fb317e 100644
 --- a/crates/ui-egui/src/lib.rs
 +++ b/crates/ui-egui/src/lib.rs
 @@ -25,7 +25,7 @@ pub mod theme;
@@ -1328,7 +1328,7 @@ index fb81e9c344d4390d2e3ff8a4d0d016ad563376fc..e5a3784c82dfac9cc716c0a181ff67c3
          let ctx = ui.ctx().clone();
          if !self.fonts_ready {
              ctx.request_repaint();
-@@ -1047,6 +1200,194 @@ pub fn drop_key_name_text(raw: &mut egui::RawInput, text_field_focused: bool) {
+@@ -1047,6 +1200,195 @@ pub fn drop_key_name_text(raw: &mut egui::RawInput, text_field_focused: bool) {
  mod tests {
      use super::*;
  
@@ -1401,6 +1401,7 @@ index fb81e9c344d4390d2e3ff8a4d0d016ad563376fc..e5a3784c82dfac9cc716c0a181ff67c3
 +        let mut duplicate = server_ack("layout.pages.duplicateSpread", 2);
 +        duplicate.snapshot = serde_json::to_value(server.active().unwrap().doc.as_ref()).unwrap();
 +        duplicate.dirty = true;
++        assert_eq!(app.run("app.duplicateSpread", json!({})).unwrap(), json!({"pending":true,"commandId":"layout.pages.duplicateSpread"}));
 +        app.apply_host_action_ack(duplicate).unwrap();
 +        assert_eq!(app.run("app.deletePage", json!({})).unwrap(), json!({"pending":true,"commandId":"layout.pages.delete"}));
 +        assert_eq!(actions.lock().unwrap_or_else(|e| e.into_inner()).last(), Some(&("layout.pages.delete".into(), json!({"pages":[0]}))));

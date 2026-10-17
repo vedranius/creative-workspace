@@ -1,3 +1,9 @@
+## [0.2.0-alpha.59] - 2026-10-17
+
+- Fix the exact-pinned DesignCraft Delete Page Rust test setup: queue original Duplicate Spread in the client mirror before applying its ACK, so the test exercises a real pending action and revisioned state hydration.
+- Focused exact-source Rust test now passes 1/1. The product UI/worker behavior is unchanged from alpha.58; its browser evidence remains tied to that prior package identity. DesignCraft stays planned pending broader permission, parity and provider acceptance.
+- Fresh Actions-built OS bundles and alpha.59 tag/draft/checksum verification remain pending.
+
 ## [0.2.0-alpha.58] - 2026-10-17
 
 - Bridge the exact pinned DesignCraft Layout → Pages → Delete Page action to owned server command `layout.pages.delete`; validate unique in-range page indexes, preserve the final page, and apply UI state/render only after the matching worker ACK.
