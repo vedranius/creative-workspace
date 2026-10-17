@@ -8,6 +8,11 @@ publish = false
 [lib]
 crate-type = ["cdylib", "rlib"]
 
+[features]
+default = []
+# Only the reproducibly prepared timer-patched staging tree supplies its marker.
+quality-timer-compat = []
+
 [dependencies]
 rawler = { git = "https://github.com/CyberTimon/RapidRAW-DngLab.git", rev = "a32bc1ff1f4f3c56d4d3226082f6eb17414f9159" }
 sha2 = "0.10.9"

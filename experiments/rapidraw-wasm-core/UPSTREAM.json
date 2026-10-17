@@ -34,5 +34,14 @@
     "multiExposureReferenceCopy": "tests/reference/multi_exposure.rs",
     "nativeHarness": "examples/develop_reference.rs",
     "scope": "Byte-identical native develop_internal compiled against pinned rawler; only desktop host types and original orientation helper are supplied by the harness"
+  },
+  "qualityTimerPatch": {
+    "path": "patches/rapidraw-rawler/a32bc1ff/ppg-wasm-profiling.patch",
+    "sha256": "d80f45df13380ea0dfa0554565c633116e8ad726b2096b8c0b9a602259497f95",
+    "file": "rawler/src/imgop/sensor/bayer/ppg.rs",
+    "beforeSha256": "9320de465bbef900e00fe794627e7c5e652f2415205c0b39f89837934e031f6c",
+    "afterSha256": "02fc66b032a6bb98f8ed5c03a261e119de17739cb8a72fffcc5c395334d91e4d",
+    "scope": "Only wasm32 profiling timer/debug log cfgs; all PPG pixel arithmetic unchanged; native timing retained",
+    "license": "LGPL-2.1"
   }
 }

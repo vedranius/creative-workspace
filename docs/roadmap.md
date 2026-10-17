@@ -1,10 +1,8 @@
-# RWASM-02 — native Speed-mode RAW pixels verified (2026-10-17)
+# RWASM-02 — original Quality and Speed pixels verified (2026-10-17)
 
-**RWASM-01 RAF guard recheck:** At `6acb831`, the one authorized 6384×4182 Fujifilm RAF is admitted by pinned metadata preflight (53,395,776 estimated sensor-output bytes), and native plus dedicated browser WASM worker sensor digests match. Oversize/sample-count refusal, pre-`raw_image()` guard, ten native tests, and truncated CC0 DNG worker refusal pass. The claimed current regression was not reproducible, so no code change was warranted. This sensor estimate does not bound decoder intermediates or total memory. [Evidence](evidence/rapidraw-wasm/raf-preflight-recheck.json).
+The exact-pinned original native `raw_processing.rs`, extracted native probe and Chromium WASM worker match every RGB f32 bit on the CC0 Canon DNG in Quality (2048×1536) and Speed (512×384). An isolated reviewed rawler patch disables only wasm32 PPG diagnostic timing; native profiling and interpolation stay unchanged. Default unprepared WASM still refuses Quality. [Quality proof](evidence/rapidraw-wasm/quality-development-pixels.json) · [Speed regression](evidence/rapidraw-wasm/quality-build-speed-regression.json) · [handoff](rapidraw-wasm-development-handoff.md).
 
-The original pinned RAW path now returns real float pixels in native and optimized browser WASM for RapidRAW's Speed demosaic mode. A byte-identical pinned native `raw_processing.rs` reference and Chromium worker match exactly on every RGB f32 bit for one CC0 Canon DNG (512×384); the worker hashes pixels in-browser without storing the image. PPG Quality mode is explicitly refused because its pinned `std::time::Instant::now()` panics on `wasm32-unknown-unknown`. [Evidence](evidence/rapidraw-wasm/raw-development-pixels.json) · [handoff](rapidraw-wasm-development-handoff.md).
-
-Next: investigate a source-faithful WASM timer compatibility path that leaves Quality demosaic arithmetic unchanged. Then apply the already verified scalar exposure compensation to developed pixels and continue through native-reference export checks. No product availability or format claim; original UI and save acceptance remain open.
+Next ready task: an Actions job reproducing both native/WASM pixel proofs on the licensed public fixture and uploading hashes/provenance. Then trace/apply original exposure to pixels and verify export. Original React UI/public demo integration remains open; no released editor or general format support is claimed. The private RAF has exact sensor parity, but exceeds the current conservative developed-output estimate; do not claim developed RAF parity or silently increase memory limits.
 
 ## Earlier RWASM-02 scalar compensation slice
 

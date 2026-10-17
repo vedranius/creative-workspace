@@ -1,0 +1,30 @@
+diff --git a/rawler/src/imgop/sensor/bayer/ppg.rs b/rawler/src/imgop/sensor/bayer/ppg.rs
+--- a/rawler/src/imgop/sensor/bayer/ppg.rs
++++ b/rawler/src/imgop/sensor/bayer/ppg.rs
+@@ -3,7 +3,9 @@
+ 
+ use multiversion::multiversion;
+ use rayon::prelude::*;
+-use std::{ops::Add, time::Instant};
++use std::ops::Add;
++#[cfg(not(target_arch = "wasm32"))]
++use std::time::Instant;
+ 
+ use crate::{
+   cfa::{CFA, CFA_COLOR_B, CFA_COLOR_G, CFA_COLOR_R, PlaneColor},
+@@ -44,6 +46,7 @@
+       panic!("CFA pattern '{}' is not a RGB pattern, can not demosaic with PPG", cfa);
+     }
+     // Measure time
++    #[cfg(not(target_arch = "wasm32"))]
+     let now = Instant::now();
+ 
+     // The ROI changes the pattern if not perfectly aligned on the origin pattern
+@@ -58,6 +61,7 @@
+     interpolate_rb_at_green(&mut rgb, &cfa_roi);
+     interpolate_rb_at_non_green(&mut rgb, &cfa_roi);
+ 
++    #[cfg(not(target_arch = "wasm32"))]
+     log::debug!("PPG total debayer time: {:.5}s", now.elapsed().as_secs_f32());
+     rgb
+   }

@@ -10,6 +10,9 @@ use rawler::{
 
 use crate::{multi_exposure, preflight_sensor_bytes};
 
+#[cfg(all(target_arch = "wasm32", feature = "quality-timer-compat"))]
+const _: &str = include_str!("../quality-timer-compat.txt");
+
 const MAX_DEVELOPED_BYTES: usize = 64 * 1024 * 1024;
 
 #[derive(Debug)]
@@ -94,7 +97,7 @@ pub fn develop_pixels(
         developer.steps.retain(|&step| step != ProcessingStep::SRgb);
     }
 
-    #[cfg(target_arch = "wasm32")]
+    #[cfg(all(target_arch = "wasm32", not(feature = "quality-timer-compat")))]
     if !fast_demosaic
         && matches!(
             &raw_image.photometric,
