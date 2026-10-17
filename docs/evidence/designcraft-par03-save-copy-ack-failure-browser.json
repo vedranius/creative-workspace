@@ -1,0 +1,60 @@
+{
+  "status": "original-save-copy-ack-failure-recovery-browser-candidate",
+  "sourceCommands": [
+    "app.openDialog -> file.open",
+    "File \u2192 Save a Copy\u2026 -> file.saveACopy"
+  ],
+  "commonProviderFolderPicker": true,
+  "mode": "laptop-ondemand",
+  "providerRootBoundToSession": true,
+  "providerReadAcknowledgedBeforeNativeOpen": true,
+  "openRevision": 1,
+  "openDirty": false,
+  "openedObjects": 1,
+  "editRevision": 2,
+  "undoRevision": 3,
+  "undoRestoresOpenedSnapshotAndRender": true,
+  "saveCopyDestinations": [
+    "server",
+    "laptop"
+  ],
+  "saveCopyRetention": "workspace",
+  "laptopWriteAcknowledgedInBrowser": false,
+  "laptopOutputReopenedThroughProvider": false,
+  "recoveryAfterBrowserCloseFailure": true,
+  "retryCollisionRefused": true,
+  "saveCopyPreservesOriginalDirtyStateAndFilename": true,
+  "saveCopyDoesNotOverwriteExistingTargets": true,
+  "cancelCreatesNoOpen": true,
+  "visibleCanvas": {
+    "brightPixels": 534954,
+    "distinctColorsAtLeast": 64
+  },
+  "uncaughtBrowserErrors": [],
+  "saveFailure": {
+    "method": "file.saveACopy",
+    "expectedVersion": 5,
+    "destination": "laptop",
+    "previousAcknowledgedDocument": {
+      "name": "chosen.designcraft",
+      "dirty": true
+    },
+    "ackAfterFailure": null,
+    "revisionAfterFailure": "5",
+    "recoveryState": "Laptop save failed \u2014 recovery record retained",
+    "recoveryBytes": 2953,
+    "recoverySha256": "489a4f464b2a3a1e45100b7c0b959bc7e3ae8198ca23961a28bfa93527b394f3",
+    "retryStatus": 409,
+    "localDestinationBytes": 0
+  },
+  "limitations": "The browser folder handle and close failure are fixtures. The downloaded recovery bytes were compared byte-for-byte with the server mirror output. This proves provider ACK failure handling and recovery path, not native OS folder-picker permission. Full DesignCraft parity and catalog availability remain unaccepted.",
+  "sourcePin": "a127c6d5c3576972bbd60445f26d893db071eef3",
+  "sourcePatch": "par-03-save-recovery-v1",
+  "sourcePatchSha256": "68ab6bf82dacf0cb23d6b6964ffe2f006f9d4ac3d2ffb35b86e66dceb1ad4688",
+  "uiWasmSha256": "2c87f1f3987c0d177faea7bce9ded2648aa5c21571e6b1e5532be44e1a7ff01a",
+  "ownedNativeWorkerSha256": "533a201c9c2d61ad428515f32e604dc4ebf47b488ef28efcd0d36dca894c7239",
+  "filesystemHelperSha256": "870325e39522f6af5b784f19ba6b5e209d5022e19fca911a9344fda7b3dc0401",
+  "browser": "Chromium 151; isolated one-context run",
+  "provider": "Real Linux FUSE mount and real LocalFolderAgent protocol; synthetic File System Access directory handle with injected close failure",
+  "recoveryDownloadByteIdentical": true
+}

@@ -1,8 +1,15 @@
-# PAR-03 alpha.54 verified draft — next work: original Save a Copy wiring
+# PAR-03 current handoff — Save Copy ACK-failure recovery verified
 
 Alpha.54 is verified on immutable tag `v0.2.0-alpha.54` at commit `1921a1ef37f7f6c4d5728d1902a5da15be91915d`. Checks `38998538182` and Build/release `38998538184` passed. The clean exact-pin DesignCraft browser job passed original actions including `text.delete`, Clear/Undo/Redo, the shared recovery entry and the preset/server-canvas candidate. All three Actions-built platform bundles and nine preview archives are in the draft; all 12 archive/checksum pairs and 24 GitHub asset digests were verified. [Release evidence](evidence/creative-workspace-alpha54-release.md) · [recovery browser evidence](evidence/designcraft-par03-recovery-entry.md).
 
-Next bounded action: wire original DesignApp Save a Copy through the owned server session and provider contract, including explicit destination/retention, acknowledgement-gated save success, reopen and uncertain-output recovery. Keep DesignCraft planned until real browser permission and laptop write ACK/recovery pass. The alpha.54 journal state and provider chooser are fixtures; preserve `engines/filmcraft/`, protected studio 8795, RapidRAW 8791, user RapidRAW 8780, and all immutable packages/workspaces.
+Next bounded action: carry this failure/recovery sequence into the paired Actions browser gate, then verify a real user-granted browser folder handle and continue original DesignCraft parity/open-edit-save-reopen. Save Copy now routes through the server-owned session and provider ACK path; the browser folder handle and failing close remain fixtures. Preserve `engines/filmcraft/`, protected studio 8795, RapidRAW 8791, user RapidRAW 8780, and all immutable packages/workspaces.
+
+## 2026-10-17 original Save a Copy ACK-failure recovery verified
+
+Current exact-pinned original UI → owned server `file.saveACopy` → Linux FUSE/provider path was exercised in isolated Chromium. The browser folder handle injected a `release`/close failure (`EIO`). The original document remained dirty as `chosen.designcraft` at revision 5 and received no successful Save Copy ACK. The common recovery UI showed `Laptop save failed — recovery record retained`; download returned the byte-identical 2,953-byte server copy (SHA-256 `489a4f464b2a3a1e45100b7c0b959bc7e3ae8198ca23961a28bfa93527b394f3`). Retry to the same laptop path was rejected with HTTP 409. No uncaught browser errors. [Report and screenshots](evidence/designcraft-par03-save-copy-ack-failure.md).
+
+Limits: the server mount and LocalFolderAgent path were real, but the File System Access directory handle and failed close were fixtures. This is not native OS permission evidence, nor does it establish broad original-app parity, reopen acceptance, or availability. Keep DesignCraft planned and alpha.54 draft-only. Next: include this exact failure/recovery case in the paired Actions browser gate, then exercise a real user-granted folder handle and continue original DesignCraft parity/open-edit-save-reopen.
+
 
 # 2026-10-16 alpha.52 Actions release gate — blocked
 
