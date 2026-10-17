@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { createHash } from "node:crypto";
 import { readFile } from "node:fs/promises";
 import { test } from "node:test";
-import { renderOriginalFrame, WebGpuUnsupportedError } from "./webgpu-renderer.js";
+import { packNeutralExposureAdjustments, renderOriginalFrame, WebGpuUnsupportedError } from "./webgpu-renderer.js";
 
 globalThis.GPUShaderStage = { COMPUTE: 4 };
 globalThis.GPUBufferUsage = { STORAGE: 128, COPY_DST: 8, MAP_READ: 1 };
@@ -74,11 +74,35 @@ function frameInput() {
     width: 3,
     height: 2,
     inputTexture: { createView: () => ({}) },
-    adjustments: { bytes: new Uint8Array(16) },
+    adjustments: { bytes: new Uint8Array(45232) },
     resources: resourceViews,
     shaderSource,
   };
 }
+
+test("packs source-layout neutral adjustments through the pinned WASM constructor", () => {
+  const expected = new Uint8Array(45232);
+  const wasm = { pack_neutral_renderer_adjustments: (exposure) => {
+    assert.equal(exposure, 1.25);
+    return expected;
+  } };
+  assert.equal(packNeutralExposureAdjustments(wasm, 1.25).bytes, expected);
+  assert.throws(() => packNeutralExposureAdjustments(wasm, Infinity), /finite/);
+  assert.throws(() => packNeutralExposureAdjustments({ pack_neutral_renderer_adjustments: () => new Uint8Array(16) }), /invalid pinned/);
+});
+
+test("forwards WASM-packed adjustments into the original GPU storage binding", async () => {
+  const { device, calls } = makeDevice();
+  const expected = new Uint8Array(45232);
+  await renderOriginalFrame({
+    ...frameInput(),
+    adjustments: undefined,
+    wasm: { pack_neutral_renderer_adjustments: () => expected },
+    exposure: 0.75,
+    device,
+  });
+  assert.ok(calls.some(([name, _buffer, _offset, data]) => name === "writeBuffer" && data === expected));
+});
 
 test("original shader remains byte-identical to pinned source", async () => {
   assert.equal(
@@ -99,7 +123,7 @@ test("dispatches original 14 bindings and returns tightly packed async readback"
   assert.deepEqual(bindGroup.entries.map(({ binding }) => binding), Array.from({ length: 14 }, (_, i) => i));
   assert.ok(calls.some(([name]) => name === "mapAsync"));
   assert.ok(calls.some(([name]) => name === "submitted"));
-  assert.ok(calls.some(([name, _buffer, _offset, data]) => name === "writeBuffer" && data.byteLength === 16));
+  assert.ok(calls.some(([name, _buffer, _offset, data]) => name === "writeBuffer" && data.byteLength === 45232));
 });
 
 test("reports an explicit unsupported result when browser WebGPU is absent", async () => {

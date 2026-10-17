@@ -7,6 +7,7 @@
 export const RAPIDRAW_SHADER_SHA256 = "9ecb4cc31b8ce4a12f439f69935ed0c8c27f58b52501929e0dc41d22e85ca178";
 export const RAPIDRAW_SHADER_URL = new URL("./shader.wgsl", import.meta.url);
 const MAX_FRAME_BUFFER_BYTES = 64 * 1024 * 1024;
+export const RAPIDRAW_ALL_ADJUSTMENTS_BYTES = 45232;
 
 const REQUIRED_VIEWS = [
   "maskTextures", "lutTexture", "sharpnessBlurTexture", "tonalBlurTexture",
@@ -38,6 +39,19 @@ function assertInput({ width, height, inputTexture, adjustments, resources }) {
   if (!resources.lutSampler || !resources.flareSampler) {
     throw new TypeError("Original LUT and flare samplers are required");
   }
+}
+
+/** Obtain the pinned native AllAdjustments layout from the WASM host. */
+export function packNeutralExposureAdjustments(wasm, exposure = 0) {
+  if (!wasm || typeof wasm.pack_neutral_renderer_adjustments !== "function") {
+    throw new TypeError("RapidRAW WASM adjustment packer is required");
+  }
+  if (!Number.isFinite(exposure)) throw new TypeError("RapidRAW exposure must be finite");
+  const bytes = wasm.pack_neutral_renderer_adjustments(exposure);
+  if (!(bytes instanceof Uint8Array) || bytes.byteLength !== RAPIDRAW_ALL_ADJUSTMENTS_BYTES) {
+    throw new TypeError("WASM returned an invalid pinned AllAdjustments payload");
+  }
+  return { bytes, source: "CyberTimon/RapidRAW image_processing::AllAdjustments", scope: "neutral fixture with exposure only" };
 }
 
 async function checkedShaderSource(source) {
@@ -82,10 +96,13 @@ export async function renderOriginalFrame({
   height,
   inputTexture,
   adjustments,
+  wasm,
+  exposure = 0,
   resources,
   shaderSource,
   device: suppliedDevice,
 }) {
+  adjustments ??= packNeutralExposureAdjustments(wasm, exposure);
   assertInput({ width, height, inputTexture, adjustments, resources });
   if (!suppliedDevice && !gpu) {
     throw new WebGpuUnsupportedError("This browser does not expose navigator.gpu");

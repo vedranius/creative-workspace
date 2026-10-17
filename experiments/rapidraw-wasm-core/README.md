@@ -15,6 +15,12 @@ The copied `shader.wgsl` is from `CyberTimon/RapidRAW` commit
 It is distributed under the upstream AGPL-3.0 license; see
 `tests/reference/RapidRAW-LICENSE`.
 
+`renderer_adjustments.rs` copies the pinned `repr(C)`/Pod field layout and
+provides a finite, source-layout neutral/exposure fixture constructor. The
+browser host can call `packNeutralExposureAdjustments(wasm, exposure)` and pass
+those 45,232 bytes directly to the original binding. This is not RapidRAW's
+JSON/UI/baseline adjustment parser; it is only a bounded shader fixture.
+
 The Node tests use a deterministic WebGPU device double to check original
 binding order, dispatch dimensions, async readback, limits and unsupported
 handling. They are protocol tests and do not prove that a browser GPU executed

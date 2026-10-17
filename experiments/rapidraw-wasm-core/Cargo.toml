@@ -15,6 +15,7 @@ quality-timer-compat = []
 
 [dependencies]
 rawler = { git = "https://github.com/CyberTimon/RapidRAW-DngLab.git", rev = "a32bc1ff1f4f3c56d4d3226082f6eb17414f9159" }
+bytemuck = { version = "=1.25.2", features = ["derive"] }
 sha2 = "0.10.9"
 log = "0.4"
 image = { version = "=0.25.10", default-features = false, features = ["png"] }

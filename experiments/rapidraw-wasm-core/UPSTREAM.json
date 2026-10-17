@@ -87,5 +87,15 @@
       "adler2": "2.0.1",
       "bitflags": "2.13.1"
     }
+  },
+  "rendererAdjustments": {
+    "source": "src-tauri/src/image_processing.rs",
+    "sourceCommit": "b39884b38d8f148caef6fd0d52afd264951be329",
+    "sourceSha256": "5e16c6d88c30e5728534bb67be47e79c44b96d524f90973a611c2c2e8adb3a19",
+    "layoutBlockSha256": "5d877e0101f4462e5df174ffcfc2f3eb43fa2bdd0fed3e00110bbc5e1497f7ec",
+    "layoutBytes": 45232,
+    "scope": "Pod-compatible AllAdjustments field/repr layout and neutral fixture constructor; not the original JSON/UI adjustment parser",
+    "license": "AGPL-3.0",
+    "wasmApi": "pack_neutral_renderer_adjustments(exposure) returns source-layout bytes"
   }
 }

@@ -18,6 +18,7 @@ pub mod development;
 pub mod exposure;
 mod multi_exposure;
 pub mod png_export;
+pub mod renderer_adjustments;
 
 /// Preserve the native compensation formula behind a finite-value host boundary.
 /// This returns stops only; it does not develop or modify image pixels.
@@ -403,6 +404,14 @@ mod browser {
         dpi: Option<u16>,
     ) -> Result<Vec<u8>, JsValue> {
         super::png_export::encode_rgb32f_png(width, height, pixels, dpi)
+            .map_err(|e| JsValue::from_str(&e))
+    }
+
+    /// Build source-layout neutral adjustments with one finite exposure value.
+    /// This is a bounded renderer fixture, not the original UI settings parser.
+    #[wasm_bindgen]
+    pub fn pack_neutral_renderer_adjustments(exposure: f32) -> Result<Vec<u8>, JsValue> {
+        super::renderer_adjustments::pack_neutral_exposure(exposure)
             .map_err(|e| JsValue::from_str(&e))
     }
 
