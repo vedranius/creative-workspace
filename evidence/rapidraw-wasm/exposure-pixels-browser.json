@@ -9,5 +9,16 @@
   "failedRequests": [],
   "wasmBytes": 6798143,
   "wasmSha256": "e17aeee7dac325823c012c416e81ce7e3197f35f745f64a2d0d82c2ac2207c58",
-  "scope": "Dedicated Chromium WASM worker applies native 2^stops RGB multiplication to synthetic developed-style pixels; no RAW development integration, original UI, GPU shader parity or export-byte acceptance"
+  "scope": "Dedicated Chromium WASM worker applies native 2^stops RGB multiplication to synthetic developed-style pixels; no RAW development integration, original UI, GPU shader parity or export-byte acceptance",
+  "githubActions": {
+    "runId": 39072950782,
+    "runUrl": "https://github.com/vedranius/creative-workspace/actions/runs/39072950782",
+    "conclusion": "success",
+    "artifactName": "rapidraw-pixel-parity-39072950782",
+    "artifactId": 12115912383,
+    "artifactSha256": "175390dc4d372e950dd333ce868846a3f0b36c618c93ebf3f920cc4eba5953e4",
+    "browserReportExactF32PixelMatches": 72,
+    "browserReportWasmSha256": "5f485d0aafadbffc8b578ea33289e61bb844d721a33071f07f72326ae5cebfc1",
+    "artifactDownloadedAndInspected": true
+  }
 }
