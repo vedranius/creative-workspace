@@ -1,4 +1,10 @@
-# 2026-10-17 PAR-03 Delete Page ACK test-fixture correction — alpha.59
+# 2026-10-17 PAR-03 alpha.59 release gate verified
+
+Alpha.59 Actions Build/release `39046691344` and Checks `39046691363` passed on commit `57b2f8f5ec64c813e95e99152e054fd71af76fc3`. Authenticated as `vedranius`; immutable `v0.2.0-alpha.59` resolves to that commit. Draft prerelease `RE_kwDOVDgEq84YywMt` has 24 uploaded assets; downloaded all 24 and verified all 12 archive/sidecar pairs. [Release evidence](evidence/creative-workspace-alpha59-release.md). Keep the draft: the DesignCraft folder chooser remains synthetic and full original/provider parity is incomplete.
+
+Next bounded PAR-03 action: bridge the original Layout → Pages → Insert command `layout.pages.insert` through the owned worker and matching ACK/read-model/render path. Preserve the original command ID, ordered host-action lifecycle and page-count bounds; verify the original menu in isolated Chromium. Do not claim availability. Preserve `engines/filmcraft/` and protected runtimes.
+
+## Alpha.59 Delete Page fixture correction
 
 Alpha.59 corrects the exact-pinned Delete Page Rust test fixture: it now queues client-side `app.duplicateSpread` before applying its matching ACK. The focused exact-source Rust test passes 1/1. Runtime UI/worker behavior is unchanged from alpha.58; its Chromium proof remains tied to package hash `9f9fc7de7907` and verifies Delete Page ACK revision 3, one remaining dirty page and a server PNG. The chooser was synthetic. Real OS permission, full DesignCraft parity and availability remain unverified; keep DesignCraft planned. Alpha.56 Build/release run `39037838837` succeeded; tag/draft and all 12 downloaded archive/checksum pairs verify ([evidence](evidence/creative-workspace-alpha56-release.md)). Alpha.57 Checks `39040178445` passed Linux/macOS/Windows; Build/release `39040178352` remains in progress. Alpha.58 Checks `39046087950` passed; Build/release `39046087985` is pending. No alpha.57/58 tag/release/assets are claimed yet. Preserve `engines/filmcraft/` and protected studio8795/RapidRAW8791/user RapidRAW8780; do not restart them.
 
