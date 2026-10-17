@@ -1,6 +1,6 @@
 # Latest checkpoint — PNG codec (2026-10-18)
 
-The original RGB16 PNG/ICC/DPI encoding boundary and actual RAW-worker/browser download proof now pass locally for Quality and Speed on the public CC0 DNG. This bypasses the unported GPU renderer and is explicitly codec-only. Use the [current compact PNG handoff](rapidraw-wasm-png-handoff.md) for exact source, limits, reproduction/evidence and the next original WebGPU task. Earlier exposure/Quality notes below are history. Public demo/product availability stay unchanged; Actions verification for this update is pending.
+The original RGB16 PNG/ICC/DPI encoding boundary and actual RAW-worker/browser download proof now pass locally for Quality and Speed on the public CC0 DNG. This bypasses the unported GPU renderer and is explicitly codec-only. Use the [current compact PNG handoff](rapidraw-wasm-png-handoff.md) for exact source, limits, reproduction/evidence and the next original WebGPU task. Earlier exposure/Quality notes below are history. Public demo/product availability stay unchanged; Actions run39074183942 is queued for pushed source425d7ac; hosted PNG evidence is still pending.
 
 # RWASM-02 — Quality and Speed developed pixels verified
 

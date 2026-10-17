@@ -1,6 +1,6 @@
 # RWASM-02 — original PNG codec boundary verified locally (2026-10-18)
 
-Original native Quality/Speed development can now feed the pinned RGB16 PNG encoder in a dedicated browser worker. PNG bytes match native, browser decode and completed download hashes/lengths pass; both modes reject8 malformed cases with no browser errors. Original ICC/DPI and compression pins are preserved. [Evidence](evidence/rapidraw-wasm/png-codec/) · [compact handoff](rapidraw-wasm-png-handoff.md). Actions verification is pending the source push.
+Original native Quality/Speed development can now feed the pinned RGB16 PNG encoder in a dedicated browser worker. PNG bytes match native, browser decode and completed download hashes/lengths pass; both modes reject8 malformed cases with no browser errors. Original ICC/DPI and compression pins are preserved. [Evidence](evidence/rapidraw-wasm/png-codec/) · [compact handoff](rapidraw-wasm-png-handoff.md). Actions run39074183942 is queued for pushed source425d7ac; hosted artifact remains unverified.
 
 Next ready task: original WebGPU renderer boundary. Retain full pinned WGSL/adjustment layout and effect order; replace desktop device/poll/readback ownership with an asynchronous browser host and compare real rendered pixels to native reference. A shader compile or CPU exposure multiply is not full renderer acceptance. Original React UI, complete exports, metadata, providers and public delivery remain open. Private RAF remains excluded from this fixture test and subject to existing development memory guard.
 

@@ -2,7 +2,7 @@
 
 ## Verified local result
 
-The full public-fixture runner passed both original pixel modes, PNG bytes, browser decode/download and exposure regression. Quality output is2048×1536, 15,823,705bytes, SHA256 `f339e40cd74692a02afbc52b2e487930ff452293398a1d530eda7f8964013866`; Speed is512×384, 1,032,380bytes, SHA256 `173420c1a8a03539c6b70f54e020f2165808cd6e3a1723e7b8240e4a48f39862`. Both contain RGB16, the original sRGB ICC and300DPI. Browser download streams match the native file bytes, all8 invalid PNG cases reject, and both modes report zero page errors/failed requests. [Local evidence bundle](evidence/rapidraw-wasm/png-codec/). Final-source Actions verification remains pending until the normal source push.
+The full public-fixture runner passed both original pixel modes, PNG bytes, browser decode/download and exposure regression. Quality output is2048×1536, 15,823,705bytes, SHA256 `f339e40cd74692a02afbc52b2e487930ff452293398a1d530eda7f8964013866`; Speed is512×384, 1,032,380bytes, SHA256 `173420c1a8a03539c6b70f54e020f2165808cd6e3a1723e7b8240e4a48f39862`. Both contain RGB16, the original sRGB ICC and300DPI. Browser download streams match the native file bytes, all8 invalid PNG cases reject, and both modes report zero page errors/failed requests. [Local evidence bundle](evidence/rapidraw-wasm/png-codec/). All23 final native tests and Node84/84 pass. Actions run [39074183942](https://github.com/vedranius/creative-workspace/actions/runs/39074183942) is queued after normal source push `425d7ac`; no hosted PNG artifact is claimed until completion/download verification.
 
 ## Source and behavior
 
@@ -33,7 +33,7 @@ cargo run --release --locked --manifest-path experiments/rapidraw-wasm-core/Carg
 node scripts/smoke-rapidraw-png.mjs "$WASM_DIR" "$PUBLIC_DNG" "$NATIVE_PNG" "$REPORT_JSON" quality
 ```
 
-The optional native example output is a codec-only image made from original developed RGB; no renderer is invoked. Private originals, protected studios, existing user services and the public Pages demo remain untouched.
+The optional native example uses `create_new`, refusing an existing destination before any write. A local public-fixture/sentinel test confirms `AlreadyExists` and unchanged existing bytes. Its output is a codec-only image made from original developed RGB; no renderer is invoked. Private originals, protected studios, existing user services and the public Pages demo remain untouched.
 
 ## Next actual implementation
 

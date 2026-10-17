@@ -1,6 +1,7 @@
 //! Executes the byte-identical pinned native RapidRAW develop module.
 //! Only desktop host types and the orientation entry point are supplied here.
 use sha2::{Digest, Sha256};
+use std::io::Write;
 
 mod app_settings {
     #[allow(dead_code)]
@@ -90,7 +91,11 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     if let Some(output) = std::env::args().nth(3) {
         let rgb = image::DynamicImage::ImageRgb32F(image.to_rgb32f());
         let png = png_native::encode(&rgb, Some(300))?;
-        std::fs::write(output, &png)?;
+        let mut output = std::fs::OpenOptions::new()
+            .write(true)
+            .create_new(true)
+            .open(output)?;
+        output.write_all(&png)?;
         eprintln!(
             "PNG codec reference: {} bytes, SHA256 {:x}",
             png.len(),
