@@ -1,0 +1,20 @@
+{
+  "status": "original-designcraft-shared-save-recovery-browser-proof",
+  "sourcePin": "a127c6d5c3576972bbd60445f26d893db071eef3",
+  "sourcePatch": {
+    "id": "par-03-save-recovery-v1",
+    "path": "patches/designcraft/a127c6d5/par-03-save-recovery-v1.patch",
+    "sha256": "68ab6bf82dacf0cb23d6b6964ffe2f006f9d4ac3d2ffb35b86e66dceb1ad4688"
+  },
+  "uiPackageId": "a127c6d5c3576972bbd60445f26d893db071eef3-68ab6bf82dac",
+  "wasmSha256": "2c87f1f3987c0d177faea7bce9ded2648aa5c21571e6b1e5532be44e1a7ff01a",
+  "workerSha256": "96b57ae2d849b2a3037699f55e30f2f22ca92ce40d7309148c680450a8a2a678",
+  "recoveryRoute": "existing /api/storage/recovery inventory and retained-output download",
+  "recordState": "unacknowledged",
+  "nativeOutputGeneratedBy": "owned DesignCraft worker file.saveACopy; recovery journal state is a fixture",
+  "relativePath": "exports/uncertain.designcraft",
+  "downloadHash": "a2c50debc1e80cec8a975bf8ec2c8e58d354babc4c0ff721a3b0cf5a7e3a8564",
+  "permission": "synthetic provider chooser and journal state; does not prove native folder picker permission or laptop write acknowledgement",
+  "browserErrors": [],
+  "failedResponses": []
+}
