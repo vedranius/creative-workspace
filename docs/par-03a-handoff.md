@@ -1,3 +1,9 @@
+# PAR-03 alpha.54 verified draft — next work: original Save a Copy wiring
+
+Alpha.54 is verified on immutable tag `v0.2.0-alpha.54` at commit `1921a1ef37f7f6c4d5728d1902a5da15be91915d`. Checks `38998538182` and Build/release `38998538184` passed. The clean exact-pin DesignCraft browser job passed original actions including `text.delete`, Clear/Undo/Redo, the shared recovery entry and the preset/server-canvas candidate. All three Actions-built platform bundles and six preview archives are in the draft; all 12 archive/checksum pairs and 24 GitHub asset digests were verified. [Release evidence](evidence/creative-workspace-alpha54-release.md) · [recovery browser evidence](evidence/designcraft-par03-recovery-entry.md).
+
+Next bounded action: wire original DesignApp Save a Copy through the owned server session and provider contract, including explicit destination/retention, acknowledgement-gated save success, reopen and uncertain-output recovery. Keep DesignCraft planned until real browser permission and laptop write ACK/recovery pass. The alpha.54 journal state and provider chooser are fixtures; preserve `engines/filmcraft/`, protected studio 8795, RapidRAW 8791, user RapidRAW 8780, and all immutable packages/workspaces.
+
 # 2026-10-16 alpha.52 Actions release gate — blocked
 
 The current coordinator state and prior handoff were rechecked. Authenticated CLI identity is `vedranius`. Actions run `38940743052` (head `b800e651dcb62fe2bb9ac2826999b389b10b4f4d`) is failed: contract, DesignCraft native Linux, and original DeckCraft jobs succeeded; only macOS PhotoCraft job setup failed before steps ran; DesignCraft browser and publish jobs were skipped. The failed setup is the unresolved `dtolnay/rust-toolchain` download/DNS failure, not a product test failure. Remote tag/release inspection shows alpha.51 is still latest; `v0.2.0-alpha.52` and its assets do not exist.
