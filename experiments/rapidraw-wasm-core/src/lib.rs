@@ -507,4 +507,11 @@ mod tests {
                 .contains("truncated")
         );
     }
+
+    #[test]
+    fn malformed_tiff_directory_offset_is_rejected() {
+        // Little-endian TIFF header whose first IFD points beyond the buffer.
+        let source = rawler::rawsource::RawSource::new_from_slice(b"II*\0\xff\xff\xff\x7f");
+        assert!(rawler::get_decoder(&source).is_err());
+    }
 }

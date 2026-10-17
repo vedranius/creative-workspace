@@ -84,7 +84,8 @@
     "decodedAllocationAndDimensionLimits": "Before raw_image: axis <=32768, cpp 1..=4, estimated decoded sensor output <=64 MiB using 2 bytes/sample for rawler Uint Vec<u16> and RAF PixU16, or 4 bytes/sample for IEEEFP Vec<f32>; oversized synthetic IFD test verifies raw_image is not called. Dimensions/components checked against decoded output. Not a cap on decoder intermediate allocations.",
     "privateOriginalIntegrity": "read-only O_NOFOLLOW|O_NOATIME SHA-256 and size/mtime/inode matched the pre-test baseline",
     "optimizedWasmBuild": "pass with pinned wasm-bindgen 0.2.129",
-    "truncatedRaw": "256-byte public CC0 DNG prefix rejected by the real WASM worker before pixel decode; zero browser page errors."
+    "truncatedRaw": "256-byte public CC0 DNG prefix rejected by the real WASM worker before pixel decode; zero browser page errors.",
+    "malformedDirectoryOffset": "Synthetic little-endian TIFF header with first IFD offset beyond the input is rejected by pinned rawler decoder selection; no pixel decode."
   },
   "workerLifecycleGate": {
     "clientSource": "experiments/rapidraw-wasm-core/decoder-client.js",
@@ -92,7 +93,7 @@
     "unitTestSource": "experiments/rapidraw-wasm-core/decoder-client.test.mjs",
     "unitTestSha256": "1b8f64b208c49a83048ce97dfa2903f120b3e611029d32de3d6869e782fe556a",
     "inputPreflight": "1 byte to 128 MiB; client exposes a size predicate for File.size before reading, and worker rechecks before wasm-bindgen copies the buffer",
-    "timeout": "30-second default, capped at 120 seconds; timer termination covered by a deterministic fake-worker test, not by waiting for a real RAW timeout",
+    "timeout": "30-second default, capped at 120 seconds; fake-worker unit test plus isolated Chromium proof that a real dedicated module worker stalled in an intentional infinite loop is terminated by the 250 ms timeout.",
     "cancellation": "AbortSignal terminates the worker synchronously",
     "unitTests": "3 passed: size/timeout bounds, abort resolution/termination, timer resolution/termination",
     "realBrowserTest": {
@@ -102,10 +103,20 @@
       "workerTerminated": true,
       "pageErrors": 0,
       "completedReportCaptured": false
+    },
+    "realStalledWorkerTest": {
+      "engine": "Codex In-app Browser Chromium, isolated local test page",
+      "worker": "Real dedicated module worker with deterministic infinite-loop handler; no RAW input",
+      "timeoutMs": 250,
+      "elapsedMs": 252,
+      "resultReason": "timeout",
+      "workerTerminated": true,
+      "pageErrors": 0,
+      "limitation": "Verifies client timeout and worker termination only; does not measure or bound a stalled RAW decoder."
     }
   },
   "publiclyAvailable": false,
-  "next": "Next production priority: RWASM-02 original native develop/exposure/export extraction and browser verification. Broader malformed corpus and real stalled-worker timeout are separate QA follow-ups. Keep the probe private and Blackmagic 12-bit CinemaDNG explicitly unsupported.",
+  "next": "RWASM-02: trace native raw_processing dependencies and select the first small shared exposure-processing slice with native reference output. Broader malformed corpus and stalled-RAW timeout remain open. Keep probe private and Blackmagic 12-bit CinemaDNG explicitly unsupported.",
   "dimensionPreflight": {
     "source": "experiments/rapidraw-wasm-core/src/lib.rs::preflight_sensor_bytes",
     "metadataPath": "DNG uses pinned rawler Decoder::ifd(WellKnownIFD::Raw). RAF uses the pinned public Fuji/TIFF IFD parser and mirrors RafDecoder::raw_image dimension selection; no upstream source patch or hardcoded image dimensions.",

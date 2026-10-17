@@ -1,3 +1,7 @@
+# 2026-10-17 RWASM-01 — malformed TIFF and real worker timeout follow-up
+
+Added a native regression case for a TIFF header whose first IFD offset lies beyond the input buffer; the pinned decoder rejects it, and the focused native test passes. In a dedicated isolated Chromium tab, the actual client created a module worker whose test handler deliberately never returned; a 250 ms timeout settled with `reason="timeout"` after 252 ms and called `terminate()`. This is worker lifecycle proof, not a RAW decoder timeout measurement. The tab and local server were closed. Next: trace native `raw_processing` dependencies for the first small RWASM-02 exposure slice. Broader malformed corpus and stalled-RAW runtime remain open.
+
 # 2026-10-17 RWASM-01 — restore bounded Fujifilm RAF preflight
 
 On isolated branch `codex/rapidraw-wasm-port`, the shared decoder now extracts Fujifilm Raw dimensions from the pinned RAF metadata path before `raw_image()`. Budgeting follows the decoded container: unsigned sensor samples use 2 bytes each; IEEE float samples use 4 bytes each. The retained policy is ≤32,768 pixels per axis, 1–4 components and ≤64 MiB estimated sensor buffer. The proven 6384×4182 RAF is admitted at 26,697,888 samples / 53,395,776 estimated sensor bytes. This estimate is only the output sensor buffer; it does not cap decoder intermediates or establish complete memory safety. Decoded dimensions are checked against preflight after decode.
