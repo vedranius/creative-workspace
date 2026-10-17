@@ -18,7 +18,7 @@
   "pixelHash": "d9d7e96227a8346bd6599f1987aa4f30ee53403e4284a3161c62478507baf53a",
   "wasmBytes": 6796483,
   "wasmSha256": "84be89cf00a552d66ff80e555eb8264f347c318bb7a782501c3dea6b7f105bbf",
-  "browser": "Dedicated Chromium module worker; pixel payload hashed in-browser and not written to report",
+  "browser": "Actual experimental worker.js in a dedicated Chromium module worker; transferred Float32Array hashed in browser and not written to report",
   "pageErrors": [],
   "failedRequests": [],
   "scope": "Original RawDevelop Speed demosaic/crop/calibration plus native black/white rescale, clipping recovery, clamp and EXIF orientation; no UI, pixel exposure adjustment or export acceptance"
