@@ -1,0 +1,152 @@
+{
+  "base": "https://creative-workspace-demo.pages.dev",
+  "version": "0.2.0-alpha.57",
+  "scope": "Public original-interface launch/render, consent, mode label, original decoded-WASM SHA-256; not editing, file-permission or server-processing acceptance",
+  "apps": [
+    {
+      "id": "photocraft",
+      "pageErrors": [],
+      "failedRequests": [],
+      "consentBeforeLoad": true,
+      "wasmSha256": "12b8378f2fb59f71e765533d7ea4e50b7105fd133fbe0d77036226f6cf47d76c",
+      "originalWasmVerified": true,
+      "title": "PhotoCraft",
+      "crossOriginIsolated": true,
+      "rendered": true,
+      "distinctCanvasScreenshotColors": 16928
+    },
+    {
+      "id": "vectorcraft",
+      "pageErrors": [],
+      "failedRequests": [],
+      "consentBeforeLoad": true,
+      "wasmSha256": "3df66593734eb76190abd460168b7cce93087fdbcce9ebdb6d4baa7a95a82a86",
+      "originalWasmVerified": true,
+      "title": "VectorCraft",
+      "crossOriginIsolated": true,
+      "rendered": true,
+      "distinctCanvasScreenshotColors": 974
+    },
+    {
+      "id": "filmcraft",
+      "pageErrors": [],
+      "failedRequests": [],
+      "consentBeforeLoad": true,
+      "wasmSha256": "a970efcd10686fd023d6d93522bc0e9192044b99cb1f9f147dc98afc63d33e11",
+      "originalWasmVerified": true,
+      "title": "FilmCraft",
+      "crossOriginIsolated": true,
+      "rendered": true,
+      "distinctCanvasScreenshotColors": 22752
+    },
+    {
+      "id": "lightcraft",
+      "pageErrors": [],
+      "failedRequests": [],
+      "consentBeforeLoad": true,
+      "wasmSha256": "d60c279413f01512c36351330970e66ecedf5567e334f43d0435760b54df2d57",
+      "originalWasmVerified": true,
+      "title": "LightCraft",
+      "crossOriginIsolated": true,
+      "rendered": true,
+      "distinctCanvasScreenshotColors": 13729
+    },
+    {
+      "id": "pdfcraft",
+      "pageErrors": [],
+      "failedRequests": [],
+      "consentBeforeLoad": true,
+      "wasmSha256": "2bc98b7b1dceb6a48f859d3805fb152894cf7924ad519624be98588b79524cbe",
+      "originalWasmVerified": true,
+      "title": "PdfCraft",
+      "crossOriginIsolated": true,
+      "rendered": true,
+      "distinctCanvasScreenshotColors": 2023
+    },
+    {
+      "id": "effectcraft",
+      "pageErrors": [],
+      "failedRequests": [],
+      "consentBeforeLoad": true,
+      "wasmSha256": "c3d087a2aba58c1b7703fd570ddd091f834dd3395a520bb6af541f0e157e5a41",
+      "originalWasmVerified": true,
+      "title": "EffectCraft",
+      "crossOriginIsolated": true,
+      "rendered": true,
+      "distinctCanvasScreenshotColors": 11933
+    },
+    {
+      "id": "figcraft",
+      "pageErrors": [],
+      "failedRequests": [],
+      "consentBeforeLoad": true,
+      "wasmSha256": "ef3ae39b51d5a773560b7ff69fde6bd2a29c74704883124178ba53c064c728bf",
+      "originalWasmVerified": true,
+      "title": "FigCraft",
+      "crossOriginIsolated": true,
+      "rendered": true,
+      "distinctCanvasScreenshotColors": 422
+    },
+    {
+      "id": "wordcraft",
+      "pageErrors": [],
+      "failedRequests": [],
+      "consentBeforeLoad": true,
+      "wasmSha256": "70550b6cae3ba46fe08224698a2fd7a27c7bf0b55c33e8a9d6a89148035217ae",
+      "originalWasmVerified": true,
+      "title": "WordCraft",
+      "crossOriginIsolated": true,
+      "rendered": true,
+      "distinctCanvasScreenshotColors": 1793
+    },
+    {
+      "id": "soundcraft",
+      "pageErrors": [],
+      "failedRequests": [],
+      "consentBeforeLoad": true,
+      "wasmSha256": "10b6cb29b1a3701a4193144247dab8f49c607cc9750792ee8660480c8bd758cd",
+      "originalWasmVerified": true,
+      "title": "SoundCraft",
+      "crossOriginIsolated": true,
+      "rendered": true,
+      "distinctCanvasScreenshotColors": 5323
+    },
+    {
+      "id": "deckcraft",
+      "pageErrors": [],
+      "failedRequests": [],
+      "consentBeforeLoad": true,
+      "wasmSha256": "a1c1443e1f4373d5c21a1a6cd35e45399cf95307be9b955b82a65399a8c16df3",
+      "originalWasmVerified": true,
+      "title": "DeckCraft",
+      "crossOriginIsolated": true,
+      "rendered": true,
+      "distinctCanvasScreenshotColors": 4734
+    },
+    {
+      "id": "cadcraft",
+      "pageErrors": [],
+      "failedRequests": [],
+      "consentBeforeLoad": true,
+      "wasmSha256": "351048e1c500520c30c7aaec679bcd92d75f50ee5543b5f7d219795209f06a51",
+      "originalWasmVerified": true,
+      "title": "CADCraft",
+      "crossOriginIsolated": true,
+      "rendered": true,
+      "distinctCanvasScreenshotColors": 3569
+    },
+    {
+      "id": "gridcraft",
+      "pageErrors": [],
+      "failedRequests": [],
+      "consentBeforeLoad": true,
+      "wasmSha256": "dc7f98ffbe4053021ff6131a85a7f4ed5626114d399ad049fb52c3db4beac360",
+      "originalWasmVerified": true,
+      "title": "GridCraft",
+      "crossOriginIsolated": true,
+      "rendered": true,
+      "distinctCanvasScreenshotColors": 747
+    }
+  ],
+  "note": "FilmCraft alone rerun after smoke assertion was corrected to ignore its upstream cache-busting query. No application/transport change was needed."
+}

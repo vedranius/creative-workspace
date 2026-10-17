@@ -1,3 +1,9 @@
+## [0.2.0-alpha.57] - 2026-10-17
+
+- Add an independent public Cloudflare Pages playground for twelve original ArtCraft browser interfaces. Each app requires explicit acknowledgement that processing uses the visitor's computer and retains a persistent mode label and upstream source link.
+- Export only manifest-listed, SHA-256-verified assets at reviewed source/patch pins. Preserve original decoded WASM bytes, licenses and provenance; gzip transport keeps individual assets below Pages' limit.
+- Keep private workspaces, RapidRAW backends and the DesignCraft server candidate out of the public static deployment. Server processing and common file-provider acceptance remain the main product goal. Target-OS builds and draft release verification are pending for this version.
+
 ## [0.2.0-alpha.56] - 2026-10-17
 
 - Bridge the original DesignCraft Layout → Pages → Duplicate Spread action to the owned native worker as `layout.pages.duplicateSpread`; preserve its command ID, bound the spread index/page count, and hydrate the revisioned server read-model/render only after worker ACK.

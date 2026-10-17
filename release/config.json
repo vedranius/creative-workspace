@@ -13,6 +13,7 @@
     "darwin-arm64"
   ],
   "limitations": [
+    "Alpha.57 adds a separately deployed Cloudflare browser-processing playground for twelve original interfaces. It does not include RapidRAW, the DesignCraft server candidate, private data, or accepted ArtCraft server/provider adapters. All OS archives remain Actions-built draft candidates until verified.",
     "Single-user alpha: original ArtCraft UI previews can be registered separately; original UI/server processing and provider parity are pending.",
     "RapidRAW is not bundled: its independent Linux installation remains a separate CLI workflow.",
     "FilmCraft and the bounded DesignCraft PAR-03 bridge are separate Actions-built browser preview archives. DesignCraft now routes original file.new, graphic frame.create, selection.set, edit.selectAll, text.placeCaret and text.insert through bounded ACKed worker actions with canonical state/render hydration; only these bounded workflows are evidenced, while other original tools/actions, provider/save parity and recovery remain pending. These are not complete server-backed original-app bundles.",

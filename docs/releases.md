@@ -1,3 +1,7 @@
+# Alpha.57 candidate: isolated Cloudflare browser playground
+
+Adds a public static demo export with explicit local-processing consent, twelve original interfaces, persistent mode labels and source/license provenance. The visitor's browser performs the work. Private workspaces, RapidRAW and the DesignCraft server candidate are excluded. The server-processing goal and all existing adapter acceptance gates remain. [Build/deploy details](cloudflare-demo.md). Fresh Actions builds, immutable draft/tag and downloaded assets/checksums are pending.
+
 # Alpha.56 candidate: DesignCraft Duplicate Spread server action
 
 The exact-pinned original Layout → Pages → Duplicate Spread menu action routes `layout.pages.duplicateSpread` through the owned worker. Isolated Chromium verified matching worker ACK, hydrated two-spread read-model, dirty state and revisioned server render. Local tests/builds pass; Actions Checks, platform bundles, immutable tag/draft and asset checksums are pending. Keep the candidate unpublished until Actions completes successfully.
