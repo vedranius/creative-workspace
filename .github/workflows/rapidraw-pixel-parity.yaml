@@ -1,0 +1,49 @@
+name: RapidRAW pixel parity
+on:
+  push:
+    branches: [main, codex/rapidraw-wasm-port]
+    paths:
+      - 'experiments/rapidraw-wasm-core/**'
+      - 'scripts/prepare-rapidraw-quality.mjs'
+      - 'scripts/smoke-rapidraw-development.mjs'
+      - 'scripts/ci-rapidraw-pixel-parity.mjs'
+      - 'docs/evidence/rapidraw-wasm/runtime-smoke.json'
+      - '.github/workflows/rapidraw-pixel-parity.yaml'
+  pull_request:
+    paths:
+      - 'experiments/rapidraw-wasm-core/**'
+      - 'scripts/prepare-rapidraw-quality.mjs'
+      - 'scripts/smoke-rapidraw-development.mjs'
+      - 'scripts/ci-rapidraw-pixel-parity.mjs'
+      - 'docs/evidence/rapidraw-wasm/runtime-smoke.json'
+      - '.github/workflows/rapidraw-pixel-parity.yaml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  pixel-parity:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - run: node scripts/setup-ci-rust.mjs 1.99.0 --wasm
+      - run: cargo install wasm-bindgen-cli --version 0.2.129 --locked
+      - run: npm ci
+      - run: npm install --no-save --package-lock=false playwright@1.55.0
+      - run: npx playwright install --with-deps chromium
+      - name: Configure pinned Playwright Chromium
+        run: node -e 'require("node:fs").appendFileSync(process.env.GITHUB_ENV, "CHROMIUM_PATH="+require("playwright").chromium.executablePath()+"\n")'
+      - name: Reproduce native, Quality WASM, and Speed WASM pixels
+        run: node scripts/ci-rapidraw-pixel-parity.mjs artifacts/rapidraw-pixel-parity
+        env:
+          PLAYWRIGHT_MODULE: playwright
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: rapidraw-pixel-parity-${{ github.run_id }}
+          path: artifacts/rapidraw-pixel-parity/
+          if-no-files-found: warn
+          retention-days: 30

@@ -44,7 +44,7 @@ export async function prepareQuality(directory){
  const manifest=await readFile(path.join(crate,'Cargo.toml'),'utf8');
  const dependency=`rawler = { git = "${repo}", rev = "${pin}" }`;
  if(manifest.split(dependency).length!==2)throw Error('Decoder manifest binding differs');
- await writeFile(path.join(crate,'Cargo.toml'),manifest.replace(dependency,'rawler = { path = "../decoder/rawler" }'));
+ await writeFile(path.join(crate,'Cargo.toml'),manifest.replace(dependency,'rawler = { path = "../decoder/rawler" }')+'\n[workspace]\n');
  const lock=await readFile(path.join(crate,'Cargo.lock'),'utf8');
  const binding=`source = "git+${repo}?rev=${pin}#${pin}"\n`;
  const start=lock.indexOf('[[package]]\nname = "rawler"\n'),end=lock.indexOf('[[package]]',start+1);

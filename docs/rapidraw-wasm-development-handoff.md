@@ -11,7 +11,7 @@ An unpatched native byte-identical `raw_processing.rs` reference, extracted nati
 - Quality: 2048×1536 RGB, SHA256 `f052bba0940702e068fb03d6a9f1cc78b9c57e7ff5758f1c460f28d11fb49e30`.
 - Speed regression on the same patched WASM: 512×384 RGB, SHA256 `d9d7e96227a8346bd6599f1987aa4f30ee53403e4284a3161c62478507baf53a`.
 
-[Quality evidence](evidence/rapidraw-wasm/quality-development-pixels.json) · [Speed evidence](evidence/rapidraw-wasm/quality-build-speed-regression.json). Pixel data is not committed. Native17/17, Node84/84, repo check, rustfmt/script syntax/diff checks pass. Both browser runs report no errors/failed requests. Current CI only runs Workspace Node checks; a dedicated WASM parity job is the next task.
+[Quality evidence](evidence/rapidraw-wasm/quality-development-pixels.json) · [Speed evidence](evidence/rapidraw-wasm/quality-build-speed-regression.json). Pixel data is not committed. Native17/17, Node84/84, repo check, rustfmt/script syntax/diff checks pass. Both browser runs report no errors/failed requests. The new `RapidRAW pixel parity` Actions workflow runs on relevant pushes/PRs and manual dispatch. Its runner downloads only the fixture in `runtime-smoke.json`, verifies SHA256 and CC0 metadata, creates byte-identical native references, prepares the reviewed isolated decoder patch, builds with Rust1.99/wasm-bindgen0.2.129, then runs Quality and Speed in Chromium. Uploaded artifacts include both browser reports, provenance/license JSON, the actual patch, and RapidRAW license text. The complete local runner passed with the same hashes and no browser errors; the first remote Actions result is pending push.
 
 ## Reproduction
 
@@ -33,6 +33,6 @@ Repeat native reference/probe and smoke with `fast` to check the same prepared a
 
 This checkpoint is not a complete feature/release: product version/public demo remain unchanged, with no original React UI, exposure-on-pixels or export connection. Sensor output and estimated developed output are capped separately at64MiB; neither caps total decoder/intermediate allocation. The one authorized private RAF has sensor parity only and is rejected by the current developed-output budget. No private photos/paths/EXIF/previews were processed or committed for this task. Do not increase that limit as a shortcut.
 
-Next: implement a focused Actions job for original native plus prepared Quality/Speed WASM pixel parity on the SHA256-pinned CC0 fixture, preserving decoder patch provenance and original licenses in the downloadable test evidence. Use existing Rust setup helper and explicit tool versions. Do not add the private RAF to CI. Then resume original exposure-on-pixels/export work, before original React UI/public delivery.
+Next: trace the native original exposure-to-developed-pixels boundary, preserve the original math, implement and compare that exposure effect against native output, then validate export. Do not add the private RAF to CI. Original React UI/public delivery remains subsequent work.
 
 Work only on `codex/rapidraw-wasm-port` in its existing isolated worktree. Preserve untracked `experiments/rapidraw-wasm-core/target/`, protected studios and all user originals. Check the absolute coordinator before editing; immediate completion-driven successor policy is outside the repo at the documented runtime path.
