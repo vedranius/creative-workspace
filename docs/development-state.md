@@ -4,6 +4,8 @@ Original DesignCraft Properties → Page → Insert Page sends unchanged `layout
 
 Version `0.2.0-alpha.60` is committed as `0773db1` and pushed. Checks `39060796105` and Build/release `39060796090` passed; immutable `v0.2.0-alpha.60` points to the commit, draft prerelease is retained, and all 24 downloaded assets plus 12 archive/checksum pairs verify. [Release evidence](evidence/creative-workspace-alpha60-release.md). Continue with the next bounded original DesignCraft PAR-03 action. Preserve `engines/filmcraft/`, protected services and unsaved sessions.
 
+# Current bounded action: clean-patch browser verification for original `text.delete`. Prior Chromium evidence used temporary key/focus diagnostics absent from the registered patch; rebuild the exact pinned UI without them and rerun the candidate smoke before claiming the action. See [PAR-03 handoff](par-03a-handoff.md).
+
 # 2026-10-17 PAR-03 alpha.59 release gate verified
 
 Alpha.59 Actions Build/release `39046691344` and Checks `39046691363` passed on commit `57b2f8f5ec64c813e95e99152e054fd71af76fc3`. Authenticated as `vedranius`; immutable `v0.2.0-alpha.59` resolves to that commit. Draft prerelease `RE_kwDOVDgEq84YywMt` has 24 uploaded assets; downloaded all 24 and verified all 12 archive/sidecar pairs. [Release evidence](evidence/creative-workspace-alpha59-release.md). Keep the draft: the DesignCraft folder chooser remains synthetic and full original/provider parity is incomplete.
