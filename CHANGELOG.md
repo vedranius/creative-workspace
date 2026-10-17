@@ -2,6 +2,7 @@
 
 - Add an exact-pin Chromium Actions gate for original DesignCraft File → Save a Copy laptop ACK failure and shared recovery. It verifies retained server bytes, unchanged dirty/name state, zero false success ACKs, and same-target retry refusal.
 - Stabilize the paired Text Tool Chromium smoke by sending each character only after its matching worker ACK; local Chromium verifies `Queue Ω` through revision 14.
+- Accept Playwright module configuration as either a `file:` URL or filesystem path, matching both Actions and local runners.
 - Local Chromium + owned worker + Linux FUSE/common provider pass; browser folder handle and injected close failure are fixtures. Native OS picker permission, successful laptop write/reopen, and full DesignCraft parity remain unverified. Keep DesignCraft planned and the prerelease draft-only.
 - Actions checks and target builds are pending. No live service or user document was changed.
 

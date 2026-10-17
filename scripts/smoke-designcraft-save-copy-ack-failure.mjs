@@ -10,7 +10,7 @@ import {createWorkspaceServer} from '../src/server.js';
 const assets=await realpath(process.env.CW_DESIGNCRAFT_UI_ASSETS||'build/par03-host-assets');
 const binary=process.env.CW_DESIGNCRAFT_BINARY, playwrightPath=process.env.CW_PLAYWRIGHT_MODULE;
 if(!binary||!playwrightPath)throw new Error('Set CW_DESIGNCRAFT_BINARY and CW_PLAYWRIGHT_MODULE');
-const {chromium}=await import(pathToFileURL(path.resolve(playwrightPath)).href);
+const {chromium}=await import(playwrightPath.startsWith('file:')?playwrightPath:pathToFileURL(path.resolve(playwrightPath)).href);
 const scratch=await mkdtemp(path.join(os.tmpdir(),'cw-par03-save-copy-ack-'));
 const reportPath=process.env.CW_DESIGNCRAFT_ACK_FAILURE_REPORT;
 const screenshotPath=process.env.CW_DESIGNCRAFT_ACK_FAILURE_SCREENSHOT;

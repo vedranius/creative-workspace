@@ -119,6 +119,10 @@ Alpha.35 Actions run `38561662430` completed with contract, Linux bundle and pin
 
 # PAR-03 handoff — bounded server read-model slice verified
 
+## 2026-10-17 alpha.55 Playwright URL integration correction
+
+The second alpha.55 Build/release run `39016362884` passed all platform bundles/native targets, DesignCraft UI compilation and source-action tests; its browser job completed the corrected serial Text Tool smoke, then the new recovery smoke failed before launch because Actions sets `CW_PLAYWRIGHT_MODULE` to a `file:` URL and the script incorrectly resolved it as a filesystem path. Updated the importer to accept the same URL/path forms as the existing browser harnesses. Replayed the full Save a Copy EIO/recovery smoke locally with the exact `file:` URL; it passed, including dirty/name preservation, 2,954 byte recovery download equality and 409 retry refusal with zero browser errors. No alpha.55 tag/release was created. Next: push this import fix under the same unpublished alpha.55 candidate; rerun Checks/Build and inspect the DesignCraft evidence artifact and release assets.
+
 ## 2026-10-17 alpha.55 Actions timing correction
 
 The first alpha.55 Build/release run `39012283039` passed contract, all 12 native targets, all three OS bundles and the exact-pin DesignCraft UI build/native source tests. The existing Text Tool browser smoke then timed out because rapid `keyboard.type` emitted only three of seven expected `text.insert` ACKs; this happened before the new Save Copy recovery smoke. Updated the smoke to send one key and wait for its matching worker revision before continuing. Local Chromium now verifies `Queue Ω` with all seven server ACKs through revision 14 and zero browser errors. No alpha.55 tag/release was created. Remote tag and release lookup confirmed v0.2.0-alpha.55 are absent. Next: push this correction under the same unpublished alpha.55 candidate, rerun Actions once and verify the new recovery gate/artifacts.
