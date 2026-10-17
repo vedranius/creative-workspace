@@ -1,5 +1,5 @@
 {
-  "stage": "RWASM-01 partial: real RAW decode and native parity",
+  "stage": "RWASM-01 partial: bounded RAF preflight restored; native/WASM parity",
   "date": "2026-10-17",
   "nativeSource": "b39884b38d8f148caef6fd0d52afd264951be329",
   "decoderSource": "a32bc1ff1f4f3c56d4d3226082f6eb17414f9159",
@@ -9,8 +9,8 @@
   "wasmBuild": {
     "command": "cargo build --locked --manifest-path experiments/rapidraw-wasm-core/Cargo.toml --target wasm32-unknown-unknown --release",
     "exitCode": 0,
-    "wasmBytes": 6426077,
-    "wasmSha256": "6533bcd1fef2d59848892f8700eb572bf1e92c05f64befa67e3c727d6a0ef2fb"
+    "wasmBytes": 6410621,
+    "wasmSha256": "57ba298f894714b16cc8ef0ef4e72ff9ddfe2210f30174436db9991d506533e1"
   },
   "sharedDecodeImplementation": "The same crate function decodes and reports on native and wasm32; SHA-256 covers every decoded sensor sample in canonical little-endian form; the JSON also contains dimensions, bit depth, sample count and five deterministic values.",
   "browser": {
@@ -70,18 +70,21 @@
       "bitsPerSample": 16,
       "sampleCount": 26697888,
       "decodedSensorSha256": "084bf4d0f61d04fe2776afd37d60c40e7489accf494b9886ca8f1d1989ecaef0",
-      "sourcePathInputHashExifAndSampleValues": "withheld; private native report remains outside repository"
+      "sourcePathInputHashExifAndSampleValues": "withheld; private native report remains outside repository",
+      "estimatedSensorBytes": 53395776
     }
   ],
   "checks": {
     "cargoCheckWasmTargetLocked": "pass",
-    "cargoTestNative": "1 passed",
+    "cargoTestNative": "6 passed",
     "nativeReferenceDecode": "pass for CC0 Canon DNG and private Fujifilm RAF; Blackmagic DNG unsupported by pinned decoder",
-    "browserWorkerParity": "pass for CC0 Canon DNG and private Fujifilm RAF; Blackmagic DNG returns the same unsupported-decoder error as native",
+    "browserWorkerParity": "pass in Chromium for CC0 Canon DNG and one private Fujifilm RAF; native/WASM sensor reports match exactly; zero page errors",
     "workerCancellationDuringDecode": "Chromium AbortSignal test terminated the worker after its immediate pre-decode status; no completed report was received",
     "malformedRawCorpus": "Only a 256-byte truncated prefix of the public CC0 Canon DNG was verified rejected before raw_image; broader malformed corpus remains untested.",
-    "decodedAllocationAndDimensionLimits": "Raw IFD sensor preflight enforced before raw_image: axis <= 32768, cpp 1..=4, sample count <= 16777216, estimated sensor buffer <= 64 MiB; decoder intermediate allocations remain unbounded.",
-    "privateOriginalIntegrity": "read-only O_NOFOLLOW|O_NOATIME SHA-256 and size/mtime/inode matched the pre-test baseline"
+    "decodedAllocationAndDimensionLimits": "Before raw_image: axis <=32768, cpp 1..=4, estimated decoded sensor output <=64 MiB using u16 for unsigned samples or f32 for IEEE float; dimensions/components checked against decoded output. This is not a cap on decoder intermediate allocations.",
+    "privateOriginalIntegrity": "read-only O_NOFOLLOW|O_NOATIME SHA-256 and size/mtime/inode matched the pre-test baseline",
+    "optimizedWasmBuild": "pass with pinned wasm-bindgen 0.2.129",
+    "truncatedRaw": "256-byte prefix of CC0 DNG rejected in Chromium worker before decode"
   },
   "workerLifecycleGate": {
     "clientSource": "experiments/rapidraw-wasm-core/decoder-client.js",

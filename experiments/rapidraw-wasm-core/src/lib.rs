@@ -2,8 +2,12 @@
 //! Shared decode/report logic is native and WASM; only the browser error adapter
 //! depends on wasm-bindgen.
 use rawler::{
-    decoders::{Decoder, RawDecodeParams, WellKnownIFD},
-    formats::tiff::IFD,
+    RawImage,
+    decoders::{
+        Decoder, RawDecodeParams,
+        raf::{FujiIFD, parse_raf_format},
+    },
+    formats::tiff::{Entry, ExtractFromIFD, IFD, SampleFormat, Value},
     rawimage::RawImageData,
     rawsource::RawSource,
     tags::TiffCommonTag,
@@ -13,8 +17,6 @@ use sha2::{Digest, Sha256};
 const MAX_INPUT_BYTES: usize = 128 * 1024 * 1024;
 const MAX_SENSOR_DIMENSION: usize = 32_768;
 const MAX_SENSOR_BYTES: usize = 64 * 1024 * 1024;
-const MAX_BYTES_PER_SAMPLE: usize = 4;
-const MAX_SENSOR_SAMPLES: usize = MAX_SENSOR_BYTES / MAX_BYTES_PER_SAMPLE;
 
 /// Metadata checked before asking rawler to allocate/decompress sensor pixels.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -23,7 +25,8 @@ pub struct SensorPreflight {
     pub height: usize,
     pub cpp: usize,
     pub sample_count: usize,
-    /// Conservative sensor buffer estimate at four bytes per sample.
+    pub decoded_bytes_per_sample: usize,
+    /// Estimated sensor buffer size based on rawler's output sample type.
     pub estimated_sensor_bytes: usize,
 }
 
@@ -33,7 +36,7 @@ pub fn preflight_sensor_bytes(bytes: &[u8]) -> Result<SensorPreflight, String> {
     check_input_size(bytes)?;
     let source = RawSource::new_from_slice(bytes);
     let decoder = rawler::get_decoder(&source).map_err(|e| e.to_string())?;
-    preflight_decoder(decoder.as_ref())
+    preflight_decoder(bytes, decoder.as_ref())
 }
 
 fn check_input_size(bytes: &[u8]) -> Result<(), String> {
@@ -43,9 +46,13 @@ fn check_input_size(bytes: &[u8]) -> Result<(), String> {
     Ok(())
 }
 
-fn preflight_decoder(decoder: &dyn Decoder) -> Result<SensorPreflight, String> {
+fn preflight_decoder(bytes: &[u8], decoder: &dyn Decoder) -> Result<SensorPreflight, String> {
+    if bytes.get(..8) == Some(b"FUJIFILM") {
+        let (width, height) = preflight_raf_dimensions(bytes)?;
+        return preflight_values(width, height, 1, SampleFormat::Uint);
+    }
     let ifd = decoder
-        .ifd(WellKnownIFD::Raw)
+        .ifd(rawler::decoders::WellKnownIFD::Raw)
         .map_err(|e| e.to_string())?
         .ok_or_else(|| {
             "Decoder does not expose raw IFD dimensions; refused before raw_image".to_string()
@@ -68,6 +75,18 @@ fn preflight_ifd(ifd: &IFD) -> Result<SensorPreflight, String> {
     let width = required(ifd, TiffCommonTag::ImageWidth, "ImageWidth")?;
     let height = required(ifd, TiffCommonTag::ImageLength, "ImageLength")?;
     let cpp = required(ifd, TiffCommonTag::SamplesPerPixel, "SamplesPerPixel")?;
+    let sample_format = SampleFormat::extract(ifd)
+        .map_err(|e| e.to_string())?
+        .unwrap_or(SampleFormat::Uint);
+    preflight_values(width, height, cpp, sample_format)
+}
+
+fn preflight_values(
+    width: usize,
+    height: usize,
+    cpp: usize,
+    sample_format: SampleFormat,
+) -> Result<SensorPreflight, String> {
     if width == 0 || height == 0 || width > MAX_SENSOR_DIMENSION || height > MAX_SENSOR_DIMENSION {
         return Err(format!(
             "RAW dimensions must be 1..={MAX_SENSOR_DIMENSION} per axis"
@@ -80,22 +99,140 @@ fn preflight_ifd(ifd: &IFD) -> Result<SensorPreflight, String> {
         .checked_mul(height)
         .and_then(|n| n.checked_mul(cpp))
         .ok_or_else(|| "RAW sample count overflows".to_string())?;
-    if sample_count > MAX_SENSOR_SAMPLES {
+    // Match rawler's decoded container: Uint produces Vec<u16>; IEEEFP produces
+    // Vec<f32>. Other sample formats are currently unimplemented by rawler.
+    let decoded_bytes_per_sample = match sample_format {
+        SampleFormat::Uint => 2,
+        SampleFormat::IEEEFP => 4,
+        SampleFormat::Int | SampleFormat::Void => {
+            return Err("RAW sample format is unsupported by the pinned decoder".into());
+        }
+    };
+    let estimated_sensor_bytes = sample_count
+        .checked_mul(decoded_bytes_per_sample)
+        .ok_or_else(|| "RAW sensor byte estimate overflows".to_string())?;
+    if estimated_sensor_bytes > MAX_SENSOR_BYTES {
         return Err(format!(
             "RAW sensor buffer estimate exceeds {} MiB",
             MAX_SENSOR_BYTES / (1024 * 1024)
         ));
     }
-    let estimated_sensor_bytes = sample_count
-        .checked_mul(MAX_BYTES_PER_SAMPLE)
-        .ok_or_else(|| "RAW sensor byte estimate overflows".to_string())?;
     Ok(SensorPreflight {
         width,
         height,
         cpp,
         sample_count,
+        decoded_bytes_per_sample,
         estimated_sensor_bytes,
     })
+}
+
+fn preflight_raf_dimensions(bytes: &[u8]) -> Result<(usize, usize), String> {
+    fn read_u32_be(bytes: &[u8], offset: usize, label: &str) -> Result<u32, String> {
+        let raw: [u8; 4] = bytes
+            .get(
+                offset
+                    ..offset
+                        .checked_add(4)
+                        .ok_or_else(|| format!("{label} offset overflow"))?,
+            )
+            .ok_or_else(|| format!("RAF is truncated before {label}"))?
+            .try_into()
+            .map_err(|_| format!("RAF has malformed {label}"))?;
+        Ok(u32::from_be_bytes(raw))
+    }
+
+    if bytes.get(..8) != Some(b"FUJIFILM") {
+        return Err("RAF signature is missing".into());
+    }
+    const RAF_TIFF1_PTR_OFFSET: usize = 84;
+    const RAF_TIFF2_PTR_OFFSET: usize = 100;
+    const RAF_TAGS_PTR_OFFSET: usize = 92;
+    let source = RawSource::new_from_slice(bytes);
+    let mut reader = source.reader();
+    let tiff_offset = read_u32_be(bytes, RAF_TIFF1_PTR_OFFSET, "TIFF pointer")?
+        .checked_add(12)
+        .ok_or_else(|| "RAF TIFF pointer overflows".to_string())?;
+    let mut main = IFD::new_root(&mut reader, tiff_offset).map_err(|e| e.to_string())?;
+
+    let fuji_offset = read_u32_be(bytes, RAF_TIFF2_PTR_OFFSET, "Fuji IFD pointer")?;
+    match IFD::new_root_with_correction(
+        &mut reader,
+        0,
+        fuji_offset,
+        0,
+        10,
+        &[FujiIFD::FujiIFD.into()],
+    ) {
+        Ok(fuji_ifd) => {
+            main.sub.insert(FujiIFD::FujiIFD as u16, vec![fuji_ifd]);
+        }
+        Err(_) => {
+            let tag = FujiIFD::StripOffsets as u16;
+            let fake = IFD {
+                entries: [(
+                    tag,
+                    Entry {
+                        tag,
+                        value: Value::Long(vec![fuji_offset]),
+                        embedded: Some(RAF_TIFF2_PTR_OFFSET as u32),
+                    },
+                )]
+                .into_iter()
+                .collect(),
+                endian: main.endian,
+                ..IFD::default()
+            };
+            main.sub.insert(FujiIFD::FujiIFD as u16, vec![fake]);
+        }
+    };
+
+    let raw = main
+        .find_first_ifd_with_tag(FujiIFD::StripOffsets)
+        .ok_or_else(|| "RAF has no raw StripOffsets IFD".to_string())?;
+    if raw.has_entry(FujiIFD::RawImageFullWidth) {
+        let required = |tag, label| -> Result<usize, String> {
+            raw.get_entry(tag)
+                .ok_or_else(|| format!("RAF raw IFD is missing {label}"))?
+                .value
+                .get_usize(0)
+                .map_err(|_| format!("RAF raw IFD has malformed {label}"))?
+                .ok_or_else(|| format!("RAF raw IFD has no {label} value"))
+        };
+        return Ok((
+            required(FujiIFD::RawImageFullWidth, "width")?,
+            required(FujiIFD::RawImageFullHeight, "height")?,
+        ));
+    }
+
+    let tags_offset = read_u32_be(bytes, RAF_TAGS_PTR_OFFSET, "RAF tags pointer")?;
+    let tags = parse_raf_format(&source, tags_offset).map_err(|e| e.to_string())?;
+    let sizes = tags
+        .get_entry(TiffCommonTag::ImageWidth)
+        .ok_or_else(|| "RAF tags are missing RawImageFullSize".to_string())?;
+    let dimension = |index, label| -> Result<usize, String> {
+        sizes
+            .value
+            .get_usize(index)
+            .map_err(|_| format!("RAF RawImageFullSize has malformed {label}"))?
+            .ok_or_else(|| format!("RAF RawImageFullSize has no {label}"))
+    };
+    Ok((dimension(1, "width")?, dimension(0, "height")?))
+}
+
+fn raw_image_after_preflight(
+    bytes: &[u8],
+    source: &RawSource,
+    decoder: &dyn Decoder,
+) -> Result<RawImage, String> {
+    let preflight = preflight_decoder(bytes, decoder)?;
+    let raw = decoder
+        .raw_image(source, &RawDecodeParams::default(), false)
+        .map_err(|e| e.to_string())?;
+    if raw.width != preflight.width || raw.height != preflight.height || raw.cpp != preflight.cpp {
+        return Err("Decoded dimensions differ from the raw IFD preflight".into());
+    }
+    Ok(raw)
 }
 
 /// Decode with the pinned rawler and return dimensions, selected sensor samples,
@@ -105,13 +242,7 @@ pub fn decode_sensor_report(bytes: &[u8]) -> Result<String, String> {
     check_input_size(bytes)?;
     let source = RawSource::new_from_slice(bytes);
     let decoder = rawler::get_decoder(&source).map_err(|e| e.to_string())?;
-    let preflight = preflight_decoder(decoder.as_ref())?;
-    let raw = decoder
-        .raw_image(&source, &RawDecodeParams::default(), false)
-        .map_err(|e| e.to_string())?;
-    if raw.width != preflight.width || raw.height != preflight.height || raw.cpp != preflight.cpp {
-        return Err("Decoded dimensions differ from the raw IFD preflight".into());
-    }
+    let raw = raw_image_after_preflight(bytes, &source, decoder.as_ref())?;
     let expected_count = raw
         .width
         .checked_mul(raw.height)
@@ -208,9 +339,16 @@ mod browser {
 
 #[cfg(test)]
 mod tests {
-    use super::{MAX_SENSOR_SAMPLES, preflight_ifd, selected_indices};
-    use rawler::formats::tiff::{Entry, IFD, Value};
+    use super::{
+        MAX_SENSOR_BYTES, preflight_ifd, preflight_values, raw_image_after_preflight,
+        selected_indices,
+    };
+    use rawler::analyze::FormatDump;
+    use rawler::decoders::{Decoder, FormatHint, RawDecodeParams, RawMetadata, WellKnownIFD};
+    use rawler::formats::tiff::{Entry, IFD, SampleFormat, Value};
     use rawler::tags::TiffCommonTag;
+    use std::rc::Rc;
+    use std::sync::atomic::{AtomicBool, Ordering};
 
     fn ifd(width: u32, height: u32, cpp: u16) -> IFD {
         let mut result = IFD::default();
@@ -231,6 +369,43 @@ mod tests {
         result
     }
 
+    struct NoDecodeDecoder {
+        ifd: IFD,
+        raw_image_called: AtomicBool,
+    }
+
+    impl Decoder for NoDecodeDecoder {
+        fn raw_image(
+            &self,
+            _file: &rawler::rawsource::RawSource,
+            _params: &RawDecodeParams,
+            _dummy: bool,
+        ) -> rawler::Result<rawler::RawImage> {
+            self.raw_image_called.store(true, Ordering::SeqCst);
+            Err("raw_image must not be called for an oversized IFD".into())
+        }
+
+        fn raw_metadata(
+            &self,
+            _file: &rawler::rawsource::RawSource,
+            _params: &RawDecodeParams,
+        ) -> rawler::Result<RawMetadata> {
+            Ok(RawMetadata::default())
+        }
+
+        fn format_dump(&self) -> FormatDump {
+            panic!("format_dump is not part of preflight")
+        }
+
+        fn ifd(&self, wk_ifd: WellKnownIFD) -> rawler::Result<Option<Rc<IFD>>> {
+            Ok((wk_ifd == WellKnownIFD::Raw).then(|| Rc::new(self.ifd.clone())))
+        }
+
+        fn format_hint(&self) -> FormatHint {
+            FormatHint::Unknown
+        }
+    }
+
     #[test]
     fn selected_indices_are_stable_and_deduplicated_for_tiny_images() {
         assert_eq!(selected_indices(1), vec![0]);
@@ -242,7 +417,8 @@ mod tests {
     fn preflight_accepts_a_bounded_sensor_and_estimates_worst_case_storage() {
         let result = preflight_ifd(&ifd(2144, 1560, 1)).unwrap();
         assert_eq!(result.sample_count, 3_344_640);
-        assert_eq!(result.estimated_sensor_bytes, 13_378_560);
+        assert_eq!(result.decoded_bytes_per_sample, 2);
+        assert_eq!(result.estimated_sensor_bytes, 6_689_280);
     }
 
     #[test]
@@ -252,13 +428,49 @@ mod tests {
                 .unwrap_err()
                 .contains("dimensions")
         );
-        let width = 4096;
-        let height = (MAX_SENSOR_SAMPLES / width + 1) as u32;
         assert!(
-            preflight_ifd(&ifd(width as u32, height, 1))
+            preflight_ifd(&ifd(6_000, 6_000, 1))
                 .unwrap_err()
                 .contains("exceeds")
         );
+    }
+
+    #[test]
+    fn oversized_ifd_is_refused_before_raw_image_is_called() {
+        let decoder = NoDecodeDecoder {
+            ifd: ifd(32_769, 1, 1),
+            raw_image_called: AtomicBool::new(false),
+        };
+        let source = rawler::rawsource::RawSource::new_from_slice(b"synthetic");
+        let err = raw_image_after_preflight(b"II*", &source, &decoder).unwrap_err();
+        assert!(err.contains("dimensions"));
+        assert!(!decoder.raw_image_called.load(Ordering::SeqCst));
+    }
+
+    #[test]
+    fn preflight_uses_decoded_sample_storage_width() {
+        let mut float_ifd = ifd(100, 100, 1);
+        let tag = TiffCommonTag::SampleFormat;
+        float_ifd.entries.insert(
+            tag.into(),
+            Entry {
+                tag: tag.into(),
+                value: Value::Short(vec![rawler::formats::tiff::SampleFormat::IEEEFP as u16]),
+                embedded: None,
+            },
+        );
+        let result = preflight_ifd(&float_ifd).unwrap();
+        assert_eq!(result.decoded_bytes_per_sample, 4);
+        assert_eq!(result.estimated_sensor_bytes, 40_000);
+    }
+
+    #[test]
+    fn u16_raf_sensor_fits_the_sensor_buffer_budget() {
+        let result = preflight_values(6384, 4182, 1, SampleFormat::Uint).unwrap();
+        assert_eq!(result.sample_count, 26_697_888);
+        assert_eq!(result.decoded_bytes_per_sample, 2);
+        assert_eq!(result.estimated_sensor_bytes, 53_395_776);
+        assert!(result.estimated_sensor_bytes <= MAX_SENSOR_BYTES);
     }
 
     #[test]

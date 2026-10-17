@@ -5,8 +5,13 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let bytes = fs::read(path)?;
     let result = cw_rapidraw_wasm_probe::preflight_sensor_bytes(&bytes)?;
     println!(
-        "{{\"width\":{},\"height\":{},\"cpp\":{},\"sampleCount\":{},\"estimatedSensorBytes\":{}}}",
-        result.width, result.height, result.cpp, result.sample_count, result.estimated_sensor_bytes
+        "{{\"width\":{},\"height\":{},\"cpp\":{},\"sampleCount\":{},\"decodedBytesPerSample\":{},\"estimatedSensorBytes\":{}}}",
+        result.width,
+        result.height,
+        result.cpp,
+        result.sample_count,
+        result.decoded_bytes_per_sample,
+        result.estimated_sensor_bytes
     );
     Ok(())
 }
