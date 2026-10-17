@@ -39,7 +39,7 @@ const server=createServer((req,res)=>{const asset=req.method==='GET'&&assets.get
 server.listen(0,'127.0.0.1');await once(server,'listening');
 let browser;const errors=[],failed=[];
 try{
- browser=await chromium.launch({executablePath:process.env.CHROMIUM_PATH,headless:true,chromiumSandbox:true,args:['--disable-dev-shm-usage']});
+ browser=await chromium.launch({executablePath:process.env.CHROMIUM_PATH,headless:true,chromiumSandbox:process.env.CHROMIUM_SANDBOX!=='false',args:['--disable-dev-shm-usage']});
  const context=await browser.newContext();const page=await context.newPage();page.on('pageerror',e=>errors.push(e.message));page.on('requestfailed',r=>failed.push(r.url()));
  await page.goto(`http://127.0.0.1:${server.address().port}/`);
  const result=await page.evaluate(({bytes,fastDemosaic,expectQualityRefusal})=>new Promise((resolve,reject)=>{
