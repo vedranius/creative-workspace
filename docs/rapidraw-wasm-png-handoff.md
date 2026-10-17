@@ -35,7 +35,11 @@ node scripts/smoke-rapidraw-png.mjs "$WASM_DIR" "$PUBLIC_DNG" "$NATIVE_PNG" "$RE
 
 The optional native example uses `create_new`, refusing an existing destination before any write. A local public-fixture/sentinel test confirms `AlreadyExists` and unchanged existing bytes. Its output is a codec-only image made from original developed RGB; no renderer is invoked. Private originals, protected studios, existing user services and the public Pages demo remain untouched.
 
-## Next actual implementation
+## Follow-on renderer checkpoint
+
+The initial async browser host boundary is now documented in [the WebGPU handoff](rapidraw-wasm-webgpu-handoff.md). Continue from its next ready task; do not treat this PNG codec as a renderer or editor.
+
+## Original renderer requirement
 
 Port the **original renderer**, rather than adding more substitute CPU adjustments. The pinned `src-tauri/src/gpu_processing.rs` exports `process_and_get_dynamic_image_with_precision`; the native export uses that result before the codec. It currently couples Tauri/AppState/cache, synchronous device polling and desktop display ownership. Browser adaptation must supply asynchronous device/readback/host boundaries while retaining the original WGSL and adjustment data layout.
 

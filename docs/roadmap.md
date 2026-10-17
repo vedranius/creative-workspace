@@ -1,3 +1,7 @@
+# RWASM-03 — original WebGPU host boundary (2026-10-18)
+
+The pinned complete shader, 14 original bindings, source-packed adjustment input, compute dispatch and async RGBA16F readback now have a browser host boundary with explicit unsupported errors. Five protocol tests pass. Local headless/headed Chromium expose no `navigator.gpu`, so actual shader execution, preprocessing integration and native frame comparison remain open. This is not an editor/renderer availability claim. [Handoff and next step](rapidraw-wasm-webgpu-handoff.md).
+
 # RWASM-02 — original PNG codec boundary verified locally (2026-10-18)
 
 Original native Quality/Speed development can now feed the pinned RGB16 PNG encoder in a dedicated browser worker. PNG bytes match native, browser decode and completed download hashes/lengths pass; both modes reject8 malformed cases with no browser errors. Original ICC/DPI and compression pins are preserved. [Evidence](evidence/rapidraw-wasm/png-codec/) · [compact handoff](rapidraw-wasm-png-handoff.md). Actions run39074183942 is queued for pushed source425d7ac; hosted artifact remains unverified.

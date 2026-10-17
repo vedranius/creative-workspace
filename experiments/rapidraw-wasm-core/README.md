@@ -1,0 +1,23 @@
+# RapidRAW browser renderer host boundary
+
+`webgpu-renderer.js` dispatches the pinned RapidRAW `shader.wgsl` main entry
+with all 14 original bindings and accepts the upstream `AllAdjustments` Pod
+bytes unchanged. It uses the same `rgba16float` storage-format substitution as
+the pinned native high-precision pipeline and maps the output asynchronously,
+returning tightly packed RGBA16F rows. The caller must provide textures and
+samplers from RapidRAW's existing preprocessing stages; this module does not
+replace those stages or calculate adjustment packing itself.
+
+The copied `shader.wgsl` is from `CyberTimon/RapidRAW` commit
+`b39884b38d8f148caef6fd0d52afd264951be329`, path
+`src-tauri/src/shaders/shader.wgsl`, SHA-256
+`9ecb4cc31b8ce4a12f439f69935ed0c8c27f58b52501929e0dc41d22e85ca178`.
+It is distributed under the upstream AGPL-3.0 license; see
+`tests/reference/RapidRAW-LICENSE`.
+
+The Node tests use a deterministic WebGPU device double to check original
+binding order, dispatch dimensions, async readback, limits and unsupported
+handling. They are protocol tests and do not prove that a browser GPU executed
+the shader. On the development host, both headless and isolated headed
+Chromium reported no `navigator.gpu`; native rendered-frame comparison and
+the required preprocessing integration remain open.

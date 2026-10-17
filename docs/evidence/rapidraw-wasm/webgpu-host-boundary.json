@@ -1,0 +1,34 @@
+{
+  "status": "host-boundary-implemented-real-browser-gpu-unavailable",
+  "nativeSource": {
+    "repo": "CyberTimon/RapidRAW",
+    "commit": "b39884b38d8f148caef6fd0d52afd264951be329",
+    "shader": "src-tauri/src/shaders/shader.wgsl",
+    "shaderSha256": "9ecb4cc31b8ce4a12f439f69935ed0c8c27f58b52501929e0dc41d22e85ca178",
+    "license": "AGPL-3.0"
+  },
+  "implementation": {
+    "module": "experiments/rapidraw-wasm-core/webgpu-renderer.js",
+    "completeMainShader": true,
+    "originalBindingCount": 14,
+    "adjustmentPacking": "caller supplies original AllAdjustments Pod bytes unchanged",
+    "output": "rgba16float",
+    "readback": "mapAsync with 256-byte row padding removed"
+  },
+  "verification": {
+    "protocolTests": "node --test experiments/rapidraw-wasm-core/webgpu-renderer.test.mjs: 5 passed",
+    "browserCapability": {
+      "headlessChromium": "navigator.gpu absent",
+      "headedIsolatedChromium": "navigator.gpu absent"
+    },
+    "realShaderExecution": false,
+    "nativeRenderedFrameComparison": false
+  },
+  "openGates": [
+    "Wire original RapidRAW preprocessing outputs and source-packed adjustments into the browser host",
+    "Run the complete shader in a real browser WebGPU device",
+    "Compare a bounded neutral/exposure frame against the pinned native renderer",
+    "Verify async readback with real browser downloads/UI after renderer comparison"
+  ],
+  "privacy": "No private photographs, metadata, personal paths, or existing user RapidRAW service were accessed."
+}
