@@ -12,9 +12,11 @@ The clean DesignCraft browser smoke failed at Backspace while waiting 10 seconds
 
 Local `npm run check`, `npm test` (79/79), release validation and `git diff --check` pass. The optimized exact-pin WASM build and original-page recovery browser smoke pass. The host only has Rust 1.99/1.98, not the required native Rust 1.95, so no local native rebuild was claimed. Use the release Actions native job, which sets up the checked-in exact 1.95 pin, to build and verify `text.delete` against the worker.
 
+The first alpha.54 push (`6760282062d9b0a856f705c5bef2561f3c391b99`, run `38993209224`) passed contract, all three DesignCraft native builds, all three target bundles, and the other original-UI jobs. `original-designcraft` stopped before WASM compilation because the build script invoked the local-only `/home/vedran/.../low-impact-build.py` helper. No DesignCraft browser checks or publish ran; no alpha.54 tag/release was created. The build script now invokes checksum-pinned Trunk from `PATH`, with optional toolchain/binary overrides for a host. Push this correction and verify the fresh run, including actual recovery-entry evidence. Do not claim the recovery-entry CI smoke until it succeeds.
+
 ## Next exact steps
 
-Push the alpha.54 candidate as a fresh product version. Verify Checks and Build/release, especially all native setup/build jobs, the clean DesignCraft browser text.delete proof, the recovery-entry smoke, other original UI jobs, and target bundles. Only after success, verify the immutable alpha.54 tag and draft, freshly download every Actions archive and checksum sidecar, and validate each pair. Keep DesignCraft planned and the release draft while real folder permission, laptop ACK/recovery, original Save a Copy, reopen and full parity remain incomplete.
+Push the alpha.54 workflow correction. Verify Checks and Build/release, especially the DesignCraft WASM/native browser smoke, text.delete proof, recovery-entry evidence, other original UI jobs, and all target bundles. Only after success, verify the immutable alpha.54 tag and draft, freshly download every Actions archive and checksum sidecar, and validate each pair. Keep DesignCraft planned and the release draft while real folder permission, laptop ACK/recovery, original Save a Copy, reopen and full parity remain incomplete.
 
 Preserve alpha.51 test studio **8795**, owned RapidRAW **8791**, user RapidRAW **8780**, immutable packages/workspaces and `engines/filmcraft/`. Do not restart those sessions.
 
