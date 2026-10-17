@@ -1,3 +1,9 @@
+# RWASM-02 — original PNG codec boundary verified locally (2026-10-18)
+
+Original native Quality/Speed development can now feed the pinned RGB16 PNG encoder in a dedicated browser worker. PNG bytes match native, browser decode and completed download hashes/lengths pass; both modes reject8 malformed cases with no browser errors. Original ICC/DPI and compression pins are preserved. [Evidence](evidence/rapidraw-wasm/png-codec/) · [compact handoff](rapidraw-wasm-png-handoff.md). Actions verification is pending the source push.
+
+Next ready task: original WebGPU renderer boundary. Retain full pinned WGSL/adjustment layout and effect order; replace desktop device/poll/readback ownership with an asynchronous browser host and compare real rendered pixels to native reference. A shader compile or CPU exposure multiply is not full renderer acceptance. Original React UI, complete exports, metadata, providers and public delivery remain open. Private RAF remains excluded from this fixture test and subject to existing development memory guard.
+
 # RWASM-02 — original Quality and Speed pixels verified (2026-10-17)
 
 The exact-pinned original native `raw_processing.rs`, extracted native probe and Chromium WASM worker match every RGB f32 bit on the CC0 Canon DNG in Quality (2048×1536) and Speed (512×384). An isolated reviewed rawler patch disables only wasm32 PPG diagnostic timing; native profiling and interpolation stay unchanged. Default unprepared WASM still refuses Quality. A focused Actions workflow and runner now reproduce both proofs from a SHA256-verified CC0 fixture and upload native/WASM results, license text, and source/patch provenance. Local full runner passed both modes with zero Chromium errors. [Quality proof](evidence/rapidraw-wasm/quality-development-pixels.json) · [Speed regression](evidence/rapidraw-wasm/quality-build-speed-regression.json) · [handoff](rapidraw-wasm-development-handoff.md).

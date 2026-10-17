@@ -3,7 +3,7 @@
   "nativeApplication": {
     "repo": "CyberTimon/RapidRAW",
     "commit": "b39884b38d8f148caef6fd0d52afd264951be329",
-    "author": "Timon Käch",
+    "author": "Timon K\u00e4ch",
     "license": "AGPL-3.0",
     "rawProcessingSha256": "806f84653c1bf9e4e4d2285be903a0faaa6fd8adb89d2414fee5b3a3f9daacec"
   },
@@ -58,5 +58,34 @@
     "function": "apply_linear_exposure",
     "sourceLines": "543-548",
     "scope": "Editor GPU pipeline multiplies linear RGB by pow(2.0, exposure_adj), after local contrast and before later effects and tone mapping; not implemented as a whole shader pipeline here"
+  },
+  "pngExportReference": {
+    "source": "src-tauri/src/export_processing.rs",
+    "sourceSha256": "1393afa5760c14822344e6a8744b9dfc1591d52716b321916e80b2b3d7d82aa0",
+    "exifSource": "src-tauri/src/exif_processing.rs",
+    "exifSourceSha256": "7e87a2e10391a330e6f2bf1e241cddf04ebac59a91134d5b43b2d230c7999af5",
+    "excerpts": {
+      "png-branch.txt": "bb62c2c2ad7286df382a3b89479906c11dda25b1bfa6d64ba31bb77aeea8efe0",
+      "png-phys.rs": "33b51a1651a643d806da976a05e47cc445a40ac401fa7ab2a912b709d16fe2a5",
+      "png-chunk.rs": "ca2d9dca90bff52914420dbb74e75c6f4dbd6cc1575d0bc7ef7d74ab34a9845c"
+    },
+    "icc": {
+      "path": "assets/sRGB-v2-magic.icc",
+      "sha256": "af4efe28f6d311799865f325ba39184a2e978b113ca74124d60af7de22b105f4",
+      "license": "CC0-1.0",
+      "source": "saucecontrol/Compact-ICC-Profiles abb1b6f (as recorded by pinned RapidRAW)"
+    },
+    "scope": "Native PNG RGB32f -> RGB16 quantization, sRGB ICC and optional DPI only; renderer/transforms/EXIF/UI/storage not included",
+    "codecDependencies": {
+      "image": "0.25.10",
+      "png": "0.18.1",
+      "fdeflate": "0.3.7",
+      "flate2": "1.1.9",
+      "miniz_oxide": "0.8.9",
+      "crc32fast": "1.5.0",
+      "simd-adler32": "0.3.10",
+      "adler2": "2.0.1",
+      "bitflags": "2.13.1"
+    }
   }
 }

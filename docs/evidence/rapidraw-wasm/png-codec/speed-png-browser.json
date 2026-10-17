@@ -1,0 +1,28 @@
+{
+  "stage": "RWASM-02 original PNG codec boundary",
+  "nativeSource": "b39884b38d8f148caef6fd0d52afd264951be329",
+  "fixture": "CC0 raw.pixls.us Canon PowerShot A410 CHDK DNG",
+  "mode": "fast",
+  "dimensions": {
+    "width": 512,
+    "height": 384
+  },
+  "png": {
+    "bitDepth": 16,
+    "colorType": 2,
+    "bytes": 1032380,
+    "sha256": "173420c1a8a03539c6b70f54e020f2165808cd6e3a1723e7b8240e4a48f39862",
+    "exactNativeEncodedBytes": true,
+    "srgbIccSha256": "af4efe28f6d311799865f325ba39184a2e978b113ca74124d60af7de22b105f4",
+    "dpi": 300
+  },
+  "browser": {
+    "rejectedInvalidCases": 8,
+    "decoded": true,
+    "downloadCompleted": true,
+    "downloadedBytes": 1032380,
+    "pageErrors": [],
+    "failedRequests": []
+  },
+  "scope": "RAW development and PNG codec only; GPU renderer/tone mapping not connected; no original UI, EXIF/sidecar, provider save/write ACK or full editor-export acceptance"
+}

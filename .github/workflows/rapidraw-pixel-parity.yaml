@@ -4,18 +4,22 @@ on:
     branches: [main, codex/rapidraw-wasm-port]
     paths:
       - 'experiments/rapidraw-wasm-core/**'
+      - 'patches/rapidraw-rawler/**'
       - 'scripts/prepare-rapidraw-quality.mjs'
       - 'scripts/smoke-rapidraw-development.mjs'
       - 'scripts/smoke-rapidraw-exposure-pixels.mjs'
+      - 'scripts/smoke-rapidraw-png.mjs'
       - 'scripts/ci-rapidraw-pixel-parity.mjs'
       - 'docs/evidence/rapidraw-wasm/runtime-smoke.json'
       - '.github/workflows/rapidraw-pixel-parity.yaml'
   pull_request:
     paths:
       - 'experiments/rapidraw-wasm-core/**'
+      - 'patches/rapidraw-rawler/**'
       - 'scripts/prepare-rapidraw-quality.mjs'
       - 'scripts/smoke-rapidraw-development.mjs'
       - 'scripts/smoke-rapidraw-exposure-pixels.mjs'
+      - 'scripts/smoke-rapidraw-png.mjs'
       - 'scripts/ci-rapidraw-pixel-parity.mjs'
       - 'docs/evidence/rapidraw-wasm/runtime-smoke.json'
       - '.github/workflows/rapidraw-pixel-parity.yaml'

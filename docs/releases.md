@@ -1,3 +1,7 @@
+# Unreleased RapidRAW WASM codec checkpoint — 2026-10-18
+
+The isolated `codex/rapidraw-wasm-port` branch adds an experimental native-equivalent PNG codec boundary and Actions test evidence, not an installable product release. Its input is a supplied RGB-f32 buffer; the original GPU renderer, transforms, metadata and original UI have not been connected. Product version/release tags/public demo stay unchanged. The next released editor feature still requires a new product SemVer and verified Actions-built target assets. See [scope, build and verification](rapidraw-wasm-png-handoff.md).
+
 # Alpha.59 candidate: DesignCraft Delete Page ACK test fixture correction
 
 Corrects the exact-pinned upstream Rust test setup to queue the original Duplicate Spread action in the client mirror before applying its server ACK. The focused native test passes 1/1 and verifies pending state before ACK and hydration after ACK. Production UI/worker behavior is unchanged from alpha.58; the Chromium report is explicitly evidence for the alpha.58 package identity. Fresh alpha.59 Actions builds, immutable tag/draft and asset checksums remain to verify. DesignCraft stays planned; real folder permission, broader original parity and all-provider acceptance remain open. [PAR-03 handoff](par-03a-handoff.md) · [prior runtime browser evidence](evidence/designcraft-par03-delete-page-browser.json).

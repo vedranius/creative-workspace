@@ -1,3 +1,9 @@
+## Experimental RapidRAW branch — unreleased checkpoint (2026-10-18)
+
+- Add the pinned native PNG codec boundary: RGB-f32 to RGB16 quantization, original CC0 sRGB ICC profile and optional DPI chunk. Preserve the original encoder/compression versions; bound dimensions, finite RGB input and output bytes.
+- Extend the experimental RAW worker with an explicit codec-only PNG output and add native-byte/browser-decode/download checks on the public CC0 Canon DNG to the Actions parity workflow.
+- This is incomplete port groundwork. The original GPU renderer/tone mapping, metadata, original React UI, common-provider save acknowledgement and full export acceptance remain open. Public demo and product release version are unchanged; no downloadable complete browser editor is announced.
+
 ## [0.2.0-alpha.59] - 2026-10-17
 
 - Fix the exact-pinned DesignCraft Delete Page Rust test setup: queue original Duplicate Spread in the client mirror before applying its ACK, so the test exercises a real pending action and revisioned state hydration.

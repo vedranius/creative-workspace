@@ -1,0 +1,39 @@
+{
+  "stage": "RWASM-02 original native RAW pixel path, native quality mode",
+  "nativeSource": "b39884b38d8f148caef6fd0d52afd264951be329",
+  "decoderSource": "a32bc1ff1f4f3c56d4d3226082f6eb17414f9159",
+  "fixture": "CC0 raw.pixls.us Canon PowerShot A410 CHDK DNG",
+  "nativeReference": "Byte-identical pinned raw_processing.rs in a native executable, with only desktop host types and original orientation helper supplied by the harness",
+  "dimensions": {
+    "width": 2048,
+    "height": 1536,
+    "components": 3,
+    "pixelCount": 3145728
+  },
+  "demosaic": {
+    "selected": "pinned native quality mode",
+    "qualityMode": "timer-only wasm32 compatibility build; interpolation unchanged"
+  },
+  "decoderCompatibility": {
+    "schemaVersion": 1,
+    "decoderSource": "a32bc1ff1f4f3c56d4d3226082f6eb17414f9159",
+    "patch": {
+      "path": "patches/rapidraw-rawler/a32bc1ff/ppg-wasm-profiling.patch",
+      "sha256": "d80f45df13380ea0dfa0554565c633116e8ad726b2096b8c0b9a602259497f95",
+      "file": "rawler/src/imgop/sensor/bayer/ppg.rs",
+      "beforeSha256": "9320de465bbef900e00fe794627e7c5e652f2415205c0b39f89837934e031f6c",
+      "afterSha256": "02fc66b032a6bb98f8ed5c03a261e119de17739cb8a72fffcc5c395334d91e4d",
+      "scope": "Only wasm32 profiling timer/debug log cfgs; all PPG pixel arithmetic unchanged; native timing retained",
+      "license": "LGPL-2.1"
+    },
+    "scope": "Isolated timer-patched rawler plus source-equivalent probe; only wasm32 profiling is removed, native behavior and interpolation preserved"
+  },
+  "exactRGBF32BitsSha256Matches": true,
+  "pixelHash": "f052bba0940702e068fb03d6a9f1cc78b9c57e7ff5758f1c460f28d11fb49e30",
+  "wasmBytes": 7039775,
+  "wasmSha256": "af85472efbc2a1509b49c8e6843a4310ddd9f993f17f6a832130123c1dceb670",
+  "browser": "Actual experimental worker.js in a dedicated Chromium module worker; transferred Float32Array hashed in browser and not written to report",
+  "pageErrors": [],
+  "failedRequests": [],
+  "scope": "Original RawDevelop quality demosaic/crop/calibration plus native black/white rescale, clipping recovery, clamp and EXIF orientation; one licensed Bayer fixture only; no UI, pixel exposure adjustment, RAF development or export acceptance"
+}

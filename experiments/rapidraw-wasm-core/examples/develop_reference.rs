@@ -73,6 +73,11 @@ mod multi_exposure;
 #[rustfmt::skip]
 mod raw_processing;
 
+#[path = "../tests/reference/png_encode.rs"]
+#[allow(dead_code)]
+#[rustfmt::skip]
+mod png_native;
+
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let path = std::env::args()
         .nth(1)
@@ -81,6 +86,17 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let bytes = std::fs::read(path)?;
     let image =
         raw_processing::develop_raw_image(&bytes, fast_demosaic, 1000.0, "default".into(), None)?;
+    // Optional codec-only proof: original developed RGB, no GPU renderer/tone map.
+    if let Some(output) = std::env::args().nth(3) {
+        let rgb = image::DynamicImage::ImageRgb32F(image.to_rgb32f());
+        let png = png_native::encode(&rgb, Some(300))?;
+        std::fs::write(output, &png)?;
+        eprintln!(
+            "PNG codec reference: {} bytes, SHA256 {:x}",
+            png.len(),
+            Sha256::digest(&png)
+        );
+    }
     let rgba = image.as_rgba32f().ok_or("native result is not RGBA32F")?;
     let mut hash = Sha256::new();
     for pixel in rgba.pixels() {

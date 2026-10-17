@@ -38,7 +38,7 @@ export async function prepareQuality(directory){
  const changed=(await run(['diff','--name-only'],decoder)).split('\n');
  if(changed.length!==1||changed[0]!==metadata.qualityTimerPatch.file||hash(await readFile(target))!==metadata.qualityTimerPatch.afterSha256)throw Error('Patched source scope/hash differs');
  await mkdir(crate);
- for(const name of ['Cargo.toml','Cargo.lock','UPSTREAM.json','src','examples','tests','worker.js','decoder-worker.js','decoder-client.js','decoder-client.test.mjs']){
+ for(const name of ['Cargo.toml','Cargo.lock','UPSTREAM.json','src','assets','examples','tests','worker.js','decoder-worker.js','decoder-client.js','decoder-client.test.mjs']){
   await cp(path.join(source,name),path.join(crate,name),{recursive:(await stat(path.join(source,name))).isDirectory()});
  }
  const manifest=await readFile(path.join(crate,'Cargo.toml'),'utf8');

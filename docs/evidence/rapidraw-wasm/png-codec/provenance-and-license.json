@@ -1,0 +1,145 @@
+{
+  "schemaVersion": 1,
+  "pngCodec": {
+    "source": "src-tauri/src/export_processing.rs",
+    "sourceSha256": "1393afa5760c14822344e6a8744b9dfc1591d52716b321916e80b2b3d7d82aa0",
+    "exifSource": "src-tauri/src/exif_processing.rs",
+    "exifSourceSha256": "7e87a2e10391a330e6f2bf1e241cddf04ebac59a91134d5b43b2d230c7999af5",
+    "excerpts": {
+      "png-branch.txt": "bb62c2c2ad7286df382a3b89479906c11dda25b1bfa6d64ba31bb77aeea8efe0",
+      "png-phys.rs": "33b51a1651a643d806da976a05e47cc445a40ac401fa7ab2a912b709d16fe2a5",
+      "png-chunk.rs": "ca2d9dca90bff52914420dbb74e75c6f4dbd6cc1575d0bc7ef7d74ab34a9845c"
+    },
+    "icc": {
+      "path": "assets/sRGB-v2-magic.icc",
+      "sha256": "af4efe28f6d311799865f325ba39184a2e978b113ca74124d60af7de22b105f4",
+      "license": "CC0-1.0",
+      "source": "saucecontrol/Compact-ICC-Profiles abb1b6f (as recorded by pinned RapidRAW)"
+    },
+    "scope": "Native PNG RGB32f -> RGB16 quantization, sRGB ICC and optional DPI only; renderer/transforms/EXIF/UI/storage not included",
+    "codecDependencies": {
+      "image": "0.25.10",
+      "png": "0.18.1",
+      "fdeflate": "0.3.7",
+      "flate2": "1.1.9",
+      "miniz_oxide": "0.8.9",
+      "crc32fast": "1.5.0",
+      "simd-adler32": "0.3.10",
+      "adler2": "2.0.1",
+      "bitflags": "2.13.1"
+    }
+  },
+  "fixture": {
+    "id": "raw.pixls.us 1327",
+    "sourceUrl": "https://raw.pixls.us/getfile.php/1327/nice/Canon%20-%20Canon%20PowerShot%20A410%20-%2010bit%2010bit%20CHDK%20ver.%201.5.0%20%284%3A3%29.DNG",
+    "sourceSha256": "f0d2fe47507fadf50008bddbc6bd2c5e39fddbe90cca6bca72dd360fa0e0eb38",
+    "license": "CC0-1.0",
+    "licenseSourceUrl": "https://raw.pixls.us/json/getrepository.php",
+    "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/"
+  },
+  "nativeSource": {
+    "repo": "CyberTimon/RapidRAW",
+    "commit": "b39884b38d8f148caef6fd0d52afd264951be329",
+    "license": "AGPL-3.0",
+    "licenseText": "RapidRAW-LICENSE"
+  },
+  "decoder": {
+    "repo": "CyberTimon/RapidRAW-DngLab",
+    "commit": "a32bc1ff1f4f3c56d4d3226082f6eb17414f9159",
+    "license": "LGPL-2.1",
+    "licenseUrl": "https://www.gnu.org/licenses/old-licenses/lgpl-2.1.html"
+  },
+  "qualityPatch": {
+    "path": "patches/rapidraw-rawler/a32bc1ff/ppg-wasm-profiling.patch",
+    "sha256": "d80f45df13380ea0dfa0554565c633116e8ad726b2096b8c0b9a602259497f95",
+    "file": "rawler/src/imgop/sensor/bayer/ppg.rs",
+    "beforeSha256": "9320de465bbef900e00fe794627e7c5e652f2415205c0b39f89837934e031f6c",
+    "afterSha256": "02fc66b032a6bb98f8ed5c03a261e119de17739cb8a72fffcc5c395334d91e4d",
+    "scope": "Only wasm32 profiling timer/debug log cfgs; all PPG pixel arithmetic unchanged; native timing retained",
+    "license": "LGPL-2.1",
+    "artifact": "ppg-wasm-profiling.patch"
+  },
+  "toolchain": {
+    "rustc": "rustc 1.99.0 (b940084d7 2026-09-28)",
+    "wasmBindgen": "wasm-bindgen 0.2.129"
+  },
+  "fixtureBytes": 4219200,
+  "results": {
+    "quality": {
+      "dimensions": {
+        "width": 2048,
+        "height": 1536,
+        "components": 3,
+        "pixelCount": 3145728
+      },
+      "browser": "Actual experimental worker.js in a dedicated Chromium module worker; transferred Float32Array hashed in browser and not written to report",
+      "pixelHash": "f052bba0940702e068fb03d6a9f1cc78b9c57e7ff5758f1c460f28d11fb49e30",
+      "exactRGBF32BitsSha256Matches": true,
+      "pageErrors": [],
+      "failedRequests": []
+    },
+    "qualityPng": {
+      "dimensions": {
+        "width": 2048,
+        "height": 1536
+      },
+      "png": {
+        "bitDepth": 16,
+        "colorType": 2,
+        "bytes": 15823705,
+        "sha256": "f339e40cd74692a02afbc52b2e487930ff452293398a1d530eda7f8964013866",
+        "exactNativeEncodedBytes": true,
+        "srgbIccSha256": "af4efe28f6d311799865f325ba39184a2e978b113ca74124d60af7de22b105f4",
+        "dpi": 300
+      },
+      "browser": {
+        "rejectedInvalidCases": 8,
+        "decoded": true,
+        "downloadCompleted": true,
+        "downloadedBytes": 15823705,
+        "pageErrors": [],
+        "failedRequests": []
+      }
+    },
+    "speed": {
+      "dimensions": {
+        "width": 512,
+        "height": 384,
+        "components": 3,
+        "pixelCount": 196608
+      },
+      "browser": "Actual experimental worker.js in a dedicated Chromium module worker; transferred Float32Array hashed in browser and not written to report",
+      "pixelHash": "d9d7e96227a8346bd6599f1987aa4f30ee53403e4284a3161c62478507baf53a",
+      "exactRGBF32BitsSha256Matches": true,
+      "pageErrors": [],
+      "failedRequests": []
+    },
+    "speedPng": {
+      "dimensions": {
+        "width": 512,
+        "height": 384
+      },
+      "png": {
+        "bitDepth": 16,
+        "colorType": 2,
+        "bytes": 1032380,
+        "sha256": "173420c1a8a03539c6b70f54e020f2165808cd6e3a1723e7b8240e4a48f39862",
+        "exactNativeEncodedBytes": true,
+        "srgbIccSha256": "af4efe28f6d311799865f325ba39184a2e978b113ca74124d60af7de22b105f4",
+        "dpi": 300
+      },
+      "browser": {
+        "rejectedInvalidCases": 8,
+        "decoded": true,
+        "downloadCompleted": true,
+        "downloadedBytes": 1032380,
+        "pageErrors": [],
+        "failedRequests": []
+      }
+    },
+    "exposurePixels": {
+      "pageErrors": [],
+      "failedRequests": []
+    }
+  }
+}

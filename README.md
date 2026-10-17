@@ -14,7 +14,7 @@ Alpha.24 adds an original Open-dialog candidate for a selected laptop `.designcr
 
 ## What is new
 
-- **Native RapidRAW WASM experiment:** a separate, pinned-source effort to preserve the original UI and image pipeline in the browser. The exact RAW decoder passes the first wasm32 compiler check; runtime RAW development, editing/export and UI parity are not implemented yet. [Milestones and acceptance](docs/rapidraw-wasm-port.md).
+- **Native RapidRAW WASM experiment:** a separate, pinned-source effort to preserve the original UI and image pipeline in the browser. A dedicated Chromium worker now matches original native Quality and Speed developed pixels on a public CC0 DNG, with Actions verification. The experimental PNG codec boundary preserves native RGB16 conversion, sRGB ICC and DPI. Original GPU rendering, complete editing/export and React UI integration remain unfinished; this port is not yet in the public demo. [Milestones and acceptance](docs/rapidraw-wasm-port.md).
 
 - **Browser playground (alpha.57):** twelve original interfaces with explicit consent that processing uses the visitor's computer. The independent Cloudflare Pages export preserves licenses and source provenance while excluding private workspaces/backends. The main product continues toward server processing. [Demo and deployment](docs/cloudflare-demo.md).
 

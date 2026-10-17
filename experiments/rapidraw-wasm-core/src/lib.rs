@@ -17,6 +17,7 @@ use sha2::{Digest, Sha256};
 pub mod development;
 pub mod exposure;
 mod multi_exposure;
+pub mod png_export;
 
 /// Preserve the native compensation formula behind a finite-value host boundary.
 /// This returns stops only; it does not develop or modify image pixels.
@@ -392,6 +393,17 @@ mod browser {
     #[wasm_bindgen]
     pub fn apply_rgb_exposure(pixels: &[f32], exposure: f32) -> Result<Vec<f32>, JsValue> {
         super::apply_rgb_exposure(pixels, exposure).map_err(|e| JsValue::from_str(&e))
+    }
+
+    #[wasm_bindgen]
+    pub fn encode_rgb32f_png(
+        width: u32,
+        height: u32,
+        pixels: &[f32],
+        dpi: Option<u16>,
+    ) -> Result<Vec<u8>, JsValue> {
+        super::png_export::encode_rgb32f_png(width, height, pixels, dpi)
+            .map_err(|e| JsValue::from_str(&e))
     }
 
     #[wasm_bindgen]
