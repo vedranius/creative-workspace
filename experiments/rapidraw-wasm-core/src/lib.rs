@@ -14,7 +14,9 @@ use rawler::{
 };
 use sha2::{Digest, Sha256};
 
+pub mod development;
 pub mod exposure;
+mod multi_exposure;
 
 /// Preserve the native compensation formula behind a finite-value host boundary.
 /// This returns stops only; it does not develop or modify image pixels.
@@ -361,6 +363,7 @@ fn hex_digest(digest: impl AsRef<[u8]>) -> String {
 
 #[cfg(target_arch = "wasm32")]
 mod browser {
+    use js_sys::{Float32Array, Object, Reflect};
     use wasm_bindgen::prelude::*;
 
     #[wasm_bindgen]
@@ -384,6 +387,36 @@ mod browser {
     #[wasm_bindgen]
     pub fn decode_sensor_report(bytes: &[u8]) -> Result<String, JsValue> {
         super::decode_sensor_report(bytes).map_err(|e| JsValue::from_str(&e))
+    }
+
+    /// Develop an image with the pinned native RapidRAW float-pixel path.
+    #[wasm_bindgen]
+    pub fn develop_pixels(
+        bytes: &[u8],
+        fast_demosaic: bool,
+        linear_mode: &str,
+    ) -> Result<JsValue, JsValue> {
+        let pixels = super::development::develop_pixels(bytes, fast_demosaic, linear_mode)
+            .map_err(|e| JsValue::from_str(&e))?;
+        let result = Object::new();
+        Reflect::set(
+            &result,
+            &"width".into(),
+            &JsValue::from_f64(pixels.width as f64),
+        )?;
+        Reflect::set(
+            &result,
+            &"height".into(),
+            &JsValue::from_f64(pixels.height as f64),
+        )?;
+        Reflect::set(
+            &result,
+            &"components".into(),
+            &JsValue::from_f64(pixels.components as f64),
+        )?;
+        let data = Float32Array::from(pixels.data.as_slice());
+        Reflect::set(&result, &"data".into(), data.as_ref())?;
+        Ok(result.into())
     }
 }
 

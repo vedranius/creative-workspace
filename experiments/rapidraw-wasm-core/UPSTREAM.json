@@ -24,5 +24,15 @@
     "referenceCopy": "tests/reference/baseline_exposure.rs",
     "licenseCopy": "tests/reference/RapidRAW-LICENSE",
     "scope": "Unchanged compensation formula/types; no pixel pipeline or metadata extraction"
+  },
+  "developmentReference": {
+    "path": "src-tauri/src/raw_processing.rs",
+    "sha256": "806f84653c1bf9e4e4d2285be903a0faaa6fd8adb89d2414fee5b3a3f9daacec",
+    "referenceCopy": "tests/reference/raw_processing.rs",
+    "multiExposurePath": "src-tauri/src/multi_exposure.rs",
+    "multiExposureSha256": "a613d33be1a2f40db28f8a33bf87e67c0748007914328214ce67602a28ef4901",
+    "multiExposureReferenceCopy": "tests/reference/multi_exposure.rs",
+    "nativeHarness": "examples/develop_reference.rs",
+    "scope": "Byte-identical native develop_internal compiled against pinned rawler; only desktop host types and original orientation helper are supplied by the harness"
   }
 }

@@ -1,0 +1,25 @@
+{
+  "stage": "RWASM-02 original native RAW pixel path, native Speed mode",
+  "nativeSource": "b39884b38d8f148caef6fd0d52afd264951be329",
+  "decoderSource": "a32bc1ff1f4f3c56d4d3226082f6eb17414f9159",
+  "fixture": "CC0 raw.pixls.us Canon PowerShot A410 CHDK DNG",
+  "nativeReference": "Byte-identical pinned raw_processing.rs in a native executable, with only desktop host types and original orientation helper supplied by the harness",
+  "dimensions": {
+    "width": 512,
+    "height": 384,
+    "components": 3,
+    "pixelCount": 196608
+  },
+  "demosaic": {
+    "selected": "pinned native Speed mode",
+    "qualityMode": "explicitly refused in WASM: pinned PPG calls std::time::Instant::now(), which panics for wasm32-unknown-unknown"
+  },
+  "exactRGBF32BitsSha256Matches": true,
+  "pixelHash": "d9d7e96227a8346bd6599f1987aa4f30ee53403e4284a3161c62478507baf53a",
+  "wasmBytes": 6796483,
+  "wasmSha256": "84be89cf00a552d66ff80e555eb8264f347c318bb7a782501c3dea6b7f105bbf",
+  "browser": "Dedicated Chromium module worker; pixel payload hashed in-browser and not written to report",
+  "pageErrors": [],
+  "failedRequests": [],
+  "scope": "Original RawDevelop Speed demosaic/crop/calibration plus native black/white rescale, clipping recovery, clamp and EXIF orientation; no UI, pixel exposure adjustment or export acceptance"
+}

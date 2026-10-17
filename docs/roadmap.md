@@ -1,6 +1,12 @@
-# RWASM-02 — verified original compensation slice (2026-10-17)
+# RWASM-02 — native Speed-mode RAW pixels verified (2026-10-17)
 
-The original RawExposure/BaselineOptions formula/types now run in native and dedicated browser WASM worker: 144 exact f32 bit matches against unchanged native source, 10 invalid-value rejections, all14 native/84Node tests pass. This is scalar stops only; pixels/UI/export remain unimplemented. Next: original native develop pixel path and native-reference comparison, then exposure application/export. [Evidence](evidence/rapidraw-wasm/exposure-compensation.json) · [handoff](rapidraw-wasm-exposure-handoff.md).
+The original pinned RAW path now returns real float pixels in native and optimized browser WASM for RapidRAW's Speed demosaic mode. A byte-identical pinned native `raw_processing.rs` reference and Chromium worker match exactly on every RGB f32 bit for one CC0 Canon DNG (512×384); the worker hashes pixels in-browser without storing the image. PPG Quality mode is explicitly refused because its pinned `std::time::Instant::now()` panics on `wasm32-unknown-unknown`. [Evidence](evidence/rapidraw-wasm/raw-development-pixels.json) · [handoff](rapidraw-wasm-development-handoff.md).
+
+Next: investigate a source-faithful WASM timer compatibility path that leaves Quality demosaic arithmetic unchanged. Then apply the already verified scalar exposure compensation to developed pixels and continue through native-reference export checks. No product availability or format claim; original UI and save acceptance remain open.
+
+## Earlier RWASM-02 scalar compensation slice
+
+The original RawExposure/BaselineOptions formula/types run in native and a dedicated browser WASM worker: 144 exact f32 bit matches against unchanged native source, 10 invalid-value rejections, all14 native/84Node tests pass. This is scalar stops only; [evidence](evidence/rapidraw-wasm/exposure-compensation.json) · [handoff](rapidraw-wasm-exposure-handoff.md).
 
 # RWASM — native RapidRAW to browser (authorized 2026-10-17)
 
