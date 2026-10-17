@@ -55,9 +55,11 @@ try{
   await page.waitForFunction(()=>document.querySelector('#designcraft_canvas')?.hasAttribute('data-original-preset-a4'),null,{timeout:120000});
   const canvas=page.locator('#designcraft_canvas'),preset=JSON.parse(await canvas.getAttribute('data-original-preset-a4'));
   await page.mouse.click(...preset);await page.waitForFunction(()=>document.querySelector('#designcraft_canvas')?.getAttribute('data-server-revision')==='1');
+  await page.waitForFunction(()=>document.querySelector('#designcraft_canvas')?.getAttribute('data-server-pending')==='false');
   await page.keyboard.press('f');await page.mouse.move(390,300);await page.mouse.down();await page.mouse.move(560,450,{steps:5});await page.mouse.up();
   await page.waitForFunction(()=>document.querySelector('#designcraft_canvas')?.getAttribute('data-server-revision')==='2',null,{timeout:30000});
-  assert.equal(requests[1]?.method,'frame.create');assert.equal(acks[1]?.result?.commandId,'frame.create');
+  await page.waitForFunction(()=>document.querySelector('#designcraft_canvas')?.getAttribute('data-server-pending')==='false',null,{timeout:30000});
+  assert.equal(requests[1]?.method,'frame.create',JSON.stringify({requests,ackCommandIds:acks.map(ack=>ack.result?.commandId),failedResponses}));assert.equal(acks[1]?.result?.commandId,'frame.create');
   await page.keyboard.press('Control+a');
   await page.waitForFunction(()=>document.querySelector('#designcraft_canvas')?.getAttribute('data-server-revision')==='3',null,{timeout:30000});
   assert.equal(requests[2]?.method,'edit.selectAll');assert.equal(requests[2]?.params&&Object.keys(requests[2].params).length,0);
