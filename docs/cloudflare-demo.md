@@ -24,10 +24,12 @@ References: [Pages headers](https://developers.cloudflare.com/pages/configuratio
 
 Public URL: https://creative-workspace-demo.pages.dev/
 
-Verified deployment: https://60bcb383.creative-workspace-demo.pages.dev/ (2026-10-17). All twelve original interfaces launched through the public portal; explicit consent precedes iframe load, the persistent laptop-processing label remains visible, and original decoded WASM SHA-256 values match every pinned package. All twelve canvases are non-uniform and cross-origin isolated. No page errors or failed requests were recorded. The smoke assertion for FilmCraft was corrected to ignore its upstream cache-busting query, then FilmCraft alone was rerun successfully. This is launch/render/transport evidence, not broad editing/save/format acceptance. [Browser report](evidence/cloudflare-demo-alpha57/browser.json).
+Final source-bound deployment: https://1157ac0e.creative-workspace-demo.pages.dev/ at product commit `4efc0cfe8211f779d39ed497c44fe24351b1bc5b` (2026-10-17), with zero changed asset bytes from browser-verified deployment https://60bcb383.creative-workspace-demo.pages.dev/. All twelve original interfaces launched through the public portal; explicit consent precedes iframe load, the persistent laptop-processing label remains visible, and original decoded WASM SHA-256 values match every pinned package. All twelve canvases are non-uniform and cross-origin isolated. No page errors or failed requests were recorded. The smoke assertion for FilmCraft was corrected to ignore its upstream cache-busting query, then FilmCraft alone was rerun successfully. This is launch/render/transport evidence, not broad editing/save/format acceptance. [Browser report](evidence/cloudflare-demo-alpha57/browser.json).
 
 ![Public playground](evidence/cloudflare-demo-alpha57/studio.png)
 
 ![Original PhotoCraft through the public demo](evidence/cloudflare-demo-alpha57/photocraft.png)
 
 The other eleven application screenshots are retained alongside that report. Local verification: 83 tests passed, `npm run check`, release validation and diff check passed. A regression test proves that the browser transport decodes only the exact WASM allowlist and does not intercept document, POST or other-origin requests. No protected local service was restarted.
+
+GitHub source is pushed normally at `4efc0cf`. Checks run `39040178445` passed Linux and macOS while Windows was still running at handoff. Build/release `39040178352` is pending behind alpha.56 `39037838837` (original-designcraft job still running). No alpha.57 tag/release assets are claimed yet. The continuation must inspect these exact runs and verify immutable draft/tag plus all downloaded assets/checksums after success.
