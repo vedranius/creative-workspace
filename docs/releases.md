@@ -1,3 +1,7 @@
+# Alpha.58 candidate: DesignCraft Delete Page server action
+
+The exact pinned original Layout → Pages → Delete Page menu action reaches the owned worker as `layout.pages.delete`. Gateway validation rejects duplicate/out-of-range indexes and preserves the final page. The original UI retains its prior state until matching worker ACK, then hydrates server state and render. Exact-source Rust and isolated Chromium evidence pass; full local tests, checks and release metadata are complete. Commit/push and Actions-built OS bundles, immutable tag/draft and downloaded archive/checksum pairs remain pending. DesignCraft remains planned; real folder permission and full original parity are open. [Browser evidence](evidence/designcraft-par03-delete-page-browser.json) · [PAR-03 handoff](par-03a-handoff.md).
+
 # Alpha.57 candidate: isolated Cloudflare browser playground
 
 Adds a public static demo export with explicit local-processing consent, twelve original interfaces, persistent mode labels and source/license provenance. The visitor's browser performs the work. Private workspaces, RapidRAW and the DesignCraft server candidate are excluded. The server-processing goal and all existing adapter acceptance gates remain. [Build/deploy details](cloudflare-demo.md). Fresh Actions builds, immutable draft/tag and downloaded assets/checksums are pending.

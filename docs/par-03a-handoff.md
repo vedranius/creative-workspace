@@ -1,10 +1,28 @@
+# 2026-10-17 PAR-03 Delete Page action candidate — alpha.58
+
+## Current status and next step
+
+The pinned original DesignCraft Layout → Pages → Delete Page menu action is `app.deletePage` in the original UI and maps to `layout.pages.delete` in the original engine. Alpha.58 adds the worker command to the owned native allowlist, a gateway contract accepting only unique non-negative page indexes, existence checks against the owned document, and a refusal to delete the last page. The original `DesignApp` queues this exact action and holds its current state until the matching worker ACK/read-model/render arrives. Local protocol tests, the exact-source Rust test, optimized pinned UI and owned worker builds, exact patch installation and isolated Chromium proof pass. Chromium confirms the original menu action sends `{pages:[0]}`, receives matching ACK at revision 3, leaves one dirty page and renders a fresh server PNG; no browser errors or failed requests. The chooser is a synthetic fixture. This is a narrow action slice; keep DesignCraft planned and do not claim availability.
+
+The synthetic folder chooser is retained from the existing QA harness. Real OS folder permission, broader original tools/actions, complete open/edit/save/reopen, laptop destination ACK/recovery and all-13 server/provider acceptance remain open.
+
+Exact pinned source/UI browser evidence is recorded in [the evidence note](evidence/designcraft-par03-delete-page.md), machine report and screenshots. `npm run check`, `npm test` (84/84), `npm run release:validate` and `git diff --check` pass. Version `0.2.0-alpha.58` is a fresh candidate. Before publishing the source commit, inspect remote alpha.58 tag/release state, stage only intended tracked changes (preserve untracked `engines/filmcraft/`), and push normally. Then verify alpha.58 Actions on every target, immutable tag/draft and downloaded archive/checksum pairs before any release claim.
+
+## Alpha.56/57 gate snapshot (2026-10-17)
+
+Alpha.56 Checks and Build/release `39037838837` completed successfully on commit `b6d751a3f43d626e1a0c96bf8a867dc317c9e3dc`; immutable tag `v0.2.0-alpha.56` points to that commit. Its prerelease remains a draft. Downloaded all 24 assets and verified every GitHub SHA-256 digest plus all 12 archive/sidecar pairs with no mismatches. Alpha.57 Checks `39040178445` passed; Build/release `39040178352` is now running. Do not claim alpha.57 release/assets until that exact run finishes and its tag/draft/assets/checksums are inspected.
+
+Preserve untracked `engines/filmcraft/`, protected studio8795/RapidRAW8791, user RapidRAW8780, and unsaved documents; do not restart these runtimes.
+
+---
+
 # 2026-10-17 PAR-03 Duplicate Spread action candidate — alpha.56
 
 The exact pinned original DesignCraft menu action Layout → Pages → Duplicate Spread now reaches the owned native server worker as `layout.pages.duplicateSpread`. The upstream source patch intercepts only `app.duplicateSpread`, invokes the original menu mapping, and retains the engine command identity. Server gateway rejects extra fields, invalid/missing spreads and page-cap overflow; worker failure does not consume a server revision. State/render hydration occurs after matching ACK.
 
 Focused upstream Rust test passed 1/1, owned native worker build passed, isolated Chromium exercised the original menu against that worker and confirmed ACK, two spreads/pages, dirty state and the revisioned server-render PNG with no browser/network errors. The provider chooser was a synthetic fixture; this proves neither real folder permission nor broad DesignCraft parity. Local `npm test` 80/80, `npm run check`, release validation and diff check pass. Actions Checks/release and downloadable assets are pending. [Browser report](evidence/designcraft-par03-duplicate-spread-browser.json) · [screenshot](evidence/designcraft-par03-duplicate-spread-browser.png).
 
-Next: verify alpha.56 Actions, immutable tag/draft and all generated asset/checksum pairs. If successful, advance one original DesignCraft action slice. Keep DesignCraft planned; real OS folder permission, complete original tools/actions, open/edit/save/reopen and all-13 server/provider acceptance remain open. Preserve `engines/filmcraft/`, studio8795/RapidRAW8791/user RapidRAW8780, and immutable packages/workspaces.
+Alpha.56 Actions and its immutable draft/assets are verified above. Next: finish alpha.58 original Delete Page proof. Keep DesignCraft planned; real OS folder permission, complete original tools/actions, open/edit/save/reopen and all-13 server/provider acceptance remain open. Preserve `engines/filmcraft/`, studio8795/RapidRAW8791/user RapidRAW8780, and immutable packages/workspaces.
 
 ---
 

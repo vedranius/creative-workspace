@@ -219,6 +219,10 @@ jobs:
         env:
           CARGO_BUILD_JOBS: '1'
         run: cargo test --manifest-path build/original-ui/source-designcraft/Cargo.toml -p designcraft-engine server_mirror_stages_original_text_delete_id_and_params_without_local_mutation
+      - name: Verify original Layout > Pages > Delete Page waits for server ACK
+        env:
+          CARGO_BUILD_JOBS: '1'
+        run: cargo test --manifest-path build/original-ui/source-designcraft/Cargo.toml -p designcraft-ui-egui original_delete_page_queues_engine_command_and_hydrates_only_after_ack
       - name: Verify the original UI against the owned server worker
         env:
           CW_DESIGNCRAFT_BINARY: ${{ github.workspace }}/build/staged/designcraft/cw-designcraft-engine
@@ -243,6 +247,9 @@ jobs:
           CW_DESIGNCRAFT_ACK_FAILURE_REPORT: ${{ github.workspace }}/build/designcraft-par03-evidence/save-copy-ack-failure-browser.json
           CW_DESIGNCRAFT_ACK_FAILURE_SCREENSHOT: ${{ github.workspace }}/build/designcraft-par03-evidence/save-copy-ack-failure-browser.png
           CW_DESIGNCRAFT_ACK_FAILURE_RECOVERY_SCREENSHOT: ${{ github.workspace }}/build/designcraft-par03-evidence/save-copy-ack-failure-recovery.png
+          CW_PAR03_DELETE_PAGE_REPORT: ${{ github.workspace }}/build/designcraft-par03-evidence/delete-page-browser.json
+          CW_PAR03_DELETE_PAGE_SCREENSHOT: ${{ github.workspace }}/build/designcraft-par03-evidence/delete-page-browser.png
+          CW_PAR03_DELETE_PAGE_MENU_SCREENSHOT: ${{ github.workspace }}/build/designcraft-par03-evidence/delete-page-menu.png
         run: |
           chmod +x "$CW_DESIGNCRAFT_BINARY"
           npm install --prefix build/browser-qa --no-audit --no-fund --save-exact playwright@1.64.0
@@ -254,6 +261,7 @@ jobs:
           node scripts/smoke-designcraft-text-delete-candidate.mjs
           node scripts/smoke-designcraft-recovery-entry.mjs
           node scripts/smoke-designcraft-save-copy-ack-failure.mjs
+          node scripts/smoke-designcraft-delete-page-browser.mjs
       - name: Build and prove the original preset/server-canvas candidate
         env:
           CW_DESIGNCRAFT_BINARY: ${{ github.workspace }}/build/staged/designcraft/cw-designcraft-engine

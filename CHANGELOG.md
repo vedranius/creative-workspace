@@ -1,3 +1,9 @@
+## [0.2.0-alpha.58] - 2026-10-17
+
+- Bridge the exact pinned DesignCraft Layout → Pages → Delete Page action to owned server command `layout.pages.delete`; validate unique in-range page indexes, preserve the final page, and apply UI state/render only after the matching worker ACK.
+- Add exact-source Rust coverage and isolated Chromium verification of the original menu action, server read-model and revisioned server render. This slice does not establish real folder permission or full DesignCraft parity; keep it planned and the release draft-only.
+- The exact-pinned Rust test, optimized UI/worker builds, exact patch installation and isolated Chromium proof pass. Chromium verified original menu command `layout.pages.delete`, matching ACK at revision 3, one remaining dirty page, a new server render, and zero browser/network errors. The chooser was synthetic. Alpha.56 draft/assets are verified; alpha.57 Build/release `39040178352` remains in progress. Alpha.58 Actions-built target bundles, tag/draft and downloaded assets/checksums remain to verify.
+
 ## [0.2.0-alpha.57] - 2026-10-17
 
 - Add an independent public Cloudflare Pages playground for twelve original ArtCraft browser interfaces. Each app requires explicit acknowledgement that processing uses the visitor's computer and retains a persistent mode label and upstream source link.
