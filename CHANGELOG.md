@@ -1,3 +1,9 @@
+## [0.2.0-alpha.53] - 2026-10-17
+
+- Replace the nine release-job Rust setup action downloads with a local helper using the runner's existing Rustup. Preserve exact native Rust 1.95.0 and browser Rust 1.99.0 pins and the explicit wasm32 target; reuse cached installations, retry failed downloads at most three times, and activate only after compiler/target verification. Do not change the global default or fall back to a different compiler.
+- Alpha.52 failed during GitHub's macOS job preparation while downloading the remote Rust setup action from codeload.github.com, before compilation. This removes that separate setup dependency. It does not eliminate network requirements or grant Actions-write permission. A fresh normal source push runs the revised workflow; no denied rerun is retried.
+- Keep original DesignCraft Text Tool deletion and the unchanged source/engine pins pending fresh clean Actions/browser proof. All release assets remain draft-only until acceptance; protect the running alpha.51 user test suite on 8795 and owned RapidRAW on 8791.
+
 ## [0.2.0-alpha.52] - 2026-10-16
 
 - Connect original DesignCraft Text Tool Backspace/Delete to the owned worker as the upstream `text.delete` action, with the matching revisioned ACK and server-render refresh.

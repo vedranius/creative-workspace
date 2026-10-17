@@ -59,7 +59,8 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '24'
-      - uses: dtolnay/rust-toolchain@1.95.0
+      - name: Set up pinned native Rust
+        run: node scripts/setup-ci-rust.mjs 1.95.0
       - if: runner.os == 'Linux'
         run: sudo apt-get update && sudo apt-get install -y cmake pkg-config libfontconfig1-dev libfreetype6-dev libssl-dev
       - uses: actions/cache@v4
@@ -88,9 +89,8 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '24'
-      - uses: dtolnay/rust-toolchain@1.99.0
-        with:
-          targets: wasm32-unknown-unknown
+      - name: Set up pinned Rust and WebAssembly target
+        run: node scripts/setup-ci-rust.mjs 1.99.0 --wasm
       - id: filmcraft-cache
         uses: actions/cache/restore@v4
         with:
@@ -157,9 +157,8 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '24'
-      - uses: dtolnay/rust-toolchain@1.99.0
-        with:
-          targets: wasm32-unknown-unknown
+      - name: Set up pinned Rust and WebAssembly target
+        run: node scripts/setup-ci-rust.mjs 1.99.0 --wasm
       - uses: actions/cache@v4
         with:
           path: |
@@ -323,9 +322,8 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '24'
-      - uses: dtolnay/rust-toolchain@1.99.0
-        with:
-          targets: wasm32-unknown-unknown
+      - name: Set up pinned Rust and WebAssembly target
+        run: node scripts/setup-ci-rust.mjs 1.99.0 --wasm
       - id: wordcraft-cache
         uses: actions/cache/restore@v4
         with:
@@ -382,9 +380,8 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '24'
-      - uses: dtolnay/rust-toolchain@1.99.0
-        with:
-          targets: wasm32-unknown-unknown
+      - name: Set up pinned Rust and WebAssembly target
+        run: node scripts/setup-ci-rust.mjs 1.99.0 --wasm
       - id: gridcraft-cache
         uses: actions/cache/restore@v4
         with:
@@ -441,9 +438,8 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '24'
-      - uses: dtolnay/rust-toolchain@1.99.0
-        with:
-          targets: wasm32-unknown-unknown
+      - name: Set up pinned Rust and WebAssembly target
+        run: node scripts/setup-ci-rust.mjs 1.99.0 --wasm
       - id: deckcraft-cache
         uses: actions/cache/restore@v4
         with:
@@ -500,9 +496,8 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '24'
-      - uses: dtolnay/rust-toolchain@1.99.0
-        with:
-          targets: wasm32-unknown-unknown
+      - name: Set up pinned Rust and WebAssembly target
+        run: node scripts/setup-ci-rust.mjs 1.99.0 --wasm
       - id: cadcraft-cache
         uses: actions/cache/restore@v4
         with:
@@ -559,9 +554,8 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '24'
-      - uses: dtolnay/rust-toolchain@1.99.0
-        with:
-          targets: wasm32-unknown-unknown
+      - name: Set up pinned Rust and WebAssembly target
+        run: node scripts/setup-ci-rust.mjs 1.99.0 --wasm
       - id: figcraft-cache
         uses: actions/cache/restore@v4
         with:
@@ -618,9 +612,8 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '24'
-      - uses: dtolnay/rust-toolchain@1.99.0
-        with:
-          targets: wasm32-unknown-unknown
+      - name: Set up pinned Rust and WebAssembly target
+        run: node scripts/setup-ci-rust.mjs 1.99.0 --wasm
       - id: soundcraft-cache
         uses: actions/cache/restore@v4
         with:

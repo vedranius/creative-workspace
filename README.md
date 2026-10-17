@@ -2,7 +2,7 @@
 
 # Creative Workspace
 
-**Version: 0.2.0-alpha.52** — open-source, self-hosted, single-user prototype. The catalog includes all 13 ArtCraft applications plus RapidRAW. WordCraft, GridCraft, DeckCraft, CADCraft, FigCraft and SoundCraft original browser previews have been built from exact source pins and browser-verified. Alpha.52 adds original DesignCraft Text Tool Backspace/Delete through the owned worker, with a matching ACK and changed server render. Alpha.51 preserves original `edit.undo`/`edit.redo` IDs; alpha.50 added Edit > Clear. DesignCraft remains a partial candidate; provider parity and full application acceptance remain pending.
+**Version: 0.2.0-alpha.53** — open-source, self-hosted, single-user prototype. Actions now sets up the exact native/WebAssembly Rust pins directly through the runner's Rustup with bounded download retries and verified activation. This addresses the setup dependency that stopped alpha.52 before its DesignCraft build. Fresh Actions/package verification is pending; original ArtCraft server/provider acceptance remains incomplete. The protected alpha.51 [local test studio](docs/test-suite-alpha51-20261017.md) stays separate.
 
 Bring your creative tools together in one browser studio. Choose an application, select your files, and access your own server from a lightweight laptop. The goal is **the original application interfaces and tools in the browser, with the server doing the heavy work**: photography, image editing, illustration, PDF, publishing, video, motion graphics, office documents, spreadsheets, presentations, CAD, interface design and audio. Browser controls run locally; document commands, data and previews travel to the server. No VNC or remote desktop is involved.
 
