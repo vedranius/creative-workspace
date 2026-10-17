@@ -76,7 +76,8 @@ try{
   await page.mouse.click(96,17);await page.waitForTimeout(300);
   if(process.env.CW_PAR03_EDIT_CLEAR_MENU_SCREENSHOT)await page.screenshot({path:path.resolve(process.env.CW_PAR03_EDIT_CLEAR_MENU_SCREENSHOT)});
   await page.mouse.click(112,252); // Original Edit > Clear menu item
-  await page.waitForFunction(()=>document.querySelector('#designcraft_canvas')?.getAttribute('data-server-revision')==='9',null,{timeout:30000});
+  try{await page.waitForFunction(()=>document.querySelector('#designcraft_canvas')?.getAttribute('data-server-revision')==='9',null,{timeout:30000});}
+  catch(error){console.error(JSON.stringify({diagnostic:'edit-clear-menu-action-not-acknowledged',revision:await canvas.getAttribute('data-server-revision'),requests:requests.map(item=>item.method),acks:acks.map(item=>item.result?.commandId||item.error?.message),failedResponses}));throw error;}
   assert.equal(requests[8]?.method,'edit.clear');assert.equal(requests[8]?.params&&Object.keys(requests[8].params).length,0);
   assert.equal(acks[8]?.result?.commandId,'edit.clear');assert.equal(acks[8]?.stateVersion,9);
   assert.equal(acks[8]?.document?.stories?.find(story=>story.id===textStory)?.text,'','Clear must delete the selected server-owned story text');

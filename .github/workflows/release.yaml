@@ -235,6 +235,7 @@ jobs:
           CW_PAR03_SELECT_ALL_REPORT: ${{ github.workspace }}/build/designcraft-par03-evidence/select-all-browser.json
           CW_PAR03_EDIT_CLEAR_REPORT: ${{ github.workspace }}/build/designcraft-par03-evidence/edit-clear-browser.json
           CW_PAR03_EDIT_CLEAR_SCREENSHOT: ${{ github.workspace }}/build/designcraft-par03-evidence/edit-clear-browser.png
+          CW_PAR03_EDIT_CLEAR_MENU_SCREENSHOT: ${{ github.workspace }}/build/designcraft-par03-evidence/edit-clear-menu-browser.png
           CW_PAR03_TEXT_DELETE_REPORT: ${{ github.workspace }}/build/designcraft-par03-evidence/text-delete-browser.json
           CW_PAR03_TEXT_DELETE_SCREENSHOT: ${{ github.workspace }}/build/designcraft-par03-evidence/text-delete-browser.png
           CW_DESIGNCRAFT_RECOVERY_REPORT: ${{ github.workspace }}/build/designcraft-par03-evidence/recovery-entry-browser.json
