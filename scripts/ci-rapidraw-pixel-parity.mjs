@@ -27,7 +27,7 @@ try{
  const bytes=Buffer.from(await response.arrayBuffer());assert.equal(digest(bytes),fixture.sourceSha256,'Public fixture SHA256 mismatch');await writeFile(input,bytes);
  const stage=path.join(temp,'quality-stage');
  await run('node',['scripts/prepare-rapidraw-quality.mjs',stage]);
- await copyFile(path.join(root,'experiments/rapidraw-wasm-core/patches/rapidraw-rawler/a32bc1ff/ppg-wasm-profiling.patch'),path.join(output,'ppg-wasm-profiling.patch'));
+ await copyFile(path.join(root,'patches/rapidraw-rawler/a32bc1ff/ppg-wasm-profiling.patch'),path.join(output,'ppg-wasm-profiling.patch'));
  await copyFile(path.join(root,'experiments/rapidraw-wasm-core/tests/reference/RapidRAW-LICENSE'),path.join(output,'RapidRAW-LICENSE'));
  const crate=path.join(stage,'probe'),wasmOut=path.join(temp,'wasm');await mkdir(wasmOut);
  const native={},probe={};
