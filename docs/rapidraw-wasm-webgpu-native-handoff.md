@@ -1,3 +1,7 @@
+# Latest RAW renderer checkpoint — 2026-10-18
+
+Actual public CC0 Canon Speed-developed pixels now pass original f16 upload/exposure/full shader comparison:2,359,296/2,359,296 components exact across three512×384 frames. Remaining preprocessing/effects are neutral, metadata inputs explicit, and full engine/UI/export/provider acceptance remains open. [Current source/proof/next step](rapidraw-wasm-raw-render-handoff.md). Prior da37854 Actions parity39108228207 passed and its native/browser324-component report was downloaded/verified.
+
 # Independent original-shader native comparison — 2026-10-18
 
 ## Corrected behavior and proof

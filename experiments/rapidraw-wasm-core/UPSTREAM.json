@@ -111,5 +111,12 @@
     "expression": "get_val(\"basic\", \"exposure\", SCALES.exposure, None) + baseline_exposure",
     "scope": "Original top-level exposure and activeTools/legacy visibility/baseline-marker semantics only; resulting 45232-byte neutral fixture does not implement other UI adjustments, GPU execution or frame parity",
     "license": "AGPL-3.0"
+  },
+  "rendererUpload": {
+    "sourcePath": "src-tauri/src/gpu_processing.rs",
+    "sourceSha256": "c674ad3ba42981da01566259769a250994c6d26859d468ee9fe33e594e790784",
+    "functionSha256": "c1e7336ef8db918a2386d4afdc04599251b2de23b17927416f2452897662dcfb",
+    "referenceCopy": "tests/reference/to_rgba_f16.rs",
+    "scope": "Probe extracts RGB32F branch only; original function reference unchanged except type imports; explicit bounded finite f16 domain"
   }
 }

@@ -1,3 +1,7 @@
+# Unreleased RapidRAW real RAW-render checkpoint — 2026-10-18
+
+The isolated port now verifies a real public DNG through native-equivalent Speed development, RGB32F→RGBA16F upload, explicit exposure mapping and original high-precision shader. Three frames match native exactly. This remains an incomplete editor pipeline with neutral preprocessing/effects and no original React/export/provider acceptance. Product version, release tags, installation and public demo remain unchanged. [Build/reproduction/proof](rapidraw-wasm-raw-render-handoff.md); fresh Actions evidence is pending source push.
+
 # Unreleased RapidRAW native shader comparison — 2026-10-18
 
 The isolated port corrects the native high-precision specialization and now compares actual browser frames to an independent native shader reference. Neutral synthetic software-adapter frames match exactly; hardware comparison stays within one f16 step. This is not a released RAW editor or full native pipeline acceptance. No product SemVer/tag/demo change; [source/proof/reproduction](rapidraw-wasm-webgpu-native-handoff.md). Fresh hosted native-comparison evidence remains pending source push.

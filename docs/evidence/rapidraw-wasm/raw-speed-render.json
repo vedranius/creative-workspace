@@ -1,0 +1,107 @@
+{
+  "stage": "RWASM-03 public RAW Speed development to native f16 upload and original full shader",
+  "nativeSource": "b39884b38d8f148caef6fd0d52afd264951be329",
+  "publicFixture": {
+    "id": "raw.pixls.us 1327",
+    "sourceSha256": "f0d2fe47507fadf50008bddbc6bd2c5e39fddbe90cca6bca72dd360fa0e0eb38",
+    "license": "CC0-1.0"
+  },
+  "exposureInputs": {
+    "uiExposure": [
+      -0.8,
+      0,
+      0.8
+    ],
+    "mappedStops": [
+      -1,
+      0,
+      1
+    ],
+    "baselineMarker": "absent/disabled",
+    "cameraExposure": "Explicit sceneReferred=true,dngBaseline=0,highlightPreservation=0 fixture inputs; metadata not extracted",
+    "otherControls": "neutral"
+  },
+  "shaderSha256": "9ecb4cc31b8ce4a12f439f69935ed0c8c27f58b52501929e0dc41d22e85ca178",
+  "wasmSha256": "dab64bc9d483f0ad0302f0173d9a381072279dc837f93463fa1a8873d7c06573",
+  "browserVersion": "151.0.7922.34",
+  "launchArgs": [
+    "--disable-dev-shm-usage",
+    "--enable-unsafe-webgpu",
+    "--use-angle=swiftshader",
+    "--use-webgpu-adapter=swiftshader"
+  ],
+  "chromiumSandbox": true,
+  "highPrecisionOutput": 1,
+  "width": 512,
+  "height": 384,
+  "format": "rgba16float",
+  "inputFormat": "RGB32F",
+  "inputF32Sha256": "d9d7e96227a8346bd6599f1987aa4f30ee53403e4284a3161c62478507baf53a",
+  "inputRgbaF16Sha256": "6951afa470833b4946ebda380f9b9cfd8ff61c88a0bd6a62bbc6b6ad6b681fab",
+  "adapterInfo": {
+    "vendor": "google",
+    "architecture": "swiftshader",
+    "device": "",
+    "description": "",
+    "isFallbackAdapter": true
+  },
+  "frames": [
+    {
+      "exposure": -1,
+      "bytes": 1572864,
+      "sha256": "cb499623a36d6f7b413ed47bd4a236cea46259560927fb5388be6090b84b4c37",
+      "adjustmentSha256": "b9a487f7b167ec2a49f6203db3f8a0a5b1cc33fc70242c45aa77f50076c81266",
+      "firstPixelF16Bits": [
+        13126,
+        12725,
+        10241,
+        15360
+      ]
+    },
+    {
+      "exposure": 0,
+      "bytes": 1572864,
+      "sha256": "29a7df7d78276c432af9bf292f9a74d97b740a67e6c49f5d7393b406612df76f",
+      "adjustmentSha256": "e25701ba23c4c5046838a8ff40229f326a5c52aa33117736029cbcd8bb41534b",
+      "firstPixelF16Bits": [
+        13767,
+        13471,
+        11166,
+        15360
+      ]
+    },
+    {
+      "exposure": 1,
+      "bytes": 1572864,
+      "sha256": "e6db63f0db8f3ed1bb86d4651206dcd31b7c99f43c83c2baa6f9e8e82b914ca5",
+      "adjustmentSha256": "f8b0b808c4c32f6913988eb9cfe3e90a5ca5a8663c30df1c4c9b69269d365049",
+      "firstPixelF16Bits": [
+        14435,
+        14128,
+        11962,
+        15360
+      ]
+    }
+  ],
+  "gpuErrors": [],
+  "nativeComparison": {
+    "referenceSha256": "5618f827941375e61a41cda6025df6043c6658a98b0c1ad3629899b5f1f559e4",
+    "adapter": {
+      "backend": "Vulkan",
+      "deviceType": "Cpu",
+      "driver": "SwiftShader driver",
+      "driverInfo": "",
+      "name": "SwiftShader Device (Subzero)"
+    },
+    "comparedComponents": 2359296,
+    "exactComponents": 2359296,
+    "maxF16UlpDifference": 0,
+    "allowedF16UlpDifference": 1,
+    "alphaExact": true,
+    "inputAndAllAdjustmentBytesMatch": true,
+    "scope": "Independent native original RAW development plus wgpu29 shader on identical real public RAW-derived input; remaining preprocessing is neutral, not full Tauri/engine parity"
+  },
+  "pageErrors": [],
+  "failedRequests": [],
+  "scope": "Actual public CC0 DNG Speed development in the existing WASM worker, original RGB32F-to-RGBA16F upload, explicit exposure UI mapping (baseline0/disabled), original full shader; remaining preprocessing/effects are neutral fixtures, not full native engine/UI/export/provider/editor acceptance."
+}

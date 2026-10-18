@@ -34,3 +34,22 @@ frame comparison remain open. [Current comparison](../../docs/rapidraw-wasm-webg
 ## Original exposure input slice
 
 `ui_exposure.rs` and `packUiExposureFixture(wasm, json, asShot, options)` implement the original top-level exposure number, activeTools/legacy basic visibility and boolean baseline marker, using explicit camera exposure/settings. The bounded JSON input becomes exposure in an otherwise neutral45,232-byte payload. This does not map other controls or extract metadata. Independent native/actual browser WASM proof covers216 cases and11 invalid-input refusals. [Source, reproduction and remaining acceptance](../../docs/rapidraw-wasm-ui-exposure-handoff.md).
+
+## Real RAW renderer slice
+
+`renderer_upload::pack_rgb32f` / WASM `pack_rgb32f_renderer_input` and the JS
+`packRgb32fRendererInput` host preserve the original RGB32F branch of
+`gpu_processing::to_rgba_f16`: half rounding and alpha1. The independent full
+original conversion function is retained with source hash. This API admits only
+finite values within±65504, valid dimensions and bounded64MiB input/output.
+`createNeutralRendererResources` accepts those Uint16Array words as
+`inputRgbaF16`, uploads RGBA16F input/blur fixtures and keeps guided coefficients
+RGBA32F. Its64MiB combined upload estimate is not a total-memory guarantee.
+
+Actual worker development of the hash-pinned public CC0 Canon DNG feeds that
+boundary and the full shader at three exposures. All2,359,296 f16 components
+match the independent original native development/upload/shader reference;
+input/adjustment hashes also match. Other preprocessing is still neutral,
+camera exposure inputs are explicit fixture settings rather than extracted
+metadata, and the original UI/editor/export/providers remain open.
+[Reproduce and next gate](../../docs/rapidraw-wasm-raw-render-handoff.md).

@@ -1,3 +1,9 @@
+# RWASM-03 — public RAW Speed renderer slice verified (2026-10-18)
+
+Actual public CC0 DNG→WASM development→original f16 upload→original exposure mapping/full WGSL produces three512×384 frames,2,359,296/2,359,296 components matching native exactly. Other preprocessing/effects are neutral; no complete engine/UI/editor acceptance. [Handoff and evidence](rapidraw-wasm-raw-render-handoff.md).
+
+Next ready task: trace the original post-render high-precision RGBA16F→image/export conversion and connect the PNG codec after the renderer. Compare native/browser PNG bytes and browser decode/completed download while preserving native quantization, color-space handling, ICC/DPI and bounded allocations. Do not pass pre-render developed pixels as edited exports. Retain camera metadata/WB/full settings/preprocessing/React/provider gates and the private RAF budget; continue in MAIN only.
+
 # RWASM-03 — independent native shader fixture comparison passes (2026-10-18)
 
 The missing native high-precision specialization is restored. Actual browser/native SwiftShader output matches324/324 f16 components; native NVIDIA differs by at most one f16 step on the same three neutral/exposure frames. Full original source shader, source layout/bindings/pipeline excerpts, input and adjustment bytes are verified. [Evidence and remaining scope](rapidraw-wasm-webgpu-native-handoff.md).

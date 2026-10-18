@@ -1,3 +1,11 @@
+# 2026-10-18 RWASM-03 — real public RAW Speed frame matches native
+
+The original RGB32F→RGBA16F conversion now runs in WASM, preserving half rounding and alpha1. Finite/domain/dimension/64MiB input/output guards precede conversion; the resource factory accepts validated f16 words with a64MiB combined upload-payload cap (not total memory protection). Public CC0 Canon DNG development in the actual worker feeds f16 textures, explicit original exposure mapping and the full high-precision WGSL.
+
+Three512×384 frames at -1/0/+1 stops match the independent original native development/upload/shader reference **2,359,296/2,359,296 f16 components exactly**. Developed RGB, f16 upload and every adjustment byte match; no GPU/page/network errors. Core native30/30, host12/12, repo check, format/syntax/diff pass. [Proof, limits and next step](rapidraw-wasm-raw-render-handoff.md). Other effects/preprocessing remain neutral; camera/as-shot metadata and original React UI/export/provider/editor acceptance remain open. No private photo/live service/demo/product version change.
+
+The first local QA launch timed out during observed host disk I/O waiting; npm also stalled. After npm completed and that context closed, one cache-reusing final test passed without a rebuild. Prior da37854 parity39108228207 succeeded; downloaded hosted native/browser report verifies324 exact components. Fresh real-RAW Actions verification remains pending source push.
+
 # 2026-10-18 RWASM-03 — independent native shader comparison and precision correction
 
 The bounded independent native wgpu29 reference compiles exact pinned original adjustment structs,14-binding layout, high-precision pipeline creation and full WGSL. Comparison exposed a missing browser `HIGH_PRECISION_OUTPUT=1` specialization:8-bit dither had remained enabled in RGBA16F. Restored the original native specialization; kept the original shader and predeclared one-f16-step RGB/exact-alpha tolerance unchanged.

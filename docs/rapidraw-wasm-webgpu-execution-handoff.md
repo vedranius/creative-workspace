@@ -1,3 +1,7 @@
+# Latest RAW renderer checkpoint — 2026-10-18
+
+Actual public CC0 Canon Speed-developed pixels now pass original f16 upload/exposure/full shader comparison:2,359,296/2,359,296 components exact across three512×384 frames. Remaining preprocessing/effects are neutral, metadata inputs explicit, and full engine/UI/export/provider acceptance remains open. [Current source/proof/next step](rapidraw-wasm-raw-render-handoff.md). Prior da37854 Actions parity39108228207 passed and its native/browser324-component report was downloaded/verified.
+
 # Latest comparison checkpoint — 2026-10-18
 
 Independent native shader-fixture comparison exposed and corrected the missing browser `HIGH_PRECISION_OUTPUT=1` option. Software native/browser now match324/324 components; native NVIDIA differs by at most one f16 step, with exact input/adjustment bytes. This supersedes the open synthetic native-shader comparison below; real RAW/preprocessing/full engine/UI/editor acceptance remains open. [Current source, evidence and next task](rapidraw-wasm-webgpu-native-handoff.md). Prior6c79066 Actions succeeded and its Chromium140 execution artifact was inspected, before this correction/comparison.

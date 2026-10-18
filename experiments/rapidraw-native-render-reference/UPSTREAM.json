@@ -25,6 +25,11 @@
       "sourceSha256": "c674ad3ba42981da01566259769a250994c6d26859d468ee9fe33e594e790784",
       "sha256": "524428f171760051232f48bb1292487fac585ef8378541b65963a01413f82b67",
       "scope": "Exact original high precision pipeline creation including HIGH_PRECISION_OUTPUT=1, wrapped to return pipeline"
+    },
+    "src/original_upload.rs": {
+      "sourcePath": "src-tauri/src/gpu_processing.rs",
+      "sha256": "a6340e70935613f1d5703ac7e7f1cf0844a61c6db2d45061e595a14fba9e4793",
+      "scope": "Exact original to_rgba_f16 function plus only DynamicImage/f16 type imports"
     }
   },
   "hostScope": "Independent compute-only native resource/dispatch/readback harness on a synthetic neutral fixture, not Tauri/AppState/cache/preprocessing or full native process_and_get_dynamic_image_with_precision."

@@ -29,7 +29,7 @@ export class WebGpuUnsupportedError extends Error {
  * blur payloads are supplied by the caller; this function only uploads them,
  * it does not approximate RapidRAW's CPU/GPU preprocessing filters.
  */
-export function createNeutralRendererResources(device, { width, height, inputRgba }) {
+export function createNeutralRendererResources(device, { width, height, inputRgba, inputRgbaF16 }) {
   if (!device || typeof device.createTexture !== "function" || typeof device.queue?.writeTexture !== "function") {
     throw new TypeError("A WebGPU device with texture upload support is required");
   }
@@ -37,14 +37,19 @@ export function createNeutralRendererResources(device, { width, height, inputRgb
     throw new TypeError("Neutral renderer dimensions must be positive integers");
   }
   const pixelCount = width * height;
-  const totalUploadBytes = pixelCount * (16 * 7 + 4) + 132;
+  const useF16 = inputRgbaF16 !== undefined;
+  const frameBytes = useF16 ? 8 : 16;
+  const totalUploadBytes = pixelCount * (frameBytes * 5 + 16 * 2 + 4) + 132;
   if (!Number.isSafeInteger(pixelCount) || !Number.isSafeInteger(totalUploadBytes) || totalUploadBytes > MAX_FRAME_BUFFER_BYTES) {
     throw new WebGpuUnsupportedError("Neutral renderer input exceeds the bounded texture payload capacity");
   }
   if (width > device.limits?.maxTextureDimension2D || height > device.limits?.maxTextureDimension2D) {
     throw new WebGpuUnsupportedError("Neutral renderer dimensions exceed the selected WebGPU device texture limit");
   }
-  if (!(inputRgba instanceof Float32Array) || inputRgba.length !== pixelCount * 4 || inputRgba.some((v) => !Number.isFinite(v))) {
+  if (useF16 && (inputRgba !== undefined || !(inputRgbaF16 instanceof Uint16Array) || inputRgbaF16.length !== pixelCount * 4 || inputRgbaF16.some(v => (v & 0x7c00) === 0x7c00))) {
+    throw new TypeError("Input must contain exactly four finite f16 words per pixel, without an additional f32 payload");
+  }
+  if (!useF16 && (!(inputRgba instanceof Float32Array) || inputRgba.length !== pixelCount * 4 || inputRgba.some((v) => !Number.isFinite(v)))) {
     throw new TypeError("Input must contain exactly four finite float32 values per pixel");
   }
   const made = [];
@@ -58,19 +63,20 @@ export function createNeutralRendererResources(device, { width, height, inputRgb
     return texture;
   };
   const frameSize = { width, height, depthOrArrayLayers: 1 };
-  const rgbaBytesPerRow = width * 16;
-  const frameCopy = (label, data) => make(label, frameSize, "rgba32float", data, rgbaBytesPerRow, height);
-  const inputTexture = frameCopy("RapidRAW neutral fixture input", inputRgba);
+  const rgbaBytesPerRow = width * frameBytes;
+  const frameCopy = (label, data) => make(label, frameSize, useF16 ? "rgba16float" : "rgba32float", data, rgbaBytesPerRow, height);
+  const inputPayload = useF16 ? inputRgbaF16 : inputRgba;
+  const inputTexture = frameCopy("RapidRAW neutral fixture input", inputPayload);
   // These are identity/no-op preprocessing fixtures: blur inputs are caller
   // pixels; guided coefficients (a=1,b=0) produce zero detail at neutrality.
-  const sharpnessBlurTexture = frameCopy("RapidRAW neutral sharpness blur input", inputRgba);
-  const tonalBlurTexture = frameCopy("RapidRAW neutral tonal blur input", inputRgba);
-  const clarityBlurTexture = frameCopy("RapidRAW neutral clarity blur input", inputRgba);
-  const structureBlurTexture = frameCopy("RapidRAW neutral structure blur input", inputRgba);
+  const sharpnessBlurTexture = frameCopy("RapidRAW neutral sharpness blur input", inputPayload);
+  const tonalBlurTexture = frameCopy("RapidRAW neutral tonal blur input", inputPayload);
+  const clarityBlurTexture = frameCopy("RapidRAW neutral clarity blur input", inputPayload);
+  const structureBlurTexture = frameCopy("RapidRAW neutral structure blur input", inputPayload);
   const gf = new Float32Array(pixelCount * 4);
   for (let i = 0; i < pixelCount; i += 1) { gf[i * 4] = 1; gf[i * 4 + 2] = 1; }
-  const guidedFilterCoefficientsTexture = frameCopy("RapidRAW neutral guided-filter coefficients", gf);
-  const guidedFilterDehazeTexture = frameCopy("RapidRAW neutral guided-filter dehaze", gf);
+  const guidedFilterCoefficientsTexture = make("RapidRAW neutral guided-filter coefficients", frameSize, "rgba32float", gf, width * 16, height);
+  const guidedFilterDehazeTexture = make("RapidRAW neutral guided-filter dehaze", frameSize, "rgba32float", gf, width * 16, height);
   const maskSize = { width, height, depthOrArrayLayers: 1 };
   const maskTextures = make("RapidRAW empty neutral mask atlas", maskSize, "r32float", new Float32Array(pixelCount), width * 4, height);
   const lutData = new Float32Array(2 * 2 * 2 * 4);
@@ -90,6 +96,19 @@ export function createNeutralRendererResources(device, { width, height, inputRgb
       flareTexture: flareTexture.createView(), flareSampler,
       guidedFilterCoefficientsTexture: guidedFilterCoefficientsTexture.createView(), guidedFilterDehazeTexture: guidedFilterDehazeTexture.createView() },
   };
+}
+
+/** Original RGB32F -> RGBA16F conversion runs in WASM, before GPU upload. */
+export function packRgb32fRendererInput(wasm, width, height, pixels) {
+  if (typeof wasm?.pack_rgb32f_renderer_input !== "function") throw new TypeError("Native renderer upload packer is required");
+  const count = width * height;
+  if (!Number.isSafeInteger(width) || !Number.isSafeInteger(height) || width < 1 || height < 1 || width > 32768 || height > 32768 ||
+      !Number.isSafeInteger(count) || count * 8 > MAX_FRAME_BUFFER_BYTES || !(pixels instanceof Float32Array) || pixels.length !== count * 3 || pixels.byteLength > MAX_FRAME_BUFFER_BYTES) {
+    throw new TypeError("Renderer upload requires bounded dimensions and exact RGB32F input (64 MiB)");
+  }
+  const words = wasm.pack_rgb32f_renderer_input(width, height, pixels);
+  if (!(words instanceof Uint16Array) || words.length !== count * 4 || words.some(v => (v & 0x7c00) === 0x7c00)) throw new TypeError("WASM returned invalid RGBA16F upload words");
+  return words;
 }
 
 function assertInput({ width, height, inputTexture, adjustments, resources }) {

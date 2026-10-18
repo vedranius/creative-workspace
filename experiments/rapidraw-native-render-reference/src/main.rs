@@ -9,6 +9,7 @@ use sha2::{Digest, Sha256};
 use wgpu::util::DeviceExt;
 
 include!("original_adjustments.rs");
+include!("original_upload.rs");
 const MAX_MASK_BINDINGS: u32 = 1;
 const WIDTH: u32 = 9;
 const HEIGHT: u32 = 3;
@@ -86,24 +87,71 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         ),
     });
     let pipeline = include!("original_high_precision_pipeline.rs");
+    let args: Vec<String> = std::env::args().collect();
+    let (width, height, input_image, input_source, input_format) = if args.len() > 1 {
+        if args.len() != 5 || args[1] != "--rgb-f32" {
+            return Err("Usage: reference [--rgb-f32 FILE WIDTH HEIGHT]".into());
+        }
+        let width: u32 = args[3].parse()?;
+        let height: u32 = args[4].parse()?;
+        let count = (width as usize)
+            .checked_mul(height as usize)
+            .ok_or("size overflow")?;
+        let bytes = count.checked_mul(12).ok_or("size overflow")?;
+        if width == 0
+            || height == 0
+            || width > 32768
+            || height > 32768
+            || bytes > 64 * 1024 * 1024
+            || count
+                .checked_mul(76)
+                .and_then(|v| v.checked_add(132))
+                .is_none_or(|v| v > 64 * 1024 * 1024)
+        {
+            return Err("bounded RGB input required".into());
+        }
+        if std::fs::metadata(&args[2])?.len() != bytes as u64 {
+            return Err("RGB input size mismatch".into());
+        }
+        let raw = std::fs::read(&args[2])?;
+        let rgb: Vec<f32> = raw
+            .chunks_exact(4)
+            .map(|b| f32::from_le_bytes(b.try_into().unwrap()))
+            .collect();
+        if rgb.iter().any(|v| !v.is_finite() || v.abs() > 65504.) {
+            return Err("invalid f16 input domain".into());
+        }
+        let image = image::DynamicImage::ImageRgb32F(
+            image::Rgb32FImage::from_raw(width, height, rgb.clone()).ok_or("RGB shape")?,
+        );
+        (width, height, image, rgb, "RGB32F")
+    } else {
+        let input: Vec<f32> = (0..WIDTH * HEIGHT)
+            .flat_map(|i| {
+                [
+                    (i + 1) as f32 / 128.,
+                    (i + 2) as f32 / 128.,
+                    (i + 3) as f32 / 128.,
+                    1.,
+                ]
+            })
+            .collect();
+        (
+            WIDTH,
+            HEIGHT,
+            image::DynamicImage::ImageRgba32F(
+                image::Rgba32FImage::from_raw(WIDTH, HEIGHT, input.clone()).unwrap(),
+            ),
+            input,
+            "RGBA32F",
+        )
+    };
     let size = wgpu::Extent3d {
-        width: WIDTH,
-        height: HEIGHT,
+        width,
+        height,
         depth_or_array_layers: 1,
     };
-    // Binary fractions have identical f32/f16 values, isolating shader execution
-    // from the separate native half-float input quantization boundary.
-    let input: Vec<f32> = (0..WIDTH * HEIGHT)
-        .flat_map(|i| {
-            [
-                (i + 1) as f32 / 128.,
-                (i + 2) as f32 / 128.,
-                (i + 3) as f32 / 128.,
-                1.,
-            ]
-        })
-        .collect();
-    let input_f16: Vec<half::f16> = input.iter().map(|v| half::f16::from_f32(*v)).collect();
+    let input_f16 = to_rgba_f16(&input_image);
     let input_texture = texture(
         &device,
         &queue,
@@ -119,7 +167,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         size,
         wgpu::TextureDimension::D2,
         wgpu::TextureFormat::R32Float,
-        bytemuck::cast_slice(&[0f32; 27]),
+        bytemuck::cast_slice(&vec![0f32; (width * height) as usize]),
     );
     let mask_view = mask.create_view(&wgpu::TextureViewDescriptor {
         dimension: Some(wgpu::TextureViewDimension::D2Array),
@@ -165,7 +213,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         min_filter: wgpu::FilterMode::Linear,
         ..Default::default()
     });
-    let gf_data: Vec<f32> = (0..27).flat_map(|_| [1., 0., 1., 0.]).collect();
+    let gf_data: Vec<f32> = (0..width * height).flat_map(|_| [1., 0., 1., 0.]).collect();
     let gf = texture(
         &device,
         &queue,
@@ -246,10 +294,10 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             layout: &bind_group_layout,
             entries: &bindings,
         });
-        let padded_bpr = (WIDTH * 8).div_ceil(256) * 256;
+        let padded_bpr = (width * 8).div_ceil(256) * 256;
         let buffer = device.create_buffer(&wgpu::BufferDescriptor {
             label: None,
-            size: u64::from(padded_bpr * HEIGHT),
+            size: u64::from(padded_bpr * height),
             usage: wgpu::BufferUsages::COPY_DST | wgpu::BufferUsages::MAP_READ,
             mapped_at_creation: false,
         });
@@ -258,7 +306,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             let mut pass = encoder.begin_compute_pass(&Default::default());
             pass.set_pipeline(&pipeline);
             pass.set_bind_group(0, &group, &[]);
-            pass.dispatch_workgroups(WIDTH.div_ceil(8), HEIGHT.div_ceil(8), 1);
+            pass.dispatch_workgroups(width.div_ceil(8), height.div_ceil(8), 1);
         }
         encoder.copy_texture_to_buffer(
             wgpu::TexelCopyTextureInfo {
@@ -272,7 +320,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                 layout: wgpu::TexelCopyBufferLayout {
                     offset: 0,
                     bytes_per_row: Some(padded_bpr),
-                    rows_per_image: Some(HEIGHT),
+                    rows_per_image: Some(height),
                 },
             },
             size,
@@ -290,8 +338,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         rx.recv_timeout(std::time::Duration::from_secs(1))??;
         let mapped = slice.get_mapped_range();
         let mut pixels = Vec::new();
-        for row in mapped.chunks(padded_bpr as usize).take(HEIGHT as usize) {
-            pixels.extend_from_slice(&row[..(WIDTH * 8) as usize]);
+        for row in mapped.chunks(padded_bpr as usize).take(height as usize) {
+            pixels.extend_from_slice(&row[..(width * 8) as usize]);
         }
         let words: Vec<u16> = pixels
             .chunks_exact(2)
@@ -304,7 +352,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     }
     println!(
         "{}",
-        json!({"source":"b39884b38d8f148caef6fd0d52afd264951be329","highPrecisionOutput":1,"shaderSha256":hash(SHADER.as_bytes()),"scope":"Independent native wgpu29 full original shader on neutral synthetic resources; not full native engine/preprocessing", "adapter":{"name":info.name,"driver":info.driver,"driverInfo":info.driver_info,"backend":format!("{:?}",info.backend),"deviceType":format!("{:?}",info.device_type)},"width":WIDTH,"height":HEIGHT,"inputF32Sha256":hash(bytemuck::cast_slice(&input)),"frames":frames})
+        json!({"source":"b39884b38d8f148caef6fd0d52afd264951be329","highPrecisionOutput":1,"shaderSha256":hash(SHADER.as_bytes()),"scope":"Independent native wgpu29 full original shader on neutral synthetic resources; not full native engine/preprocessing", "adapter":{"name":info.name,"driver":info.driver,"driverInfo":info.driver_info,"backend":format!("{:?}",info.backend),"deviceType":format!("{:?}",info.device_type)},"width":width,"height":height,"inputFormat":input_format,"inputF32Sha256":hash(bytemuck::cast_slice(&input_source)),"inputRgbaF16Sha256":hash(bytemuck::cast_slice(&input_f16)),"frames":frames})
     );
     Ok(())
 }
@@ -328,6 +376,10 @@ mod tests {
             (
                 "src/original_high_precision_pipeline.rs",
                 include_bytes!("original_high_precision_pipeline.rs").as_slice(),
+            ),
+            (
+                "src/original_upload.rs",
+                include_bytes!("original_upload.rs").as_slice(),
             ),
             ("../rapidraw-wasm-core/shader.wgsl", SHADER.as_bytes()),
         ] {

@@ -103,6 +103,19 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         );
     }
     let rgba = image.as_rgba32f().ok_or("native result is not RGBA32F")?;
+    if let Some(output) = std::env::args().nth(4) {
+        let file = std::fs::OpenOptions::new()
+            .write(true)
+            .create_new(true)
+            .open(output)?;
+        let mut file = std::io::BufWriter::new(file);
+        for pixel in rgba.pixels() {
+            for channel in &pixel.0[..3] {
+                file.write_all(&channel.to_le_bytes())?;
+            }
+        }
+        file.flush()?;
+    }
     let mut hash = Sha256::new();
     for pixel in rgba.pixels() {
         for channel in &pixel.0[..3] {

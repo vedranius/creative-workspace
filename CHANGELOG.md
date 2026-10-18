@@ -1,3 +1,9 @@
+## Experimental RapidRAW branch — real RAW renderer slice (2026-10-18)
+
+- Add original RGB32F→RGBA16F upload conversion in WASM with native half rounding/alpha and explicit bounds. Accept native f16 texture payloads in the neutral resource factory.
+- Connect actual public CC0 Canon Speed-developed pixels, explicit exposure inputs and the full original high-precision shader in the browser proof. All2,359,296 components across three frames match independent native output exactly.
+- Extend Actions with native RGB output/source provenance and the real RAW comparison. Other effects/preprocessing, camera metadata, original UI and edited export remain open; no product release/version/demo change for this unfinished port.
+
 ## Experimental RapidRAW branch — native shader comparison (2026-10-18)
 
 - Restore original `HIGH_PRECISION_OUTPUT=1` specialization so RGBA16F output follows native high-precision behavior instead of retaining8-bit dither.

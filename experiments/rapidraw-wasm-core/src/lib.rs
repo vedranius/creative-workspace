@@ -19,6 +19,7 @@ pub mod exposure;
 mod multi_exposure;
 pub mod png_export;
 pub mod renderer_adjustments;
+pub mod renderer_upload;
 pub mod ui_exposure;
 
 /// Preserve the native compensation formula behind a finite-value host boundary.
@@ -390,6 +391,16 @@ mod browser {
             compensate_highlight_preservation,
         )
         .map_err(|e| JsValue::from_str(&e))
+    }
+
+    #[wasm_bindgen]
+    pub fn pack_rgb32f_renderer_input(
+        width: u32,
+        height: u32,
+        pixels: &[f32],
+    ) -> Result<Vec<u16>, JsValue> {
+        super::renderer_upload::pack_rgb32f(width, height, pixels)
+            .map_err(|e| JsValue::from_str(&e))
     }
 
     #[wasm_bindgen]

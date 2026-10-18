@@ -2,12 +2,34 @@ import assert from "node:assert/strict";
 import { createHash } from "node:crypto";
 import { readFile } from "node:fs/promises";
 import { test } from "node:test";
-import { createNeutralRendererResources, packNeutralExposureAdjustments, packUiExposureFixture, renderOriginalFrame, WebGpuUnsupportedError } from "./webgpu-renderer.js";
+import { createNeutralRendererResources, packNeutralExposureAdjustments, packRgb32fRendererInput, packUiExposureFixture, renderOriginalFrame, WebGpuUnsupportedError } from "./webgpu-renderer.js";
 
 globalThis.GPUShaderStage = { COMPUTE: 4 };
 globalThis.GPUBufferUsage = { STORAGE: 128, COPY_DST: 8, MAP_READ: 1 };
 globalThis.GPUTextureUsage = { STORAGE_BINDING: 8, COPY_SRC: 1 };
 globalThis.GPUMapMode = { READ: 1 };
+
+test("native f16 upload preserves WASM words and uses correct texture formats and row stride", () => {
+  const { device, calls } = makeDevice();
+  const rgb = new Float32Array([0.1, 0.2, 0.3]);
+  const words = new Uint16Array([0x2e66, 0x3266, 0x34cd, 0x3c00]);
+  let forwarded;
+  assert.equal(packRgb32fRendererInput({pack_rgb32f_renderer_input: (...args) => (forwarded = args, words)}, 1, 1, rgb), words);
+  assert.deepEqual(forwarded, [1, 1, rgb]);
+  createNeutralRendererResources(device, {width:1,height:1,inputRgbaF16:words});
+  assert.deepEqual(calls.filter(([name])=>name==='texture').slice(0,7).map(([,d])=>d.format), [...Array(5).fill('rgba16float'),'rgba32float','rgba32float']);
+  const uploads=calls.filter(([name])=>name==='writeTexture');
+  assert.equal(uploads[0][2],words); assert.equal(uploads[0][3].bytesPerRow,8);
+  assert.equal(uploads[5][3].bytesPerRow,16);
+});
+
+test("native upload rejects corrupt half words, shape and combined resource budget before creating textures", () => {
+  const { device, calls } = makeDevice();
+  assert.throws(()=>createNeutralRendererResources(device,{width:1,height:1,inputRgbaF16:new Uint16Array([0,0,0x7c00,0])}),/finite f16/);
+  assert.throws(()=>createNeutralRendererResources(device,{width:1024,height:1024,inputRgbaF16:new Uint16Array(0)}),/bounded texture/);
+  assert.throws(()=>packRgb32fRendererInput({pack_rgb32f_renderer_input:()=>{throw Error('must not call');}},1,1,new Float32Array(2)),/exact RGB32F/);
+  assert.equal(calls.length,0);
+});
 
 const shaderSource = await readFile(new URL("./shader.wgsl", import.meta.url), "utf8");
 const textureView = {};

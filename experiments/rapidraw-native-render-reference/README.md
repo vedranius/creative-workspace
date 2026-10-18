@@ -43,3 +43,20 @@ Actions runner applies this explicitly and uploads the native/browser reports,
 original excerpts, source metadata and upstream license. Missing adapters or
 frame divergence fail, never skip as success. See the
 [handoff and scope](../../docs/rapidraw-wasm-webgpu-native-handoff.md).
+
+## RAW-developed input mode
+
+The reference also accepts an explicitly bounded little-endian RGB-f32 file:
+
+```sh
+cargo run --release --locked --manifest-path experiments/rapidraw-native-render-reference/Cargo.toml -- --rgb-f32 INPUT.f32 512 384
+```
+
+It uses the exact original `to_rgba_f16` function on ImageRgb32F. The supplied
+file must have exact length, finite values within±65504, valid axes and fit the
+same64MiB combined neutral texture upload-payload cap; this is not total memory
+protection. The core `develop_reference` example optionally writes original
+native RGB samples as its fourth argument, exclusively creating a new file.
+The Actions test derives that file from the hash-pinned CC0 DNG and compares
+actual worker→f16 upload→full-shader browser output; it never supplies private
+photographs. [Real RAW proof/scope](../../docs/rapidraw-wasm-raw-render-handoff.md).
