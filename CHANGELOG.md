@@ -1,3 +1,9 @@
+## Experimental RapidRAW branch — full original global controls (2026-10-18)
+
+- Port complete original GlobalAdjustments parser/defaults, scales, curves/HSL/grading/calibration and tone/AGX helper math without formula changes. Keep actual as-shot WB/exposure and original visibility mapping.
+- Verify18 complete native global payload comparisons and five actual public-DNG shader/PNG cases: all3,932,160 byte components/complete payload hashes and PNG files match native; browser decode/completed downloads pass.
+- Reject malformed/oversized/unordered curve shapes and nonfinite global output/unknown tone overrides before GPU upload. Add Actions native/global PNG and source/license proof. Masks/preprocessing/effect resources, original React/preview transport/providers/full editor acceptance remain open; no product release/version/demo change for this unfinished checkpoint.
+
 ## Experimental RapidRAW branch — real as-shot shader/PNG integration (2026-10-18)
 
 - Connect actual original RAW camera metadata to source WB tool visibility/adaptation gains, native GPU matrix columns and original exposure mapping in the full WGSL/EightBit renderer.

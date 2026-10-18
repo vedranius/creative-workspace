@@ -293,3 +293,32 @@ fn mat3_to_gpu_mat3(m: Mat3) -> GpuMat3 {
         col2: [m.z_axis.x, m.z_axis.y, m.z_axis.z, 0.0],
     }
 }
+
+// Full original global parser and helpers; all masks remain the explicit empty fixture.
+use crate::{image_processing::{PRIMARIES_SRGB,WP_D65,primaries_to_xyz_matrix}, ui_exposure::is_tool_active, white_balance};
+use glam::Vec2;
+include!("global_helpers.rs");
+include!("global_controls.rs");
+
+pub fn full_global_adjustments(json: &str, shot: &crate::camera_as_shot::AsShot,
+    options: crate::exposure::BaselineOptions, tonemapper_override: Option<u32>) -> Result<AllAdjustments,String> {
+    if tonemapper_override.is_some_and(|v|v>1) { return Err("Unknown original tone mapper override".into()); }
+    let mut value=crate::camera_renderer::camera_adjustments(json,shot,options)?;
+    let parsed:serde_json::Value=serde_json::from_str(json).map_err(|e|e.to_string())?;
+    let gains=[value.global.wb_log_gain_l,value.global.wb_log_gain_m,value.global.wb_log_gain_s];
+    value.global=get_global_adjustments_from_json(&parsed,true,gains,value.global.exposure,tonemapper_override);
+    for (points,count) in [(&value.global.luma_curve,value.global.luma_curve_count),(&value.global.red_curve,value.global.red_curve_count),(&value.global.green_curve,value.global.green_curve_count),(&value.global.blue_curve,value.global.blue_curve_count)] {
+        if count>16 || count==1 { return Err("Original curves require zero or2..16 points".into()); }
+        for (i,p) in points.iter().take(count as usize).enumerate() {
+            if !p.x.is_finite() || !p.y.is_finite() || !(0.0..=255.0).contains(&p.x) || !(0.0..=255.0).contains(&p.y) || (i>0 && p.x<=points[i-1].x) {
+                return Err("Curve points must be finite, ordered and within0..255".into());
+            }
+        }
+    }
+    // All integer words here are bounded flags/counts. Reject nonfinite f32
+    // fields (including conversions from oversized JSON numbers) before upload.
+    if bytemuck::cast_slice::<u8,f32>(bytemuck::bytes_of(&value.global)).iter().any(|v|!v.is_finite()) {
+        return Err("Global adjustments must be finite".into());
+    }
+    Ok(value)
+}

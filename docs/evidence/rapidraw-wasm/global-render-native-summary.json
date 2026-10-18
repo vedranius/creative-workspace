@@ -1,0 +1,357 @@
+{
+  "adapter": {
+    "backend": "Vulkan",
+    "deviceType": "Cpu",
+    "driver": "SwiftShader driver",
+    "driverInfo": "",
+    "name": "SwiftShader Device (Subzero)"
+  },
+  "camera": {
+    "asShot": {
+      "exposure": {
+        "dngBaseline": -0.5,
+        "highlightPreservation": 0.0,
+        "sceneReferred": true
+      },
+      "whiteBalance": {
+        "temperature": 6133.300425391969,
+        "tint": 39.766891841657326
+      }
+    },
+    "frames": [
+      {
+        "exposure": -1.5,
+        "gains": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "json": "{\"baselineExposure\":true,\"blacks\":8,\"brightness\":12,\"contrast\":15,\"exposure\":-0.8,\"highlights\":-10,\"shadows\":20,\"whites\":-5}",
+        "lmsToRgb": {
+          "col0": [
+            2.5384485721588135,
+            -0.14600040018558502,
+            -0.042288389056921005,
+            0.0
+          ],
+          "col1": [
+            -1.2934828996658325,
+            1.1166226863861084,
+            -0.07159002125263214,
+            0.0
+          ],
+          "col2": [
+            -0.04024328291416168,
+            -0.022328512743115425,
+            1.0225073099136353,
+            0.0
+          ]
+        },
+        "rgbToLms": {
+          "col0": [
+            0.42265796661376953,
+            0.055690791457891464,
+            0.02137923799455166,
+            0.0
+          ],
+          "col1": [
+            0.49135658144950867,
+            0.961556077003479,
+            0.08764386177062988,
+            0.0
+          ],
+          "col2": [
+            0.027364501729607582,
+            0.0231893640011549,
+            0.980743408203125,
+            0.0
+          ]
+        }
+      },
+      {
+        "exposure": -0.5,
+        "gains": [
+          0.015576070174574852,
+          -0.0006663159583695233,
+          -0.11949741840362549
+        ],
+        "json": "{\"baselineExposure\":true,\"curves\":{\"luma\":[{\"x\":0,\"y\":0},{\"x\":96,\"y\":80},{\"x\":255,\"y\":255}],\"red\":[{\"x\":0,\"y\":0},{\"x\":128,\"y\":140},{\"x\":255,\"y\":255}]},\"exposure\":0,\"saturation\":10,\"temperature\":10,\"tint\":-3,\"vibrance\":20}",
+        "lmsToRgb": {
+          "col0": [
+            2.5384485721588135,
+            -0.14600040018558502,
+            -0.042288389056921005,
+            0.0
+          ],
+          "col1": [
+            -1.2934828996658325,
+            1.1166226863861084,
+            -0.07159002125263214,
+            0.0
+          ],
+          "col2": [
+            -0.04024328291416168,
+            -0.022328512743115425,
+            1.0225073099136353,
+            0.0
+          ]
+        },
+        "rgbToLms": {
+          "col0": [
+            0.42265796661376953,
+            0.055690791457891464,
+            0.02137923799455166,
+            0.0
+          ],
+          "col1": [
+            0.49135658144950867,
+            0.961556077003479,
+            0.08764386177062988,
+            0.0
+          ],
+          "col2": [
+            0.027364501729607582,
+            0.0231893640011549,
+            0.980743408203125,
+            0.0
+          ]
+        }
+      },
+      {
+        "exposure": 0.5,
+        "gains": [
+          -0.061787884682416916,
+          0.040349818766117096,
+          0.07562834769487381
+        ],
+        "json": "{\"baselineExposure\":true,\"colorCalibration\":{\"blueSaturation\":10,\"redHue\":4},\"colorGrading\":{\"global\":{\"hue\":30,\"luminance\":2,\"saturation\":8}},\"exposure\":0.8,\"hsl\":{\"reds\":{\"hue\":4,\"luminance\":-5,\"saturation\":10}},\"temperature\":-5,\"tint\":2,\"whiteBalance\":{\"temperature\":5500,\"tint\":12}}",
+        "lmsToRgb": {
+          "col0": [
+            2.5384485721588135,
+            -0.14600040018558502,
+            -0.042288389056921005,
+            0.0
+          ],
+          "col1": [
+            -1.2934828996658325,
+            1.1166226863861084,
+            -0.07159002125263214,
+            0.0
+          ],
+          "col2": [
+            -0.04024328291416168,
+            -0.022328512743115425,
+            1.0225073099136353,
+            0.0
+          ]
+        },
+        "rgbToLms": {
+          "col0": [
+            0.42265796661376953,
+            0.055690791457891464,
+            0.02137923799455166,
+            0.0
+          ],
+          "col1": [
+            0.49135658144950867,
+            0.961556077003479,
+            0.08764386177062988,
+            0.0
+          ],
+          "col2": [
+            0.027364501729607582,
+            0.0231893640011549,
+            0.980743408203125,
+            0.0
+          ]
+        }
+      },
+      {
+        "exposure": -0.5,
+        "gains": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "json": "{\"activeTools\":{\"basic\":false,\"whiteBalance\":false},\"baselineExposure\":true,\"brightness\":25,\"exposure\":0.8,\"temperature\":10,\"tint\":-3}",
+        "lmsToRgb": {
+          "col0": [
+            2.5384485721588135,
+            -0.14600040018558502,
+            -0.042288389056921005,
+            0.0
+          ],
+          "col1": [
+            -1.2934828996658325,
+            1.1166226863861084,
+            -0.07159002125263214,
+            0.0
+          ],
+          "col2": [
+            -0.04024328291416168,
+            -0.022328512743115425,
+            1.0225073099136353,
+            0.0
+          ]
+        },
+        "rgbToLms": {
+          "col0": [
+            0.42265796661376953,
+            0.055690791457891464,
+            0.02137923799455166,
+            0.0
+          ],
+          "col1": [
+            0.49135658144950867,
+            0.961556077003479,
+            0.08764386177062988,
+            0.0
+          ],
+          "col2": [
+            0.027364501729607582,
+            0.0231893640011549,
+            0.980743408203125,
+            0.0
+          ]
+        }
+      },
+      {
+        "exposure": 0.0,
+        "gains": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "json": "{\"baselineExposure\":false,\"exposure\":0,\"sectionVisibility\":{\"color\":false},\"temperature\":10,\"tint\":-3,\"toneMapper\":\"agx\"}",
+        "lmsToRgb": {
+          "col0": [
+            2.5384485721588135,
+            -0.14600040018558502,
+            -0.042288389056921005,
+            0.0
+          ],
+          "col1": [
+            -1.2934828996658325,
+            1.1166226863861084,
+            -0.07159002125263214,
+            0.0
+          ],
+          "col2": [
+            -0.04024328291416168,
+            -0.022328512743115425,
+            1.0225073099136353,
+            0.0
+          ]
+        },
+        "rgbToLms": {
+          "col0": [
+            0.42265796661376953,
+            0.055690791457891464,
+            0.02137923799455166,
+            0.0
+          ],
+          "col1": [
+            0.49135658144950867,
+            0.961556077003479,
+            0.08764386177062988,
+            0.0
+          ],
+          "col2": [
+            0.027364501729607582,
+            0.0231893640011549,
+            0.980743408203125,
+            0.0
+          ]
+        }
+      }
+    ],
+    "fullGlobal": true,
+    "options": {
+      "baselineExposure": 0.0,
+      "compensateHighlightPreservation": true
+    },
+    "source": "b39884b38d8f148caef6fd0d52afd264951be329"
+  },
+  "format": "rgba8unorm",
+  "frames": [
+    {
+      "adjustmentSha256": "985eece9aabedb7eb057f9abc892638253483af986d93036cd8ac2a918588336",
+      "bytes": 786432,
+      "exposure": -1.5,
+      "png": {
+        "bitDepth": 8,
+        "bytes": 193551,
+        "colorType": 6,
+        "dpi": 300,
+        "filename": "frame-0.png",
+        "sha256": "474bda433ee362b524b1816c968e0f49a2fbb2aa68dda1822bb41b9eb1865698"
+      },
+      "sha256": "5d18fe92928c361ac0fdaac7118c57b9f3ad408a8504f2eb5d84dc37cc3b3466"
+    },
+    {
+      "adjustmentSha256": "eaba88309d7e6adbff68e56f84a4ae3098f1c8ff2119b88c1d353367e7334071",
+      "bytes": 786432,
+      "exposure": -0.5,
+      "png": {
+        "bitDepth": 8,
+        "bytes": 346587,
+        "colorType": 6,
+        "dpi": 300,
+        "filename": "frame-1.png",
+        "sha256": "1ba074939ecddee6ac7585ab6054854f3ec131a5bb5d4ad3775c4be3f2e3b495"
+      },
+      "sha256": "096ef701350ea609d244c6c19c4085229ee191f002275cadc9f5f7616d19c356"
+    },
+    {
+      "adjustmentSha256": "cff4c1509ebbdd31c8f1be2bd1869b3bd27c3f9cc817f543807cb955e8fb2d37",
+      "bytes": 786432,
+      "exposure": 0.5,
+      "png": {
+        "bitDepth": 8,
+        "bytes": 443314,
+        "colorType": 6,
+        "dpi": 300,
+        "filename": "frame-2.png",
+        "sha256": "59613cd2e960eaaa0d27a9fb841ec33090ceaca10c21237692e0195fb61631b1"
+      },
+      "sha256": "62bce15ecbea98a8318791dc4549cef342228fcb003d89d7858e9b7b7aba1e48"
+    },
+    {
+      "adjustmentSha256": "7528054041d105912931d3cc66497b535740e7f03c198e6e9f3915cc44f1520e",
+      "bytes": 786432,
+      "exposure": -0.5,
+      "png": {
+        "bitDepth": 8,
+        "bytes": 363926,
+        "colorType": 6,
+        "dpi": 300,
+        "filename": "frame-3.png",
+        "sha256": "7dea87a3377582fdc1727a163fc8030c6a234e38db4c9b332ea603fb146ba902"
+      },
+      "sha256": "e89bbe27a6f5a51f6415689cbaf1832b214d8823cf1d3b73dfee2f4a200c7063"
+    },
+    {
+      "adjustmentSha256": "73c3b3d4066113fdf7126eec9512addbf0ca85f39d149d3ffc6db033feda87db",
+      "bytes": 786432,
+      "exposure": 0.0,
+      "png": {
+        "bitDepth": 8,
+        "bytes": 400263,
+        "colorType": 6,
+        "dpi": 300,
+        "filename": "frame-4.png",
+        "sha256": "7087e1d524699e992c60d70e12d9d716a175de75f0f62f6266e92aa8d44c281d"
+      },
+      "sha256": "4c7ea44336e3beb1492f6c60dd86a4036dbc923b1399e47dfcb5fe61f0701c33"
+    }
+  ],
+  "height": 384,
+  "highPrecisionOutput": 0,
+  "inputF32Sha256": "d9d7e96227a8346bd6599f1987aa4f30ee53403e4284a3161c62478507baf53a",
+  "inputFormat": "RGB32F",
+  "inputRgbaF16Sha256": "6951afa470833b4946ebda380f9b9cfd8ff61c88a0bd6a62bbc6b6ad6b681fab",
+  "scope": "Compact native summary; full GlobalAdjustments values/pixel arrays remain in native reference artifact.",
+  "shaderSha256": "9ecb4cc31b8ce4a12f439f69935ed0c8c27f58b52501929e0dc41d22e85ca178",
+  "source": "b39884b38d8f148caef6fd0d52afd264951be329",
+  "width": 512
+}

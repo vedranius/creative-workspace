@@ -472,6 +472,38 @@ mod browser {
     }
 
     #[wasm_bindgen]
+    pub fn pack_global_renderer_fixture(
+        json: &str,
+        temperature: f64,
+        tint: f64,
+        scene_referred: bool,
+        dng_baseline: f32,
+        highlight_preservation: f32,
+        baseline_exposure: Option<f32>,
+        compensate_highlight_preservation: bool,
+        tonemapper_override: Option<u32>,
+    ) -> Result<Vec<u8>, JsValue> {
+        let value = super::renderer_adjustments::full_global_adjustments(
+            json,
+            &super::camera_as_shot::AsShot {
+                white_balance: super::white_balance::WhiteBalance { temperature, tint },
+                exposure: super::exposure::RawExposure {
+                    scene_referred,
+                    dng_baseline,
+                    highlight_preservation,
+                },
+            },
+            super::exposure::BaselineOptions {
+                baseline_exposure,
+                compensate_highlight_preservation,
+            },
+            tonemapper_override,
+        )
+        .map_err(|e| JsValue::from_str(&e))?;
+        Ok(bytemuck::bytes_of(&value).to_vec())
+    }
+
+    #[wasm_bindgen]
     pub fn pack_camera_renderer_fixture(
         json: &str,
         temperature: f64,

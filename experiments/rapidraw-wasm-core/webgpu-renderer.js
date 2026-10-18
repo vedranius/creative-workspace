@@ -179,6 +179,20 @@ export function packCameraRendererFixture(wasm, json, asShot, options) {
   return { bytes, source: "CyberTimon/RapidRAW original WB/exposure projection", scope: "WB/exposure only; other controls remain neutral" };
 }
 
+/** Full pinned global parser; masks/preprocessing resources are separate. */
+export function packGlobalRendererFixture(wasm,json,asShot,options,toneMapperOverride=null) {
+  if (!wasm || typeof wasm.pack_global_renderer_fixture !== "function") throw new TypeError("Original global parser WASM is required");
+  validateExposureInputs(json,asShot?.exposure,options);
+  const wb=asShot?.whiteBalance;
+  if (!Number.isFinite(wb?.temperature) || wb.temperature<=0 || !Number.isFinite(wb?.tint)) throw new TypeError("Finite positive as-shot WB is required");
+  if (toneMapperOverride!==null && ![0,1].includes(toneMapperOverride)) throw new TypeError("Unknown original tone mapper override");
+  const e=asShot.exposure;
+  const bytes=wasm.pack_global_renderer_fixture(json,wb.temperature,wb.tint,e.sceneReferred,e.dngBaseline,e.highlightPreservation,
+    options.baselineExposure===null?undefined:options.baselineExposure,options.compensateHighlightPreservation,toneMapperOverride===null?undefined:toneMapperOverride);
+  if (!(bytes instanceof Uint8Array) || bytes.byteLength!==RAPIDRAW_ALL_ADJUSTMENTS_BYTES) throw new TypeError("Invalid original global adjustment payload");
+  return {bytes,source:"CyberTimon/RapidRAW full original global parser",scope:"Full global controls; masks and preprocessing resources remain separate"};
+}
+
 async function checkedShaderSource(source, format) {
   if (typeof source !== "string") throw new TypeError("Pinned RapidRAW WGSL source is required");
   const bytes = new TextEncoder().encode(source);

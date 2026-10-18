@@ -85,20 +85,44 @@ fn mat3_to_gpu_mat3(m: Mat3) -> GpuMat3 {
     }
 }
 
+#[path = "../tests/reference/global_module.rs"]
+#[allow(dead_code)]
+#[rustfmt::skip]
+mod native_global;
+
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let path = std::env::args()
         .nth(1)
         .ok_or("usage: develop_reference RAW_FILE")?;
-    if std::env::args().nth(2).as_deref() == Some("--camera-render") {
+    let full_global = std::env::args().nth(2).as_deref() == Some("--global-render");
+    if full_global || std::env::args().nth(2).as_deref() == Some("--camera-render") {
         let bytes = std::fs::read(path)?;
         let as_shot = raw_processing::read_as_shot(&bytes).ok_or("Original read_as_shot failed")?;
-        let inputs = [
+        let mut inputs = [
             serde_json::json!({"exposure":-0.8,"baselineExposure":true}),
             serde_json::json!({"exposure":0,"temperature":10,"tint":-3,"baselineExposure":true}),
             serde_json::json!({"exposure":0.8,"whiteBalance":{"temperature":5500,"tint":12},"temperature":-5,"tint":2,"baselineExposure":true}),
             serde_json::json!({"exposure":0.8,"temperature":10,"tint":-3,"baselineExposure":true,"activeTools":{"whiteBalance":false}}),
             serde_json::json!({"exposure":0,"temperature":10,"tint":-3,"baselineExposure":false,"sectionVisibility":{"color":false}}),
         ];
+        if full_global {
+            inputs[0]["brightness"] = serde_json::json!(12);
+            inputs[0]["contrast"] = serde_json::json!(15);
+            inputs[0]["highlights"] = serde_json::json!(-10);
+            inputs[0]["shadows"] = serde_json::json!(20);
+            inputs[0]["whites"] = serde_json::json!(-5);
+            inputs[0]["blacks"] = serde_json::json!(8);
+            inputs[1]["saturation"] = serde_json::json!(10);
+            inputs[1]["vibrance"] = serde_json::json!(20);
+            inputs[1]["curves"] = serde_json::json!({"luma":[{"x":0,"y":0},{"x":96,"y":80},{"x":255,"y":255}],"red":[{"x":0,"y":0},{"x":128,"y":140},{"x":255,"y":255}]});
+            inputs[2]["hsl"] = serde_json::json!({"reds":{"hue":4,"saturation":10,"luminance":-5}});
+            inputs[2]["colorGrading"] =
+                serde_json::json!({"global":{"hue":30,"saturation":8,"luminance":2}});
+            inputs[2]["colorCalibration"] = serde_json::json!({"redHue":4,"blueSaturation":10});
+            inputs[3]["brightness"] = serde_json::json!(25);
+            inputs[3]["activeTools"]["basic"] = serde_json::json!(false);
+            inputs[4]["toneMapper"] = serde_json::json!("agx");
+        }
         let mut frames = Vec::new();
         for input in inputs {
             let js_adjustments = &input;
@@ -123,14 +147,23 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                     compensate_highlight_preservation: true,
                 },
             );
-            frames.push(serde_json::json!({"json":js_adjustments.to_string(),"exposure":exposure,"gains":gains,
-                "rgbToLms":mat3_to_gpu_mat3(rgb_to_lms),"lmsToRgb":mat3_to_gpu_mat3(rgb_to_lms.inverse())}));
+            let mut frame = serde_json::json!({"json":js_adjustments.to_string(),"exposure":exposure,"gains":gains,
+                "rgbToLms":mat3_to_gpu_mat3(rgb_to_lms),"lmsToRgb":mat3_to_gpu_mat3(rgb_to_lms.inverse())});
+            if full_global {
+                frame["global"] = serde_json::to_value(native_global::reference(
+                    js_adjustments,
+                    gains,
+                    exposure,
+                    None,
+                ))?;
+            }
+            frames.push(frame);
         }
         println!(
             "{}",
             serde_json::json!({"source":"b39884b38d8f148caef6fd0d52afd264951be329",
             "asShot":{"whiteBalance":as_shot.white_balance,"exposure":{"sceneReferred":as_shot.exposure.scene_referred,"dngBaseline":as_shot.exposure.dng_baseline,"highlightPreservation":as_shot.exposure.highlight_preservation}},
-            "options":{"baselineExposure":0.0,"compensateHighlightPreservation":true},"frames":frames})
+            "options":{"baselineExposure":0.0,"compensateHighlightPreservation":true},"fullGlobal":full_global,"frames":frames})
         );
         return Ok(());
     }

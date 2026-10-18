@@ -21,6 +21,8 @@ const SHADER: &str = include_str!("../../rapidraw-wasm-core/shader.wgsl");
 #[derive(Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 struct CameraFrame {
+    #[serde(default)]
+    global: Option<GlobalAdjustments>,
     json: String,
     exposure: f32,
     gains: [f32; 3],
@@ -30,6 +32,8 @@ struct CameraFrame {
 #[derive(Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 struct CameraSettings {
+    #[serde(default)]
+    full_global: bool,
     source: String,
     as_shot: serde_json::Value,
     options: serde_json::Value,
@@ -336,6 +340,9 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             adjustments.global.wb_log_gain_s = c.gains[2];
             adjustments.global.wb_rgb_to_lms_matrix = c.rgb_to_lms;
             adjustments.global.wb_lms_to_rgb_matrix = c.lms_to_rgb;
+            if let Some(global) = c.global {
+                adjustments.global = global;
+            }
         }
         adjustments.mask_atlas_cols = 1;
         let adjustment_buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor {

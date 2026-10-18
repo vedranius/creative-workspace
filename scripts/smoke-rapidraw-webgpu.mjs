@@ -69,6 +69,15 @@ try {
         if (pngMode) for (const [w,h,p] of [[0,1,[]],[1,0,[]],[32769,1,[]],[32768,32768,[]],[1,1,[]],[1,1,[0,1,2]]]) {
           try { wasm.encode_rendered_rgba8_png(w,h,new Uint8Array(p),300); } catch { rejectedInvalidPngInputs++; }
         }
+        let rejectedInvalidGlobalInputs = 0;
+        if (camera?.fullGlobal) {
+          const base=camera.asShot, e=base.exposure, wb=base.whiteBalance;
+          const invalid=[['{"brightness":1e300}',undefined],['{"curves":{"luma":[{"x":0,"y":0}]}}',undefined],
+            [JSON.stringify({curves:{luma:Array.from({length:17},(_,i)=>({x:i,y:i}))}}),undefined],
+            ['{"curves":{"luma":[{"x":100,"y":0},{"x":0,"y":255}]}}',undefined],
+            ['{"curves":{"luma":[{"x":0,"y":0},{"x":256,"y":255}]}}',undefined],['{}',2]];
+          for (const [json,tone] of invalid) {try {wasm.pack_global_renderer_fixture(json,wb.temperature,wb.tint,e.sceneReferred,e.dngBaseline,e.highlightPreservation,0,true,tone);} catch {rejectedInvalidGlobalInputs++;}}
+        }
         const shaderSource = await (await fetch('/shader.wgsl')).text();
         const hash = async bytes => [...new Uint8Array(await crypto.subtle.digest('SHA-256', bytes))].map(v => v.toString(16).padStart(2, '0')).join('');
         let width = 9, height = 3, inputF32Sha256, inputRgbaF16Sha256 = null, actualAsShot = null;
@@ -105,7 +114,7 @@ try {
         const cases = camera ? camera.frames : [-1,0,1].map(exposure=>({exposure}));
         for (const testCase of cases) {
           const exposure = testCase.exposure;
-          const adjustments = camera ? host.packCameraRendererFixture(wasm,testCase.json,actualAsShot,camera.options) : raw ? host.packUiExposureFixture(wasm, JSON.stringify({ exposure: exposure * 0.8 }),
+          const adjustments = camera ? (camera.fullGlobal ? host.packGlobalRendererFixture(wasm,testCase.json,actualAsShot,camera.options) : host.packCameraRendererFixture(wasm,testCase.json,actualAsShot,camera.options)) : raw ? host.packUiExposureFixture(wasm, JSON.stringify({ exposure: exposure * 0.8 }),
             { sceneReferred: true, dngBaseline: 0, highlightPreservation: 0 },
             { baselineExposure: 0, compensateHighlightPreservation: false }) : host.packNeutralExposureAdjustments(wasm, exposure);
           const frame = await host.renderOriginalFrame({ device, width, height, shaderSource,
@@ -131,7 +140,7 @@ try {
           frames.push(row);
         }
         await device.queue.onSubmittedWorkDone();
-        return { width, height, format: pngMode ? 'rgba8unorm' : 'rgba16float', inputFormat: raw ? 'RGB32F' : 'RGBA32F', inputF32Sha256, inputRgbaF16Sha256, actualAsShot, adapterInfo, frames, gpuErrors, ...(pngMode ? { rejectedInvalidPngInputs } : {}) };
+        return { width, height, format: pngMode ? 'rgba8unorm' : 'rgba16float', inputFormat: raw ? 'RGB32F' : 'RGBA32F', inputF32Sha256, inputRgbaF16Sha256, actualAsShot, rejectedInvalidGlobalInputs, adapterInfo, frames, gpuErrors, ...(pngMode ? { rejectedInvalidPngInputs } : {}) };
       } finally { fixture?.ownedTextures.forEach(t => t.destroy()); device.destroy(); }
     }, { raw: !!publicRawPath, pngMode, camera: nativeReference?.camera ?? null }),
     new Promise((_, reject) => { const timer = setTimeout(() => reject(Error('WebGPU proof timed out')), 60000); timer.unref(); }),
@@ -142,6 +151,7 @@ try {
   if (pngMode) assert.equal(result.rejectedInvalidPngInputs, 6);
   assert.equal(new Set(result.frames.map(f => f.sha256)).size, nativeReference?.camera ? 5 : 3);
   if (nativeReference?.camera) assert.deepEqual(result.actualAsShot,nativeReference.camera.asShot);
+  if (nativeReference?.camera?.fullGlobal) assert.equal(result.rejectedInvalidGlobalInputs,6);
   if (!publicRawPath) {
     assert.ok(result.frames[0].firstPixelF16Bits[0] < result.frames[1].firstPixelF16Bits[0]);
     assert.ok(result.frames[1].firstPixelF16Bits[0] < result.frames[2].firstPixelF16Bits[0]);
@@ -194,13 +204,14 @@ try {
       scope: publicRawPath ? 'Independent native original RAW development plus wgpu29 shader on identical real public RAW-derived input; remaining preprocessing is neutral, not full Tauri/engine parity' : 'Independent native wgpu29 full pinned shader on identical neutral synthetic inputs, not full Tauri/preprocessing/engine frames' };
   }
   if (publicRawPath) for (const frame of result.frames) { delete frame.rgbaF16Bits; delete frame.rgbaU8; }
-  const report = { stage: nativeReference?.camera ? 'RWASM-03 actual public RAW/as-shot WB/exposure through original shader and PNG' : pngMode ? 'RWASM-03 actual public RAW through original EightBit shader/dither and native PNG branch' : publicRawPath ? 'RWASM-03 public RAW Speed development to native f16 upload and original full shader' : 'RWASM-03 original full WGSL execution on neutral resources', nativeSource: 'b39884b38d8f148caef6fd0d52afd264951be329',
+  if (nativeReference?.camera?.fullGlobal) for (const frame of nativeReference.camera.frames) delete frame.global; // Compact report; full native values stay in the reference artifact.
+  const report = { stage: nativeReference?.camera?.fullGlobal ? 'RWASM-03 full original GlobalAdjustments parser to actual RAW shader/PNG' : nativeReference?.camera ? 'RWASM-03 actual public RAW/as-shot WB/exposure through original shader and PNG' : pngMode ? 'RWASM-03 actual public RAW through original EightBit shader/dither and native PNG branch' : publicRawPath ? 'RWASM-03 public RAW Speed development to native f16 upload and original full shader' : 'RWASM-03 original full WGSL execution on neutral resources', nativeSource: 'b39884b38d8f148caef6fd0d52afd264951be329',
     publicFixture: publicFixture ? { id: publicFixture.id, sourceSha256: publicFixture.sourceSha256, license: publicFixture.license } : null,
-    exposureInputs: nativeReference?.camera ? { camera: nativeReference.camera, metadata: 'Actual original as-shot WASM worker', otherControls: 'neutral' } : publicRawPath ? { uiExposure: [-0.8, 0, 0.8], mappedStops: [-1, 0, 1], baselineMarker: 'absent/disabled', cameraExposure: 'Explicit sceneReferred=true,dngBaseline=0,highlightPreservation=0 fixture inputs; metadata not extracted', otherControls: 'neutral' } : null,
+    exposureInputs: nativeReference?.camera ? { camera: nativeReference.camera, metadata: 'Actual original as-shot WASM worker', otherControls: nativeReference.camera.fullGlobal ? 'Full original global parser; masks/preprocessing resources separate' : 'neutral' } : publicRawPath ? { uiExposure: [-0.8, 0, 0.8], mappedStops: [-1, 0, 1], baselineMarker: 'absent/disabled', cameraExposure: 'Explicit sceneReferred=true,dngBaseline=0,highlightPreservation=0 fixture inputs; metadata not extracted', otherControls: 'neutral' } : null,
     shaderSha256: createHash('sha256').update(assets.get('/shader.wgsl')[1]).digest('hex'),
     wasmSha256: createHash('sha256').update(wasmBytes).digest('hex'), browserVersion: browser.version(), launchArgs,
     chromiumSandbox: process.env.CHROMIUM_SANDBOX !== 'false', highPrecisionOutput: pngMode ? 0 : 1, ...result, nativeComparison, pageErrors, failedRequests,
-    scope: nativeReference?.camera ? 'Actual public CC0 RAW Speed worker and separate original as-shot worker feed original WB visibility/adaptation/matrix/exposure projection, full EightBit shader/dither and original PNG branch; native adjustment bytes, image bytes and completed downloads compared. Other controls/preprocessing neutral, original React/providers/full editor remain open.' : pngMode ? 'Actual public CC0 RAW Speed worker→original f16 upload/exposure→original EightBit WGSL/dither→native RGBA8 PNG codec, sRGB ICC/300DPI, browser decode/completed download. Other preprocessing/effects neutral, camera inputs explicit, no metadata/XMP/watermarks/transforms/full UI/provider/editor acceptance.' : publicRawPath ? 'Actual public CC0 DNG Speed development in the existing WASM worker, original RGB32F-to-RGBA16F upload, explicit exposure UI mapping (baseline0/disabled), original full shader; remaining preprocessing/effects are neutral fixtures, not full native engine/UI/export/provider/editor acceptance.' : 'Actual browser WebGPU full pinned shader (native RGBA16F substitution), 14 bindings and WASM neutral/exposure fixture; software adapter, synthetic9x3 input. Optional independent native shader-fixture comparison only; no real preprocessing/full native engine/UI/editor acceptance or performance claim.' };
+    scope: nativeReference?.camera?.fullGlobal ? 'Actual public CC0 RAW/as-shot workers and full pinned original global parser/helpers/defaults drive original full EightBit shader/dither/PNG; independent native complete packed adjustments, pixels and completed downloads. Masks/preprocessing/effect resources, geometry/React/providers/full editor acceptance remain open; parsing effect controls does not establish real preprocessing parity.' : nativeReference?.camera ? 'Actual public CC0 RAW Speed worker and separate original as-shot worker feed original WB visibility/adaptation/matrix/exposure projection, full EightBit shader/dither and original PNG branch; native adjustment bytes, image bytes and completed downloads compared. Other controls/preprocessing neutral, original React/providers/full editor remain open.' : pngMode ? 'Actual public CC0 RAW Speed worker→original f16 upload/exposure→original EightBit WGSL/dither→native RGBA8 PNG codec, sRGB ICC/300DPI, browser decode/completed download. Other preprocessing/effects neutral, camera inputs explicit, no metadata/XMP/watermarks/transforms/full UI/provider/editor acceptance.' : publicRawPath ? 'Actual public CC0 DNG Speed development in the existing WASM worker, original RGB32F-to-RGBA16F upload, explicit exposure UI mapping (baseline0/disabled), original full shader; remaining preprocessing/effects are neutral fixtures, not full native engine/UI/export/provider/editor acceptance.' : 'Actual browser WebGPU full pinned shader (native RGBA16F substitution), 14 bindings and WASM neutral/exposure fixture; software adapter, synthetic9x3 input. Optional independent native shader-fixture comparison only; no real preprocessing/full native engine/UI/editor acceptance or performance claim.' };
   await mkdir(path.dirname(output), { recursive: true }); await writeFile(output, JSON.stringify(report, null, 2) + '\n');
   if (pngMode) await page.evaluate(() => document.querySelectorAll('a').forEach(a => URL.revokeObjectURL(a.href)));
   console.log(JSON.stringify(report)); await context.close();

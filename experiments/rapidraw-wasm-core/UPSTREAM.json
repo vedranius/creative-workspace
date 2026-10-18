@@ -160,5 +160,20 @@
     ],
     "scope": "Original WB tool visibility, adaptation gains and GPU column packing, original exposure mapping in otherwise neutral AllAdjustments. Not full original JSON/effects/preprocessing.",
     "license": "AGPL-3.0-only"
+  },
+  "fullGlobalParser": {
+    "sourcePath": "src-tauri/src/image_processing.rs",
+    "sourceSha256": "5e16c6d88c30e5728534bb67be47e79c44b96d524f90973a611c2c2e8adb3a19",
+    "parserSha256": "e6ad7378661ad4bdaece1ea93e314cb99d852ec443302a47e8df10e418fef54b",
+    "helpersSha256": "76bc4ecea4c1dc48acc12ccb66167d158629b4095980a2756f3c2c3f20362e9e",
+    "layoutSha256": "03dc420e9ddde6a7b1cf48da17021e4efe4db926e34cd24f329a7723ce1d039f",
+    "referenceCopies": [
+      "tests/reference/global_controls.rs",
+      "tests/reference/global_helpers.rs",
+      "tests/reference/global_layout.rs",
+      "tests/reference/global_module.rs"
+    ],
+    "scope": "Full original GlobalAdjustments parser/defaults and exact helper math; masks and preprocessing resources remain separate. Host curve and finite guards precede GPU upload.",
+    "license": "AGPL-3.0-only"
   }
 }

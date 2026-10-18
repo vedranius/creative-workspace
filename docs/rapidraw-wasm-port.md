@@ -1,5 +1,9 @@
 # RapidRAW browser engine port
 
+## Current checkpoint — 2026-10-18
+
+The pinned original RAW development, as-shot WB/exposure, full global controls/defaults/helper math and complete WGSL/EightBit PNG path now run in browser proofs. Five actual public-DNG edited files and3,932,160 byte components match independent native output exactly; downloads and malformed-input refusals are evidenced. [Latest handoff](rapidraw-wasm-global-controls-handoff.md). Original React/preview transport, effect preprocessing/masks/geometry and common-provider/full editor acceptance remain open. Earlier sections below record their individual historical slices and limits; no public editor release/demo integration is claimed by this checkpoint.
+
 ## Scope authorized on 2026-10-17
 
 Port **native RapidRAW**, preserving its real React interface and image-processing algorithms, to WebAssembly/browser APIs. This is an additional browser-processing mode for independent public-demo visitors; the original Creative Workspace server-processing goal and owned rapidraw-web installation remain separate. No VNC, desktop streaming, substitute editor, or embedded-JPEG preview presented as RAW development.

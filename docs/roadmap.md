@@ -1,3 +1,9 @@
+# RWASM-03 — full original GlobalAdjustments slice verified (2026-10-18)
+
+Source-complete global parser/helpers/defaults (basic tones, curves, HSL/grading/calibration, tone/AGX) now drive actual public-DNG shader/PNG output; five exact native files,3,932,160 exact byte components, complete adjustment bytes/downloads and six malformed input refusals. [Current handoff](rapidraw-wasm-global-controls-handoff.md).
+
+Next ready task: original React open/render transport slice. Trace pinned `useImageLoader.ts` (`load_metadata`, `load_image`) and `useImageProcessing.ts` (`apply_adjustments`) plus AppProperties command IDs, cache/cancel/error contracts and source native preview encoder. Implement a narrow original transport adapter using existing verified RAW/as-shot/full-global renderer, including correct preview bytes and24-byte interactive rectangle envelope; wire/test the original hooks/editor path instead of creating a replacement UI. Keep unsupported commands explicit, original file permission/save semantics and privacy/resource gates; never claim the full original app or resource-dependent effects accepted from transport alone. MAIN only while A waits approval.
+
 # RWASM-03 — real camera WB/exposure shader/PNG slice verified (2026-10-18)
 
 Actual public-DNG as-shot metadata now drives original WB/exposure projection in the full source WGSL. Five native-identical PNGs,3,932,160 exact byte components, complete packed adjustment hashes and completed downloads verified. [Current handoff](rapidraw-wasm-camera-render-handoff.md).

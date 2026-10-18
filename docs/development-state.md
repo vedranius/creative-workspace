@@ -1,3 +1,9 @@
+# 2026-10-18 RWASM-03 — full original global controls/defaults
+
+Full pinned `get_global_adjustments_from_json` plus scales, curves/HSL/grading/calibration and AGX helper math now populate GlobalAdjustments with original defaults. Existing actual camera WB/exposure/visibility remain connected. Independent native full-global settings/complete packed bytes and five public-DNG EightBit shader/PNG cases match exactly:3,932,160/3,932,160 RGBA8 components, all PNG bytes and completed downloads. Six malformed/oversized/unordered curves/float-overflow/unknown-tone inputs refuse before GPU upload. Core42/42 (including18 full-native global byte comparisons), native shader reference1/1, host16/16, check/format/syntax/diff pass. [Proof and next concrete task](rapidraw-wasm-global-controls-handoff.md).
+
+Full parser availability does not establish preprocessing for resource-dependent effects. Masks/geometry/native preview transport/original React/providers/full editor acceptance remain open. No product version/release/demo/private-file/service change. Prior0a41403 parity39125368496 succeeded; fresh full-global CI follows publication.
+
 # 2026-10-18 RWASM-03 — actual camera WB/exposure drives original shader/PNG
 
 Actual original as-shot worker metadata now feeds original WB tool visibility, Bradford gains, GPU matrix column packing and exposure mapping in the source-layout shader payload. Five public-DNG512×384 EightBit/dither frames cover original baseline−0.5EV, relative/absolute WB edits, explicit disabled WB and legacy hidden color controls. Independent native settings/complete adjustment bytes,3,932,160/3,932,160 image byte components and all five original PNG files match exactly. Browser decode/completed-download hashes pass with zero GPU/page/network errors. Core39/39, native shader reference1/1, host15/15, repo check and focused format/syntax/diff pass. [Evidence and exact next task](rapidraw-wasm-camera-render-handoff.md).

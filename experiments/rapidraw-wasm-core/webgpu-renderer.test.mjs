@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { createHash } from "node:crypto";
 import { readFile } from "node:fs/promises";
 import { test } from "node:test";
-import { createNeutralRendererResources, encodeRenderedFramePng, packNeutralExposureAdjustments, packRgb32fRendererInput, packUiExposureFixture, packCameraRendererFixture, renderOriginalFrame, WebGpuUnsupportedError } from "./webgpu-renderer.js";
+import { createNeutralRendererResources, encodeRenderedFramePng, packNeutralExposureAdjustments, packRgb32fRendererInput, packUiExposureFixture, packCameraRendererFixture, packGlobalRendererFixture, renderOriginalFrame, WebGpuUnsupportedError } from "./webgpu-renderer.js";
 
 globalThis.GPUShaderStage = { COMPUTE: 4 };
 globalThis.GPUBufferUsage = { STORAGE: 128, COPY_DST: 8, MAP_READ: 1 };
@@ -255,4 +255,15 @@ test("camera host forwards actual as-shot metadata and original JSON to WASM",()
   assert.throws(()=>packCameraRendererFixture(wasm,'{}',{...shot,whiteBalance:{temperature:0,tint:0}},options));
   assert.throws(()=>packCameraRendererFixture(wasm,'{}',{...shot,exposure:{...shot.exposure,dngBaseline:NaN}},options));
   assert.throws(()=>packCameraRendererFixture({pack_camera_renderer_fixture:()=>new Uint8Array(4)},'{}',shot,options));
+});
+
+
+test("full global host forwards pinned parser options and refuses unknown tone override",()=>{
+  const shot={whiteBalance:{temperature:6133.3,tint:39.7},exposure:{sceneReferred:true,dngBaseline:-0.5,highlightPreservation:0}};
+  const options={baselineExposure:0,compensateHighlightPreservation:true};let args;
+  const payload=new Uint8Array(45232),wasm={pack_global_renderer_fixture:(...a)=>(args=a,payload)};
+  assert.equal(packGlobalRendererFixture(wasm,'{"contrast":15}',shot,options,1).bytes,payload);
+  assert.deepEqual(args,['{"contrast":15}',6133.3,39.7,true,-0.5,0,0,true,1]);
+  assert.throws(()=>packGlobalRendererFixture(wasm,'{}',shot,options,2));
+  assert.throws(()=>packGlobalRendererFixture({pack_global_renderer_fixture:()=>new Uint8Array(4)},'{}',shot,options));
 });

@@ -1,3 +1,7 @@
+# Unreleased RapidRAW full-global checkpoint — 2026-10-18
+
+Full original global controls/defaults now drive five public RAW shader/PNG cases with exact native complete adjustment and image bytes plus completed downloads. [Source, acceptance and next transport task](rapidraw-wasm-global-controls-handoff.md). This remains experimental `codex/rapidraw-wasm-port` work; original React/preview transport, effect preprocessing/masks and providers remain open. No product SemVer/tag/release/install/demo update.
+
 # Unreleased RapidRAW camera renderer checkpoint — 2026-10-18
 
 Actual as-shot WB/exposure now drives original shader/PNG output: five native-identical files and3,932,160 exact image byte components with complete browser downloads. [Proof and remaining scope](rapidraw-wasm-camera-render-handoff.md). This is unfinished experimental port behavior on `codex/rapidraw-wasm-port`; full global controls/React/provider acceptance remain open. No product SemVer/tag/release/install/demo update.
