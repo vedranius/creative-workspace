@@ -123,6 +123,26 @@ export function packNeutralExposureAdjustments(wasm, exposure = 0) {
   return { bytes, source: "CyberTimon/RapidRAW image_processing::AllAdjustments", scope: "neutral fixture with exposure only" };
 }
 
+/** Map only the original exposure input; the remaining fields are neutral fixtures. */
+export function packUiExposureFixture(wasm, json, asShot, options) {
+  if (!wasm || typeof wasm.pack_ui_exposure_fixture !== "function") {
+    throw new TypeError("RapidRAW WASM UI exposure packer is required");
+  }
+  if (typeof json !== "string" || json.length > 65536 || new TextEncoder().encode(json).byteLength > 65536) {
+    throw new TypeError("Expected bounded adjustment JSON (64 KiB)");
+  }
+  if (typeof asShot?.sceneReferred !== "boolean" || !Number.isFinite(asShot?.dngBaseline) || !Number.isFinite(asShot?.highlightPreservation) ||
+      typeof options?.compensateHighlightPreservation !== "boolean" || (options?.baselineExposure !== null && !Number.isFinite(options?.baselineExposure))) {
+    throw new TypeError("Explicit finite camera exposure and baseline settings are required");
+  }
+  const bytes = wasm.pack_ui_exposure_fixture(json, asShot.sceneReferred, asShot.dngBaseline, asShot.highlightPreservation,
+    options.baselineExposure === null ? undefined : options.baselineExposure, options.compensateHighlightPreservation);
+  if (!(bytes instanceof Uint8Array) || bytes.byteLength !== RAPIDRAW_ALL_ADJUSTMENTS_BYTES) {
+    throw new TypeError("WASM returned an invalid pinned AllAdjustments payload");
+  }
+  return { bytes, source: "CyberTimon/RapidRAW native exposure input/visibility/baseline mapping", scope: "original UI exposure mapping only; other adjustments remain neutral fixtures" };
+}
+
 async function checkedShaderSource(source) {
   if (typeof source !== "string") throw new TypeError("Pinned RapidRAW WGSL source is required");
   const bytes = new TextEncoder().encode(source);

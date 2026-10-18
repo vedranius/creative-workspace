@@ -1,3 +1,9 @@
+# 2026-10-18 RWASM-03 — original exposure UI input now maps in WASM
+
+Recovered an idle successor that failed on patch-context/JavaScript tool syntax before editing. Added the pinned top-level exposure/activeTools/legacy visibility/baseline-marker conversion into an otherwise neutral45,232-byte shader payload. Independent original-source reference and actual Chromium WASM/JS host match216 exposure f32 cases;11 invalid cases reject, all other fixture bytes remain unchanged and browser errors/failed requests are zero. Native28/28, focused host10/10, Node84/84 and check/format/syntax/diff pass. [Exact scope and next task](rapidraw-wasm-ui-exposure-handoff.md) · [browser evidence](evidence/rapidraw-wasm/ui-exposure-browser.json).
+
+No real GPU shader/native-frame comparison or full UI/parser/editor availability is claimed. Fresh Actions verification is pending. Next: investigate a real WebGPU-capable isolated QA launch/device (including clearly identified software Vulkan if available) and execute the original full shader against native frame reference. Original settings beyond exposure, camera metadata extraction and complete editor remain open. Automated continuation now wakes MAIN as an ACTIVE heartbeat, without new feature chats while permission inheritance is unresolved; no security settings changed. Existing source/UI/service/private-file isolation remains intact.
+
 # 2026-10-18 RWASM-03 — neutral preprocessing resource factory
 
 Added a bounded WebGPU factory for the source-shaped input, empty mask atlas,

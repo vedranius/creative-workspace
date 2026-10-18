@@ -1,0 +1,51 @@
+fn is_section_visible(adjustments: &serde_json::Value, section: &str) -> bool {
+    adjustments
+        .get("sectionVisibility")
+        .and_then(|v| v.get(section))
+        .and_then(|s| s.as_bool())
+        .unwrap_or(true)
+}
+
+const LEGACY_SECTION_TOOLS: &[(&str, &[&str])] = &[
+    ("basic", &["basic"]),
+    ("curves", &["curves"]),
+    (
+        "color",
+        &[
+            "whiteBalance",
+            "colorPresence",
+            "hue",
+            "colorGrading",
+            "colorMixer",
+            "colorCalibration",
+        ],
+    ),
+    (
+        "details",
+        &[
+            "sharpening",
+            "presence",
+            "noiseReduction",
+            "chromaticAberration",
+        ],
+    ),
+    (
+        "effects",
+        &[
+            "creative", "lensBlur", "relight", "fog", "lut", "vignette", "grain",
+        ],
+    ),
+];
+
+pub fn is_tool_active(adjustments: &serde_json::Value, tool: &str) -> bool {
+    match adjustments.get("activeTools") {
+        Some(active_tools) => active_tools
+            .get(tool)
+            .and_then(|active| active.as_bool())
+            .unwrap_or(true),
+        None => LEGACY_SECTION_TOOLS
+            .iter()
+            .find(|(_, tools)| tools.contains(&tool))
+            .is_none_or(|(section, _)| is_section_visible(adjustments, section)),
+    }
+}

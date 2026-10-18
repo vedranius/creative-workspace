@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { createHash } from "node:crypto";
 import { readFile } from "node:fs/promises";
 import { test } from "node:test";
-import { createNeutralRendererResources, packNeutralExposureAdjustments, renderOriginalFrame, WebGpuUnsupportedError } from "./webgpu-renderer.js";
+import { createNeutralRendererResources, packNeutralExposureAdjustments, packUiExposureFixture, renderOriginalFrame, WebGpuUnsupportedError } from "./webgpu-renderer.js";
 
 globalThis.GPUShaderStage = { COMPUTE: 4 };
 globalThis.GPUBufferUsage = { STORAGE: 128, COPY_DST: 8, MAP_READ: 1 };
@@ -174,4 +174,25 @@ test("rejects readback allocations over the bounded device capacity", async () =
     renderOriginalFrame({ ...frameInput(), device }),
     /bounded readback capacity/,
   );
+});
+
+
+test("UI exposure host forwards original JSON/camera/settings to WASM without reimplementing mapping", () => {
+  let received;
+  const wasm = { pack_ui_exposure_fixture: (...args) => { received = args; return new Uint8Array(45232); } };
+  const input = '{"exposure":0.8,"baselineExposure":true,"activeTools":{"basic":false}}';
+  const result = packUiExposureFixture(wasm, input, {sceneReferred:true,dngBaseline:0.75,highlightPreservation:-1}, {baselineExposure:null,compensateHighlightPreservation:true});
+  assert.deepEqual(received,[input,true,0.75,-1,undefined,true]);
+  assert.equal(result.bytes.length,45232);
+  assert.match(result.scope,/other adjustments remain neutral/);
+});
+
+test("UI exposure host rejects oversized JSON/missing metadata and corrupt payloads", () => {
+  let called=false;const wasm={pack_ui_exposure_fixture:()=>{called=true;return new Uint8Array(1);}};
+  const shot={sceneReferred:true,dngBaseline:0,highlightPreservation:0},options={baselineExposure:0,compensateHighlightPreservation:false};
+  assert.throws(()=>packUiExposureFixture(wasm," ".repeat(65537),shot,options),/64 KiB/);
+  assert.throws(()=>packUiExposureFixture(wasm,"{}",{},options),/Explicit finite/);
+  assert.throws(()=>packUiExposureFixture(wasm,"{}",shot,{}),/Explicit finite/);
+  assert.equal(called,false);
+  assert.throws(()=>packUiExposureFixture(wasm,"{}",shot,options),/invalid pinned/);
 });

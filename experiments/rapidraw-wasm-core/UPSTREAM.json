@@ -97,5 +97,19 @@
     "scope": "Pod-compatible AllAdjustments field/repr layout and neutral fixture constructor; not the original JSON/UI adjustment parser",
     "license": "AGPL-3.0",
     "wasmApi": "pack_neutral_renderer_adjustments(exposure) returns source-layout bytes"
+  },
+  "uiExposureMapping": {
+    "source": "src-tauri/src/image_processing.rs",
+    "sourceSha256": "5e16c6d88c30e5728534bb67be47e79c44b96d524f90973a611c2c2e8adb3a19",
+    "excerpts": {
+      "ui-exposure-visibility.txt": "763b60f5ed5c02f0d65104d429f0c84b16c79360a2344c959760fa57f1ca919c",
+      "ui-exposure-baseline.txt": "e20d9b5d0ddb5cbcac10e3429edb4a18c479e8e49c4855b9a6a5fe35a5f2fbe9",
+      "ui-exposure-get-value.txt": "a0f776607102515fb9257703d8a8d5a7b1a7aba702cb1d6589b9258a6b051a3c",
+      "ui-exposure-scales.txt": "59ee8cc976bb08b6412978ad026ec115aa7e0f445411ee7c7d4bea8935e6aed5"
+    },
+    "nativeReference": "tests/reference/ui_exposure.rs + byte-identical baseline_exposure.rs",
+    "expression": "get_val(\"basic\", \"exposure\", SCALES.exposure, None) + baseline_exposure",
+    "scope": "Original top-level exposure and activeTools/legacy visibility/baseline-marker semantics only; resulting 45232-byte neutral fixture does not implement other UI adjustments, GPU execution or frame parity",
+    "license": "AGPL-3.0"
   }
 }

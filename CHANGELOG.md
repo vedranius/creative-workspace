@@ -1,3 +1,9 @@
+## Experimental RapidRAW branch — UI exposure input checkpoint (2026-10-18)
+
+- Preserve original top-level exposure scaling, activeTools/legacy visibility and baseline-marker semantics in a bounded native/WASM input mapper. Pack only exposure into the existing explicit neutral shader fixture; do not silently claim the rest of the original settings parser.
+- Verify216 native-reference/browser WASM cases,11 invalid refusals and unchanged remaining fixture bytes, with a reproducible Actions test/report.
+- Recover the failed patch/tool invocation without losing existing work. Keep product/demo version and availability unchanged for this unfinished port. Real GPU frame, remaining adjustments, original React UI and full editor/export acceptance remain open.
+
 ## Experimental RapidRAW branch — unreleased checkpoint (2026-10-18)
 
 - Add the pinned native PNG codec boundary: RGB-f32 to RGB16 quantization, original CC0 sRGB ICC profile and optional DPI chunk. Preserve the original encoder/compression versions; bound dimensions, finite RGB input and output bytes.

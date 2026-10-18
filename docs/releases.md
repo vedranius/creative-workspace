@@ -1,3 +1,7 @@
+# Unreleased RapidRAW exposure input checkpoint — 2026-10-18
+
+The isolated port now maps the original exposure JSON/tool visibility/baseline marker through WASM, with216-case native/browser proof. Other shader fields remain explicit neutral fixtures; no complete settings parser, GPU rendered frame or new installable editor release is announced. Product version/demo remain unchanged. See [scope and build/evidence](rapidraw-wasm-ui-exposure-handoff.md). Fresh Actions evidence is pending this source push.
+
 # Unreleased RapidRAW WASM codec checkpoint — 2026-10-18
 
 The isolated `codex/rapidraw-wasm-port` branch adds an experimental native-equivalent PNG codec boundary and Actions test evidence, not an installable product release. Its input is a supplied RGB-f32 buffer; the original GPU renderer, transforms, metadata and original UI have not been connected. Product version/release tags/public demo stay unchanged. The next released editor feature still requires a new product SemVer and verified Actions-built target assets. See [scope, build and verification](rapidraw-wasm-png-handoff.md).

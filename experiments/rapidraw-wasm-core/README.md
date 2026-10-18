@@ -27,3 +27,7 @@ handling. They are protocol tests and do not prove that a browser GPU executed
 the shader. On the development host, both headless and isolated headed
 Chromium reported no `navigator.gpu`; native rendered-frame comparison and
 the required preprocessing integration remain open.
+
+## Original exposure input slice
+
+`ui_exposure.rs` and `packUiExposureFixture(wasm, json, asShot, options)` implement the original top-level exposure number, activeTools/legacy basic visibility and boolean baseline marker, using explicit camera exposure/settings. The bounded JSON input becomes exposure in an otherwise neutral45,232-byte payload. This does not map other controls or extract metadata. Independent native/actual browser WASM proof covers216 cases and11 invalid-input refusals. [Source, reproduction and remaining acceptance](../../docs/rapidraw-wasm-ui-exposure-handoff.md).

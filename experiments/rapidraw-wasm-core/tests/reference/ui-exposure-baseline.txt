@@ -1,0 +1,19 @@
+fn uses_baseline_exposure(adjustments: &Value) -> bool {
+    adjustments.is_null()
+        || adjustments
+            .get(BASELINE_EXPOSURE_KEY)
+            .and_then(Value::as_bool)
+            .unwrap_or(false)
+}
+
+pub fn effective_baseline_exposure(
+    adjustments: &Value,
+    as_shot: AsShot,
+    options: BaselineOptions,
+) -> f32 {
+    if uses_baseline_exposure(adjustments) {
+        as_shot.exposure.compensation(options)
+    } else {
+        0.0
+    }
+}

@@ -1,0 +1,16 @@
+    let is_visible = |tool: &str| is_tool_active(js_adjustments, tool);
+
+    let get_val = |tool: &str, key: &str, scale: f32, default: Option<f64>| -> f32 {
+        if is_visible(tool) {
+            js_adjustments[key]
+                .as_f64()
+                .unwrap_or(default.unwrap_or(0.0)) as f32
+                / scale
+        } else {
+            if let Some(d) = default {
+                d as f32 / scale
+            } else {
+                0.0
+            }
+        }
+    };

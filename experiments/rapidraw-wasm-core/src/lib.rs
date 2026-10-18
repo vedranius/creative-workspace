@@ -19,6 +19,7 @@ pub mod exposure;
 mod multi_exposure;
 pub mod png_export;
 pub mod renderer_adjustments;
+pub mod ui_exposure;
 
 /// Preserve the native compensation formula behind a finite-value host boundary.
 /// This returns stops only; it does not develop or modify image pixels.
@@ -413,6 +414,31 @@ mod browser {
     pub fn pack_neutral_renderer_adjustments(exposure: f32) -> Result<Vec<u8>, JsValue> {
         super::renderer_adjustments::pack_neutral_exposure(exposure)
             .map_err(|e| JsValue::from_str(&e))
+    }
+
+    /// Native UI exposure mapping into an otherwise neutral shader fixture.
+    #[wasm_bindgen]
+    pub fn pack_ui_exposure_fixture(
+        json: &str,
+        scene_referred: bool,
+        dng_baseline: f32,
+        highlight_preservation: f32,
+        baseline_exposure: Option<f32>,
+        compensate_highlight_preservation: bool,
+    ) -> Result<Vec<u8>, JsValue> {
+        super::ui_exposure::pack_ui_exposure_fixture(
+            json,
+            super::exposure::RawExposure {
+                scene_referred,
+                dng_baseline,
+                highlight_preservation,
+            },
+            super::exposure::BaselineOptions {
+                baseline_exposure,
+                compensate_highlight_preservation,
+            },
+        )
+        .map_err(|e| JsValue::from_str(&e))
     }
 
     #[wasm_bindgen]

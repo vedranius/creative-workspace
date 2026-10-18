@@ -1,3 +1,9 @@
+# RWASM-03 — original exposure UI mapping verified (2026-10-18)
+
+The original native top-level exposure value, activeTools/legacy section visibility and baseline marker now map through actual browser WASM into the existing neutral fixture. Independent native reference and browser match216 f32 cases;11 invalid inputs reject. This maps exposure only, not other UI settings or full rendered frames. [Scope/proof](rapidraw-wasm-ui-exposure-handoff.md).
+
+Next ready task: an isolated real WebGPU execution environment and full original shader/native-frame comparison, preserving exact source/layout/effect order. Distinguish a software adapter from hardware performance. Do not repeat mock-only acceptance or assume previous default Chromium launches exclude all supported configurations. Camera metadata parsing, full UI/preprocessing/export/provider/editor acceptance remain open. Continue in MAIN with its actual permissions; no automatic feature-chat dispatch while permission profiles differ.
+
 # RWASM-03 — original WebGPU host boundary (2026-10-18)
 
 The pinned complete shader, 14 original bindings, source-layout neutral/exposure `AllAdjustments` WASM packer (45,232 bytes), compute dispatch and async RGBA16F readback now have a browser host boundary with explicit unsupported errors. Native layout/payload tests 2/2 and protocol tests 7/7 pass; wasm32 check and `npm run check` pass. Local headless/headed Chromium expose no `navigator.gpu`, so shader execution and native frame comparison remain unverified. The packer does not replace the original UI adjustment/baseline parser. Minimum preprocessing-resource integration remains open. [Handoff and next step](rapidraw-wasm-webgpu-handoff.md).

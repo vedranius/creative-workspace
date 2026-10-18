@@ -1,0 +1,15 @@
+{
+  "stage": "RWASM-03 original UI exposure input mapping",
+  "nativeSource": "b39884b38d8f148caef6fd0d52afd264951be329",
+  "nativeReference": "Pinned visibility/get_val/SCALES/effective-baseline excerpts with byte-identical baseline_exposure.rs; only exposure projected from original GlobalAdjustments",
+  "nativeCases": 216,
+  "exactExposureF32Matches": 216,
+  "payloadBytes": 45232,
+  "otherFixtureBytesUnchanged": true,
+  "rejectedInvalidCases": 11,
+  "wasmBytes": 7076687,
+  "wasmSha256": "20052a3377cbcfda06ce568f8032ff1f8ed8f888d592b40363d4b05056b1abe7",
+  "pageErrors": [],
+  "failedRequests": [],
+  "scope": "Real dedicated Chromium WASM worker and actual JS host helper; original exposure UI/activeTools/legacy visibility/baseline semantics only; no camera metadata extraction, other adjustment mapping, GPU execution, rendered-frame/UI/editor acceptance"
+}

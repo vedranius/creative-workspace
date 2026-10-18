@@ -1,3 +1,7 @@
+# Latest input checkpoint — 2026-10-18
+
+Original exposure UI/visibility/baseline mapping now passes independent native versus actual Chromium WASM proof (216 cases,11 invalid refusals). Other fields remain neutral; this does not establish original complete settings or GPU frame parity. Use the [current input handoff](rapidraw-wasm-ui-exposure-handoff.md) for source/evidence/build and next real WebGPU execution task. Older neutral-only notes follow.
+
 # RapidRAW WebGPU host boundary — 2026-10-18
 
 ## Checkpoint
