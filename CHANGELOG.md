@@ -1,3 +1,9 @@
+## Experimental RapidRAW branch — actual shader execution (2026-10-18)
+
+- Execute the complete pinned native shader in isolated browser WebGPU, with explicit software-adapter identity,14 bindings, actual WASM adjustment bytes and async RGBA16F readback. Verify three finite distinct synthetic frames without GPU/browser errors.
+- Match the original non-filtering LUT sampler declaration and add the real execution smoke to Actions evidence.
+- This unfinished port checkpoint does not establish native rendered-frame parity, full effects/preprocessing/editor acceptance or a new installable release. Public demo/product version remain unchanged.
+
 ## Experimental RapidRAW branch — UI exposure input checkpoint (2026-10-18)
 
 - Preserve original top-level exposure scaling, activeTools/legacy visibility and baseline-marker semantics in a bounded native/WASM input mapper. Pack only exposure into the existing explicit neutral shader fixture; do not silently claim the rest of the original settings parser.

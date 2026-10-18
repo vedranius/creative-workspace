@@ -1,3 +1,7 @@
+# Latest renderer checkpoint — 2026-10-18
+
+The complete original WGSL now executes on actual browser WebGPU/SwiftShader with three finite synthetic exposure frames and zero GPU/page/network errors. This supersedes the missing-default-launch capability observation below. Native rendered-frame comparison remains open; [current proof and next task](rapidraw-wasm-webgpu-execution-handoff.md). Prior c7433c3 Actions Checks39106964937/parity39106964966 succeeded; its downloaded exposure evidence verifies216 native/browser matches and11 invalid refusals.
+
 # Latest input checkpoint — 2026-10-18
 
 Original exposure UI/visibility/baseline mapping now passes independent native versus actual Chromium WASM proof (216 cases,11 invalid refusals). Other fields remain neutral; this does not establish original complete settings or GPU frame parity. Use the [current input handoff](rapidraw-wasm-ui-exposure-handoff.md) for source/evidence/build and next real WebGPU execution task. Older neutral-only notes follow.

@@ -1,3 +1,7 @@
+# Latest renderer checkpoint — 2026-10-18
+
+The complete original WGSL now executes on actual browser WebGPU/SwiftShader with three finite synthetic exposure frames and zero GPU/page/network errors. This supersedes the missing-default-launch capability observation below. Native rendered-frame comparison remains open; [current proof and next task](rapidraw-wasm-webgpu-execution-handoff.md). Prior c7433c3 Actions Checks39106964937/parity39106964966 succeeded; its downloaded exposure evidence verifies216 native/browser matches and11 invalid refusals.
+
 # Original RapidRAW UI exposure mapping — 2026-10-18
 
 The failed successor ended after a patch context mismatch and malformed JavaScript tool invocations, before changing files. MAIN verified its idle state, claimed the isolated port checkout and implemented the missing bounded input mapping directly. No denied approval was rerouted or security profile modified. Automatic continuation now uses the existing MAIN chat heartbeat, without opening new development chats while their permission profiles differ.

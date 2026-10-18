@@ -1,3 +1,9 @@
+# 2026-10-18 RWASM-03 — original full shader executes in browser
+
+An isolated sandboxed Chromium151 now runs the complete pinned RapidRAW WGSL (native RGBA16F substitution), all14 bindings and actual WASM-packed neutral/exposure fixture through WebGPU. Explicit SwiftShader software adapter produces three distinct finite9×3 frames at -1/0/+1 stops, alpha1,216 bytes each; asynchronous padded-row readback succeeds with zero GPU/page/network errors. LUT sampler binding5 now matches the native non-filtering declaration. [Proof and next task](rapidraw-wasm-webgpu-execution-handoff.md) · [browser report](evidence/rapidraw-wasm/webgpu-execution.json).
+
+This resolves the default-launch capability obstacle, not native-frame parity or full RAW/editor acceptance. Keep original preprocessing, native comparison, complete UI/export/providers open. No product/demo/version/service/private-file change. Prior source c7433c3 Checks39106964937 and parity39106964966 succeeded; downloaded hosted exposure report/reference confirm216 matches and11 invalid refusals. Fresh shader-execution Actions verification remains pending source push.
+
 # 2026-10-18 RWASM-03 — original exposure UI input now maps in WASM
 
 Recovered an idle successor that failed on patch-context/JavaScript tool syntax before editing. Added the pinned top-level exposure/activeTools/legacy visibility/baseline-marker conversion into an otherwise neutral45,232-byte shader payload. Independent original-source reference and actual Chromium WASM/JS host match216 exposure f32 cases;11 invalid cases reject, all other fixture bytes remain unchanged and browser errors/failed requests are zero. Native28/28, focused host10/10, Node84/84 and check/format/syntax/diff pass. [Exact scope and next task](rapidraw-wasm-ui-exposure-handoff.md) · [browser evidence](evidence/rapidraw-wasm/ui-exposure-browser.json).

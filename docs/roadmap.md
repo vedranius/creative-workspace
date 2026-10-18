@@ -1,3 +1,9 @@
+# RWASM-03 — full original WGSL execution verified locally (2026-10-18)
+
+Actual sandboxed Chromium WebGPU/SwiftShader executes the pinned full shader,14 bindings, neutral resources and WASM-packed exposure fixture for three9×3 RGBA16F frames. This is synthetic software-adapter execution, not native-frame parity, real preprocessing, hardware performance or an editor. [Scope/evidence/next task](rapidraw-wasm-webgpu-execution-handoff.md).
+
+Next ready task: build a bounded independent native reference using the pinned original shader/layout/dispatch/readback and compare the same neutral/exposure frames. Reuse caches and low-impact lock; do not build/restart the desktop app or silently substitute a CPU renderer. Preserve source provenance, then connect real RAW/preprocessing and original React UI only after frame evidence.
+
 # RWASM-03 — original exposure UI mapping verified (2026-10-18)
 
 The original native top-level exposure value, activeTools/legacy section visibility and baseline marker now map through actual browser WASM into the existing neutral fixture. Independent native reference and browser match216 f32 cases;11 invalid inputs reject. This maps exposure only, not other UI settings or full rendered frames. [Scope/proof](rapidraw-wasm-ui-exposure-handoff.md).

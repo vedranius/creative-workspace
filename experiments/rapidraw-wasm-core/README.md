@@ -24,9 +24,11 @@ JSON/UI/baseline adjustment parser; it is only a bounded shader fixture.
 The Node tests use a deterministic WebGPU device double to check original
 binding order, dispatch dimensions, async readback, limits and unsupported
 handling. They are protocol tests and do not prove that a browser GPU executed
-the shader. On the development host, both headless and isolated headed
-Chromium reported no `navigator.gpu`; native rendered-frame comparison and
-the required preprocessing integration remain open.
+the shader. Previous default launches lacked `navigator.gpu`. An isolated sandboxed Chromium
+launch with explicit WebGPU/SwiftShader flags now executes the full shader and
+reads back three finite9×3 exposure frames. The adapter is software, not a
+hardware performance result. Native rendered-frame comparison and real
+preprocessing integration remain open. See [real execution evidence and reproduction](../../docs/rapidraw-wasm-webgpu-execution-handoff.md).
 
 ## Original exposure input slice
 

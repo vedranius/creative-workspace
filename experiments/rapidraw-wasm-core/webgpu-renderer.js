@@ -163,7 +163,7 @@ function bindingLayout(device, adjustmentBytes) {
       { binding: 2, visibility: GPUShaderStage.COMPUTE, buffer: { type: "read-only-storage", minBindingSize: adjustmentBytes } },
       { binding: 3, visibility: GPUShaderStage.COMPUTE, texture: { sampleType: "unfilterable-float", viewDimension: "2d-array" } },
       { binding: 4, visibility: GPUShaderStage.COMPUTE, texture: { sampleType: "unfilterable-float", viewDimension: "3d" } },
-      { binding: 5, visibility: GPUShaderStage.COMPUTE, sampler: { type: "filtering" } },
+      { binding: 5, visibility: GPUShaderStage.COMPUTE, sampler: { type: "non-filtering" } },
       ...[6, 7, 8, 9].map((binding) => ({ binding, visibility: GPUShaderStage.COMPUTE, texture: { sampleType: "unfilterable-float", viewDimension: "2d" } })),
       { binding: 10, visibility: GPUShaderStage.COMPUTE, texture: { sampleType: "float", viewDimension: "2d" } },
       { binding: 11, visibility: GPUShaderStage.COMPUTE, sampler: { type: "filtering" } },

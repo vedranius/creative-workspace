@@ -1,3 +1,7 @@
+# Unreleased RapidRAW shader execution checkpoint — 2026-10-18
+
+The isolated port now executes the full pinned shader in sandboxed Chromium through a clearly identified SwiftShader software adapter. Three bounded synthetic exposure frames pass readback checks. This is an experimental source/evidence checkpoint, not an installable editor feature or hardware benchmark. Native-frame comparison and real preprocessing/UI/provider acceptance remain required. No release/tag/product-version/demo change; [reproduction and next gate](rapidraw-wasm-webgpu-execution-handoff.md).
+
 # Unreleased RapidRAW exposure input checkpoint — 2026-10-18
 
 The isolated port now maps the original exposure JSON/tool visibility/baseline marker through WASM, with216-case native/browser proof. Other shader fields remain explicit neutral fixtures; no complete settings parser, GPU rendered frame or new installable editor release is announced. Product version/demo remain unchanged. See [scope and build/evidence](rapidraw-wasm-ui-exposure-handoff.md). Fresh Actions evidence is pending this source push.

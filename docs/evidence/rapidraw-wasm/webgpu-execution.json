@@ -1,0 +1,63 @@
+{
+  "stage": "RWASM-03 original full WGSL execution on neutral resources",
+  "nativeSource": "b39884b38d8f148caef6fd0d52afd264951be329",
+  "shaderSha256": "9ecb4cc31b8ce4a12f439f69935ed0c8c27f58b52501929e0dc41d22e85ca178",
+  "wasmSha256": "20052a3377cbcfda06ce568f8032ff1f8ed8f888d592b40363d4b05056b1abe7",
+  "browserVersion": "151.0.7922.34",
+  "launchArgs": [
+    "--disable-dev-shm-usage",
+    "--enable-unsafe-webgpu",
+    "--use-angle=swiftshader",
+    "--use-webgpu-adapter=swiftshader"
+  ],
+  "chromiumSandbox": true,
+  "width": 9,
+  "height": 3,
+  "format": "rgba16float",
+  "adapterInfo": {
+    "vendor": "google",
+    "architecture": "swiftshader",
+    "device": "",
+    "description": "",
+    "isFallbackAdapter": true
+  },
+  "frames": [
+    {
+      "exposure": -1,
+      "bytes": 216,
+      "sha256": "04ba1e3ba5373daf0149117d3f7e84f435c148b251758a203b8ff97bc0f4aa7b",
+      "firstPixelF16Bits": [
+        10217,
+        11186,
+        11633,
+        15360
+      ]
+    },
+    {
+      "exposure": 0,
+      "bytes": 216,
+      "sha256": "047d1dbaf27d4e50f2987fa01955bd47ebb19bab0b3ec06d9e901f9998358f25",
+      "firstPixelF16Bits": [
+        11186,
+        11997,
+        12466,
+        15360
+      ]
+    },
+    {
+      "exposure": 1,
+      "bytes": 216,
+      "sha256": "fb8beb573c5d8fddeb76188d77910a7966819f0a96fcdce9d5caa89b33e7c781",
+      "firstPixelF16Bits": [
+        11997,
+        12751,
+        13247,
+        15360
+      ]
+    }
+  ],
+  "gpuErrors": [],
+  "pageErrors": [],
+  "failedRequests": [],
+  "scope": "Actual browser WebGPU compute, full pinned shader (native RGBA16F substitution), 14 bindings and WASM neutral/exposure fixture; software adapter, synthetic 9x3 input. No native rendered-frame comparison, real preprocessing, RAW-to-render flow, full effects/UI/editor acceptance or hardware performance claim."
+}
