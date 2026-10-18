@@ -19,8 +19,18 @@ test('selecting a new File terminates an in-flight original RAW worker and refus
  try{
   const bridge=create();const path=bridge.selectFile(new File(['x'],'one.dng'));
   const loading=bridge.invoke('load_image',{path});
-  await new Promise(resolve=>setTimeout(resolve,10));assert.equal(posted.output,'as-shot');
+  await new Promise(resolve=>setTimeout(resolve,10));assert.equal(posted.command,'load');
   bridge.selectFile(new File(['y'],'two.dng'));
   await assert.rejects(loading,/Superseded/);assert.equal(terminated,1);await bridge.close();
+ }finally{globalThis.Worker=previous;}
+});
+test('Quality worker remains owned after load, rejects a concurrent stale path, and terminates on clear',async()=>{
+ const previous=globalThis.Worker;let terminated=0,loaded=0;
+ globalThis.Worker=class{terminate(){terminated++;}postMessage(data){loaded++;queueMicrotask(()=>this.onmessage({data:{id:data.id,ok:true,width:2048,height:1536,developmentMode:'native-quality',rgbSha256:'test',asShot:{whiteBalance:{temperature:6000,tint:0}}}}));}};
+ try{
+  const bridge=create();const path=bridge.selectFile(new File(['x'],'public.dng'));
+  const result=await bridge.invoke('load_image',{path});assert.equal(result.width,2048);assert.equal(result.height,1536);assert.equal(loaded,1);assert.equal(terminated,0);
+  await assert.rejects(bridge.invoke('load_image',{path:'other'}),/Unknown/);assert.equal(terminated,0);
+  await bridge.invoke('clear_session_caches');assert.equal(terminated,1);await bridge.close();assert.equal(terminated,1);
  }finally{globalThis.Worker=previous;}
 });

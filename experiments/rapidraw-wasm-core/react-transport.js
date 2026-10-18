@@ -7,29 +7,31 @@ import {createNeutralRendererResources,packRgb32fRendererInput,packGlobalRendere
 export class UnavailableCommandError extends Error {
  constructor(command){super(`Browser experiment does not support ${command}`);this.name='UnavailableCommandError';this.code='unavailable-command';}
 }
-export function createReactTransport({wasm,device,shaderSource,defaults,workerUrl=new URL('./worker.js',import.meta.url)}) {
- let file=null,path=null,current=null,generation=0,controller=null,queue=Promise.resolve(),closed=false;
+export function createReactTransport({wasm,device,shaderSource,defaults,workerUrl=new URL('./react-image-worker.js',import.meta.url)}) {
+ let file=null,path=null,current=null,generation=0,imageWorker=null,queue=Promise.resolve(),closed=false;
  const trace=[];
  const hash=async bytes=>[...new Uint8Array(await crypto.subtle.digest('SHA-256',bytes))].map(v=>v.toString(16).padStart(2,'0')).join('');
  const supported=new Set(['exposure','brightness','contrast','highlights','shadows','whites','blacks','toneMapper']);
  const check=version=>{if(closed||version!==generation)throw Error('Superseded or worker failed');};
- function worker(bytes,output,signal){
-  return new Promise((resolve,reject)=>{
-   const w=new Worker(workerUrl,{type:'module'});let settled=false;
-   const done=(err,value)=>{if(settled)return;settled=true;clearTimeout(timer);signal.removeEventListener('abort',abort);w.terminate();err?reject(err):resolve(value);};
-   const abort=()=>done(Error('Superseded or worker failed'));
-   const timer=setTimeout(()=>done(Error('RAW worker timed out')),30000);
-   signal.addEventListener('abort',abort,{once:true});
-   w.onmessage=({data})=>{if(data.id!==1||data.status==='developing')return;data.ok?done(null,data):done(Error(data.error));};
-   w.onerror=e=>{e.preventDefault();done(Error(e.message));};w.onmessageerror=()=>done(Error('RAW worker message could not be read'));
-   if(signal.aborted){abort();return;}
-   w.postMessage({id:1,bytes,output,fastDemosaic:true},[bytes]);
-  });
+ function createImageWorker(){
+  const worker=new Worker(workerUrl,{type:'module'});let request=0,pending=null,terminated=false;
+  const finish=(error,value)=>{if(!pending)return;const p=pending;pending=null;clearTimeout(p.timer);error?p.reject(error):p.resolve(value);};
+  const close=(error=Error('Superseded or worker failed'))=>{if(terminated)return;terminated=true;worker.terminate();finish(error);};
+  worker.onmessage=({data})=>{if(data.id!==pending?.id)return;data.ok?finish(null,data):finish(Error(data.error));};
+  worker.onerror=e=>{e.preventDefault();close(Error(e.message));};worker.onmessageerror=()=>close(Error('RAW worker message could not be read'));
+  return {close,call(command,args={},transfer=[]){
+   if(terminated)return Promise.reject(Error('Superseded or worker failed'));
+   if(pending)return Promise.reject(Error('Image worker request already active'));
+   return new Promise((resolve,reject)=>{
+    const id=++request,timer=setTimeout(()=>close(Error('RAW worker timed out')),30000);pending={id,timer,resolve,reject};
+    try{worker.postMessage({id,command,...args},transfer);}catch(error){close(error);}
+   });
+  }};
  }
  async function clear(){
-  generation++;controller?.abort();controller=null;
+  generation++;imageWorker?.close();imageWorker=null;
   const prior=current;current=null;
-  await device.queue.onSubmittedWorkDone();prior?.resources.ownedTextures.forEach(t=>t.destroy());
+  await device.queue.onSubmittedWorkDone();prior?.resources?.ownedTextures.forEach(t=>t.destroy());
  }
  function requirePath(value){if(closed||!file||value!==path)throw Error('Unknown browser document');}
  async function execute(command,args={}){
@@ -39,19 +41,19 @@ export function createReactTransport({wasm,device,shaderSource,defaults,workerUr
   if(command==='load_metadata'){requirePath(args.path);return {adjustments:null};}
   if(command==='load_image'){
    requirePath(args.path);await clear();const version=generation,selected=file;
-   const abort=new AbortController();controller=abort;
-   const shot=await worker(await selected.arrayBuffer(),'as-shot',abort.signal);check(version);
-   const image=await worker(await selected.arrayBuffer(),'pixels',abort.signal);check(version);
-   if(image.components!==3)throw Error('This original React slice requires RGB development');
-   const inputRgbaF16=packRgb32fRendererInput(wasm,image.width,image.height,image.data);
-   const resources=createNeutralRendererResources(device,{width:image.width,height:image.height,inputRgbaF16});
-   current={version,width:image.width,height:image.height,asShot:shot.asShot,resources};
-   return {width:image.width,height:image.height,is_raw:true,as_shot_white_balance:shot.asShot.whiteBalance,
-    metadata:{adjustments:null},exif:{},development_mode:'native-speed'};
+   const client=createImageWorker();imageWorker=client;
+   const bytes=await selected.arrayBuffer();check(version);
+   const image=await client.call('load',{bytes},[bytes]);check(version);
+   current={version,width:image.width,height:image.height,asShot:image.asShot,client,resources:null,preview:null};
+   trace.push({command:'load-result',width:image.width,height:image.height,developmentMode:image.developmentMode,rgbSha256:image.rgbSha256});
+   return {width:image.width,height:image.height,is_raw:true,as_shot_white_balance:image.asShot.whiteBalance,
+    metadata:{adjustments:null},exif:{},development_mode:image.developmentMode};
   }
   if(command==='apply_adjustments'){
    const image=current;if(!image)throw Error('No browser RAW image loaded');check(image.version);
-   if(args.roi!=null||args.computeWaveform|| (args.targetResolution!=null&&args.targetResolution!==Math.max(image.width,image.height)))throw new UnavailableCommandError('ROI/waveform/preview resizing');
+   if(args.roi!=null||args.computeWaveform)throw new UnavailableCommandError('ROI/waveform');
+   const previewDim=args.targetResolution??512;
+   if(!Number.isSafeInteger(previewDim)||previewDim<1||previewDim>32768)throw TypeError('Invalid original preview target');
    const adjustments=args.jsAdjustments;
    if(!adjustments||typeof adjustments!=='object'||Array.isArray(adjustments))throw TypeError('Expected original adjustments');
    for(const [key,value] of Object.entries(adjustments)){
@@ -60,8 +62,17 @@ export function createReactTransport({wasm,device,shaderSource,defaults,workerUr
    }
    for(const key of supported){if(key==='toneMapper'){if(!['basic','agx'].includes(adjustments[key]??'basic'))throw TypeError('Invalid tone mapper');}
     else if(typeof adjustments[key]!=='number'||!Number.isFinite(adjustments[key]))throw TypeError('Expected finite original Basic value');}
+   if(image.preview?.target!==previewDim){
+    const preview=await image.client.call('preview',{previewDim});check(image.version);
+    const inputRgbaF16=packRgb32fRendererInput(wasm,preview.width,preview.height,preview.data);
+    await device.queue.onSubmittedWorkDone();check(image.version);
+    image.resources?.ownedTextures.forEach(t=>t.destroy());image.resources=null;image.preview=null;
+    image.resources=createNeutralRendererResources(device,{width:preview.width,height:preview.height,inputRgbaF16});
+    image.preview={width:preview.width,height:preview.height,target:previewDim,scaleForGpu:preview.scaleForGpu};
+    trace.push({command:'preview-result',target:previewDim,width:preview.width,height:preview.height,originalWidth:image.width,originalHeight:image.height,scaleForGpu:preview.scaleForGpu,rgbSha256:preview.rgbSha256});
+   }
    const packed=packGlobalRendererFixture(wasm,JSON.stringify(adjustments),image.asShot,{baselineExposure:0,compensateHighlightPreservation:true});
-   const frame=await renderOriginalFrame({device,width:image.width,height:image.height,shaderSource,
+   const frame=await renderOriginalFrame({device,width:image.preview.width,height:image.preview.height,shaderSource,
     inputTexture:image.resources.inputTexture,adjustments:packed,resources:image.resources.resources,outputPrecision:'eight'});
    check(image.version);
    const response=encodePreviewResponse(wasm,frame,{interactive:!!args.isInteractive});
@@ -74,7 +85,7 @@ export function createReactTransport({wasm,device,shaderSource,defaults,workerUr
  }
  return {
   trace,
-  selectFile(selected){if(!(selected instanceof File)||!isRawInputSizeAllowed(selected.size))throw TypeError('Select a bounded RAW File');controller?.abort();generation++;file=selected;path=`browser-document:${crypto.randomUUID()}`;return path;},
+  selectFile(selected){if(!(selected instanceof File)||!isRawInputSizeAllowed(selected.size))throw TypeError('Select a bounded RAW File');imageWorker?.close();generation++;file=selected;path=`browser-document:${crypto.randomUUID()}`;return path;},
   invoke(command,args){const result=queue.then(()=>execute(command,args));queue=result.catch(()=>{});return result;},
   async close(){closed=true;await clear();file=null;path=null;await queue;},
  };

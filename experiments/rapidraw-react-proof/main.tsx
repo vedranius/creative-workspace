@@ -22,7 +22,7 @@ document.documentElement.style.setProperty('--font-family','-apple-system, Blink
 await init();
 const adapter=await navigator.gpu?.requestAdapter();if(!adapter)throw Error('WebGPU unavailable');
 const device=await adapter.requestDevice();const gpuErrors:string[]=[];device.addEventListener('uncapturederror',e=>gpuErrors.push(e.error.message));
-const transport=createReactTransport({wasm,device,shaderSource:await(await fetch('/engine/shader.wgsl')).text(),defaults:INITIAL_ADJUSTMENTS,workerUrl:'/engine/worker.js'});
+const transport=createReactTransport({wasm,device,shaderSource:await(await fetch('/engine/shader.wgsl')).text(),defaults:INITIAL_ADJUSTMENTS,workerUrl:'/engine/react-image-worker.js'});
 (globalThis as any).rapidRawTransport=transport;
 const settings={editorPreviewResolution:512,useWgpuRenderer:false,enableZoomHifi:false,enableLivePreviews:true,
  baselineExposure:0,compensateHighlightPreservation:true,copyPasteSettings:{autoSync:false}};
@@ -33,7 +33,7 @@ function Proof(){
  useImageLoader(cached);
  useImageProcessing(transform,prev,{previewJobIdRef:job,latestRenderedJobIdRef:rendered,currentResRef:resolution});
  const adjustments=useEditorStore(s=>s.adjustments);
- return <><header style={{padding:8}}>Isolated original React / native Speed development proof — no save support
+ return <><header style={{padding:8}}>Isolated original React / native Quality development proof — no save support
   <input aria-label="Open RAW fixture" type="file" accept=".dng,.raf" onChange={event=>{
    const file=event.target.files?.[0];if(!file)return;
    const path=transport.selectFile(file);

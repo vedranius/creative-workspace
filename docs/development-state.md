@@ -1,3 +1,9 @@
+# RWASM-03 — original Quality load and bounded source preview resize (2026-10-18)
+
+Original React now records the actual Quality-developed2048×1536 image while the original area filter prepares a512×384 preview before GPU upload. Full-image and resized RGB hashes match independent native source; five original Exposure edits match complete native adjustment/pixel/JPEG hashes. Eight malformed WASM resize inputs refuse; a full-resolution GPU request exceeds the unchanged64MiB texture budget and refuses while the same worker/document remains usable. [Proof and exact scope](rapidraw-wasm-quality-preview-handoff.md).
+
+Core48/48, host20/20, repo check and final sandboxed Chromium/native proof pass. This accepts neutral-geometry Quality load dimensions/preview sizing only; metadata/sidecars, interactive sizing, geometry/effects/menus/providers/save remain open. No product release/version/install/demo change.
+
 # RWASM-03 — original React RAW open and exposure slice (2026-10-18)
 
 The pinned original useImageLoader/useImageProcessing, stores, Editor/ImageCanvas and Basic/Slider now execute unchanged in an isolated QA composition. A real browser-selected public DNG develops through native Speed WASM and renders through the original global parser/WGSL/JPEG path. Five actual Exposure edits (0,+0.8,−0.8,+1.6,0) match independent native complete adjustment bytes, RGBA8 pixels and JPEG bytes exactly; the original SVG image is visible. [Proof, limits and next task](rapidraw-wasm-react-handoff.md).

@@ -1,0 +1,241 @@
+{
+  "stage": "RWASM-03 original React Quality load and bounded source preview resize",
+  "nativeSource": "b39884b38d8f148caef6fd0d52afd264951be329",
+  "license": "AGPL-3.0-only",
+  "sourceFiles": {
+    "src/hooks/useImageLoader.ts": "6e8cbf9c08b8b09438193e345d22bc000a086a1fd6424a2dfe928ad8f21bed30",
+    "src/hooks/useImageProcessing.ts": "f0070afca39a04690ded76badd78f069c7ee046a7f3cdc8c3d4b7bad40d9b2bb",
+    "src/hooks/useEditorActions.ts": "8de8bfb9f0dcb0a485cb9dd4476ed1ae56c21803a82c4b62023f29c5d6da422d",
+    "src/components/panel/Editor.tsx": "291466d31de13e1507b77116ef3cda219c89eb3f58039b534f1ef9a5414c8298",
+    "src/components/panel/editor/ImageCanvas.tsx": "51d1da343826f5dc957369ee4448c2f3a72423894640bd5dd6a2c14ee5c29381",
+    "src/components/adjustments/Basic.tsx": "a7d524dd383eccd483923f2d3678e3387494ce481191363967b94fa4c5ef37a6",
+    "src/components/ui/Slider.tsx": "13752203a8631fb6080b0092248f2c01e1f8e2624a81a927dc7e12376ea586b8",
+    "src/store/useEditorStore.ts": "86fdf855fab86fe2f6ef1fe8aa06b7484fb6e540cea09267208e776ee11c6742",
+    "src/utils/defaultAdjustments.json": "d650db51fe618e3522767832edf911ea8b6da68d61c2db54912193c64d2332bc",
+    "package-lock.json": "4e612a5639e68871d9fc6f8e92286eaa61d6c100d3e91154cfeef2d23f569811",
+    "src/utils/themes.ts": "e05a091ad0c7a2b05f7bb29232de026d38bd6af4e5d113dedaaa01cc12f87884",
+    "src/hooks/useAppInitialization.ts": "418afe949997ae248fb4f10a84ab4c52da27e8bad536c5fec95a2f4210f43e41"
+  },
+  "wasmSha256": "3f41fbc8cb5b88e0a0600ef03ccfb89ac6abc8585a284df0add007c72dd6dc3b",
+  "qualityTimerCompatibility": {
+    "schemaVersion": 1,
+    "decoderSource": "a32bc1ff1f4f3c56d4d3226082f6eb17414f9159",
+    "patch": {
+      "path": "patches/rapidraw-rawler/a32bc1ff/ppg-wasm-profiling.patch",
+      "sha256": "d80f45df13380ea0dfa0554565c633116e8ad726b2096b8c0b9a602259497f95",
+      "file": "rawler/src/imgop/sensor/bayer/ppg.rs",
+      "beforeSha256": "9320de465bbef900e00fe794627e7c5e652f2415205c0b39f89837934e031f6c",
+      "afterSha256": "02fc66b032a6bb98f8ed5c03a261e119de17739cb8a72fffcc5c395334d91e4d",
+      "scope": "Only wasm32 profiling timer/debug log cfgs; all PPG pixel arithmetic unchanged; native timing retained",
+      "license": "LGPL-2.1"
+    },
+    "scope": "Isolated timer-patched rawler plus source-equivalent probe; only wasm32 profiling is removed, native behavior and interpolation preserved"
+  },
+  "previewResize": {
+    "source": "src-tauri/src/image_processing.rs::downscale_f32_image",
+    "sourceFileSha256": "5e16c6d88c30e5728534bb67be47e79c44b96d524f90973a611c2c2e8adb3a19",
+    "functionSha256": "79028a5f33e259fb7bdcae97ae7bece8b8f2c55c100bbac930b7243c1f944e3f",
+    "referenceSha256": "bbefb75cfb347af08232b4a99c6f7456e33d582a5927222e9e50bc9509e589a1",
+    "dimensionSource": "src-tauri/src/lib.rs::compute_transformed_preview",
+    "dimensionFileSha256": "ce69ae5e06b5c5f0eb7b6592d981c727c1be07e7787000a41e50ed77618b2606",
+    "adaptation": "Only non-wasm32 cfg on profiling Instant/log; area weights/order/math unchanged. Neutral geometry only; orientation already applied by development; no crop/rotation/patch/effects support."
+  },
+  "scope": "Original hooks/stores/Editor/ImageCanvas/Basic/Slider unchanged, QA composition and invoke alias only. Quality-developed2048x1536 load and original neutral-geometry512x384 area preview before bounded GPU upload. Basic exposure proof only; full App menus, full load_image metadata/sidecars, geometry/effects/ROI/analytics/save/provider acceptance remain open.",
+  "publicFixture": {
+    "id": "raw.pixls.us 1327",
+    "license": "CC0-1.0",
+    "sourceSha256": "f0d2fe47507fadf50008bddbc6bd2c5e39fddbe90cca6bca72dd360fa0e0eb38"
+  },
+  "browserVersion": "151.0.7922.34",
+  "chromiumSandbox": true,
+  "first": {
+    "width": 2048,
+    "height": 1536,
+    "wb": {
+      "temperature": 6133.300425391969,
+      "tint": 39.766891841657326
+    },
+    "bytes": 61812,
+    "hash": "042350b5c54e9244b8a9f33089efa25b0516ae59f4e188ba0345fcd60a86f869"
+  },
+  "result": {
+    "gpuErrors": [],
+    "adapter": {
+      "vendor": "google",
+      "architecture": "swiftshader"
+    },
+    "originalSize": {
+      "width": 2048,
+      "height": 1536
+    },
+    "loaded": {
+      "command": "load-result",
+      "width": 2048,
+      "height": 1536,
+      "developmentMode": "native-quality",
+      "rgbSha256": "f052bba0940702e068fb03d6a9f1cc78b9c57e7ff5758f1c460f28d11fb49e30"
+    },
+    "previews": [
+      {
+        "command": "preview-result",
+        "target": 512,
+        "width": 512,
+        "height": 384,
+        "originalWidth": 2048,
+        "originalHeight": 1536,
+        "scaleForGpu": 0.25,
+        "rgbSha256": "c0d07e55c42bd67059613035283567cc83e324ad95f75c9008de854ac5d7ec9f"
+      }
+    ],
+    "dimensions": [
+      512,
+      384
+    ],
+    "bytes": 61812,
+    "hash": "042350b5c54e9244b8a9f33089efa25b0516ae59f4e188ba0345fcd60a86f869",
+    "exposure": 0,
+    "rendered": [
+      {
+        "exposure": 0,
+        "interactive": false,
+        "width": 512,
+        "height": 384,
+        "bytes": 61812
+      },
+      {
+        "exposure": 0.8,
+        "interactive": false,
+        "width": 512,
+        "height": 384,
+        "bytes": 85035
+      },
+      {
+        "exposure": -0.8,
+        "interactive": false,
+        "width": 512,
+        "height": 384,
+        "bytes": 38183
+      },
+      {
+        "exposure": 1.6,
+        "interactive": false,
+        "width": 512,
+        "height": 384,
+        "bytes": 95957
+      },
+      {
+        "exposure": 0,
+        "interactive": false,
+        "width": 512,
+        "height": 384,
+        "bytes": 61812
+      }
+    ],
+    "commands": [
+      "clear_session_caches",
+      "update_wgpu_transform",
+      "load_metadata",
+      "load_image",
+      "load-result",
+      "apply_adjustments",
+      "preview-result",
+      "apply_adjustments",
+      "save_metadata_and_update_thumbnail",
+      "apply_adjustments",
+      "save_metadata_and_update_thumbnail",
+      "apply_adjustments",
+      "save_metadata_and_update_thumbnail",
+      "apply_adjustments",
+      "save_metadata_and_update_thumbnail",
+      "export_image",
+      "save_metadata_and_update_thumbnail"
+    ],
+    "unsupported": [
+      {
+        "command": "export_image",
+        "code": "unavailable-command"
+      },
+      {
+        "command": "save_metadata_and_update_thumbnail",
+        "code": "unavailable-command"
+      }
+    ],
+    "saveErrorVisible": true,
+    "visibleOriginalSvgImages": 1
+  },
+  "samples": [
+    {
+      "exposure": 0,
+      "bytes": 61812,
+      "adjustmentSha256": "7528054041d105912931d3cc66497b535740e7f03c198e6e9f3915cc44f1520e",
+      "rgbaSha256": "220a870ec41b3f9a81899d8b33d60fd7bfbbf896c4d844497ff4ddfe5640d28d",
+      "jpegSha256": "042350b5c54e9244b8a9f33089efa25b0516ae59f4e188ba0345fcd60a86f869"
+    },
+    {
+      "exposure": 0.8,
+      "bytes": 85035,
+      "adjustmentSha256": "985219f6d0dad0546f1a4ea1fd8006bcb7123da0b87125a8da06f3b55d15b6c6",
+      "rgbaSha256": "a039edaab4f09f6d21ba71b4f1b9afd420e0d3e0214a5ee0f336c3a3ee43124c",
+      "jpegSha256": "4b4b8363d79e6f622ad79923c4049c795887bb4b4b413c66b0d3a0d8d9de569a"
+    },
+    {
+      "exposure": -0.8,
+      "bytes": 38183,
+      "adjustmentSha256": "b26ba4e8d6984f5667a7a2aeeaa7d6c246f882bb6eb492dac91ea2c66f1c38e7",
+      "rgbaSha256": "505bd61272cb6fe0e4a3752933c48799c71275c9ff46cf7393fa30cb9ccc5ec9",
+      "jpegSha256": "19c623239f33aee12b0aed7bd39dff6041aff8bc69254647967ee4a40a90b8ca"
+    },
+    {
+      "exposure": 1.6,
+      "bytes": 95957,
+      "adjustmentSha256": "67070dc4d5a1cc4083bc165544f00cc92de3caa8dfe16e1a071de6504b11ac6a",
+      "rgbaSha256": "55d931f68ef38ceb0843e6ee24fb1756bbec2214327f734119ae6ca7cc3a9b11",
+      "jpegSha256": "83f27b034e2eea7b427d0577a0eadd9d612c0c7d11bf1d8284b7c2a8daf98766"
+    },
+    {
+      "exposure": 0,
+      "bytes": 61812,
+      "adjustmentSha256": "7528054041d105912931d3cc66497b535740e7f03c198e6e9f3915cc44f1520e",
+      "rgbaSha256": "220a870ec41b3f9a81899d8b33d60fd7bfbbf896c4d844497ff4ddfe5640d28d",
+      "jpegSha256": "042350b5c54e9244b8a9f33089efa25b0516ae59f4e188ba0345fcd60a86f869"
+    }
+  ],
+  "blockedExternalRequests": [],
+  "nativeComparison": {
+    "frames": 5,
+    "completeAdjustmentsExact": true,
+    "renderedPixelsExact": true,
+    "encodedJpegExact": true
+  },
+  "nativeResize": {
+    "height": 384,
+    "originalHeight": 1536,
+    "originalRgbSha256": "f052bba0940702e068fb03d6a9f1cc78b9c57e7ff5758f1c460f28d11fb49e30",
+    "originalWidth": 2048,
+    "rgbSha256": "c0d07e55c42bd67059613035283567cc83e324ad95f75c9008de854ac5d7ec9f",
+    "scaleForGpu": 0.25,
+    "scope": "Original neutral geometry dimensions and exact area downscale; no crop/rotation/patch/effects",
+    "source": "b39884b38d8f148caef6fd0d52afd264951be329",
+    "target": 512,
+    "width": 512
+  },
+  "resizeRecovery": {
+    "smallDimensions": [
+      256,
+      192
+    ],
+    "restoredBytes": 61812,
+    "restoredHash": "042350b5c54e9244b8a9f33089efa25b0516ae59f4e188ba0345fcd60a86f869",
+    "targets": [
+      512,
+      256,
+      512
+    ]
+  },
+  "rejectedResizeInputs": 8,
+  "refusedOversizePreview": true,
+  "workerUsableAfterRefusal": true,
+  "pageErrors": [],
+  "failedRequests": [],
+  "expectedSaveErrors": 4
+}

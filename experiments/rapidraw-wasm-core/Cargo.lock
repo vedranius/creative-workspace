@@ -283,6 +283,7 @@ dependencies = [
  "log",
  "mozjpeg-rs",
  "rawler",
+ "rayon",
  "rgb",
  "serde",
  "serde_json",

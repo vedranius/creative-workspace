@@ -215,5 +215,14 @@
       "src/hooks/useAppInitialization.ts": "418afe949997ae248fb4f10a84ab4c52da27e8bad536c5fec95a2f4210f43e41"
     },
     "scope": "Unchanged original hooks/stores/Editor/ImageCanvas/Basic/Slider in QA composition. Core invoke redirected; native Clerk explicitly unavailable; native Speed dimensions512x384. Full App/menu/provider/resizing/ROI/effect acceptance remains open."
+  },
+  "previewResize": {
+    "source": "src-tauri/src/image_processing.rs::downscale_f32_image",
+    "sourceFileSha256": "5e16c6d88c30e5728534bb67be47e79c44b96d524f90973a611c2c2e8adb3a19",
+    "functionSha256": "79028a5f33e259fb7bdcae97ae7bece8b8f2c55c100bbac930b7243c1f944e3f",
+    "referenceSha256": "bbefb75cfb347af08232b4a99c6f7456e33d582a5927222e9e50bc9509e589a1",
+    "dimensionSource": "src-tauri/src/lib.rs::compute_transformed_preview",
+    "dimensionFileSha256": "ce69ae5e06b5c5f0eb7b6592d981c727c1be07e7787000a41e50ed77618b2606",
+    "adaptation": "Only non-wasm32 cfg on profiling Instant/log; area weights/order/math unchanged. Neutral geometry only; orientation already applied by development; no crop/rotation/patch/effects support."
   }
 }

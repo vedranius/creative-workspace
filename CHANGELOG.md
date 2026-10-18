@@ -1,3 +1,9 @@
+## Experimental RapidRAW branch — Quality load and original preview resize (2026-10-18)
+
+- Keep full Quality RGB in a document-owned worker and return actual original dimensions to unchanged React hooks; apply the pinned original area filter before bounded GPU upload.
+- Match full/preview RGB and five original UI Exposure frames against independent native output; refuse eight invalid resize inputs and oversized GPU previews while retaining a usable document. Core48/host20/check pass.
+- Record source/WASM/Quality compatibility provenance and reproduce in Actions. Full metadata/sidecars, interactive sizing, geometry/effects/menus/providers/save remain open; no product version/release/demo change.
+
 ## Experimental RapidRAW branch — actual original React open/exposure (2026-10-18)
 
 - Mount unchanged pinned native React hooks/stores/Editor/ImageCanvas/Basic/Slider in a QA composition, backed by actual browser File→Speed WASM→camera/global shader→native JPEG processing.

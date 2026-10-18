@@ -1,3 +1,7 @@
+# Unreleased RapidRAW Quality/preview checkpoint — 2026-10-18
+
+Original React now records full Quality dimensions while original source area resizing bounds the preview before GPU upload. Native full/preview RGB and five edited-frame/JPEG comparisons pass, with oversize refusal and continued document use. [Proof and next task](rapidraw-wasm-quality-preview-handoff.md). Metadata/sidecars, interactive sizing, geometry/effects/menus/provider/save acceptance remain open. No product SemVer/tag/release/install/demo update; existing immutable draft release remains separate.
+
 # Unreleased RapidRAW original React checkpoint — 2026-10-18
 
 Actual original React hooks/Editor/Basic now open a public RAW Speed preview and verify five native-identical Exposure edits,3,932,160 pixel components and349,559 JPEG bytes. Saves/export explicitly refuse; full-resolution load/resize/menus/providers remain open. [Proof and next task](rapidraw-wasm-react-handoff.md). This unfinished experimental checkpoint adds no product SemVer/tag/release/install/demo update. Existing alpha.60 remains a separate immutable draft.

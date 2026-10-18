@@ -27,6 +27,9 @@ pub mod exposure;
 mod multi_exposure;
 pub mod png_export;
 pub mod preview;
+pub mod preview_resize;
+#[rustfmt::skip]
+mod original_downscale;
 pub mod renderer_adjustments;
 pub mod renderer_upload;
 pub mod ui_exposure;
@@ -595,6 +598,49 @@ mod browser {
     #[wasm_bindgen]
     pub fn decode_sensor_report(bytes: &[u8]) -> Result<String, JsValue> {
         super::decode_sensor_report(bytes).map_err(|e| JsValue::from_str(&e))
+    }
+
+    #[wasm_bindgen]
+    pub fn preview_dimensions(
+        width: u32,
+        height: u32,
+        preview_dim: u32,
+    ) -> Result<JsValue, JsValue> {
+        let (w, h) = super::preview_resize::preview_dimensions(width, height, preview_dim)
+            .map_err(|e| JsValue::from_str(&e))?;
+        let result = Object::new();
+        Reflect::set(&result, &"width".into(), &JsValue::from_f64(w as f64))?;
+        Reflect::set(&result, &"height".into(), &JsValue::from_f64(h as f64))?;
+        Ok(result.into())
+    }
+
+    /// Original neutral-geometry preview dimensions and area downscale.
+    #[wasm_bindgen]
+    pub fn resize_preview_rgb32f(
+        width: u32,
+        height: u32,
+        pixels: &[f32],
+        preview_dim: u32,
+    ) -> Result<JsValue, JsValue> {
+        let resized = super::preview_resize::resize_preview(width, height, pixels, preview_dim)
+            .map_err(|e| JsValue::from_str(&e))?;
+        let result = Object::new();
+        for (key, value) in [
+            ("width", resized.width as f64),
+            ("height", resized.height as f64),
+            (
+                "scaleForGpu",
+                (resized.width as f64 / width as f64) as f32 as f64,
+            ),
+        ] {
+            Reflect::set(&result, &key.into(), &JsValue::from_f64(value))?;
+        }
+        Reflect::set(
+            &result,
+            &"data".into(),
+            Float32Array::from(resized.data.as_slice()).as_ref(),
+        )?;
+        Ok(result.into())
     }
 
     /// Develop an image with the pinned native RapidRAW float-pixel path.
