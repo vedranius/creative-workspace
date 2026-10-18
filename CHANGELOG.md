@@ -1,3 +1,9 @@
+## Experimental RapidRAW branch — original CropPanel rotation/flips (2026-10-18)
+
+- Retain exact source quarter-turn→horizontal/vertical flip stage after original preview downscale, with bounded RGB input and geometry-aware worker/GPU cache keys.
+- Drive six real unchanged CropPanel/useEditorActions controls, including portrait/landscape changes and exact initial-image restoration;4,718,592 RGBA8 components and371,266 JPEG bytes match native. Core54/host20/check pass.
+- Add source/native/settled browser evidence and Actions reproduction; actual in-memory settings read only, lens discovery/save/export explicitly unavailable. Crop/fine rotation/warp/effects/ROI/metadata/menus/providers remain open; no product version/release/demo change.
+
 ## Experimental RapidRAW branch — original interactive preview/Slider drag (2026-10-18)
 
 - Preserve source full/high/performance divisor/quality policy and exact second area-filter stage: performance512×384→340×255 q65; final remains full q94.

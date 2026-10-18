@@ -212,7 +212,10 @@
       "src/utils/defaultAdjustments.json": "d650db51fe618e3522767832edf911ea8b6da68d61c2db54912193c64d2332bc",
       "package-lock.json": "4e612a5639e68871d9fc6f8e92286eaa61d6c100d3e91154cfeef2d23f569811",
       "src/utils/themes.ts": "e05a091ad0c7a2b05f7bb29232de026d38bd6af4e5d113dedaaa01cc12f87884",
-      "src/hooks/useAppInitialization.ts": "418afe949997ae248fb4f10a84ab4c52da27e8bad536c5fec95a2f4210f43e41"
+      "src/hooks/useAppInitialization.ts": "418afe949997ae248fb4f10a84ab4c52da27e8bad536c5fec95a2f4210f43e41",
+      "src/components/panel/right/CropPanel.tsx": "7543bd1a89fbb0fc27c98e31939f33f2781ca534fbfec9a1a3670d42f584376a",
+      "src/context/ContextMenuContext.tsx": "0aba3ced9cfe5daebf7d5683fa0e6b1b784f7f8fef7092629548a80b31ba31a6",
+      "src/utils/cropUtils.ts": "f8db8c6fcf86a6d44c25b5f72233d40f4d5df2a0733d346b76ea6836c6fd24d1"
     },
     "scope": "Unchanged original hooks/stores/Editor/ImageCanvas/Basic/Slider in QA composition. Core invoke redirected; native Clerk explicitly unavailable; native Speed dimensions512x384. Full App/menu/provider/resizing/ROI/effect acceptance remains open."
   },
@@ -231,5 +234,15 @@
     "smallSizeSha256": "b85c25252f83e473e00cec10b6b9926194e79296600ff12768f34275104bf682",
     "referenceSha256": "e859fdab34c2d3fe9c3496846a96b975bfbae89afcb8d1092d270382792b465c",
     "scope": "Original no-ROI live quality/divisor, two-stage original area filter and interactive envelope. ROI selector values retained as reference only; ROI rendering unsupported."
+  },
+  "orientationFlip": {
+    "source": [
+      "src-tauri/src/image_processing.rs::IntoCowImage/apply_coarse_rotation/apply_flip",
+      "src-tauri/src/adjustment_utils.rs::apply_orientation_and_flip"
+    ],
+    "referenceSha256": "52cbd5e3db3ff364e5b7ba663142bd04d7f4fef4b0176a6e6b1e5e32292a66b0",
+    "sourceFileSha256": "5e16c6d88c30e5728534bb67be47e79c44b96d524f90973a611c2c2e8adb3a19",
+    "adjustmentUtilsSha256": "1638c4239f50c3dec6701e2837d70152d134e351dfa9b3077fe4099e31998674",
+    "scope": "Original rotation then flips after original area preview; only orientationSteps0..3 and bool flips. Crop/fine rotation/warp unsupported."
   }
 }

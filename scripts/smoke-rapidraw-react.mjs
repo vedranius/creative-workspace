@@ -5,7 +5,7 @@ import {createServer} from 'node:http';
 import {once} from 'node:events';
 import {createHash} from 'node:crypto';
 import path from 'node:path';
-const [stage,fixture,output,nativeReferencePath,nativeResizePath,nativeInteractivePath]=process.argv.slice(2);
+const [stage,fixture,output,nativeReferencePath,nativeResizePath,nativeInteractivePath,nativeGeometryPath]=process.argv.slice(2);
 if(!stage||!fixture||!output)throw Error('BUILT_REACT_STAGE PUBLIC_CC0_DNG OUTPUT_JSON');
 const digest=b=>createHash('sha256').update(b).digest('hex');
 const pin=JSON.parse(await readFile(new URL('../docs/evidence/rapidraw-wasm/runtime-smoke.json',import.meta.url),'utf8')).fixtures.find(x=>x.id==='raw.pixls.us 1327');
@@ -13,6 +13,8 @@ assert.equal(pin.license,'CC0-1.0');assert.equal(digest(await readFile(fixture))
 const native=nativeReferencePath?JSON.parse(await readFile(nativeReferencePath,'utf8')):null;
 const nativeResize=nativeResizePath?JSON.parse(await readFile(nativeResizePath,'utf8')):null;
 const nativeInteractive=nativeInteractivePath?JSON.parse(await readFile(nativeInteractivePath,'utf8')):null;
+const nativeGeometry=nativeGeometryPath?JSON.parse(await readFile(nativeGeometryPath,'utf8')):null;
+const allowedConsoleError=x=>(x.includes('Auto-save failed:')&&x.includes('save_metadata_and_update_thumbnail'))||x.includes('Browser experiment does not support get_lensfun_makers');
 const provenance=JSON.parse(await readFile(path.join(stage,'source-proof.json'),'utf8'));
 const chromiumSandbox=process.env.CHROMIUM_SANDBOX!=='false';
 const assets=new Map();
@@ -106,7 +108,7 @@ try{
  });assert.deepEqual(resizeRecovery.smallDimensions,[256,192]);assert.equal(resizeRecovery.restoredBytes,result.bytes);assert.equal(resizeRecovery.restoredHash,result.hash);assert.deepEqual(resizeRecovery.targets,[512,256,512]);
  assert.deepEqual(result.unsupported.map(x=>x.code),['unavailable-command','unavailable-command']);
  assert.deepEqual(pageErrors,[]);assert.deepEqual(failedRequests,[]);assert.deepEqual(blockedExternalRequests,[]);
- assert.ok(consoleErrors.every(x=>x.includes('Auto-save failed:')&&x.includes('save_metadata_and_update_thumbnail')),JSON.stringify(consoleErrors));
+ assert.ok(consoleErrors.every(allowedConsoleError),JSON.stringify(consoleErrors));
  if(native){assert.equal(native.frames.length,5);for(const [i,frame] of native.frames.entries()){
   assert.equal(samples[i].exposure,frame.exposure);assert.equal(samples[i].bytes,frame.jpegBytes);
   for(const key of ['jpegSha256','rgbaSha256','adjustmentSha256'])assert.equal(samples[i][key],frame[key],`Native original UI frame${i} ${key} differs`);
@@ -149,13 +151,41 @@ try{
    await slider.locator('xpath=../..').locator('span[data-tooltip]').click();const number=page.getByLabel('Original Basic panel').locator('input[type=text]').first();await number.fill('0');await number.press('Enter');await sample(0);const restored=samples.pop();assert.equal(restored.jpegSha256,result.hash);
   }
  }
+ const geometrySamples=[];
+ if(nativeGeometry){
+  for(const expected of nativeGeometry){
+   const minimum=await page.evaluate(()=>proof.trace.length-1);
+   await page.getByLabel('Original geometry panel').getByText(expected.action,{exact:true}).click();
+   const captured=await page.evaluate(async({desired,minimum})=>{
+    const deadline=performance.now()+30000;
+    while(performance.now()<deadline){
+     const frame=proof.trace.findLast((f,i)=>i>minimum&&f.command==='render-result'&&!f.interactive&&f.exposure===0&&Object.entries(desired).every(([k,v])=>f.geometry?.[k]===v));
+     const state=proof.store.getState(),url=state.finalPreviewUrl;
+     if(frame&&url){try{const b=await(await fetch(url)).arrayBuffer();const hash=[...new Uint8Array(await crypto.subtle.digest('SHA-256',b))].map(v=>v.toString(16).padStart(2,'0')).join('');
+      if(hash===frame.jpegSha256){const bitmap=await createImageBitmap(new Blob([b],{type:'image/jpeg'}));const dimensions=[bitmap.width,bitmap.height];bitmap.close();return{frame,dimensions,originalSize:state.originalSize,crop:state.adjustments.crop,preview:proof.trace.findLast(p=>p.command==='preview-result'&&Object.entries(desired).every(([k,v])=>p.geometry?.[k]===v))};}
+     }catch{/* The unchanged hook may revoke an intermediate URL. */}}
+     await new Promise(resolve=>requestAnimationFrame(resolve));
+    }throw Error('Original geometry control did not publish matching frame');
+   },{desired:expected.geometry,minimum});
+   assert.deepEqual(captured.dimensions,[expected.width,expected.height]);assert.deepEqual(captured.originalSize,{width:2048,height:1536});assert.equal(captured.crop,null);
+   for(const key of ['jpegSha256','rgbaSha256','adjustmentSha256'])assert.equal(captured.frame[key],expected[key],`Native geometry ${expected.action} ${key}`);
+   assert.equal(captured.preview.rgbSha256,expected.rgbSha256);assert.equal(captured.frame.bytes,expected.bytes);
+   await page.waitForFunction(({width,height})=>[...document.querySelectorAll('svg image')].some(node=>{
+    const box=node.getBoundingClientRect();return node.href.baseVal===proof.store.getState().finalPreviewUrl&&node.parentElement.querySelectorAll('image').length===1&&box.width>0&&box.height>0&&Math.abs(box.width/box.height-width/height)<0.005;
+   }),{width:expected.width,height:expected.height});
+   geometrySamples.push({action:expected.action,displaySettled:true,...captured});
+   if(geometrySamples.length===1)await page.screenshot({path:output.replace(/\.json$/,'-rotate-right.png')});
+  }
+  assert.equal(geometrySamples.at(-1).frame.jpegSha256,result.hash);
+ }
  const afterInteractive=await page.evaluate(()=>({gpuErrors:proof.gpuErrors,exposure:proof.store.getState().adjustments.exposure,originalSize:proof.store.getState().originalSize,patchCleared:proof.store.getState().interactivePatch===null,dragging:proof.store.getState().isSliderDragging}));
  assert.deepEqual(afterInteractive.gpuErrors,[]);assert.equal(afterInteractive.exposure,0);assert.equal(afterInteractive.patchCleared,true);assert.equal(afterInteractive.dragging,false);assert.deepEqual(afterInteractive.originalSize,{width:2048,height:1536});
  assert.deepEqual(pageErrors,[]);assert.deepEqual(failedRequests,[]);assert.deepEqual(blockedExternalRequests,[]);
- assert.ok(consoleErrors.every(x=>x.includes('Auto-save failed:')&&x.includes('save_metadata_and_update_thumbnail')),JSON.stringify(consoleErrors));
+ assert.ok(consoleErrors.every(allowedConsoleError),JSON.stringify(consoleErrors));
  await page.screenshot({path:output.replace(/\.json$/,'.png')});
  await page.evaluate(()=>proof.close());
- const report={stage:'RWASM-03 original Slider drag and native interactive preview policy',...provenance,publicFixture:{id:pin.id,license:pin.license,sourceSha256:pin.sourceSha256},browserVersion:browser.version(),chromiumSandbox,first,result,samples,blockedExternalRequests,nativeComparison:native?{frames:5,completeAdjustmentsExact:true,renderedPixelsExact:true,encodedJpegExact:true}:null,nativeInteractive,interactiveSamples,afterInteractive,nativeResize,resizeRecovery,rejectedResizeInputs,refusedOversizePreview:true,workerUsableAfterRefusal:true,pageErrors,failedRequests,expectedSaveErrors:consoleErrors.length,
-  scope:'Original hooks/stores/Editor/ImageCanvas/Basic/Slider unchanged, QA composition and invoke alias only. Quality-developed2048x1536 load and original neutral-geometry512x384 area preview before bounded GPU upload. Original Slider drag/release verifies no-ROI full/high/performance preview sizing/quality. Full App menus, metadata/sidecars, geometry/effects/ROI/analytics/save/provider acceptance remain open.'};
+ for(const entry of [...geometrySamples,...interactiveSamples])delete entry.frame.adjustments;
+ const report={stage:'RWASM-03 original CropPanel quarter-turn and flip controls',...provenance,publicFixture:{id:pin.id,license:pin.license,sourceSha256:pin.sourceSha256},browserVersion:browser.version(),chromiumSandbox,first,result,samples,blockedExternalRequests,nativeComparison:native?{frames:5,completeAdjustmentsExact:true,renderedPixelsExact:true,encodedJpegExact:true}:null,nativeGeometry,geometrySamples,nativeInteractive,interactiveSamples,afterInteractive,nativeResize,resizeRecovery,rejectedResizeInputs,refusedOversizePreview:true,workerUsableAfterRefusal:true,pageErrors,failedRequests,expectedSaveErrors:consoleErrors.filter(x=>x.includes('Auto-save failed:')).length,expectedUnavailableLensReads:consoleErrors.filter(x=>x.includes('get_lensfun_makers')).length,
+  scope:'Original hooks/stores/Editor/ImageCanvas/Basic/Slider unchanged, QA composition and invoke alias only. Quality-developed2048x1536 load and original neutral-geometry512x384 area preview before bounded GPU upload. Original Slider drag/release verifies no-ROI full/high/performance preview sizing/quality. Original CropPanel quarter-turn and flip actions verified; full App menus, metadata/sidecars, crop/fine rotation/warp/effects/ROI/analytics/save/provider acceptance remain open.'};
  await writeFile(output,JSON.stringify(report,null,2)+'\n');console.log(JSON.stringify(report));await context.close();
 }catch(error){console.log(JSON.stringify({pageErrors,failedRequests,consoleErrors}));throw error;}finally{await browser?.close();await new Promise(resolve=>server.close(resolve));}

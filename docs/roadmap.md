@@ -1,3 +1,11 @@
+# RWASM-03 — original CropPanel rotate/flip controls (2026-10-18)
+
+Unchanged original CropPanel/useEditorActions now drive source quarter-turn→horizontal/vertical flip processing after the original area preview. Six actual UI actions change portrait/landscape output and restore the initial image; all4,718,592 RGBA8 components,371,266 JPEG bytes, RGB and complete adjustment hashes match independent native source. [Proof and scope](rapidraw-wasm-geometry-handoff.md).
+
+Core54/54, host20/20 and repo check pass. Original dimensions stay2048×1536; crop/fine rotation/warp/effects/ROI/full metadata/menus/export/providers remain open. This is a bounded orientation/flip slice, not full geometry/editor acceptance. No product version/release/install/demo change.
+
+Next ready task: Trace original source crop sizing/apply_crop and original CropPanel crop/aspect-ratio controls. Implement one bounded integer crop path with original orientation→flip→crop order, full-image coordinates scaled into the working preview, target dimensions and resource/input bounds. Mount/bridge the original uncropped-preview requirement if the actual crop UI needs it; no custom crop editor or silent fallback. Prove actual original UI crop plus native RGB/pixel/JPEG and refusal/recovery; leave fine rotation/warp/effects/ROI/export/providers explicit until implemented. MAIN only; A waitingOnApproval remains untouched.
+
 # RWASM-03 — original Slider drag and interactive quality (2026-10-18)
 
 Actual original Exposure Slider mouse drag now selects native full/high/performance preview policy:512×384 q85,512×384 q75 and source two-stage340×255 q65. All103,201 interactive response bytes,1,919,664 RGBA8 components, complete adjustment bytes and RGB/JPEG/header hashes match independent native source. Original hook publishes the patch while dragging, clears it on release, and restores the exact q94 final JPEG. [Proof and scope](rapidraw-wasm-interactive-handoff.md).

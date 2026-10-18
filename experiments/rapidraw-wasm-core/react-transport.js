@@ -38,6 +38,7 @@ export function createReactTransport({wasm,device,shaderSource,defaults,getPrevi
   if(closed)throw Error('Browser session closed');
   trace.push({command});
   if(command==='clear_session_caches'){await clear();return;}
+  if(command==='load_settings')return structuredClone(getPreviewSettings());
   if(command==='load_metadata'){requirePath(args.path);return {adjustments:null};}
   if(command==='load_image'){
    requirePath(args.path);await clear();const version=generation,selected=file;
@@ -55,24 +56,28 @@ export function createReactTransport({wasm,device,shaderSource,defaults,getPrevi
    const settings=getPreviewSettings(),liveQuality=settings?.livePreviewQuality??'high';
    const interactive=!!args.isInteractive,previewDim=args.targetResolution??settings?.editorPreviewResolution??1920;
    if(typeof liveQuality!=='string'||liveQuality.length>128)throw TypeError('Invalid live preview quality');
-   const key=`${previewDim}:${interactive?liveQuality:'final'}`;
+
    if(!Number.isSafeInteger(previewDim)||previewDim<1||previewDim>32768)throw TypeError('Invalid original preview target');
    const adjustments=args.jsAdjustments;
    if(!adjustments||typeof adjustments!=='object'||Array.isArray(adjustments))throw TypeError('Expected original adjustments');
+   const orientationSteps=adjustments.orientationSteps??0,flipHorizontal=adjustments.flipHorizontal??false,flipVertical=adjustments.flipVertical??false;
+   if(!Number.isSafeInteger(orientationSteps)||orientationSteps<0||orientationSteps>3||typeof flipHorizontal!=='boolean'||typeof flipVertical!=='boolean')throw TypeError('Invalid original rotation/flip');
+   const geometry={orientationSteps,flipHorizontal,flipVertical};
+   const key=`${previewDim}:${orientationSteps}:${flipHorizontal}:${flipVertical}:${interactive?liveQuality:'final'}`;
    for(const [key,value] of Object.entries(adjustments)){
-    if(supported.has(key))continue;
+    if(supported.has(key)||['orientationSteps','flipHorizontal','flipVertical'].includes(key))continue;
     if(JSON.stringify(value)!==JSON.stringify(defaults[key]))throw new UnavailableCommandError(`adjustment ${key}`);
    }
    for(const key of supported){if(key==='toneMapper'){if(!['basic','agx'].includes(adjustments[key]??'basic'))throw TypeError('Invalid tone mapper');}
     else if(typeof adjustments[key]!=='number'||!Number.isFinite(adjustments[key]))throw TypeError('Expected finite original Basic value');}
    if(image.preview?.key!==key){
-    const preview=await image.client.call('preview',{previewDim,interactive,liveQuality});check(image.version);
+    const preview=await image.client.call('preview',{previewDim,interactive,liveQuality,...geometry});check(image.version);
     const inputRgbaF16=packRgb32fRendererInput(wasm,preview.width,preview.height,preview.data);
     await device.queue.onSubmittedWorkDone();check(image.version);
     image.resources?.ownedTextures.forEach(t=>t.destroy());image.resources=null;image.preview=null;
     image.resources=createNeutralRendererResources(device,{width:preview.width,height:preview.height,inputRgbaF16});
     image.preview={width:preview.width,height:preview.height,target:previewDim,key,quality:preview.quality,divisor:preview.divisor,scaleForGpu:preview.scaleForGpu};
-    trace.push({command:'preview-result',target:previewDim,interactive,liveQuality,quality:preview.quality,divisor:preview.divisor,width:preview.width,height:preview.height,originalWidth:image.width,originalHeight:image.height,scaleForGpu:preview.scaleForGpu,rgbSha256:preview.rgbSha256});
+    trace.push({command:'preview-result',geometry,target:previewDim,interactive,liveQuality,quality:preview.quality,divisor:preview.divisor,width:preview.width,height:preview.height,originalWidth:image.width,originalHeight:image.height,scaleForGpu:preview.scaleForGpu,rgbSha256:preview.rgbSha256});
    }
    const packed=packGlobalRendererFixture(wasm,JSON.stringify(adjustments),image.asShot,{baselineExposure:0,compensateHighlightPreservation:true});
    const frame=await renderOriginalFrame({device,width:image.preview.width,height:image.preview.height,shaderSource,
@@ -80,7 +85,7 @@ export function createReactTransport({wasm,device,shaderSource,defaults,getPrevi
    check(image.version);
    const response=encodePreviewResponse(wasm,frame,{interactive,quality:image.preview.quality});
    const hashes={adjustmentSha256:await hash(packed.bytes),rgbaSha256:await hash(frame.pixels),responseSha256:await hash(response),jpegSha256:await hash(interactive?response.slice(24):response)};check(image.version);
-   trace.push({...hashes,command:'render-result',exposure:adjustments.exposure,width:frame.width,height:frame.height,
+   trace.push({...hashes,command:'render-result',geometry,exposure:adjustments.exposure,width:frame.width,height:frame.height,
     interactive,liveQuality,quality:image.preview.quality,divisor:image.preview.divisor,rect:interactive?Array.from({length:6},(_,i)=>new DataView(response).getUint32(i*4,true)):null,bytes:response.byteLength,analytics:'unavailable',adjustments:structuredClone(adjustments)});
    return response;
   }

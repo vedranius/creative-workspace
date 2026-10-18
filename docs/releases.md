@@ -1,3 +1,7 @@
+# Unreleased RapidRAW rotation/flip checkpoint — 2026-10-18
+
+Actual unchanged CropPanel Rotate/Flip controls now drive original spatial processing, with native-identical portrait/landscape RGB/pixels/JPEG and exact restoration. [Proof and next crop task](rapidraw-wasm-geometry-handoff.md). Crop/fine rotation/warp/effects/ROI/metadata/menus/export/provider acceptance remain open. No product SemVer/tag/release/install/demo update; existing immutable draft remains separate.
+
 # Unreleased RapidRAW interactive preview checkpoint — 2026-10-18
 
 Actual original Slider drag/release now verifies source full/high/performance sizing/quality and native-identical interactive response/header/JPEG bytes, with exact q94 restoration. [Proof and next geometry task](rapidraw-wasm-interactive-handoff.md). ROI/geometry/effects/metadata/menus/export/provider acceptance remain open. No product SemVer/tag/release/install/demo update; existing immutable draft remains separate.

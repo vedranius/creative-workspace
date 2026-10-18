@@ -105,3 +105,7 @@ Independent native source excerpts and four public RAW-derived JPEG responses ma
 ## Original interactive preview policy
 
 The source selector and second area-filter stage now derive full/high/performance interactive frames from the cached final preview; the bridge reads original settings and retains original q85/75/65 envelopes/q94 final responses. Actual original Slider mouse drag and release matches independent native pixels/headers/JPEG for all three modes. [Proof and limits](../../docs/rapidraw-wasm-interactive-handoff.md). ROI selector branches are reference-tested, but ROI rendering, geometry/effects/metadata/menus/export/providers remain unaccepted. No public deployment/release.
+
+## Original quarter-turn/flip stage
+
+`original_geometry.rs` retains exact original IntoCowImage/coarse rotation/flip/orientation functions; `preview_geometry` wraps only steps0..3 and bool flips with bounded finite RGB validation. Worker orientation occurs after source area resize and before interactive resizing/GPU upload, with geometry-aware cache keys. Six actual unchanged CropPanel/useEditorActions clicks match native RGB/pixel/JPEG and restore the baseline; all16 turn/flip float combinations are reference-tested. [Evidence and limits](../../docs/rapidraw-wasm-geometry-handoff.md). Crop/fine rotation/warp/effects/ROI/metadata/menus/providers/export remain unaccepted; no public deployment/release.

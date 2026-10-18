@@ -4,6 +4,8 @@ import {createRoot} from 'react-dom/client';
 import {ToastContainer} from 'react-toastify';
 import Editor from './src/components/panel/Editor';
 import Basic from './src/components/adjustments/Basic';
+import CropPanel from './src/components/panel/right/CropPanel';
+import {ContextMenuProvider} from './src/context/ContextMenuContext';
 import {useImageLoader} from './src/hooks/useImageLoader';
 import {useImageProcessing} from './src/hooks/useImageProcessing';
 import {useEditorStore} from './src/store/useEditorStore';
@@ -43,8 +45,9 @@ function Proof(){
   <section style={{flex:1,minWidth:0,display:'flex'}}><Editor transformWrapperRef={transform} onBackToLibrary={()=>{}} onContextMenu={e=>e.preventDefault()}/></section>
   <aside aria-label="Original Basic panel" style={{width:300,padding:16,overflow:'auto'}}><Basic adjustments={adjustments} appSettings={settings}
    setAdjustments={(update:any)=>useEditorStore.getState().setEditor(state=>({adjustments:typeof update==='function'?update(state.adjustments):{...state.adjustments,...update}}))}
-   onDragStateChange={isSliderDragging=>useEditorStore.getState().setEditor({isSliderDragging})}/></aside>
+   onDragStateChange={isSliderDragging=>useEditorStore.getState().setEditor({isSliderDragging})}/>
+ <section aria-label="Original geometry panel"><CropPanel/></section></aside>
  </main><ToastContainer position="bottom-left" theme="dark"/></>;
 }
-const root=createRoot(document.getElementById('root')!);root.render(<Proof/>);
+const root=createRoot(document.getElementById('root')!);root.render(<ContextMenuProvider><Proof/></ContextMenuProvider>);
 (globalThis as any).proof={gpuErrors,adapter:{vendor:adapter.info.vendor,architecture:adapter.info.architecture},store:useEditorStore,trace:transport.trace,setLiveQuality(livePreviewQuality:string){useSettingsStore.getState().setAppSettings({...useSettingsStore.getState().appSettings,livePreviewQuality} as any);},async close(){root.unmount();await transport.close();device.destroy();},settings};

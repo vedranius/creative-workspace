@@ -1,0 +1,110 @@
+[
+  {
+    "adjustmentSha256": "7528054041d105912931d3cc66497b535740e7f03c198e6e9f3915cc44f1520e",
+    "baseRgbSha256": "c0d07e55c42bd67059613035283567cc83e324ad95f75c9008de854ac5d7ec9f",
+    "bytes": 61910,
+    "geometry": {
+      "flipHorizontal": false,
+      "flipVertical": false,
+      "orientationSteps": 1
+    },
+    "height": 512,
+    "jpegSha256": "6075493f7ee18a424a7b0067328c7043b07bb90c832dbb1e27c0690f26cf1f62",
+    "rgbSha256": "50b027e31b27694c75fcdc80ebd565d5e7b92bfefa25b271b37d8097f34e1b21",
+    "rgbaSha256": "d42f566a12637dd617102ccf1fc68da1a4a36b36e207522b750e6ef76c9d87bd",
+    "scope": "Original quarter turn then horizontal/vertical flips after original area preview; crop/fine rotation/warp/effects unsupported",
+    "source": "b39884b38d8f148caef6fd0d52afd264951be329",
+    "width": 384,
+    "action": "Rotate Right"
+  },
+  {
+    "adjustmentSha256": "7528054041d105912931d3cc66497b535740e7f03c198e6e9f3915cc44f1520e",
+    "baseRgbSha256": "c0d07e55c42bd67059613035283567cc83e324ad95f75c9008de854ac5d7ec9f",
+    "bytes": 61831,
+    "geometry": {
+      "flipHorizontal": true,
+      "flipVertical": false,
+      "orientationSteps": 1
+    },
+    "height": 512,
+    "jpegSha256": "4d5b9d591ea3bbe15a08cd1f3c7786e7f97a24e0a913054b9eee7ee9d02cf519",
+    "rgbSha256": "7804866abf60df8b6b0b50aed4170ad2da06dfd7b2efd2308b46d23ab8df8b67",
+    "rgbaSha256": "c3e1be4d93d8976440606bdb474fa9f80769990ac9793976f75ddc955f360c7d",
+    "scope": "Original quarter turn then horizontal/vertical flips after original area preview; crop/fine rotation/warp/effects unsupported",
+    "source": "b39884b38d8f148caef6fd0d52afd264951be329",
+    "width": 384,
+    "action": "Flip Horiz"
+  },
+  {
+    "adjustmentSha256": "7528054041d105912931d3cc66497b535740e7f03c198e6e9f3915cc44f1520e",
+    "baseRgbSha256": "c0d07e55c42bd67059613035283567cc83e324ad95f75c9008de854ac5d7ec9f",
+    "bytes": 61927,
+    "geometry": {
+      "flipHorizontal": true,
+      "flipVertical": true,
+      "orientationSteps": 1
+    },
+    "height": 512,
+    "jpegSha256": "28aa5ed2edb34341bd6392f92f7a9220e8bfc158f52ce6579dae93558b5eead0",
+    "rgbSha256": "3d8f055e866a6cc7fd68eb778e5d7b03528d4a8566db57f1828f283b43472483",
+    "rgbaSha256": "05444a8e6a932275523c6c9461685494ab5152eae1aa42d3ca297e146d2a1a26",
+    "scope": "Original quarter turn then horizontal/vertical flips after original area preview; crop/fine rotation/warp/effects unsupported",
+    "source": "b39884b38d8f148caef6fd0d52afd264951be329",
+    "width": 384,
+    "action": "Flip Vert"
+  },
+  {
+    "adjustmentSha256": "7528054041d105912931d3cc66497b535740e7f03c198e6e9f3915cc44f1520e",
+    "baseRgbSha256": "c0d07e55c42bd67059613035283567cc83e324ad95f75c9008de854ac5d7ec9f",
+    "bytes": 61837,
+    "geometry": {
+      "flipHorizontal": true,
+      "flipVertical": true,
+      "orientationSteps": 0
+    },
+    "height": 384,
+    "jpegSha256": "a809da86b63391e79fee10761e08b4fb8d74071c68f34bb12d5cb2e32711bbcd",
+    "rgbSha256": "d85540e1b01f9c690a29f8e278522ce10bb8e22bd3a16995135046b41bf1952f",
+    "rgbaSha256": "c4e8818cbe9f1feb145d9c2fae29d9eb80d65bd066dc1774ba45db46fe19c891",
+    "scope": "Original quarter turn then horizontal/vertical flips after original area preview; crop/fine rotation/warp/effects unsupported",
+    "source": "b39884b38d8f148caef6fd0d52afd264951be329",
+    "width": 512,
+    "action": "Rotate Left"
+  },
+  {
+    "adjustmentSha256": "7528054041d105912931d3cc66497b535740e7f03c198e6e9f3915cc44f1520e",
+    "baseRgbSha256": "c0d07e55c42bd67059613035283567cc83e324ad95f75c9008de854ac5d7ec9f",
+    "bytes": 61949,
+    "geometry": {
+      "flipHorizontal": false,
+      "flipVertical": true,
+      "orientationSteps": 0
+    },
+    "height": 384,
+    "jpegSha256": "8db763c31078c578f10539bc48341a3b405c04f4c3d42fcdbc505f1e28e69a40",
+    "rgbSha256": "4188894b72ec11b3e1c88fdcbcc8664b4cea06c96adf22bbecba1e91d747ddbd",
+    "rgbaSha256": "e3e5f91a3d62edecea12db767aac51cc7360d9cd39e20c3b0b839c8b1f584117",
+    "scope": "Original quarter turn then horizontal/vertical flips after original area preview; crop/fine rotation/warp/effects unsupported",
+    "source": "b39884b38d8f148caef6fd0d52afd264951be329",
+    "width": 512,
+    "action": "Flip Horiz"
+  },
+  {
+    "adjustmentSha256": "7528054041d105912931d3cc66497b535740e7f03c198e6e9f3915cc44f1520e",
+    "baseRgbSha256": "c0d07e55c42bd67059613035283567cc83e324ad95f75c9008de854ac5d7ec9f",
+    "bytes": 61812,
+    "geometry": {
+      "flipHorizontal": false,
+      "flipVertical": false,
+      "orientationSteps": 0
+    },
+    "height": 384,
+    "jpegSha256": "042350b5c54e9244b8a9f33089efa25b0516ae59f4e188ba0345fcd60a86f869",
+    "rgbSha256": "c0d07e55c42bd67059613035283567cc83e324ad95f75c9008de854ac5d7ec9f",
+    "rgbaSha256": "220a870ec41b3f9a81899d8b33d60fd7bfbbf896c4d844497ff4ddfe5640d28d",
+    "scope": "Original quarter turn then horizontal/vertical flips after original area preview; crop/fine rotation/warp/effects unsupported",
+    "source": "b39884b38d8f148caef6fd0d52afd264951be329",
+    "width": 512,
+    "action": "Flip Vert"
+  }
+]

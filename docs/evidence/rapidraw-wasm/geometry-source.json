@@ -1,0 +1,63 @@
+{
+  "nativeSource": "b39884b38d8f148caef6fd0d52afd264951be329",
+  "license": "AGPL-3.0-only",
+  "sourceFiles": {
+    "src/hooks/useImageLoader.ts": "6e8cbf9c08b8b09438193e345d22bc000a086a1fd6424a2dfe928ad8f21bed30",
+    "src/hooks/useImageProcessing.ts": "f0070afca39a04690ded76badd78f069c7ee046a7f3cdc8c3d4b7bad40d9b2bb",
+    "src/hooks/useEditorActions.ts": "8de8bfb9f0dcb0a485cb9dd4476ed1ae56c21803a82c4b62023f29c5d6da422d",
+    "src/components/panel/Editor.tsx": "291466d31de13e1507b77116ef3cda219c89eb3f58039b534f1ef9a5414c8298",
+    "src/components/panel/editor/ImageCanvas.tsx": "51d1da343826f5dc957369ee4448c2f3a72423894640bd5dd6a2c14ee5c29381",
+    "src/components/adjustments/Basic.tsx": "a7d524dd383eccd483923f2d3678e3387494ce481191363967b94fa4c5ef37a6",
+    "src/components/ui/Slider.tsx": "13752203a8631fb6080b0092248f2c01e1f8e2624a81a927dc7e12376ea586b8",
+    "src/store/useEditorStore.ts": "86fdf855fab86fe2f6ef1fe8aa06b7484fb6e540cea09267208e776ee11c6742",
+    "src/utils/defaultAdjustments.json": "d650db51fe618e3522767832edf911ea8b6da68d61c2db54912193c64d2332bc",
+    "package-lock.json": "4e612a5639e68871d9fc6f8e92286eaa61d6c100d3e91154cfeef2d23f569811",
+    "src/utils/themes.ts": "e05a091ad0c7a2b05f7bb29232de026d38bd6af4e5d113dedaaa01cc12f87884",
+    "src/hooks/useAppInitialization.ts": "418afe949997ae248fb4f10a84ab4c52da27e8bad536c5fec95a2f4210f43e41",
+    "src/components/panel/right/CropPanel.tsx": "7543bd1a89fbb0fc27c98e31939f33f2781ca534fbfec9a1a3670d42f584376a",
+    "src/context/ContextMenuContext.tsx": "0aba3ced9cfe5daebf7d5683fa0e6b1b784f7f8fef7092629548a80b31ba31a6",
+    "src/utils/cropUtils.ts": "f8db8c6fcf86a6d44c25b5f72233d40f4d5df2a0733d346b76ea6836c6fd24d1"
+  },
+  "wasmSha256": "a2522389b1c557aca9682fc8b324622fa51a69fb065a22b92816a3fff985a34a",
+  "qualityTimerCompatibility": {
+    "schemaVersion": 1,
+    "decoderSource": "a32bc1ff1f4f3c56d4d3226082f6eb17414f9159",
+    "patch": {
+      "path": "patches/rapidraw-rawler/a32bc1ff/ppg-wasm-profiling.patch",
+      "sha256": "d80f45df13380ea0dfa0554565c633116e8ad726b2096b8c0b9a602259497f95",
+      "file": "rawler/src/imgop/sensor/bayer/ppg.rs",
+      "beforeSha256": "9320de465bbef900e00fe794627e7c5e652f2415205c0b39f89837934e031f6c",
+      "afterSha256": "02fc66b032a6bb98f8ed5c03a261e119de17739cb8a72fffcc5c395334d91e4d",
+      "scope": "Only wasm32 profiling timer/debug log cfgs; all PPG pixel arithmetic unchanged; native timing retained",
+      "license": "LGPL-2.1"
+    },
+    "scope": "Isolated timer-patched rawler plus source-equivalent probe; only wasm32 profiling is removed, native behavior and interpolation preserved"
+  },
+  "previewResize": {
+    "source": "src-tauri/src/image_processing.rs::downscale_f32_image",
+    "sourceFileSha256": "5e16c6d88c30e5728534bb67be47e79c44b96d524f90973a611c2c2e8adb3a19",
+    "functionSha256": "79028a5f33e259fb7bdcae97ae7bece8b8f2c55c100bbac930b7243c1f944e3f",
+    "referenceSha256": "bbefb75cfb347af08232b4a99c6f7456e33d582a5927222e9e50bc9509e589a1",
+    "dimensionSource": "src-tauri/src/lib.rs::compute_transformed_preview",
+    "dimensionFileSha256": "ce69ae5e06b5c5f0eb7b6592d981c727c1be07e7787000a41e50ed77618b2606",
+    "adaptation": "Only non-wasm32 cfg on profiling Instant/log; area weights/order/math unchanged. Neutral geometry only; orientation already applied by development; no crop/rotation/patch/effects support."
+  },
+  "interactivePreview": {
+    "source": "src-tauri/src/lib.rs::process_preview_job",
+    "selectionSha256": "98499fbe2c273dd17190165354b5f44d853764da25541fdababcb3d0de215805",
+    "smallSizeSha256": "b85c25252f83e473e00cec10b6b9926194e79296600ff12768f34275104bf682",
+    "referenceSha256": "e859fdab34c2d3fe9c3496846a96b975bfbae89afcb8d1092d270382792b465c",
+    "scope": "Original no-ROI live quality/divisor, two-stage original area filter and interactive envelope. ROI selector values retained as reference only; ROI rendering unsupported."
+  },
+  "orientationFlip": {
+    "source": [
+      "src-tauri/src/image_processing.rs::IntoCowImage/apply_coarse_rotation/apply_flip",
+      "src-tauri/src/adjustment_utils.rs::apply_orientation_and_flip"
+    ],
+    "referenceSha256": "52cbd5e3db3ff364e5b7ba663142bd04d7f4fef4b0176a6e6b1e5e32292a66b0",
+    "sourceFileSha256": "5e16c6d88c30e5728534bb67be47e79c44b96d524f90973a611c2c2e8adb3a19",
+    "adjustmentUtilsSha256": "1638c4239f50c3dec6701e2837d70152d134e351dfa9b3077fe4099e31998674",
+    "scope": "Original rotation then flips after original area preview; only orientationSteps0..3 and bool flips. Crop/fine rotation/warp unsupported."
+  },
+  "scope": "Unchanged original hooks/stores/Editor/Basic/Slider in QA composition. Core invoke aliased; native Clerk explicitly unavailable; no full App/menu/provider acceptance."
+}

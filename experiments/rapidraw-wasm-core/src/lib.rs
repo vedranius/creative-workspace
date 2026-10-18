@@ -27,7 +27,10 @@ pub mod exposure;
 mod multi_exposure;
 pub mod png_export;
 pub mod preview;
+pub mod preview_geometry;
 pub mod preview_resize;
+#[rustfmt::skip]
+mod original_geometry;
 #[rustfmt::skip]
 pub mod interactive_preview;
 #[rustfmt::skip]
@@ -674,6 +677,38 @@ mod browser {
             &out,
             &"data".into(),
             Float32Array::from(result.pixels.data.as_slice()).as_ref(),
+        )?;
+        Ok(out.into())
+    }
+
+    #[wasm_bindgen]
+    pub fn orient_preview_rgb32f(
+        width: u32,
+        height: u32,
+        pixels: &[f32],
+        steps: u32,
+        horizontal: bool,
+        vertical: bool,
+    ) -> Result<JsValue, JsValue> {
+        let result = super::preview_geometry::orient_preview(
+            width, height, pixels, steps, horizontal, vertical,
+        )
+        .map_err(|e| JsValue::from_str(&e))?;
+        let out = Object::new();
+        Reflect::set(
+            &out,
+            &"width".into(),
+            &JsValue::from_f64(result.width as f64),
+        )?;
+        Reflect::set(
+            &out,
+            &"height".into(),
+            &JsValue::from_f64(result.height as f64),
+        )?;
+        Reflect::set(
+            &out,
+            &"data".into(),
+            Float32Array::from(result.data.as_slice()).as_ref(),
         )?;
         Ok(out.into())
     }
