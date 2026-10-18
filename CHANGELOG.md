@@ -1,3 +1,9 @@
+## Experimental RapidRAW branch — real as-shot shader/PNG integration (2026-10-18)
+
+- Connect actual original RAW camera metadata to source WB tool visibility/adaptation gains, native GPU matrix columns and original exposure mapping in the full WGSL/EightBit renderer.
+- Verify five public-DNG frames covering baseline, WB shifts/absolute override, explicit disabled WB and legacy hidden color controls: all3,932,160 byte components/complete adjustment bytes and five PNGs match native exactly; browser decode and completed downloads pass.
+- Reproduce independent native camera settings/rendered PNGs in Actions. Other global controls/defaults/preprocessing/masks remain neutral; original React/provider/full editor acceptance and product version/release/demo stay unchanged for this unfinished checkpoint.
+
 ## Experimental RapidRAW branch — original as-shot white balance (2026-10-18)
 
 - Port full original WB module, camera-neutral single/dual-illuminant selection, sRGB/D65/color helpers and original WB adjustment/Bradford adaptation mapping. Pin native glam0.33.5/serde1.0.229 while preserving existing codec lock versions.

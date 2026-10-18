@@ -1,3 +1,7 @@
+# Unreleased RapidRAW camera renderer checkpoint — 2026-10-18
+
+Actual as-shot WB/exposure now drives original shader/PNG output: five native-identical files and3,932,160 exact image byte components with complete browser downloads. [Proof and remaining scope](rapidraw-wasm-camera-render-handoff.md). This is unfinished experimental port behavior on `codex/rapidraw-wasm-port`; full global controls/React/provider acceptance remain open. No product SemVer/tag/release/install/demo update.
+
 # Unreleased RapidRAW as-shot WB checkpoint — 2026-10-18
 
 Original camera WB/exposure and WB adjustment/adaptation mapping now match the actual native source on the public DNG,58/58 scalars exact. [Evidence, reproduction and limits](rapidraw-wasm-as-shot-handoff.md). This remains experimental `codex/rapidraw-wasm-port` groundwork; no SemVer/tag/release/install/demo update or accepted full browser editor is claimed. Original WB rendered-frame integration and full React/provider acceptance remain open.

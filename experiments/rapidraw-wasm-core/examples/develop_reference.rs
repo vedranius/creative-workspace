@@ -70,10 +70,70 @@ mod png_native;
 #[rustfmt::skip]
 mod native_ui;
 
+#[derive(serde::Serialize)]
+struct GpuMat3 {
+    col0: [f32; 4],
+    col1: [f32; 4],
+    col2: [f32; 4],
+}
+use glam::Mat3;
+fn mat3_to_gpu_mat3(m: Mat3) -> GpuMat3 {
+    GpuMat3 {
+        col0: [m.x_axis.x, m.x_axis.y, m.x_axis.z, 0.0],
+        col1: [m.y_axis.x, m.y_axis.y, m.y_axis.z, 0.0],
+        col2: [m.z_axis.x, m.z_axis.y, m.z_axis.z, 0.0],
+    }
+}
+
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let path = std::env::args()
         .nth(1)
         .ok_or("usage: develop_reference RAW_FILE")?;
+    if std::env::args().nth(2).as_deref() == Some("--camera-render") {
+        let bytes = std::fs::read(path)?;
+        let as_shot = raw_processing::read_as_shot(&bytes).ok_or("Original read_as_shot failed")?;
+        let inputs = [
+            serde_json::json!({"exposure":-0.8,"baselineExposure":true}),
+            serde_json::json!({"exposure":0,"temperature":10,"tint":-3,"baselineExposure":true}),
+            serde_json::json!({"exposure":0.8,"whiteBalance":{"temperature":5500,"tint":12},"temperature":-5,"tint":2,"baselineExposure":true}),
+            serde_json::json!({"exposure":0.8,"temperature":10,"tint":-3,"baselineExposure":true,"activeTools":{"whiteBalance":false}}),
+            serde_json::json!({"exposure":0,"temperature":10,"tint":-3,"baselineExposure":false,"sectionVisibility":{"color":false}}),
+        ];
+        let mut frames = Vec::new();
+        for input in inputs {
+            let js_adjustments = &input;
+            let target_white_balance = if native_ui::is_tool_active(js_adjustments, "whiteBalance")
+            {
+                white_balance::from_adjustments(js_adjustments, as_shot.white_balance)
+            } else {
+                as_shot.white_balance
+            };
+            let gains =
+                white_balance::adaptation_log_gains(as_shot.white_balance, target_white_balance);
+            let rgb_to_lms = white_balance::rgb_to_lms();
+            let exposure = native_ui::reference_exposure(
+                &js_adjustments,
+                native_ui::RawExposure {
+                    scene_referred: as_shot.exposure.scene_referred,
+                    dng_baseline: as_shot.exposure.dng_baseline,
+                    highlight_preservation: as_shot.exposure.highlight_preservation,
+                },
+                native_ui::BaselineOptions {
+                    baseline_exposure: Some(0.0),
+                    compensate_highlight_preservation: true,
+                },
+            );
+            frames.push(serde_json::json!({"json":js_adjustments.to_string(),"exposure":exposure,"gains":gains,
+                "rgbToLms":mat3_to_gpu_mat3(rgb_to_lms),"lmsToRgb":mat3_to_gpu_mat3(rgb_to_lms.inverse())}));
+        }
+        println!(
+            "{}",
+            serde_json::json!({"source":"b39884b38d8f148caef6fd0d52afd264951be329",
+            "asShot":{"whiteBalance":as_shot.white_balance,"exposure":{"sceneReferred":as_shot.exposure.scene_referred,"dngBaseline":as_shot.exposure.dng_baseline,"highlightPreservation":as_shot.exposure.highlight_preservation}},
+            "options":{"baselineExposure":0.0,"compensateHighlightPreservation":true},"frames":frames})
+        );
+        return Ok(());
+    }
     if std::env::args().nth(2).as_deref() == Some("--as-shot") {
         let bytes = std::fs::read(path)?;
         let shot = raw_processing::read_as_shot(&bytes).ok_or("Original read_as_shot failed")?;

@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { createHash } from "node:crypto";
 import { readFile } from "node:fs/promises";
 import { test } from "node:test";
-import { createNeutralRendererResources, encodeRenderedFramePng, packNeutralExposureAdjustments, packRgb32fRendererInput, packUiExposureFixture, renderOriginalFrame, WebGpuUnsupportedError } from "./webgpu-renderer.js";
+import { createNeutralRendererResources, encodeRenderedFramePng, packNeutralExposureAdjustments, packRgb32fRendererInput, packUiExposureFixture, packCameraRendererFixture, renderOriginalFrame, WebGpuUnsupportedError } from "./webgpu-renderer.js";
 
 globalThis.GPUShaderStage = { COMPUTE: 4 };
 globalThis.GPUBufferUsage = { STORAGE: 128, COPY_DST: 8, MAP_READ: 1 };
@@ -243,4 +243,16 @@ test("rendered PNG forwards actual RGBA8 output and refuses SixteenBit reinterpr
   assert.throws(()=>encodeRenderedFramePng(wasm,{...frame,format:'rgba16float'},300),/RGBA8 rendered/);
   assert.throws(()=>encodeRenderedFramePng(wasm,{...frame,pixels:new Uint8Array(3)},300),/RGBA8 rendered/);
   assert.throws(()=>encodeRenderedFramePng(wasm,frame,65536),/valid DPI/);
+});
+
+
+test("camera host forwards actual as-shot metadata and original JSON to WASM",()=>{
+  const shot={whiteBalance:{temperature:6133.3,tint:39.7},exposure:{sceneReferred:true,dngBaseline:-0.5,highlightPreservation:0}};
+  const options={baselineExposure:0,compensateHighlightPreservation:true};
+  let args;const payload=new Uint8Array(45232),wasm={pack_camera_renderer_fixture:(...a)=>(args=a,payload)};
+  assert.equal(packCameraRendererFixture(wasm,'{"temperature":10}',shot,options).bytes,payload);
+  assert.deepEqual(args,['{"temperature":10}',6133.3,39.7,true,-0.5,0,0,true]);
+  assert.throws(()=>packCameraRendererFixture(wasm,'{}',{...shot,whiteBalance:{temperature:0,tint:0}},options));
+  assert.throws(()=>packCameraRendererFixture(wasm,'{}',{...shot,exposure:{...shot.exposure,dngBaseline:NaN}},options));
+  assert.throws(()=>packCameraRendererFixture({pack_camera_renderer_fixture:()=>new Uint8Array(4)},'{}',shot,options));
 });

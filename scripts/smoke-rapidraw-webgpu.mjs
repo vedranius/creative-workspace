@@ -52,7 +52,7 @@ try {
   page.setDefaultTimeout(60000);
   await page.goto(`http://127.0.0.1:${server.address().port}/`);
   const result = await Promise.race([
-    page.evaluate(async ({ raw, pngMode }) => {
+    page.evaluate(async ({ raw, pngMode, camera }) => {
       if (!navigator.gpu) throw Error('No WebGPU API');
       const adapter = await navigator.gpu.requestAdapter();
       if (!adapter) throw Error('No WebGPU adapter');
@@ -71,9 +71,17 @@ try {
         }
         const shaderSource = await (await fetch('/shader.wgsl')).text();
         const hash = async bytes => [...new Uint8Array(await crypto.subtle.digest('SHA-256', bytes))].map(v => v.toString(16).padStart(2, '0')).join('');
-        let width = 9, height = 3, inputF32Sha256, inputRgbaF16Sha256 = null;
+        let width = 9, height = 3, inputF32Sha256, inputRgbaF16Sha256 = null, actualAsShot = null;
         if (raw) {
           const bytes = await (await fetch('/public-fixture.dng')).arrayBuffer();
+          if (camera) {
+            actualAsShot = await new Promise((resolve,reject)=>{
+              const worker=new Worker('/worker.js',{type:'module'}),timer=setTimeout(()=>{worker.terminate();reject(Error('As-shot worker timed out'));},30000);
+              worker.onmessage=({data})=>{clearTimeout(timer);worker.terminate();data.ok?resolve(data.asShot):reject(Error(data.error));};
+              worker.onerror=e=>{clearTimeout(timer);worker.terminate();reject(Error(e.message));};
+              const copy=bytes.slice(0);worker.postMessage({id:2,bytes:copy,output:'as-shot'},[copy]);
+            });
+          }
           const image = await new Promise((resolve, reject) => {
             const worker = new Worker('/worker.js', { type: 'module' });
             const timer = setTimeout(() => { worker.terminate(); reject(Error('RAW worker timed out')); }, 30000);
@@ -94,8 +102,10 @@ try {
           fixture = host.createNeutralRendererResources(device, { width, height, inputRgba });
         }
         const frames = [];
-        for (const exposure of [-1, 0, 1]) {
-          const adjustments = raw ? host.packUiExposureFixture(wasm, JSON.stringify({ exposure: exposure * 0.8 }),
+        const cases = camera ? camera.frames : [-1,0,1].map(exposure=>({exposure}));
+        for (const testCase of cases) {
+          const exposure = testCase.exposure;
+          const adjustments = camera ? host.packCameraRendererFixture(wasm,testCase.json,actualAsShot,camera.options) : raw ? host.packUiExposureFixture(wasm, JSON.stringify({ exposure: exposure * 0.8 }),
             { sceneReferred: true, dngBaseline: 0, highlightPreservation: 0 },
             { baselineExposure: 0, compensateHighlightPreservation: false }) : host.packNeutralExposureAdjustments(wasm, exposure);
           const frame = await host.renderOriginalFrame({ device, width, height, shaderSource,
@@ -121,16 +131,17 @@ try {
           frames.push(row);
         }
         await device.queue.onSubmittedWorkDone();
-        return { width, height, format: pngMode ? 'rgba8unorm' : 'rgba16float', inputFormat: raw ? 'RGB32F' : 'RGBA32F', inputF32Sha256, inputRgbaF16Sha256, adapterInfo, frames, gpuErrors, ...(pngMode ? { rejectedInvalidPngInputs } : {}) };
+        return { width, height, format: pngMode ? 'rgba8unorm' : 'rgba16float', inputFormat: raw ? 'RGB32F' : 'RGBA32F', inputF32Sha256, inputRgbaF16Sha256, actualAsShot, adapterInfo, frames, gpuErrors, ...(pngMode ? { rejectedInvalidPngInputs } : {}) };
       } finally { fixture?.ownedTextures.forEach(t => t.destroy()); device.destroy(); }
-    }, { raw: !!publicRawPath, pngMode }),
+    }, { raw: !!publicRawPath, pngMode, camera: nativeReference?.camera ?? null }),
     new Promise((_, reject) => { const timer = setTimeout(() => reject(Error('WebGPU proof timed out')), 60000); timer.unref(); }),
   ]);
   assert.deepEqual(result.gpuErrors, []); assert.deepEqual(pageErrors, []); assert.deepEqual(failedRequests, []);
   assert.equal(result.adapterInfo.architecture, 'swiftshader', 'Expected an explicitly identified software adapter');
   assert.equal(result.adapterInfo.isFallbackAdapter, true);
   if (pngMode) assert.equal(result.rejectedInvalidPngInputs, 6);
-  assert.equal(new Set(result.frames.map(f => f.sha256)).size, 3);
+  assert.equal(new Set(result.frames.map(f => f.sha256)).size, nativeReference?.camera ? 5 : 3);
+  if (nativeReference?.camera) assert.deepEqual(result.actualAsShot,nativeReference.camera.asShot);
   if (!publicRawPath) {
     assert.ok(result.frames[0].firstPixelF16Bits[0] < result.frames[1].firstPixelF16Bits[0]);
     assert.ok(result.frames[1].firstPixelF16Bits[0] < result.frames[2].firstPixelF16Bits[0]);
@@ -183,13 +194,13 @@ try {
       scope: publicRawPath ? 'Independent native original RAW development plus wgpu29 shader on identical real public RAW-derived input; remaining preprocessing is neutral, not full Tauri/engine parity' : 'Independent native wgpu29 full pinned shader on identical neutral synthetic inputs, not full Tauri/preprocessing/engine frames' };
   }
   if (publicRawPath) for (const frame of result.frames) { delete frame.rgbaF16Bits; delete frame.rgbaU8; }
-  const report = { stage: pngMode ? 'RWASM-03 actual public RAW through original EightBit shader/dither and native PNG branch' : publicRawPath ? 'RWASM-03 public RAW Speed development to native f16 upload and original full shader' : 'RWASM-03 original full WGSL execution on neutral resources', nativeSource: 'b39884b38d8f148caef6fd0d52afd264951be329',
+  const report = { stage: nativeReference?.camera ? 'RWASM-03 actual public RAW/as-shot WB/exposure through original shader and PNG' : pngMode ? 'RWASM-03 actual public RAW through original EightBit shader/dither and native PNG branch' : publicRawPath ? 'RWASM-03 public RAW Speed development to native f16 upload and original full shader' : 'RWASM-03 original full WGSL execution on neutral resources', nativeSource: 'b39884b38d8f148caef6fd0d52afd264951be329',
     publicFixture: publicFixture ? { id: publicFixture.id, sourceSha256: publicFixture.sourceSha256, license: publicFixture.license } : null,
-    exposureInputs: publicRawPath ? { uiExposure: [-0.8, 0, 0.8], mappedStops: [-1, 0, 1], baselineMarker: 'absent/disabled', cameraExposure: 'Explicit sceneReferred=true,dngBaseline=0,highlightPreservation=0 fixture inputs; metadata not extracted', otherControls: 'neutral' } : null,
+    exposureInputs: nativeReference?.camera ? { camera: nativeReference.camera, metadata: 'Actual original as-shot WASM worker', otherControls: 'neutral' } : publicRawPath ? { uiExposure: [-0.8, 0, 0.8], mappedStops: [-1, 0, 1], baselineMarker: 'absent/disabled', cameraExposure: 'Explicit sceneReferred=true,dngBaseline=0,highlightPreservation=0 fixture inputs; metadata not extracted', otherControls: 'neutral' } : null,
     shaderSha256: createHash('sha256').update(assets.get('/shader.wgsl')[1]).digest('hex'),
     wasmSha256: createHash('sha256').update(wasmBytes).digest('hex'), browserVersion: browser.version(), launchArgs,
     chromiumSandbox: process.env.CHROMIUM_SANDBOX !== 'false', highPrecisionOutput: pngMode ? 0 : 1, ...result, nativeComparison, pageErrors, failedRequests,
-    scope: pngMode ? 'Actual public CC0 RAW Speed worker→original f16 upload/exposure→original EightBit WGSL/dither→native RGBA8 PNG codec, sRGB ICC/300DPI, browser decode/completed download. Other preprocessing/effects neutral, camera inputs explicit, no metadata/XMP/watermarks/transforms/full UI/provider/editor acceptance.' : publicRawPath ? 'Actual public CC0 DNG Speed development in the existing WASM worker, original RGB32F-to-RGBA16F upload, explicit exposure UI mapping (baseline0/disabled), original full shader; remaining preprocessing/effects are neutral fixtures, not full native engine/UI/export/provider/editor acceptance.' : 'Actual browser WebGPU full pinned shader (native RGBA16F substitution), 14 bindings and WASM neutral/exposure fixture; software adapter, synthetic9x3 input. Optional independent native shader-fixture comparison only; no real preprocessing/full native engine/UI/editor acceptance or performance claim.' };
+    scope: nativeReference?.camera ? 'Actual public CC0 RAW Speed worker and separate original as-shot worker feed original WB visibility/adaptation/matrix/exposure projection, full EightBit shader/dither and original PNG branch; native adjustment bytes, image bytes and completed downloads compared. Other controls/preprocessing neutral, original React/providers/full editor remain open.' : pngMode ? 'Actual public CC0 RAW Speed worker→original f16 upload/exposure→original EightBit WGSL/dither→native RGBA8 PNG codec, sRGB ICC/300DPI, browser decode/completed download. Other preprocessing/effects neutral, camera inputs explicit, no metadata/XMP/watermarks/transforms/full UI/provider/editor acceptance.' : publicRawPath ? 'Actual public CC0 DNG Speed development in the existing WASM worker, original RGB32F-to-RGBA16F upload, explicit exposure UI mapping (baseline0/disabled), original full shader; remaining preprocessing/effects are neutral fixtures, not full native engine/UI/export/provider/editor acceptance.' : 'Actual browser WebGPU full pinned shader (native RGBA16F substitution), 14 bindings and WASM neutral/exposure fixture; software adapter, synthetic9x3 input. Optional independent native shader-fixture comparison only; no real preprocessing/full native engine/UI/editor acceptance or performance claim.' };
   await mkdir(path.dirname(output), { recursive: true }); await writeFile(output, JSON.stringify(report, null, 2) + '\n');
   if (pngMode) await page.evaluate(() => document.querySelectorAll('a').forEach(a => URL.revokeObjectURL(a.href)));
   console.log(JSON.stringify(report)); await context.close();

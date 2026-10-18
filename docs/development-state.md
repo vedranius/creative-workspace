@@ -1,3 +1,9 @@
+# 2026-10-18 RWASM-03 — actual camera WB/exposure drives original shader/PNG
+
+Actual original as-shot worker metadata now feeds original WB tool visibility, Bradford gains, GPU matrix column packing and exposure mapping in the source-layout shader payload. Five public-DNG512×384 EightBit/dither frames cover original baseline−0.5EV, relative/absolute WB edits, explicit disabled WB and legacy hidden color controls. Independent native settings/complete adjustment bytes,3,932,160/3,932,160 image byte components and all five original PNG files match exactly. Browser decode/completed-download hashes pass with zero GPU/page/network errors. Core39/39, native shader reference1/1, host15/15, repo check and focused format/syntax/diff pass. [Evidence and exact next task](rapidraw-wasm-camera-render-handoff.md).
+
+This connects real metadata to edited frame/PNG behavior; remaining global controls/defaults/preprocessing and masks still use neutral fixtures. Original React/providers/full editor acceptance remain open, no product release/version/demo/private-file/service change. Priorc0bdfd4 Checks39124703583/parity39124703572 succeeded; fresh camera-render CI follows publication.
+
 # 2026-10-18 RWASM-03 — original as-shot white balance
 
 The full pinned `white_balance.rs` now runs in WASM, with original camera-neutral coefficient/matrix selection and sRGB/D65/color helpers. The independent native harness's dummy WB stub was removed and replaced with the real original source. The public Canon DNG reads6133.300425391969K, tint39.766891841657326 and exposure−0.5EV identically in native and Chromium. All58 metadata/UI-shift/Bradford gain/matrix scalars match exactly; eight malformed mappings and empty RAW refuse with zero browser errors. Core37/37, host14/14, check and focused format/syntax/diff pass. [Proof and next step](rapidraw-wasm-as-shot-handoff.md).

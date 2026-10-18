@@ -1,3 +1,9 @@
+# RWASM-03 — real camera WB/exposure shader/PNG slice verified (2026-10-18)
+
+Actual public-DNG as-shot metadata now drives original WB/exposure projection in the full source WGSL. Five native-identical PNGs,3,932,160 exact byte components, complete packed adjustment hashes and completed downloads verified. [Current handoff](rapidraw-wasm-camera-render-handoff.md).
+
+Next ready task: replace the neutral **global** fixture with full pinned `get_global_adjustments_from_json` and its exact supporting helpers/defaults (basic controls, curves, HSL/grading/calibration, tone/AGX matrices). Preserve existing actual as-shot WB/exposure/visibility and native byte/frame reference. First map exact helper dependencies and source pins; implement full global settings as a bounded step toward the original React engine bridge. Keep masks/preprocessing/resources/geometry/export/provider gates explicit; no ad-hoc replacement control formulas or broad editor availability claim. Continue MAIN only, preserve private RAF development budget and A owner waiting approval.
+
 # RWASM-03 — original as-shot WB slice verified (2026-10-18)
 
 Full source WB module/color helpers and original camera-neutral matrix selection now produce matching actual public-DNG WB/exposure in a browser worker.58/58 native scalars exact, eight malformed mappings plus empty RAW refused; original native WB stub removed. [Current handoff](rapidraw-wasm-as-shot-handoff.md).

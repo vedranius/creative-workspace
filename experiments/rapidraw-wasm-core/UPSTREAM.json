@@ -148,5 +148,17 @@
     "serde": "1.0.229",
     "scope": "Full original WB module and original camera-neutral matrix selection, metadata guards and original WB UI/adaptation mapping. Other settings/GPU incorporation are separate.",
     "license": "AGPL-3.0-only"
+  },
+  "cameraRendererProjection": {
+    "sourcePath": "src-tauri/src/image_processing.rs",
+    "sourceSha256": "5e16c6d88c30e5728534bb67be47e79c44b96d524f90973a611c2c2e8adb3a19",
+    "targetExcerptSha256": "32829accdaf070f268a61c2529fdb8bb66606bf51bc2cffa9f6f8d33453e9faf",
+    "matrixExcerptSha256": "517fc9638805c82635e962a4f8b31bca5965b7aaafe1a7bb1eb06af385dd3aed",
+    "referenceCopies": [
+      "tests/reference/wb-target.txt",
+      "tests/reference/wb-gpu-matrix.rs"
+    ],
+    "scope": "Original WB tool visibility, adaptation gains and GPU column packing, original exposure mapping in otherwise neutral AllAdjustments. Not full original JSON/effects/preprocessing.",
+    "license": "AGPL-3.0-only"
   }
 }

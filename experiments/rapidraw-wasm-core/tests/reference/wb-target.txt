@@ -1,0 +1,5 @@
+    let target_white_balance = if is_tool_active(js_adjustments, "whiteBalance") {
+        white_balance::from_adjustments(js_adjustments, as_shot.white_balance)
+    } else {
+        as_shot.white_balance
+    };

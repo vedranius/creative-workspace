@@ -18,6 +18,24 @@ const WIDTH: u32 = 9;
 const HEIGHT: u32 = 3;
 const SHADER: &str = include_str!("../../rapidraw-wasm-core/shader.wgsl");
 
+#[derive(Deserialize, Serialize)]
+#[serde(rename_all = "camelCase")]
+struct CameraFrame {
+    json: String,
+    exposure: f32,
+    gains: [f32; 3],
+    rgb_to_lms: GpuMat3,
+    lms_to_rgb: GpuMat3,
+}
+#[derive(Deserialize, Serialize)]
+#[serde(rename_all = "camelCase")]
+struct CameraSettings {
+    source: String,
+    as_shot: serde_json::Value,
+    options: serde_json::Value,
+    frames: Vec<CameraFrame>,
+}
+
 fn hash(bytes: &[u8]) -> String {
     format!("{:x}", Sha256::digest(bytes))
 }
@@ -54,6 +72,26 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     );
     assert_eq!(std::mem::size_of::<AllAdjustments>(), 45232);
     let mut args: Vec<String> = std::env::args().collect();
+    let camera: Option<CameraSettings> = if let Some(i) =
+        args.iter().position(|v| v == "--camera-settings")
+    {
+        if i + 1 >= args.len() {
+            return Err("Camera settings path required".into());
+        }
+        let p = args.remove(i + 1);
+        args.remove(i);
+        let bytes = std::fs::read(p)?;
+        if bytes.len() > 65536 {
+            return Err("Camera fixture exceeds64KiB".into());
+        }
+        let camera: CameraSettings = serde_json::from_slice(&bytes)?;
+        if camera.source != "b39884b38d8f148caef6fd0d52afd264951be329" || camera.frames.len() != 5 {
+            return Err("Expected five original camera fixture cases".into());
+        }
+        Some(camera)
+    } else {
+        None
+    };
     let eight = if let Some(i) = args.iter().position(|v| v == "--eight-bit") {
         args.remove(i);
         true
@@ -273,7 +311,11 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     });
     let output_view = output.create_view(&Default::default());
     let mut frames = Vec::new();
-    for (index, exposure) in [-1f32, 0., 1.].into_iter().enumerate() {
+    let exposures: Vec<f32> = camera
+        .as_ref()
+        .map(|c| c.frames.iter().map(|f| f.exposure).collect())
+        .unwrap_or_else(|| vec![-1., 0., 1.]);
+    for (index, exposure) in exposures.into_iter().enumerate() {
         let mut adjustments = AllAdjustments::zeroed();
         let identity = GpuMat3::default();
         adjustments.global.exposure = exposure;
@@ -287,6 +329,14 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         adjustments.global.agx_rendering_to_pipe_matrix = identity;
         adjustments.global.wb_rgb_to_lms_matrix = identity;
         adjustments.global.wb_lms_to_rgb_matrix = identity;
+        if let Some(camera) = &camera {
+            let c = &camera.frames[index];
+            adjustments.global.wb_log_gain_l = c.gains[0];
+            adjustments.global.wb_log_gain_m = c.gains[1];
+            adjustments.global.wb_log_gain_s = c.gains[2];
+            adjustments.global.wb_rgb_to_lms_matrix = c.rgb_to_lms;
+            adjustments.global.wb_lms_to_rgb_matrix = c.lms_to_rgb;
+        }
         adjustments.mask_atlas_cols = 1;
         let adjustment_buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
             label: None,
@@ -410,7 +460,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     }
     println!(
         "{}",
-        json!({"source":"b39884b38d8f148caef6fd0d52afd264951be329","highPrecisionOutput":if eight{0}else{1},"format":if eight{"rgba8unorm"}else{"rgba16float"},"shaderSha256":hash(SHADER.as_bytes()),"scope":"Independent native wgpu29 full original shader on neutral synthetic resources; not full native engine/preprocessing", "adapter":{"name":info.name,"driver":info.driver,"driverInfo":info.driver_info,"backend":format!("{:?}",info.backend),"deviceType":format!("{:?}",info.device_type)},"width":width,"height":height,"inputFormat":input_format,"inputF32Sha256":hash(bytemuck::cast_slice(&input_source)),"inputRgbaF16Sha256":hash(bytemuck::cast_slice(&input_f16)),"frames":frames})
+        json!({"source":"b39884b38d8f148caef6fd0d52afd264951be329","highPrecisionOutput":if eight{0}else{1},"format":if eight{"rgba8unorm"}else{"rgba16float"},"shaderSha256":hash(SHADER.as_bytes()),"scope":"Independent native wgpu29 full original shader on neutral synthetic resources; not full native engine/preprocessing", "adapter":{"name":info.name,"driver":info.driver,"driverInfo":info.driver_info,"backend":format!("{:?}",info.backend),"deviceType":format!("{:?}",info.device_type)},"width":width,"height":height,"inputFormat":input_format,"inputF32Sha256":hash(bytemuck::cast_slice(&input_source)),"inputRgbaF16Sha256":hash(bytemuck::cast_slice(&input_f16)),"frames":frames,"camera":camera})
     );
     Ok(())
 }
