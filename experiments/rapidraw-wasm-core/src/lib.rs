@@ -29,6 +29,8 @@ pub mod png_export;
 pub mod preview;
 pub mod preview_resize;
 #[rustfmt::skip]
+pub mod interactive_preview;
+#[rustfmt::skip]
 mod original_downscale;
 pub mod renderer_adjustments;
 pub mod renderer_upload;
@@ -641,6 +643,39 @@ mod browser {
             Float32Array::from(resized.data.as_slice()).as_ref(),
         )?;
         Ok(result.into())
+    }
+
+    #[wasm_bindgen]
+    pub fn resize_interactive_rgb32f(
+        width: u32,
+        height: u32,
+        pixels: &[f32],
+        preview_dim: u32,
+        live_quality: &str,
+    ) -> Result<JsValue, JsValue> {
+        let result = super::interactive_preview::resize_interactive(
+            width,
+            height,
+            pixels,
+            preview_dim,
+            live_quality,
+        )
+        .map_err(|e| JsValue::from_str(&e))?;
+        let out = Object::new();
+        for (key, value) in [
+            ("width", result.pixels.width as f64),
+            ("height", result.pixels.height as f64),
+            ("quality", result.quality as f64),
+            ("divisor", result.divisor as f64),
+        ] {
+            Reflect::set(&out, &key.into(), &JsValue::from_f64(value))?;
+        }
+        Reflect::set(
+            &out,
+            &"data".into(),
+            Float32Array::from(result.pixels.data.as_slice()).as_ref(),
+        )?;
+        Ok(out.into())
     }
 
     /// Develop an image with the pinned native RapidRAW float-pixel path.

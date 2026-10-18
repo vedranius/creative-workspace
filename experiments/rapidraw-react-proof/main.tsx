@@ -22,10 +22,10 @@ document.documentElement.style.setProperty('--font-family','-apple-system, Blink
 await init();
 const adapter=await navigator.gpu?.requestAdapter();if(!adapter)throw Error('WebGPU unavailable');
 const device=await adapter.requestDevice();const gpuErrors:string[]=[];device.addEventListener('uncapturederror',e=>gpuErrors.push(e.error.message));
-const transport=createReactTransport({wasm,device,shaderSource:await(await fetch('/engine/shader.wgsl')).text(),defaults:INITIAL_ADJUSTMENTS,workerUrl:'/engine/react-image-worker.js'});
+const transport=createReactTransport({wasm,device,shaderSource:await(await fetch('/engine/shader.wgsl')).text(),defaults:INITIAL_ADJUSTMENTS,getPreviewSettings:()=>useSettingsStore.getState().appSettings,workerUrl:'/engine/react-image-worker.js'});
 (globalThis as any).rapidRawTransport=transport;
 const settings={editorPreviewResolution:512,useWgpuRenderer:false,enableZoomHifi:false,enableLivePreviews:true,
- baselineExposure:0,compensateHighlightPreservation:true,copyPasteSettings:{autoSync:false}};
+ livePreviewQuality:'high',baselineExposure:0,compensateHighlightPreservation:true,copyPasteSettings:{autoSync:false}};
 useSettingsStore.getState().setAppSettings(settings as any);
 useUIStore.getState().setUI({activeView:'editor',activePanel:Panel.Adjustments} as any);
 function Proof(){
@@ -47,4 +47,4 @@ function Proof(){
  </main><ToastContainer position="bottom-left" theme="dark"/></>;
 }
 const root=createRoot(document.getElementById('root')!);root.render(<Proof/>);
-(globalThis as any).proof={gpuErrors,adapter:{vendor:adapter.info.vendor,architecture:adapter.info.architecture},store:useEditorStore,trace:transport.trace,async close(){root.unmount();await transport.close();device.destroy();},settings};
+(globalThis as any).proof={gpuErrors,adapter:{vendor:adapter.info.vendor,architecture:adapter.info.architecture},store:useEditorStore,trace:transport.trace,setLiveQuality(livePreviewQuality:string){useSettingsStore.getState().setAppSettings({...useSettingsStore.getState().appSettings,livePreviewQuality} as any);},async close(){root.unmount();await transport.close();device.destroy();},settings};

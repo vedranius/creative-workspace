@@ -1,3 +1,7 @@
+# Unreleased RapidRAW interactive preview checkpoint — 2026-10-18
+
+Actual original Slider drag/release now verifies source full/high/performance sizing/quality and native-identical interactive response/header/JPEG bytes, with exact q94 restoration. [Proof and next geometry task](rapidraw-wasm-interactive-handoff.md). ROI/geometry/effects/metadata/menus/export/provider acceptance remain open. No product SemVer/tag/release/install/demo update; existing immutable draft remains separate.
+
 # Unreleased RapidRAW Quality/preview checkpoint — 2026-10-18
 
 Original React now records full Quality dimensions while original source area resizing bounds the preview before GPU upload. Native full/preview RGB and five edited-frame/JPEG comparisons pass, with oversize refusal and continued document use. [Proof and next task](rapidraw-wasm-quality-preview-handoff.md). Metadata/sidecars, interactive sizing, geometry/effects/menus/provider/save acceptance remain open. No product SemVer/tag/release/install/demo update; existing immutable draft release remains separate.

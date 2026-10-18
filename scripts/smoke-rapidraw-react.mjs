@@ -5,13 +5,14 @@ import {createServer} from 'node:http';
 import {once} from 'node:events';
 import {createHash} from 'node:crypto';
 import path from 'node:path';
-const [stage,fixture,output,nativeReferencePath,nativeResizePath]=process.argv.slice(2);
+const [stage,fixture,output,nativeReferencePath,nativeResizePath,nativeInteractivePath]=process.argv.slice(2);
 if(!stage||!fixture||!output)throw Error('BUILT_REACT_STAGE PUBLIC_CC0_DNG OUTPUT_JSON');
 const digest=b=>createHash('sha256').update(b).digest('hex');
 const pin=JSON.parse(await readFile(new URL('../docs/evidence/rapidraw-wasm/runtime-smoke.json',import.meta.url),'utf8')).fixtures.find(x=>x.id==='raw.pixls.us 1327');
 assert.equal(pin.license,'CC0-1.0');assert.equal(digest(await readFile(fixture)),pin.sourceSha256);
 const native=nativeReferencePath?JSON.parse(await readFile(nativeReferencePath,'utf8')):null;
 const nativeResize=nativeResizePath?JSON.parse(await readFile(nativeResizePath,'utf8')):null;
+const nativeInteractive=nativeInteractivePath?JSON.parse(await readFile(nativeInteractivePath,'utf8')):null;
 const provenance=JSON.parse(await readFile(path.join(stage,'source-proof.json'),'utf8'));
 const chromiumSandbox=process.env.CHROMIUM_SANDBOX!=='false';
 const assets=new Map();
@@ -110,9 +111,51 @@ try{
   assert.equal(samples[i].exposure,frame.exposure);assert.equal(samples[i].bytes,frame.jpegBytes);
   for(const key of ['jpegSha256','rgbaSha256','adjustmentSha256'])assert.equal(samples[i][key],frame[key],`Native original UI frame${i} ${key} differs`);
  }}
+ const interactiveSamples=[];
+ if(nativeInteractive){
+  for(const expected of nativeInteractive){
+   await page.evaluate(mode=>proof.setLiveQuality(mode),expected.preset);
+   const previousIndex=await page.evaluate(()=>proof.trace.length-1);
+   const slider=page.getByLabel('Original Basic panel').locator('input[type=range]').first();
+   const box=await slider.boundingBox();assert.ok(box);
+   const x=box.x+box.width/2,y=box.y+box.height/2;
+   await page.keyboard.down('Shift');await page.mouse.move(x,y);await page.mouse.down();
+   await page.waitForFunction(()=>proof.store.getState().isSliderDragging);
+   await page.mouse.move(x+box.width*0.4,y);
+   await page.waitForFunction(()=>proof.store.getState().adjustments.exposure===0.8);
+   const captured=await page.evaluate(async({quality,minimum})=>{
+    const deadline=performance.now()+30000;
+    while(performance.now()<deadline){
+     const index=proof.trace.findLastIndex((f,i)=>i>minimum&&f.command==='render-result'&&f.interactive&&f.exposure===0.8&&f.quality===quality);
+     const frame=proof.trace[index],state=proof.store.getState(),patch=state.interactivePatch;
+     if(frame&&state.isSliderDragging&&patch?.url){
+      try{const bytes=await(await fetch(patch.url)).arrayBuffer();const jpegSha256=[...new Uint8Array(await crypto.subtle.digest('SHA-256',bytes))].map(v=>v.toString(16).padStart(2,'0')).join('');
+       if(jpegSha256===frame.jpegSha256){const bitmap=await createImageBitmap(new Blob([bytes],{type:'image/jpeg'}));const dimensions=[bitmap.width,bitmap.height];bitmap.close();return {frame,dimensions,jpegSha256,rect:[patch.normX,patch.normY,patch.normW,patch.normH],dragging:state.isSliderDragging,preview:proof.trace.findLast(p=>p.command==='preview-result'&&p.interactive&&p.quality===quality)};}
+      }catch{/* Wait for the unchanged hook's current patch URL. */}
+     }
+     await new Promise(resolve=>requestAnimationFrame(resolve));
+    }
+    throw Error('No matching original Slider interactive patch');
+   },{quality:expected.quality,minimum:previousIndex});
+   assert.equal(captured.dragging,true);assert.deepEqual(captured.dimensions,[expected.width,expected.height]);assert.deepEqual(captured.rect,[0,0,1,1]);
+   assert.deepEqual(captured.frame.rect,expected.rect);
+   for(const key of ['responseSha256','jpegSha256','rgbaSha256','adjustmentSha256'])assert.equal(captured.frame[key],expected[key],`Native interactive ${expected.preset} ${key}`);
+   assert.equal(captured.preview.rgbSha256,expected.rgbSha256);assert.equal(captured.frame.bytes,expected.bytes);
+   if(expected.preset==='performance')await page.screenshot({path:output.replace(/\.json$/,'-drag-performance.png')});
+   await page.mouse.up();await page.keyboard.up('Shift');
+   await page.waitForFunction(()=>!proof.store.getState().isSliderDragging&&proof.store.getState().interactivePatch===null);
+   await sample(0.8);const released=samples.pop();assert.equal(released.jpegSha256,native.frames[1].jpegSha256);assert.equal(released.bytes,native.frames[1].jpegBytes);
+   interactiveSamples.push({preset:expected.preset,...captured,finalAfterRelease:released});
+   await slider.locator('xpath=../..').locator('span[data-tooltip]').click();const number=page.getByLabel('Original Basic panel').locator('input[type=text]').first();await number.fill('0');await number.press('Enter');await sample(0);const restored=samples.pop();assert.equal(restored.jpegSha256,result.hash);
+  }
+ }
+ const afterInteractive=await page.evaluate(()=>({gpuErrors:proof.gpuErrors,exposure:proof.store.getState().adjustments.exposure,originalSize:proof.store.getState().originalSize,patchCleared:proof.store.getState().interactivePatch===null,dragging:proof.store.getState().isSliderDragging}));
+ assert.deepEqual(afterInteractive.gpuErrors,[]);assert.equal(afterInteractive.exposure,0);assert.equal(afterInteractive.patchCleared,true);assert.equal(afterInteractive.dragging,false);assert.deepEqual(afterInteractive.originalSize,{width:2048,height:1536});
+ assert.deepEqual(pageErrors,[]);assert.deepEqual(failedRequests,[]);assert.deepEqual(blockedExternalRequests,[]);
+ assert.ok(consoleErrors.every(x=>x.includes('Auto-save failed:')&&x.includes('save_metadata_and_update_thumbnail')),JSON.stringify(consoleErrors));
  await page.screenshot({path:output.replace(/\.json$/,'.png')});
  await page.evaluate(()=>proof.close());
- const report={stage:'RWASM-03 original React Quality load and bounded source preview resize',...provenance,publicFixture:{id:pin.id,license:pin.license,sourceSha256:pin.sourceSha256},browserVersion:browser.version(),chromiumSandbox,first,result,samples,blockedExternalRequests,nativeComparison:native?{frames:5,completeAdjustmentsExact:true,renderedPixelsExact:true,encodedJpegExact:true}:null,nativeResize,resizeRecovery,rejectedResizeInputs,refusedOversizePreview:true,workerUsableAfterRefusal:true,pageErrors,failedRequests,expectedSaveErrors:consoleErrors.length,
-  scope:'Original hooks/stores/Editor/ImageCanvas/Basic/Slider unchanged, QA composition and invoke alias only. Quality-developed2048x1536 load and original neutral-geometry512x384 area preview before bounded GPU upload. Basic exposure proof only; full App menus, full load_image metadata/sidecars, geometry/effects/ROI/analytics/save/provider acceptance remain open.'};
+ const report={stage:'RWASM-03 original Slider drag and native interactive preview policy',...provenance,publicFixture:{id:pin.id,license:pin.license,sourceSha256:pin.sourceSha256},browserVersion:browser.version(),chromiumSandbox,first,result,samples,blockedExternalRequests,nativeComparison:native?{frames:5,completeAdjustmentsExact:true,renderedPixelsExact:true,encodedJpegExact:true}:null,nativeInteractive,interactiveSamples,afterInteractive,nativeResize,resizeRecovery,rejectedResizeInputs,refusedOversizePreview:true,workerUsableAfterRefusal:true,pageErrors,failedRequests,expectedSaveErrors:consoleErrors.length,
+  scope:'Original hooks/stores/Editor/ImageCanvas/Basic/Slider unchanged, QA composition and invoke alias only. Quality-developed2048x1536 load and original neutral-geometry512x384 area preview before bounded GPU upload. Original Slider drag/release verifies no-ROI full/high/performance preview sizing/quality. Full App menus, metadata/sidecars, geometry/effects/ROI/analytics/save/provider acceptance remain open.'};
  await writeFile(output,JSON.stringify(report,null,2)+'\n');console.log(JSON.stringify(report));await context.close();
 }catch(error){console.log(JSON.stringify({pageErrors,failedRequests,consoleErrors}));throw error;}finally{await browser?.close();await new Promise(resolve=>server.close(resolve));}

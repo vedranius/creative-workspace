@@ -1,3 +1,9 @@
+## Experimental RapidRAW branch — original interactive preview/Slider drag (2026-10-18)
+
+- Preserve source full/high/performance divisor/quality policy and exact second area-filter stage: performance512×384→340×255 q65; final remains full q94.
+- Verify real original Slider mouse drag, hook overlay/header/JPEG and release restoration against independent native output: three modes,103,201 complete response bytes exact. Core51/host20/check pass.
+- Reproduce native references and actual pointer proof in Actions. ROI/geometry/effects/metadata/menus/export/providers remain open; no product version/release/demo change.
+
 ## Experimental RapidRAW branch — Quality load and original preview resize (2026-10-18)
 
 - Keep full Quality RGB in a document-owned worker and return actual original dimensions to unchanged React hooks; apply the pinned original area filter before bounded GPU upload.

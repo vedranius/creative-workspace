@@ -224,5 +224,12 @@
     "dimensionSource": "src-tauri/src/lib.rs::compute_transformed_preview",
     "dimensionFileSha256": "ce69ae5e06b5c5f0eb7b6592d981c727c1be07e7787000a41e50ed77618b2606",
     "adaptation": "Only non-wasm32 cfg on profiling Instant/log; area weights/order/math unchanged. Neutral geometry only; orientation already applied by development; no crop/rotation/patch/effects support."
+  },
+  "interactivePreview": {
+    "source": "src-tauri/src/lib.rs::process_preview_job",
+    "selectionSha256": "98499fbe2c273dd17190165354b5f44d853764da25541fdababcb3d0de215805",
+    "smallSizeSha256": "b85c25252f83e473e00cec10b6b9926194e79296600ff12768f34275104bf682",
+    "referenceSha256": "e859fdab34c2d3fe9c3496846a96b975bfbae89afcb8d1092d270382792b465c",
+    "scope": "Original no-ROI live quality/divisor, two-stage original area filter and interactive envelope. ROI selector values retained as reference only; ROI rendering unsupported."
   }
 }

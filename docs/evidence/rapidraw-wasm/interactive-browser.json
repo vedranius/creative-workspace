@@ -1,0 +1,1461 @@
+{
+  "stage": "RWASM-03 original Slider drag and native interactive preview policy",
+  "nativeSource": "b39884b38d8f148caef6fd0d52afd264951be329",
+  "license": "AGPL-3.0-only",
+  "sourceFiles": {
+    "src/hooks/useImageLoader.ts": "6e8cbf9c08b8b09438193e345d22bc000a086a1fd6424a2dfe928ad8f21bed30",
+    "src/hooks/useImageProcessing.ts": "f0070afca39a04690ded76badd78f069c7ee046a7f3cdc8c3d4b7bad40d9b2bb",
+    "src/hooks/useEditorActions.ts": "8de8bfb9f0dcb0a485cb9dd4476ed1ae56c21803a82c4b62023f29c5d6da422d",
+    "src/components/panel/Editor.tsx": "291466d31de13e1507b77116ef3cda219c89eb3f58039b534f1ef9a5414c8298",
+    "src/components/panel/editor/ImageCanvas.tsx": "51d1da343826f5dc957369ee4448c2f3a72423894640bd5dd6a2c14ee5c29381",
+    "src/components/adjustments/Basic.tsx": "a7d524dd383eccd483923f2d3678e3387494ce481191363967b94fa4c5ef37a6",
+    "src/components/ui/Slider.tsx": "13752203a8631fb6080b0092248f2c01e1f8e2624a81a927dc7e12376ea586b8",
+    "src/store/useEditorStore.ts": "86fdf855fab86fe2f6ef1fe8aa06b7484fb6e540cea09267208e776ee11c6742",
+    "src/utils/defaultAdjustments.json": "d650db51fe618e3522767832edf911ea8b6da68d61c2db54912193c64d2332bc",
+    "package-lock.json": "4e612a5639e68871d9fc6f8e92286eaa61d6c100d3e91154cfeef2d23f569811",
+    "src/utils/themes.ts": "e05a091ad0c7a2b05f7bb29232de026d38bd6af4e5d113dedaaa01cc12f87884",
+    "src/hooks/useAppInitialization.ts": "418afe949997ae248fb4f10a84ab4c52da27e8bad536c5fec95a2f4210f43e41"
+  },
+  "wasmSha256": "b312dc49d519649f887ef591732f70ef2508739decab7513aa98cb98a86682c3",
+  "qualityTimerCompatibility": {
+    "schemaVersion": 1,
+    "decoderSource": "a32bc1ff1f4f3c56d4d3226082f6eb17414f9159",
+    "patch": {
+      "path": "patches/rapidraw-rawler/a32bc1ff/ppg-wasm-profiling.patch",
+      "sha256": "d80f45df13380ea0dfa0554565c633116e8ad726b2096b8c0b9a602259497f95",
+      "file": "rawler/src/imgop/sensor/bayer/ppg.rs",
+      "beforeSha256": "9320de465bbef900e00fe794627e7c5e652f2415205c0b39f89837934e031f6c",
+      "afterSha256": "02fc66b032a6bb98f8ed5c03a261e119de17739cb8a72fffcc5c395334d91e4d",
+      "scope": "Only wasm32 profiling timer/debug log cfgs; all PPG pixel arithmetic unchanged; native timing retained",
+      "license": "LGPL-2.1"
+    },
+    "scope": "Isolated timer-patched rawler plus source-equivalent probe; only wasm32 profiling is removed, native behavior and interpolation preserved"
+  },
+  "previewResize": {
+    "source": "src-tauri/src/image_processing.rs::downscale_f32_image",
+    "sourceFileSha256": "5e16c6d88c30e5728534bb67be47e79c44b96d524f90973a611c2c2e8adb3a19",
+    "functionSha256": "79028a5f33e259fb7bdcae97ae7bece8b8f2c55c100bbac930b7243c1f944e3f",
+    "referenceSha256": "bbefb75cfb347af08232b4a99c6f7456e33d582a5927222e9e50bc9509e589a1",
+    "dimensionSource": "src-tauri/src/lib.rs::compute_transformed_preview",
+    "dimensionFileSha256": "ce69ae5e06b5c5f0eb7b6592d981c727c1be07e7787000a41e50ed77618b2606",
+    "adaptation": "Only non-wasm32 cfg on profiling Instant/log; area weights/order/math unchanged. Neutral geometry only; orientation already applied by development; no crop/rotation/patch/effects support."
+  },
+  "interactivePreview": {
+    "source": "src-tauri/src/lib.rs::process_preview_job",
+    "selectionSha256": "98499fbe2c273dd17190165354b5f44d853764da25541fdababcb3d0de215805",
+    "smallSizeSha256": "b85c25252f83e473e00cec10b6b9926194e79296600ff12768f34275104bf682",
+    "referenceSha256": "e859fdab34c2d3fe9c3496846a96b975bfbae89afcb8d1092d270382792b465c",
+    "scope": "Original no-ROI live quality/divisor, two-stage original area filter and interactive envelope. ROI selector values retained as reference only; ROI rendering unsupported."
+  },
+  "scope": "Original hooks/stores/Editor/ImageCanvas/Basic/Slider unchanged, QA composition and invoke alias only. Quality-developed2048x1536 load and original neutral-geometry512x384 area preview before bounded GPU upload. Original Slider drag/release verifies no-ROI full/high/performance preview sizing/quality. Full App menus, metadata/sidecars, geometry/effects/ROI/analytics/save/provider acceptance remain open.",
+  "publicFixture": {
+    "id": "raw.pixls.us 1327",
+    "license": "CC0-1.0",
+    "sourceSha256": "f0d2fe47507fadf50008bddbc6bd2c5e39fddbe90cca6bca72dd360fa0e0eb38"
+  },
+  "browserVersion": "151.0.7922.34",
+  "chromiumSandbox": true,
+  "first": {
+    "width": 2048,
+    "height": 1536,
+    "wb": {
+      "temperature": 6133.300425391969,
+      "tint": 39.766891841657326
+    },
+    "bytes": 61812,
+    "hash": "042350b5c54e9244b8a9f33089efa25b0516ae59f4e188ba0345fcd60a86f869"
+  },
+  "result": {
+    "gpuErrors": [],
+    "adapter": {
+      "vendor": "google",
+      "architecture": "swiftshader"
+    },
+    "originalSize": {
+      "width": 2048,
+      "height": 1536
+    },
+    "loaded": {
+      "command": "load-result",
+      "width": 2048,
+      "height": 1536,
+      "developmentMode": "native-quality",
+      "rgbSha256": "f052bba0940702e068fb03d6a9f1cc78b9c57e7ff5758f1c460f28d11fb49e30"
+    },
+    "previews": [
+      {
+        "command": "preview-result",
+        "target": 512,
+        "interactive": false,
+        "liveQuality": "high",
+        "quality": 94,
+        "divisor": 1,
+        "width": 512,
+        "height": 384,
+        "originalWidth": 2048,
+        "originalHeight": 1536,
+        "scaleForGpu": 0.25,
+        "rgbSha256": "c0d07e55c42bd67059613035283567cc83e324ad95f75c9008de854ac5d7ec9f"
+      }
+    ],
+    "dimensions": [
+      512,
+      384
+    ],
+    "bytes": 61812,
+    "hash": "042350b5c54e9244b8a9f33089efa25b0516ae59f4e188ba0345fcd60a86f869",
+    "exposure": 0,
+    "rendered": [
+      {
+        "exposure": 0,
+        "interactive": false,
+        "width": 512,
+        "height": 384,
+        "bytes": 61812
+      },
+      {
+        "exposure": 0.8,
+        "interactive": false,
+        "width": 512,
+        "height": 384,
+        "bytes": 85035
+      },
+      {
+        "exposure": -0.8,
+        "interactive": false,
+        "width": 512,
+        "height": 384,
+        "bytes": 38183
+      },
+      {
+        "exposure": 1.6,
+        "interactive": false,
+        "width": 512,
+        "height": 384,
+        "bytes": 95957
+      },
+      {
+        "exposure": 0,
+        "interactive": false,
+        "width": 512,
+        "height": 384,
+        "bytes": 61812
+      }
+    ],
+    "commands": [
+      "clear_session_caches",
+      "update_wgpu_transform",
+      "load_metadata",
+      "load_image",
+      "load-result",
+      "apply_adjustments",
+      "preview-result",
+      "apply_adjustments",
+      "save_metadata_and_update_thumbnail",
+      "apply_adjustments",
+      "save_metadata_and_update_thumbnail",
+      "apply_adjustments",
+      "save_metadata_and_update_thumbnail",
+      "apply_adjustments",
+      "apply_adjustments",
+      "save_metadata_and_update_thumbnail",
+      "export_image",
+      "save_metadata_and_update_thumbnail"
+    ],
+    "unsupported": [
+      {
+        "command": "export_image",
+        "code": "unavailable-command"
+      },
+      {
+        "command": "save_metadata_and_update_thumbnail",
+        "code": "unavailable-command"
+      }
+    ],
+    "saveErrorVisible": true,
+    "visibleOriginalSvgImages": 1
+  },
+  "samples": [
+    {
+      "exposure": 0,
+      "bytes": 61812,
+      "adjustmentSha256": "7528054041d105912931d3cc66497b535740e7f03c198e6e9f3915cc44f1520e",
+      "rgbaSha256": "220a870ec41b3f9a81899d8b33d60fd7bfbbf896c4d844497ff4ddfe5640d28d",
+      "jpegSha256": "042350b5c54e9244b8a9f33089efa25b0516ae59f4e188ba0345fcd60a86f869"
+    },
+    {
+      "exposure": 0.8,
+      "bytes": 85035,
+      "adjustmentSha256": "985219f6d0dad0546f1a4ea1fd8006bcb7123da0b87125a8da06f3b55d15b6c6",
+      "rgbaSha256": "a039edaab4f09f6d21ba71b4f1b9afd420e0d3e0214a5ee0f336c3a3ee43124c",
+      "jpegSha256": "4b4b8363d79e6f622ad79923c4049c795887bb4b4b413c66b0d3a0d8d9de569a"
+    },
+    {
+      "exposure": -0.8,
+      "bytes": 38183,
+      "adjustmentSha256": "b26ba4e8d6984f5667a7a2aeeaa7d6c246f882bb6eb492dac91ea2c66f1c38e7",
+      "rgbaSha256": "505bd61272cb6fe0e4a3752933c48799c71275c9ff46cf7393fa30cb9ccc5ec9",
+      "jpegSha256": "19c623239f33aee12b0aed7bd39dff6041aff8bc69254647967ee4a40a90b8ca"
+    },
+    {
+      "exposure": 1.6,
+      "bytes": 95957,
+      "adjustmentSha256": "67070dc4d5a1cc4083bc165544f00cc92de3caa8dfe16e1a071de6504b11ac6a",
+      "rgbaSha256": "55d931f68ef38ceb0843e6ee24fb1756bbec2214327f734119ae6ca7cc3a9b11",
+      "jpegSha256": "83f27b034e2eea7b427d0577a0eadd9d612c0c7d11bf1d8284b7c2a8daf98766"
+    },
+    {
+      "exposure": 0,
+      "bytes": 61812,
+      "adjustmentSha256": "7528054041d105912931d3cc66497b535740e7f03c198e6e9f3915cc44f1520e",
+      "rgbaSha256": "220a870ec41b3f9a81899d8b33d60fd7bfbbf896c4d844497ff4ddfe5640d28d",
+      "jpegSha256": "042350b5c54e9244b8a9f33089efa25b0516ae59f4e188ba0345fcd60a86f869"
+    }
+  ],
+  "blockedExternalRequests": [],
+  "nativeComparison": {
+    "frames": 5,
+    "completeAdjustmentsExact": true,
+    "renderedPixelsExact": true,
+    "encodedJpegExact": true
+  },
+  "nativeInteractive": [
+    {
+      "adjustmentSha256": "985219f6d0dad0546f1a4ea1fd8006bcb7123da0b87125a8da06f3b55d15b6c6",
+      "baseRgbSha256": "c0d07e55c42bd67059613035283567cc83e324ad95f75c9008de854ac5d7ec9f",
+      "bytes": 50335,
+      "divisor": 1,
+      "exposure": 0.8,
+      "height": 384,
+      "jpegSha256": "2339c2187cb4a26b974ef486b65e256be423499b221944aed37095b72570ded6",
+      "preset": "full",
+      "quality": 85,
+      "rect": [
+        0,
+        0,
+        512,
+        384,
+        512,
+        384
+      ],
+      "responseSha256": "848c96cd17f95c879c88c90dbbb1a4d5a5167edbe8fa36c13a472a1fb27a86f0",
+      "rgbSha256": "c0d07e55c42bd67059613035283567cc83e324ad95f75c9008de854ac5d7ec9f",
+      "rgbaSha256": "a039edaab4f09f6d21ba71b4f1b9afd420e0d3e0214a5ee0f336c3a3ee43124c",
+      "scope": "Actual source no-ROI interactive second downscale; no geometry/effect preprocessing",
+      "source": "b39884b38d8f148caef6fd0d52afd264951be329",
+      "width": 512
+    },
+    {
+      "adjustmentSha256": "985219f6d0dad0546f1a4ea1fd8006bcb7123da0b87125a8da06f3b55d15b6c6",
+      "baseRgbSha256": "c0d07e55c42bd67059613035283567cc83e324ad95f75c9008de854ac5d7ec9f",
+      "bytes": 36589,
+      "divisor": 1,
+      "exposure": 0.8,
+      "height": 384,
+      "jpegSha256": "4a7543dcad409adc9b7f3f7b8bdc3fe5cdd99963c364a46a3d8ce64e4ee105a3",
+      "preset": "high",
+      "quality": 75,
+      "rect": [
+        0,
+        0,
+        512,
+        384,
+        512,
+        384
+      ],
+      "responseSha256": "d1d8f68b02937d72170979d154280efb790d56d9fbdaf74112e333f14426493f",
+      "rgbSha256": "c0d07e55c42bd67059613035283567cc83e324ad95f75c9008de854ac5d7ec9f",
+      "rgbaSha256": "a039edaab4f09f6d21ba71b4f1b9afd420e0d3e0214a5ee0f336c3a3ee43124c",
+      "scope": "Actual source no-ROI interactive second downscale; no geometry/effect preprocessing",
+      "source": "b39884b38d8f148caef6fd0d52afd264951be329",
+      "width": 512
+    },
+    {
+      "adjustmentSha256": "985219f6d0dad0546f1a4ea1fd8006bcb7123da0b87125a8da06f3b55d15b6c6",
+      "baseRgbSha256": "c0d07e55c42bd67059613035283567cc83e324ad95f75c9008de854ac5d7ec9f",
+      "bytes": 16277,
+      "divisor": 1.5,
+      "exposure": 0.8,
+      "height": 255,
+      "jpegSha256": "1ca011f6f94e42f9b9420ea2f40fe9b661ddd891e0c3dda6d4dfcd9df19c6b1f",
+      "preset": "performance",
+      "quality": 65,
+      "rect": [
+        0,
+        0,
+        340,
+        255,
+        340,
+        255
+      ],
+      "responseSha256": "a564752b25d4297d5a22f4104e1d55ac68b1771b76e3b15c28cf78fa850a90d3",
+      "rgbSha256": "3b63848d0d443b929cc66065fd4d856d8e4bec25db5afe80347bc0c6ebbc8256",
+      "rgbaSha256": "1e041eba65f398ff0c4a8f1f9c4a2a61acabc2d8d4be3759557148e6ee428443",
+      "scope": "Actual source no-ROI interactive second downscale; no geometry/effect preprocessing",
+      "source": "b39884b38d8f148caef6fd0d52afd264951be329",
+      "width": 340
+    }
+  ],
+  "interactiveSamples": [
+    {
+      "preset": "full",
+      "frame": {
+        "adjustmentSha256": "985219f6d0dad0546f1a4ea1fd8006bcb7123da0b87125a8da06f3b55d15b6c6",
+        "rgbaSha256": "a039edaab4f09f6d21ba71b4f1b9afd420e0d3e0214a5ee0f336c3a3ee43124c",
+        "responseSha256": "848c96cd17f95c879c88c90dbbb1a4d5a5167edbe8fa36c13a472a1fb27a86f0",
+        "jpegSha256": "2339c2187cb4a26b974ef486b65e256be423499b221944aed37095b72570ded6",
+        "command": "render-result",
+        "exposure": 0.8,
+        "width": 512,
+        "height": 384,
+        "interactive": true,
+        "liveQuality": "full",
+        "quality": 85,
+        "divisor": 1,
+        "rect": [
+          0,
+          0,
+          512,
+          384,
+          512,
+          384
+        ],
+        "bytes": 50335,
+        "analytics": "unavailable",
+        "adjustments": {
+          "activeTools": {},
+          "aiPatches": [],
+          "aspectRatio": 0,
+          "baselineExposure": true,
+          "blacks": 0,
+          "brightness": 0,
+          "centré": 0,
+          "centréX": 0.5,
+          "centréY": 0.5,
+          "clarity": 0,
+          "chromaticAberrationBlueYellow": 0,
+          "chromaticAberrationRedCyan": 0,
+          "colorCalibration": {
+            "shadowsTint": 0,
+            "redHue": 0,
+            "redSaturation": 0,
+            "greenHue": 0,
+            "greenSaturation": 0,
+            "blueHue": 0,
+            "blueSaturation": 0
+          },
+          "colorGrading": {
+            "balance": 0,
+            "blending": 50,
+            "global": {
+              "hue": 0,
+              "saturation": 0,
+              "luminance": 0
+            },
+            "highlights": {
+              "hue": 0,
+              "saturation": 0,
+              "luminance": 0
+            },
+            "midtones": {
+              "hue": 0,
+              "saturation": 0,
+              "luminance": 0
+            },
+            "shadows": {
+              "hue": 0,
+              "saturation": 0,
+              "luminance": 0
+            }
+          },
+          "colorNoiseReduction": 0,
+          "contrast": 0,
+          "crop": null,
+          "curves": {
+            "blue": [
+              {
+                "x": 0,
+                "y": 0
+              },
+              {
+                "x": 255,
+                "y": 255
+              }
+            ],
+            "green": [
+              {
+                "x": 0,
+                "y": 0
+              },
+              {
+                "x": 255,
+                "y": 255
+              }
+            ],
+            "luma": [
+              {
+                "x": 0,
+                "y": 0
+              },
+              {
+                "x": 255,
+                "y": 255
+              }
+            ],
+            "red": [
+              {
+                "x": 0,
+                "y": 0
+              },
+              {
+                "x": 255,
+                "y": 255
+              }
+            ]
+          },
+          "pointCurves": {
+            "blue": [
+              {
+                "x": 0,
+                "y": 0
+              },
+              {
+                "x": 255,
+                "y": 255
+              }
+            ],
+            "green": [
+              {
+                "x": 0,
+                "y": 0
+              },
+              {
+                "x": 255,
+                "y": 255
+              }
+            ],
+            "luma": [
+              {
+                "x": 0,
+                "y": 0
+              },
+              {
+                "x": 255,
+                "y": 255
+              }
+            ],
+            "red": [
+              {
+                "x": 0,
+                "y": 0
+              },
+              {
+                "x": 255,
+                "y": 255
+              }
+            ]
+          },
+          "parametricCurve": {
+            "luma": {
+              "darks": 0,
+              "shadows": 0,
+              "highlights": 0,
+              "lights": 0,
+              "whiteLevel": 0,
+              "blackLevel": 0,
+              "split1": 25,
+              "split2": 50,
+              "split3": 75
+            },
+            "red": {
+              "darks": 0,
+              "shadows": 0,
+              "highlights": 0,
+              "lights": 0,
+              "whiteLevel": 0,
+              "blackLevel": 0,
+              "split1": 25,
+              "split2": 50,
+              "split3": 75
+            },
+            "green": {
+              "darks": 0,
+              "shadows": 0,
+              "highlights": 0,
+              "lights": 0,
+              "whiteLevel": 0,
+              "blackLevel": 0,
+              "split1": 25,
+              "split2": 50,
+              "split3": 75
+            },
+            "blue": {
+              "darks": 0,
+              "shadows": 0,
+              "highlights": 0,
+              "lights": 0,
+              "whiteLevel": 0,
+              "blackLevel": 0,
+              "split1": 25,
+              "split2": 50,
+              "split3": 75
+            }
+          },
+          "curveMode": "point",
+          "dehaze": 0,
+          "exposure": 0.8,
+          "flipHorizontal": false,
+          "flipVertical": false,
+          "flareAmount": 0,
+          "glowAmount": 0,
+          "grainAmount": 0,
+          "grainRoughness": 50,
+          "grainSize": 25,
+          "guidedPerspective": {
+            "enabled": false,
+            "lines": [],
+            "autoCrop": true
+          },
+          "halationAmount": 0,
+          "highlights": 0,
+          "hsl": {
+            "aquas": {
+              "hue": 0,
+              "saturation": 0,
+              "luminance": 0
+            },
+            "blues": {
+              "hue": 0,
+              "saturation": 0,
+              "luminance": 0
+            },
+            "greens": {
+              "hue": 0,
+              "saturation": 0,
+              "luminance": 0
+            },
+            "magentas": {
+              "hue": 0,
+              "saturation": 0,
+              "luminance": 0
+            },
+            "oranges": {
+              "hue": 0,
+              "saturation": 0,
+              "luminance": 0
+            },
+            "purples": {
+              "hue": 0,
+              "saturation": 0,
+              "luminance": 0
+            },
+            "reds": {
+              "hue": 0,
+              "saturation": 0,
+              "luminance": 0
+            },
+            "yellows": {
+              "hue": 0,
+              "saturation": 0,
+              "luminance": 0
+            }
+          },
+          "hue": 0,
+          "lensBlurAmount": 40,
+          "lensBlurDiffusion": 0,
+          "lensBlurShape": "circle",
+          "lensBlurDepthMap": null,
+          "lensBlurEnabled": false,
+          "lensBlurMaxDepth": 100,
+          "lensBlurMaxFade": 20,
+          "lensBlurMinDepth": 20,
+          "lensBlurMinFade": 20,
+          "relightEnabled": false,
+          "relightNormalMap": null,
+          "relightLights": [],
+          "relightAmbient": 0,
+          "relightSoftness": 25,
+          "relightShine": 0,
+          "relightShadows": false,
+          "relightShadowSoftness": 15,
+          "fogEnabled": false,
+          "fogDepthMap": null,
+          "fogAmount": 50,
+          "fogStart": 0,
+          "fogDensity": 50,
+          "fogHeight": 0,
+          "fogVariation": 25,
+          "fogGlow": 25,
+          "fogTemperature": 0,
+          "fogTint": 0,
+          "lensCorrectionMode": "manual",
+          "lensDistortionAmount": 100,
+          "lensVignetteAmount": 100,
+          "lensTcaAmount": 100,
+          "lensDistortionEnabled": true,
+          "lensTcaEnabled": true,
+          "lensVignetteEnabled": true,
+          "lensDistortionParams": null,
+          "lensMaker": null,
+          "lensModel": null,
+          "lumaNoiseReduction": 0,
+          "lutData": null,
+          "lutIntensity": 100,
+          "lutName": null,
+          "lutPath": null,
+          "lutSize": 0,
+          "lutIsSceneReferred": false,
+          "masks": [],
+          "orientationSteps": 0,
+          "rotation": 0,
+          "saturation": 0,
+          "shadows": 0,
+          "sharpness": 0,
+          "sharpnessThreshold": 15,
+          "showClipping": false,
+          "structure": 0,
+          "temperature": 0,
+          "tint": 0,
+          "toneMapper": "basic",
+          "transformDistortion": 0,
+          "transformVertical": 0,
+          "transformHorizontal": 0,
+          "transformRotate": 0,
+          "transformAspect": 0,
+          "transformScale": 100,
+          "transformXOffset": 0,
+          "transformYOffset": 0,
+          "vibrance": 0,
+          "vignetteAmount": 0,
+          "vignetteCenterX": 0.5,
+          "vignetteCenterY": 0.5,
+          "vignetteFeather": 50,
+          "vignetteMidpoint": 50,
+          "vignetteRoundness": 0,
+          "whiteBalance": null,
+          "whites": 0
+        }
+      },
+      "dimensions": [
+        512,
+        384
+      ],
+      "jpegSha256": "2339c2187cb4a26b974ef486b65e256be423499b221944aed37095b72570ded6",
+      "rect": [
+        0,
+        0,
+        1,
+        1
+      ],
+      "dragging": true,
+      "preview": {
+        "command": "preview-result",
+        "target": 512,
+        "interactive": true,
+        "liveQuality": "full",
+        "quality": 85,
+        "divisor": 1,
+        "width": 512,
+        "height": 384,
+        "originalWidth": 2048,
+        "originalHeight": 1536,
+        "scaleForGpu": 0.25,
+        "rgbSha256": "c0d07e55c42bd67059613035283567cc83e324ad95f75c9008de854ac5d7ec9f"
+      },
+      "finalAfterRelease": {
+        "exposure": 0.8,
+        "bytes": 85035,
+        "adjustmentSha256": "985219f6d0dad0546f1a4ea1fd8006bcb7123da0b87125a8da06f3b55d15b6c6",
+        "rgbaSha256": "a039edaab4f09f6d21ba71b4f1b9afd420e0d3e0214a5ee0f336c3a3ee43124c",
+        "jpegSha256": "4b4b8363d79e6f622ad79923c4049c795887bb4b4b413c66b0d3a0d8d9de569a"
+      }
+    },
+    {
+      "preset": "high",
+      "frame": {
+        "adjustmentSha256": "985219f6d0dad0546f1a4ea1fd8006bcb7123da0b87125a8da06f3b55d15b6c6",
+        "rgbaSha256": "a039edaab4f09f6d21ba71b4f1b9afd420e0d3e0214a5ee0f336c3a3ee43124c",
+        "responseSha256": "d1d8f68b02937d72170979d154280efb790d56d9fbdaf74112e333f14426493f",
+        "jpegSha256": "4a7543dcad409adc9b7f3f7b8bdc3fe5cdd99963c364a46a3d8ce64e4ee105a3",
+        "command": "render-result",
+        "exposure": 0.8,
+        "width": 512,
+        "height": 384,
+        "interactive": true,
+        "liveQuality": "high",
+        "quality": 75,
+        "divisor": 1,
+        "rect": [
+          0,
+          0,
+          512,
+          384,
+          512,
+          384
+        ],
+        "bytes": 36589,
+        "analytics": "unavailable",
+        "adjustments": {
+          "activeTools": {},
+          "aiPatches": [],
+          "aspectRatio": 0,
+          "baselineExposure": true,
+          "blacks": 0,
+          "brightness": 0,
+          "centré": 0,
+          "centréX": 0.5,
+          "centréY": 0.5,
+          "clarity": 0,
+          "chromaticAberrationBlueYellow": 0,
+          "chromaticAberrationRedCyan": 0,
+          "colorCalibration": {
+            "shadowsTint": 0,
+            "redHue": 0,
+            "redSaturation": 0,
+            "greenHue": 0,
+            "greenSaturation": 0,
+            "blueHue": 0,
+            "blueSaturation": 0
+          },
+          "colorGrading": {
+            "balance": 0,
+            "blending": 50,
+            "global": {
+              "hue": 0,
+              "saturation": 0,
+              "luminance": 0
+            },
+            "highlights": {
+              "hue": 0,
+              "saturation": 0,
+              "luminance": 0
+            },
+            "midtones": {
+              "hue": 0,
+              "saturation": 0,
+              "luminance": 0
+            },
+            "shadows": {
+              "hue": 0,
+              "saturation": 0,
+              "luminance": 0
+            }
+          },
+          "colorNoiseReduction": 0,
+          "contrast": 0,
+          "crop": null,
+          "curves": {
+            "blue": [
+              {
+                "x": 0,
+                "y": 0
+              },
+              {
+                "x": 255,
+                "y": 255
+              }
+            ],
+            "green": [
+              {
+                "x": 0,
+                "y": 0
+              },
+              {
+                "x": 255,
+                "y": 255
+              }
+            ],
+            "luma": [
+              {
+                "x": 0,
+                "y": 0
+              },
+              {
+                "x": 255,
+                "y": 255
+              }
+            ],
+            "red": [
+              {
+                "x": 0,
+                "y": 0
+              },
+              {
+                "x": 255,
+                "y": 255
+              }
+            ]
+          },
+          "pointCurves": {
+            "blue": [
+              {
+                "x": 0,
+                "y": 0
+              },
+              {
+                "x": 255,
+                "y": 255
+              }
+            ],
+            "green": [
+              {
+                "x": 0,
+                "y": 0
+              },
+              {
+                "x": 255,
+                "y": 255
+              }
+            ],
+            "luma": [
+              {
+                "x": 0,
+                "y": 0
+              },
+              {
+                "x": 255,
+                "y": 255
+              }
+            ],
+            "red": [
+              {
+                "x": 0,
+                "y": 0
+              },
+              {
+                "x": 255,
+                "y": 255
+              }
+            ]
+          },
+          "parametricCurve": {
+            "luma": {
+              "darks": 0,
+              "shadows": 0,
+              "highlights": 0,
+              "lights": 0,
+              "whiteLevel": 0,
+              "blackLevel": 0,
+              "split1": 25,
+              "split2": 50,
+              "split3": 75
+            },
+            "red": {
+              "darks": 0,
+              "shadows": 0,
+              "highlights": 0,
+              "lights": 0,
+              "whiteLevel": 0,
+              "blackLevel": 0,
+              "split1": 25,
+              "split2": 50,
+              "split3": 75
+            },
+            "green": {
+              "darks": 0,
+              "shadows": 0,
+              "highlights": 0,
+              "lights": 0,
+              "whiteLevel": 0,
+              "blackLevel": 0,
+              "split1": 25,
+              "split2": 50,
+              "split3": 75
+            },
+            "blue": {
+              "darks": 0,
+              "shadows": 0,
+              "highlights": 0,
+              "lights": 0,
+              "whiteLevel": 0,
+              "blackLevel": 0,
+              "split1": 25,
+              "split2": 50,
+              "split3": 75
+            }
+          },
+          "curveMode": "point",
+          "dehaze": 0,
+          "exposure": 0.8,
+          "flipHorizontal": false,
+          "flipVertical": false,
+          "flareAmount": 0,
+          "glowAmount": 0,
+          "grainAmount": 0,
+          "grainRoughness": 50,
+          "grainSize": 25,
+          "guidedPerspective": {
+            "enabled": false,
+            "lines": [],
+            "autoCrop": true
+          },
+          "halationAmount": 0,
+          "highlights": 0,
+          "hsl": {
+            "aquas": {
+              "hue": 0,
+              "saturation": 0,
+              "luminance": 0
+            },
+            "blues": {
+              "hue": 0,
+              "saturation": 0,
+              "luminance": 0
+            },
+            "greens": {
+              "hue": 0,
+              "saturation": 0,
+              "luminance": 0
+            },
+            "magentas": {
+              "hue": 0,
+              "saturation": 0,
+              "luminance": 0
+            },
+            "oranges": {
+              "hue": 0,
+              "saturation": 0,
+              "luminance": 0
+            },
+            "purples": {
+              "hue": 0,
+              "saturation": 0,
+              "luminance": 0
+            },
+            "reds": {
+              "hue": 0,
+              "saturation": 0,
+              "luminance": 0
+            },
+            "yellows": {
+              "hue": 0,
+              "saturation": 0,
+              "luminance": 0
+            }
+          },
+          "hue": 0,
+          "lensBlurAmount": 40,
+          "lensBlurDiffusion": 0,
+          "lensBlurShape": "circle",
+          "lensBlurDepthMap": null,
+          "lensBlurEnabled": false,
+          "lensBlurMaxDepth": 100,
+          "lensBlurMaxFade": 20,
+          "lensBlurMinDepth": 20,
+          "lensBlurMinFade": 20,
+          "relightEnabled": false,
+          "relightNormalMap": null,
+          "relightLights": [],
+          "relightAmbient": 0,
+          "relightSoftness": 25,
+          "relightShine": 0,
+          "relightShadows": false,
+          "relightShadowSoftness": 15,
+          "fogEnabled": false,
+          "fogDepthMap": null,
+          "fogAmount": 50,
+          "fogStart": 0,
+          "fogDensity": 50,
+          "fogHeight": 0,
+          "fogVariation": 25,
+          "fogGlow": 25,
+          "fogTemperature": 0,
+          "fogTint": 0,
+          "lensCorrectionMode": "manual",
+          "lensDistortionAmount": 100,
+          "lensVignetteAmount": 100,
+          "lensTcaAmount": 100,
+          "lensDistortionEnabled": true,
+          "lensTcaEnabled": true,
+          "lensVignetteEnabled": true,
+          "lensDistortionParams": null,
+          "lensMaker": null,
+          "lensModel": null,
+          "lumaNoiseReduction": 0,
+          "lutData": null,
+          "lutIntensity": 100,
+          "lutName": null,
+          "lutPath": null,
+          "lutSize": 0,
+          "lutIsSceneReferred": false,
+          "masks": [],
+          "orientationSteps": 0,
+          "rotation": 0,
+          "saturation": 0,
+          "shadows": 0,
+          "sharpness": 0,
+          "sharpnessThreshold": 15,
+          "showClipping": false,
+          "structure": 0,
+          "temperature": 0,
+          "tint": 0,
+          "toneMapper": "basic",
+          "transformDistortion": 0,
+          "transformVertical": 0,
+          "transformHorizontal": 0,
+          "transformRotate": 0,
+          "transformAspect": 0,
+          "transformScale": 100,
+          "transformXOffset": 0,
+          "transformYOffset": 0,
+          "vibrance": 0,
+          "vignetteAmount": 0,
+          "vignetteCenterX": 0.5,
+          "vignetteCenterY": 0.5,
+          "vignetteFeather": 50,
+          "vignetteMidpoint": 50,
+          "vignetteRoundness": 0,
+          "whiteBalance": null,
+          "whites": 0
+        }
+      },
+      "dimensions": [
+        512,
+        384
+      ],
+      "jpegSha256": "4a7543dcad409adc9b7f3f7b8bdc3fe5cdd99963c364a46a3d8ce64e4ee105a3",
+      "rect": [
+        0,
+        0,
+        1,
+        1
+      ],
+      "dragging": true,
+      "preview": {
+        "command": "preview-result",
+        "target": 512,
+        "interactive": true,
+        "liveQuality": "high",
+        "quality": 75,
+        "divisor": 1,
+        "width": 512,
+        "height": 384,
+        "originalWidth": 2048,
+        "originalHeight": 1536,
+        "scaleForGpu": 0.25,
+        "rgbSha256": "c0d07e55c42bd67059613035283567cc83e324ad95f75c9008de854ac5d7ec9f"
+      },
+      "finalAfterRelease": {
+        "exposure": 0.8,
+        "bytes": 85035,
+        "adjustmentSha256": "985219f6d0dad0546f1a4ea1fd8006bcb7123da0b87125a8da06f3b55d15b6c6",
+        "rgbaSha256": "a039edaab4f09f6d21ba71b4f1b9afd420e0d3e0214a5ee0f336c3a3ee43124c",
+        "jpegSha256": "4b4b8363d79e6f622ad79923c4049c795887bb4b4b413c66b0d3a0d8d9de569a"
+      }
+    },
+    {
+      "preset": "performance",
+      "frame": {
+        "adjustmentSha256": "985219f6d0dad0546f1a4ea1fd8006bcb7123da0b87125a8da06f3b55d15b6c6",
+        "rgbaSha256": "1e041eba65f398ff0c4a8f1f9c4a2a61acabc2d8d4be3759557148e6ee428443",
+        "responseSha256": "a564752b25d4297d5a22f4104e1d55ac68b1771b76e3b15c28cf78fa850a90d3",
+        "jpegSha256": "1ca011f6f94e42f9b9420ea2f40fe9b661ddd891e0c3dda6d4dfcd9df19c6b1f",
+        "command": "render-result",
+        "exposure": 0.8,
+        "width": 340,
+        "height": 255,
+        "interactive": true,
+        "liveQuality": "performance",
+        "quality": 65,
+        "divisor": 1.5,
+        "rect": [
+          0,
+          0,
+          340,
+          255,
+          340,
+          255
+        ],
+        "bytes": 16277,
+        "analytics": "unavailable",
+        "adjustments": {
+          "activeTools": {},
+          "aiPatches": [],
+          "aspectRatio": 0,
+          "baselineExposure": true,
+          "blacks": 0,
+          "brightness": 0,
+          "centré": 0,
+          "centréX": 0.5,
+          "centréY": 0.5,
+          "clarity": 0,
+          "chromaticAberrationBlueYellow": 0,
+          "chromaticAberrationRedCyan": 0,
+          "colorCalibration": {
+            "shadowsTint": 0,
+            "redHue": 0,
+            "redSaturation": 0,
+            "greenHue": 0,
+            "greenSaturation": 0,
+            "blueHue": 0,
+            "blueSaturation": 0
+          },
+          "colorGrading": {
+            "balance": 0,
+            "blending": 50,
+            "global": {
+              "hue": 0,
+              "saturation": 0,
+              "luminance": 0
+            },
+            "highlights": {
+              "hue": 0,
+              "saturation": 0,
+              "luminance": 0
+            },
+            "midtones": {
+              "hue": 0,
+              "saturation": 0,
+              "luminance": 0
+            },
+            "shadows": {
+              "hue": 0,
+              "saturation": 0,
+              "luminance": 0
+            }
+          },
+          "colorNoiseReduction": 0,
+          "contrast": 0,
+          "crop": null,
+          "curves": {
+            "blue": [
+              {
+                "x": 0,
+                "y": 0
+              },
+              {
+                "x": 255,
+                "y": 255
+              }
+            ],
+            "green": [
+              {
+                "x": 0,
+                "y": 0
+              },
+              {
+                "x": 255,
+                "y": 255
+              }
+            ],
+            "luma": [
+              {
+                "x": 0,
+                "y": 0
+              },
+              {
+                "x": 255,
+                "y": 255
+              }
+            ],
+            "red": [
+              {
+                "x": 0,
+                "y": 0
+              },
+              {
+                "x": 255,
+                "y": 255
+              }
+            ]
+          },
+          "pointCurves": {
+            "blue": [
+              {
+                "x": 0,
+                "y": 0
+              },
+              {
+                "x": 255,
+                "y": 255
+              }
+            ],
+            "green": [
+              {
+                "x": 0,
+                "y": 0
+              },
+              {
+                "x": 255,
+                "y": 255
+              }
+            ],
+            "luma": [
+              {
+                "x": 0,
+                "y": 0
+              },
+              {
+                "x": 255,
+                "y": 255
+              }
+            ],
+            "red": [
+              {
+                "x": 0,
+                "y": 0
+              },
+              {
+                "x": 255,
+                "y": 255
+              }
+            ]
+          },
+          "parametricCurve": {
+            "luma": {
+              "darks": 0,
+              "shadows": 0,
+              "highlights": 0,
+              "lights": 0,
+              "whiteLevel": 0,
+              "blackLevel": 0,
+              "split1": 25,
+              "split2": 50,
+              "split3": 75
+            },
+            "red": {
+              "darks": 0,
+              "shadows": 0,
+              "highlights": 0,
+              "lights": 0,
+              "whiteLevel": 0,
+              "blackLevel": 0,
+              "split1": 25,
+              "split2": 50,
+              "split3": 75
+            },
+            "green": {
+              "darks": 0,
+              "shadows": 0,
+              "highlights": 0,
+              "lights": 0,
+              "whiteLevel": 0,
+              "blackLevel": 0,
+              "split1": 25,
+              "split2": 50,
+              "split3": 75
+            },
+            "blue": {
+              "darks": 0,
+              "shadows": 0,
+              "highlights": 0,
+              "lights": 0,
+              "whiteLevel": 0,
+              "blackLevel": 0,
+              "split1": 25,
+              "split2": 50,
+              "split3": 75
+            }
+          },
+          "curveMode": "point",
+          "dehaze": 0,
+          "exposure": 0.8,
+          "flipHorizontal": false,
+          "flipVertical": false,
+          "flareAmount": 0,
+          "glowAmount": 0,
+          "grainAmount": 0,
+          "grainRoughness": 50,
+          "grainSize": 25,
+          "guidedPerspective": {
+            "enabled": false,
+            "lines": [],
+            "autoCrop": true
+          },
+          "halationAmount": 0,
+          "highlights": 0,
+          "hsl": {
+            "aquas": {
+              "hue": 0,
+              "saturation": 0,
+              "luminance": 0
+            },
+            "blues": {
+              "hue": 0,
+              "saturation": 0,
+              "luminance": 0
+            },
+            "greens": {
+              "hue": 0,
+              "saturation": 0,
+              "luminance": 0
+            },
+            "magentas": {
+              "hue": 0,
+              "saturation": 0,
+              "luminance": 0
+            },
+            "oranges": {
+              "hue": 0,
+              "saturation": 0,
+              "luminance": 0
+            },
+            "purples": {
+              "hue": 0,
+              "saturation": 0,
+              "luminance": 0
+            },
+            "reds": {
+              "hue": 0,
+              "saturation": 0,
+              "luminance": 0
+            },
+            "yellows": {
+              "hue": 0,
+              "saturation": 0,
+              "luminance": 0
+            }
+          },
+          "hue": 0,
+          "lensBlurAmount": 40,
+          "lensBlurDiffusion": 0,
+          "lensBlurShape": "circle",
+          "lensBlurDepthMap": null,
+          "lensBlurEnabled": false,
+          "lensBlurMaxDepth": 100,
+          "lensBlurMaxFade": 20,
+          "lensBlurMinDepth": 20,
+          "lensBlurMinFade": 20,
+          "relightEnabled": false,
+          "relightNormalMap": null,
+          "relightLights": [],
+          "relightAmbient": 0,
+          "relightSoftness": 25,
+          "relightShine": 0,
+          "relightShadows": false,
+          "relightShadowSoftness": 15,
+          "fogEnabled": false,
+          "fogDepthMap": null,
+          "fogAmount": 50,
+          "fogStart": 0,
+          "fogDensity": 50,
+          "fogHeight": 0,
+          "fogVariation": 25,
+          "fogGlow": 25,
+          "fogTemperature": 0,
+          "fogTint": 0,
+          "lensCorrectionMode": "manual",
+          "lensDistortionAmount": 100,
+          "lensVignetteAmount": 100,
+          "lensTcaAmount": 100,
+          "lensDistortionEnabled": true,
+          "lensTcaEnabled": true,
+          "lensVignetteEnabled": true,
+          "lensDistortionParams": null,
+          "lensMaker": null,
+          "lensModel": null,
+          "lumaNoiseReduction": 0,
+          "lutData": null,
+          "lutIntensity": 100,
+          "lutName": null,
+          "lutPath": null,
+          "lutSize": 0,
+          "lutIsSceneReferred": false,
+          "masks": [],
+          "orientationSteps": 0,
+          "rotation": 0,
+          "saturation": 0,
+          "shadows": 0,
+          "sharpness": 0,
+          "sharpnessThreshold": 15,
+          "showClipping": false,
+          "structure": 0,
+          "temperature": 0,
+          "tint": 0,
+          "toneMapper": "basic",
+          "transformDistortion": 0,
+          "transformVertical": 0,
+          "transformHorizontal": 0,
+          "transformRotate": 0,
+          "transformAspect": 0,
+          "transformScale": 100,
+          "transformXOffset": 0,
+          "transformYOffset": 0,
+          "vibrance": 0,
+          "vignetteAmount": 0,
+          "vignetteCenterX": 0.5,
+          "vignetteCenterY": 0.5,
+          "vignetteFeather": 50,
+          "vignetteMidpoint": 50,
+          "vignetteRoundness": 0,
+          "whiteBalance": null,
+          "whites": 0
+        }
+      },
+      "dimensions": [
+        340,
+        255
+      ],
+      "jpegSha256": "1ca011f6f94e42f9b9420ea2f40fe9b661ddd891e0c3dda6d4dfcd9df19c6b1f",
+      "rect": [
+        0,
+        0,
+        1,
+        1
+      ],
+      "dragging": true,
+      "preview": {
+        "command": "preview-result",
+        "target": 512,
+        "interactive": true,
+        "liveQuality": "performance",
+        "quality": 65,
+        "divisor": 1.5,
+        "width": 340,
+        "height": 255,
+        "originalWidth": 2048,
+        "originalHeight": 1536,
+        "scaleForGpu": 0.166015625,
+        "rgbSha256": "3b63848d0d443b929cc66065fd4d856d8e4bec25db5afe80347bc0c6ebbc8256"
+      },
+      "finalAfterRelease": {
+        "exposure": 0.8,
+        "bytes": 85035,
+        "adjustmentSha256": "985219f6d0dad0546f1a4ea1fd8006bcb7123da0b87125a8da06f3b55d15b6c6",
+        "rgbaSha256": "a039edaab4f09f6d21ba71b4f1b9afd420e0d3e0214a5ee0f336c3a3ee43124c",
+        "jpegSha256": "4b4b8363d79e6f622ad79923c4049c795887bb4b4b413c66b0d3a0d8d9de569a"
+      }
+    }
+  ],
+  "afterInteractive": {
+    "gpuErrors": [],
+    "exposure": 0,
+    "originalSize": {
+      "width": 2048,
+      "height": 1536
+    },
+    "patchCleared": true,
+    "dragging": false
+  },
+  "nativeResize": {
+    "height": 384,
+    "originalHeight": 1536,
+    "originalRgbSha256": "f052bba0940702e068fb03d6a9f1cc78b9c57e7ff5758f1c460f28d11fb49e30",
+    "originalWidth": 2048,
+    "rgbSha256": "c0d07e55c42bd67059613035283567cc83e324ad95f75c9008de854ac5d7ec9f",
+    "scaleForGpu": 0.25,
+    "scope": "Original neutral geometry dimensions and exact area downscale; no crop/rotation/patch/effects",
+    "source": "b39884b38d8f148caef6fd0d52afd264951be329",
+    "target": 512,
+    "width": 512
+  },
+  "resizeRecovery": {
+    "smallDimensions": [
+      256,
+      192
+    ],
+    "restoredBytes": 61812,
+    "restoredHash": "042350b5c54e9244b8a9f33089efa25b0516ae59f4e188ba0345fcd60a86f869",
+    "targets": [
+      512,
+      256,
+      512
+    ]
+  },
+  "rejectedResizeInputs": 8,
+  "refusedOversizePreview": true,
+  "workerUsableAfterRefusal": true,
+  "pageErrors": [],
+  "failedRequests": [],
+  "expectedSaveErrors": 11
+}

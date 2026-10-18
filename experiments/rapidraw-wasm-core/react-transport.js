@@ -7,7 +7,7 @@ import {createNeutralRendererResources,packRgb32fRendererInput,packGlobalRendere
 export class UnavailableCommandError extends Error {
  constructor(command){super(`Browser experiment does not support ${command}`);this.name='UnavailableCommandError';this.code='unavailable-command';}
 }
-export function createReactTransport({wasm,device,shaderSource,defaults,workerUrl=new URL('./react-image-worker.js',import.meta.url)}) {
+export function createReactTransport({wasm,device,shaderSource,defaults,getPreviewSettings=()=>({editorPreviewResolution:1920,livePreviewQuality:'high'}),workerUrl=new URL('./react-image-worker.js',import.meta.url)}) {
  let file=null,path=null,current=null,generation=0,imageWorker=null,queue=Promise.resolve(),closed=false;
  const trace=[];
  const hash=async bytes=>[...new Uint8Array(await crypto.subtle.digest('SHA-256',bytes))].map(v=>v.toString(16).padStart(2,'0')).join('');
@@ -52,7 +52,10 @@ export function createReactTransport({wasm,device,shaderSource,defaults,workerUr
   if(command==='apply_adjustments'){
    const image=current;if(!image)throw Error('No browser RAW image loaded');check(image.version);
    if(args.roi!=null||args.computeWaveform)throw new UnavailableCommandError('ROI/waveform');
-   const previewDim=args.targetResolution??512;
+   const settings=getPreviewSettings(),liveQuality=settings?.livePreviewQuality??'high';
+   const interactive=!!args.isInteractive,previewDim=args.targetResolution??settings?.editorPreviewResolution??1920;
+   if(typeof liveQuality!=='string'||liveQuality.length>128)throw TypeError('Invalid live preview quality');
+   const key=`${previewDim}:${interactive?liveQuality:'final'}`;
    if(!Number.isSafeInteger(previewDim)||previewDim<1||previewDim>32768)throw TypeError('Invalid original preview target');
    const adjustments=args.jsAdjustments;
    if(!adjustments||typeof adjustments!=='object'||Array.isArray(adjustments))throw TypeError('Expected original adjustments');
@@ -62,23 +65,23 @@ export function createReactTransport({wasm,device,shaderSource,defaults,workerUr
    }
    for(const key of supported){if(key==='toneMapper'){if(!['basic','agx'].includes(adjustments[key]??'basic'))throw TypeError('Invalid tone mapper');}
     else if(typeof adjustments[key]!=='number'||!Number.isFinite(adjustments[key]))throw TypeError('Expected finite original Basic value');}
-   if(image.preview?.target!==previewDim){
-    const preview=await image.client.call('preview',{previewDim});check(image.version);
+   if(image.preview?.key!==key){
+    const preview=await image.client.call('preview',{previewDim,interactive,liveQuality});check(image.version);
     const inputRgbaF16=packRgb32fRendererInput(wasm,preview.width,preview.height,preview.data);
     await device.queue.onSubmittedWorkDone();check(image.version);
     image.resources?.ownedTextures.forEach(t=>t.destroy());image.resources=null;image.preview=null;
     image.resources=createNeutralRendererResources(device,{width:preview.width,height:preview.height,inputRgbaF16});
-    image.preview={width:preview.width,height:preview.height,target:previewDim,scaleForGpu:preview.scaleForGpu};
-    trace.push({command:'preview-result',target:previewDim,width:preview.width,height:preview.height,originalWidth:image.width,originalHeight:image.height,scaleForGpu:preview.scaleForGpu,rgbSha256:preview.rgbSha256});
+    image.preview={width:preview.width,height:preview.height,target:previewDim,key,quality:preview.quality,divisor:preview.divisor,scaleForGpu:preview.scaleForGpu};
+    trace.push({command:'preview-result',target:previewDim,interactive,liveQuality,quality:preview.quality,divisor:preview.divisor,width:preview.width,height:preview.height,originalWidth:image.width,originalHeight:image.height,scaleForGpu:preview.scaleForGpu,rgbSha256:preview.rgbSha256});
    }
    const packed=packGlobalRendererFixture(wasm,JSON.stringify(adjustments),image.asShot,{baselineExposure:0,compensateHighlightPreservation:true});
    const frame=await renderOriginalFrame({device,width:image.preview.width,height:image.preview.height,shaderSource,
     inputTexture:image.resources.inputTexture,adjustments:packed,resources:image.resources.resources,outputPrecision:'eight'});
    check(image.version);
-   const response=encodePreviewResponse(wasm,frame,{interactive:!!args.isInteractive});
-   const hashes={adjustmentSha256:await hash(packed.bytes),rgbaSha256:await hash(frame.pixels),jpegSha256:await hash(response)};check(image.version);
+   const response=encodePreviewResponse(wasm,frame,{interactive,quality:image.preview.quality});
+   const hashes={adjustmentSha256:await hash(packed.bytes),rgbaSha256:await hash(frame.pixels),responseSha256:await hash(response),jpegSha256:await hash(interactive?response.slice(24):response)};check(image.version);
    trace.push({...hashes,command:'render-result',exposure:adjustments.exposure,width:frame.width,height:frame.height,
-    interactive:!!args.isInteractive,bytes:response.byteLength,analytics:'unavailable',adjustments:structuredClone(adjustments)});
+    interactive,liveQuality,quality:image.preview.quality,divisor:image.preview.divisor,rect:interactive?Array.from({length:6},(_,i)=>new DataView(response).getUint32(i*4,true)):null,bytes:response.byteLength,analytics:'unavailable',adjustments:structuredClone(adjustments)});
    return response;
   }
   throw new UnavailableCommandError(command);

@@ -7,7 +7,7 @@ pub struct PreviewPixels {
     pub data: Vec<f32>,
 }
 const MAX_BYTES: usize = 64 * 1024 * 1024;
-fn samples(width: u32, height: u32) -> Result<usize, String> {
+pub(crate) fn samples(width: u32, height: u32) -> Result<usize, String> {
     if width == 0 || height == 0 || width > 32768 || height > 32768 {
         return Err("Preview dimensions must be1..32768".into());
     }

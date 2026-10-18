@@ -1,0 +1,77 @@
+[
+  {
+    "adjustmentSha256": "985219f6d0dad0546f1a4ea1fd8006bcb7123da0b87125a8da06f3b55d15b6c6",
+    "baseRgbSha256": "c0d07e55c42bd67059613035283567cc83e324ad95f75c9008de854ac5d7ec9f",
+    "bytes": 50335,
+    "divisor": 1.0,
+    "exposure": 0.8,
+    "height": 384,
+    "jpegSha256": "2339c2187cb4a26b974ef486b65e256be423499b221944aed37095b72570ded6",
+    "preset": "full",
+    "quality": 85,
+    "rect": [
+      0,
+      0,
+      512,
+      384,
+      512,
+      384
+    ],
+    "responseSha256": "848c96cd17f95c879c88c90dbbb1a4d5a5167edbe8fa36c13a472a1fb27a86f0",
+    "rgbSha256": "c0d07e55c42bd67059613035283567cc83e324ad95f75c9008de854ac5d7ec9f",
+    "rgbaSha256": "a039edaab4f09f6d21ba71b4f1b9afd420e0d3e0214a5ee0f336c3a3ee43124c",
+    "scope": "Actual source no-ROI interactive second downscale; no geometry/effect preprocessing",
+    "source": "b39884b38d8f148caef6fd0d52afd264951be329",
+    "width": 512
+  },
+  {
+    "adjustmentSha256": "985219f6d0dad0546f1a4ea1fd8006bcb7123da0b87125a8da06f3b55d15b6c6",
+    "baseRgbSha256": "c0d07e55c42bd67059613035283567cc83e324ad95f75c9008de854ac5d7ec9f",
+    "bytes": 36589,
+    "divisor": 1.0,
+    "exposure": 0.8,
+    "height": 384,
+    "jpegSha256": "4a7543dcad409adc9b7f3f7b8bdc3fe5cdd99963c364a46a3d8ce64e4ee105a3",
+    "preset": "high",
+    "quality": 75,
+    "rect": [
+      0,
+      0,
+      512,
+      384,
+      512,
+      384
+    ],
+    "responseSha256": "d1d8f68b02937d72170979d154280efb790d56d9fbdaf74112e333f14426493f",
+    "rgbSha256": "c0d07e55c42bd67059613035283567cc83e324ad95f75c9008de854ac5d7ec9f",
+    "rgbaSha256": "a039edaab4f09f6d21ba71b4f1b9afd420e0d3e0214a5ee0f336c3a3ee43124c",
+    "scope": "Actual source no-ROI interactive second downscale; no geometry/effect preprocessing",
+    "source": "b39884b38d8f148caef6fd0d52afd264951be329",
+    "width": 512
+  },
+  {
+    "adjustmentSha256": "985219f6d0dad0546f1a4ea1fd8006bcb7123da0b87125a8da06f3b55d15b6c6",
+    "baseRgbSha256": "c0d07e55c42bd67059613035283567cc83e324ad95f75c9008de854ac5d7ec9f",
+    "bytes": 16277,
+    "divisor": 1.5,
+    "exposure": 0.8,
+    "height": 255,
+    "jpegSha256": "1ca011f6f94e42f9b9420ea2f40fe9b661ddd891e0c3dda6d4dfcd9df19c6b1f",
+    "preset": "performance",
+    "quality": 65,
+    "rect": [
+      0,
+      0,
+      340,
+      255,
+      340,
+      255
+    ],
+    "responseSha256": "a564752b25d4297d5a22f4104e1d55ac68b1771b76e3b15c28cf78fa850a90d3",
+    "rgbSha256": "3b63848d0d443b929cc66065fd4d856d8e4bec25db5afe80347bc0c6ebbc8256",
+    "rgbaSha256": "1e041eba65f398ff0c4a8f1f9c4a2a61acabc2d8d4be3759557148e6ee428443",
+    "scope": "Actual source no-ROI interactive second downscale; no geometry/effect preprocessing",
+    "source": "b39884b38d8f148caef6fd0d52afd264951be329",
+    "width": 340
+  }
+]

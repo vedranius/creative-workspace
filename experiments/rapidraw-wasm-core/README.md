@@ -101,3 +101,7 @@ Independent native source excerpts and four public RAW-derived JPEG responses ma
 ## Quality image and original preview sizing
 
 `react-image-worker.js` owns full Quality RGB and reuses it for original neutral-geometry area-filter previews. load_image returns actual developed dimensions; only bounded preview pixels go to the GPU. `preview_resize` wraps the exact pinned original filter with dimension/domain/buffer guards; only profiling is cfg-disabled on wasm32. Build using existing prepared Quality timing compatibility and verify with the actual React smoke plus native resize reference. Oversize previews refuse before GPU allocation and leave the current worker usable. [Evidence and limits](../../docs/rapidraw-wasm-quality-preview-handoff.md). This does not accept metadata/sidecars, interactive sizing, geometry/effects or providers/save; buffer estimates are not total memory protection.
+
+## Original interactive preview policy
+
+The source selector and second area-filter stage now derive full/high/performance interactive frames from the cached final preview; the bridge reads original settings and retains original q85/75/65 envelopes/q94 final responses. Actual original Slider mouse drag and release matches independent native pixels/headers/JPEG for all three modes. [Proof and limits](../../docs/rapidraw-wasm-interactive-handoff.md). ROI selector branches are reference-tested, but ROI rendering, geometry/effects/metadata/menus/export/providers remain unaccepted. No public deployment/release.

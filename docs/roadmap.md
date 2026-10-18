@@ -1,3 +1,11 @@
+# RWASM-03 — original Slider drag and interactive quality (2026-10-18)
+
+Actual original Exposure Slider mouse drag now selects native full/high/performance preview policy:512×384 q85,512×384 q75 and source two-stage340×255 q65. All103,201 interactive response bytes,1,919,664 RGBA8 components, complete adjustment bytes and RGB/JPEG/header hashes match independent native source. Original hook publishes the patch while dragging, clears it on release, and restores the exact q94 final JPEG. [Proof and scope](rapidraw-wasm-interactive-handoff.md).
+
+Core51/51, host20/20 and repo check pass. Original dimensions remain2048×1536; existing malformed/oversize/refusal/recovery proofs remain intact. This is no-ROI interactive sizing/quality acceptance, not geometry/effect/metadata/menu/export/provider acceptance. No product release/version/install/demo change.
+
+Next ready task: Trace the original apply_spatial_transformations and original React rotate/flip controls, then port one bounded quarter-turn/flip geometry slice before preview GPU upload. Preserve source orientation ordering, aspect/dimension selection, original command/UI behavior and resource limits; prove actual source UI action plus native pixels/JPEG. Keep crop/straighten/warp/patch/effect and provider/export acceptance explicit until separately implemented. MAIN only; A waitingOnApproval remains untouched.
+
 # RWASM-03 — original Quality load and bounded source preview resize (2026-10-18)
 
 Original React now records the actual Quality-developed2048×1536 image while the original area filter prepares a512×384 preview before GPU upload. Full-image and resized RGB hashes match independent native source; five original Exposure edits match complete native adjustment/pixel/JPEG hashes. Eight malformed WASM resize inputs refuse; a full-resolution GPU request exceeds the unchanged64MiB texture budget and refuses while the same worker/document remains usable. [Proof and exact scope](rapidraw-wasm-quality-preview-handoff.md).

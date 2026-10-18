@@ -1,0 +1,9 @@
+            let target_size = (preview_dim as f32 / interactive_divisor) as u32;
+            let (w, h) = final_preview_base.dimensions();
+            let (small_w, small_h) = if w > h {
+                let ratio = h as f32 / w as f32;
+                (target_size, (target_size as f32 * ratio) as u32)
+            } else {
+                let ratio = w as f32 / h as f32;
+                ((target_size as f32 * ratio) as u32, target_size)
+            };
