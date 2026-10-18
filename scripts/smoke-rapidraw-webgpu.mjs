@@ -1,5 +1,5 @@
-// Real full-shader execution on a bounded synthetic input. This is not native
-// frame parity, real preprocessing, an editor, or a hardware performance test.
+// Real full-shader execution on a bounded synthetic input. Optional independent
+// native reference comparison; not real preprocessing/editor/performance proof.
 import assert from 'node:assert/strict';
 import { readFile, writeFile, mkdir } from 'node:fs/promises';
 import { createHash } from 'node:crypto';
@@ -7,8 +7,9 @@ import { createServer } from 'node:http';
 import { once } from 'node:events';
 import path from 'node:path';
 
-const [artifact, output] = process.argv.slice(2);
-if (!artifact || !output) throw Error('Usage: smoke-rapidraw-webgpu.mjs WASM_DIR OUTPUT_JSON');
+const [artifact, output, nativeReferencePath] = process.argv.slice(2);
+if (!artifact || !output) throw Error('Usage: smoke-rapidraw-webgpu.mjs WASM_DIR OUTPUT_JSON [NATIVE_REFERENCE_JSON]');
+const nativeReference = nativeReferencePath ? JSON.parse(await readFile(nativeReferencePath, 'utf8')) : null;
 const { chromium } = await import(process.env.PLAYWRIGHT_MODULE || 'playwright');
 const core = new URL('../experiments/rapidraw-wasm-core/', import.meta.url);
 const wasmBytes = await readFile(path.join(artifact, 'cw_rapidraw_wasm_probe_bg.wasm'));
@@ -54,7 +55,11 @@ try {
         const shaderSource = await (await fetch('/shader.wgsl')).text();
         const width = 9, height = 3;
         const inputRgba = new Float32Array(width * height * 4);
-        for (let i = 0; i < width * height; i++) inputRgba.set([0.01 + i / 100, 0.02 + i / 120, 0.03 + i / 150, 1], i * 4);
+        // Exact binary fractions: native f16 and browser f32 textures load
+        // identical f32 samples, without testing input quantization here.
+        for (let i = 0; i < width * height; i++) inputRgba.set([(i + 1) / 128, (i + 2) / 128, (i + 3) / 128, 1], i * 4);
+        const hash = async bytes => [...new Uint8Array(await crypto.subtle.digest('SHA-256', bytes))].map(v => v.toString(16).padStart(2, '0')).join('');
+        const inputF32Sha256 = await hash(inputRgba);
         fixture = host.createNeutralRendererResources(device, { width, height, inputRgba });
         const frames = [];
         for (const exposure of [-1, 0, 1]) {
@@ -66,11 +71,11 @@ try {
           if (words.some(v => (v & 0x7c00) === 0x7c00)) throw Error('Nonfinite shader output');
           for (let i = 3; i < words.length; i += 4) if (words[i] !== 0x3c00) throw Error('Unexpected output alpha');
           if (!words.some((v, i) => i % 4 !== 3 && v !== 0)) throw Error('Zero RGB shader output');
-          const digest = new Uint8Array(await crypto.subtle.digest('SHA-256', frame.pixels));
-          frames.push({ exposure, bytes: frame.pixels.byteLength, sha256: [...digest].map(v => v.toString(16).padStart(2, '0')).join(''), firstPixelF16Bits: [...words.slice(0, 4)] });
+          frames.push({ exposure, bytes: frame.pixels.byteLength, sha256: await hash(frame.pixels),
+            adjustmentSha256: await hash(adjustments.bytes), rgbaF16Bits: [...words], firstPixelF16Bits: [...words.slice(0, 4)] });
         }
         await device.queue.onSubmittedWorkDone();
-        return { width, height, format: 'rgba16float', adapterInfo, frames, gpuErrors };
+        return { width, height, format: 'rgba16float', inputF32Sha256, adapterInfo, frames, gpuErrors };
       } finally { fixture?.ownedTextures.forEach(t => t.destroy()); device.destroy(); }
     }),
     new Promise((_, reject) => { const timer = setTimeout(() => reject(Error('WebGPU proof timed out')), 60000); timer.unref(); }),
@@ -81,11 +86,42 @@ try {
   assert.equal(new Set(result.frames.map(f => f.sha256)).size, 3);
   assert.ok(result.frames[0].firstPixelF16Bits[0] < result.frames[1].firstPixelF16Bits[0]);
   assert.ok(result.frames[1].firstPixelF16Bits[0] < result.frames[2].firstPixelF16Bits[0]);
+  let nativeComparison = null;
+  if (nativeReference) {
+    assert.equal(nativeReference.source, 'b39884b38d8f148caef6fd0d52afd264951be329');
+    assert.equal(nativeReference.highPrecisionOutput, 1);
+    assert.equal(nativeReference.shaderSha256, createHash('sha256').update(assets.get('/shader.wgsl')[1]).digest('hex'));
+    assert.equal(nativeReference.inputF32Sha256, result.inputF32Sha256);
+    assert.equal(nativeReference.width, result.width); assert.equal(nativeReference.height, result.height);
+    assert.equal(nativeReference.frames.length, result.frames.length);
+    const ordered = v => v & 0x8000 ? 0x8000 - (v & 0x7fff) : 0x8000 + v;
+    let exactComponents = 0, comparedComponents = 0, maxF16UlpDifference = 0;
+    for (const [i, frame] of result.frames.entries()) {
+      const expected = nativeReference.frames[i];
+      assert.equal(frame.exposure, expected.exposure); assert.equal(frame.bytes, expected.bytes);
+      assert.equal(frame.adjustmentSha256, expected.adjustmentSha256, 'All original adjustment bytes must match native');
+      assert.equal(frame.rgbaF16Bits.length, expected.rgbaF16Bits.length);
+      for (const [j, word] of frame.rgbaF16Bits.entries()) {
+        const native = expected.rgbaF16Bits[j];
+        assert.equal((native & 0x7c00) === 0x7c00, false, 'Native frame must be finite');
+        const difference = Math.abs(ordered(word) - ordered(native));
+        // One half-float representable step, declared before native execution;
+        // alpha must be exact. This is not a tolerance for arbitrary effects.
+        assert.ok(difference <= (j % 4 === 3 ? 0 : 1), `Frame${i} component${j}: ${difference} f16 ULP`);
+        if (word === native) exactComponents++;
+        comparedComponents++; maxF16UlpDifference = Math.max(maxF16UlpDifference, difference);
+      }
+    }
+    nativeComparison = { referenceSha256: createHash('sha256').update(await readFile(nativeReferencePath)).digest('hex'),
+      adapter: nativeReference.adapter, comparedComponents, exactComponents, maxF16UlpDifference,
+      allowedF16UlpDifference: 1, alphaExact: true, inputAndAllAdjustmentBytesMatch: true,
+      scope: 'Independent native wgpu29 full pinned shader on identical neutral synthetic inputs, not full Tauri/preprocessing/engine frames' };
+  }
   const report = { stage: 'RWASM-03 original full WGSL execution on neutral resources', nativeSource: 'b39884b38d8f148caef6fd0d52afd264951be329',
     shaderSha256: createHash('sha256').update(assets.get('/shader.wgsl')[1]).digest('hex'),
     wasmSha256: createHash('sha256').update(wasmBytes).digest('hex'), browserVersion: browser.version(), launchArgs,
-    chromiumSandbox: process.env.CHROMIUM_SANDBOX !== 'false', ...result, pageErrors, failedRequests,
-    scope: 'Actual browser WebGPU compute, full pinned shader (native RGBA16F substitution), 14 bindings and WASM neutral/exposure fixture; software adapter, synthetic 9x3 input. No native rendered-frame comparison, real preprocessing, RAW-to-render flow, full effects/UI/editor acceptance or hardware performance claim.' };
+    chromiumSandbox: process.env.CHROMIUM_SANDBOX !== 'false', highPrecisionOutput: 1, ...result, nativeComparison, pageErrors, failedRequests,
+    scope: 'Actual browser WebGPU full pinned shader (native RGBA16F substitution), 14 bindings and WASM neutral/exposure fixture; software adapter, synthetic 9x3 input. Optional independent native shader-fixture comparison only; no real preprocessing, full native engine/RAW-to-render flow, full effects/UI/editor acceptance or hardware performance claim.' };
   await mkdir(path.dirname(output), { recursive: true }); await writeFile(output, JSON.stringify(report, null, 2) + '\n');
   console.log(JSON.stringify(report)); await context.close();
 } finally { await browser?.close(); server.closeAllConnections(); await new Promise(r => server.close(r)); }

@@ -1,3 +1,7 @@
+# Unreleased RapidRAW native shader comparison — 2026-10-18
+
+The isolated port corrects the native high-precision specialization and now compares actual browser frames to an independent native shader reference. Neutral synthetic software-adapter frames match exactly; hardware comparison stays within one f16 step. This is not a released RAW editor or full native pipeline acceptance. No product SemVer/tag/demo change; [source/proof/reproduction](rapidraw-wasm-webgpu-native-handoff.md). Fresh hosted native-comparison evidence remains pending source push.
+
 # Unreleased RapidRAW shader execution checkpoint — 2026-10-18
 
 The isolated port now executes the full pinned shader in sandboxed Chromium through a clearly identified SwiftShader software adapter. Three bounded synthetic exposure frames pass readback checks. This is an experimental source/evidence checkpoint, not an installable editor feature or hardware benchmark. Native-frame comparison and real preprocessing/UI/provider acceptance remain required. No release/tag/product-version/demo change; [reproduction and next gate](rapidraw-wasm-webgpu-execution-handoff.md).

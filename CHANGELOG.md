@@ -1,3 +1,9 @@
+## Experimental RapidRAW branch — native shader comparison (2026-10-18)
+
+- Restore original `HIGH_PRECISION_OUTPUT=1` specialization so RGBA16F output follows native high-precision behavior instead of retaining8-bit dither.
+- Add an independent native wgpu29 reference using exact original layout/binding/high-precision pipeline excerpts. Compare source/input/adjustment bytes and every synthetic output component: software native/browser324/324 exact; native NVIDIA within one f16 step, alpha exact.
+- Add native/browser comparison and provenance to Actions. This unfinished port checkpoint leaves product version, installable releases and demo unchanged; real RAW/preprocessing/original UI/editor acceptance remain open.
+
 ## Experimental RapidRAW branch — actual shader execution (2026-10-18)
 
 - Execute the complete pinned native shader in isolated browser WebGPU, with explicit software-adapter identity,14 bindings, actual WASM adjustment bytes and async RGBA16F readback. Verify three finite distinct synthetic frames without GPU/browser errors.

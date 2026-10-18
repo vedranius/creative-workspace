@@ -222,7 +222,8 @@ export async function renderOriginalFrame({
   const pipeline = device.createComputePipeline({
     label: "RapidRAW original full-effects compute",
     layout: pipelineLayout,
-    compute: { module: shader, entryPoint: "main" },
+    // Native high-precision specialization disables the original 8-bit dither.
+    compute: { module: shader, entryPoint: "main", constants: { HIGH_PRECISION_OUTPUT: 1 } },
   });
 
   const adjustmentBuffer = device.createBuffer({

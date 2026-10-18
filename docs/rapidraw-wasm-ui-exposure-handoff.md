@@ -1,3 +1,7 @@
+# Latest comparison checkpoint — 2026-10-18
+
+Independent native shader-fixture comparison exposed and corrected the missing browser `HIGH_PRECISION_OUTPUT=1` option. Software native/browser now match324/324 components; native NVIDIA differs by at most one f16 step, with exact input/adjustment bytes. This supersedes the open synthetic native-shader comparison below; real RAW/preprocessing/full engine/UI/editor acceptance remains open. [Current source, evidence and next task](rapidraw-wasm-webgpu-native-handoff.md). Prior6c79066 Actions succeeded and its Chromium140 execution artifact was inspected, before this correction/comparison.
+
 # Latest renderer checkpoint — 2026-10-18
 
 The complete original WGSL now executes on actual browser WebGPU/SwiftShader with three finite synthetic exposure frames and zero GPU/page/network errors. This supersedes the missing-default-launch capability observation below. Native rendered-frame comparison remains open; [current proof and next task](rapidraw-wasm-webgpu-execution-handoff.md). Prior c7433c3 Actions Checks39106964937/parity39106964966 succeeded; its downloaded exposure evidence verifies216 native/browser matches and11 invalid refusals.

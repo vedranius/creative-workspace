@@ -1,0 +1,341 @@
+//! Independent compute-only reference for the original RapidRAW shader.
+//! Exact source excerpts are AGPL-3.0; see UPSTREAM.json and the adjacent
+//! rapidraw-wasm-core/tests/reference/RapidRAW-LICENSE. Neutral synthetic
+//! resources are test fixtures, not original preprocessing or the full editor.
+use bytemuck::{Pod, Zeroable};
+use serde::{Deserialize, Serialize};
+use serde_json::json;
+use sha2::{Digest, Sha256};
+use wgpu::util::DeviceExt;
+
+include!("original_adjustments.rs");
+const MAX_MASK_BINDINGS: u32 = 1;
+const WIDTH: u32 = 9;
+const HEIGHT: u32 = 3;
+const SHADER: &str = include_str!("../../rapidraw-wasm-core/shader.wgsl");
+
+fn hash(bytes: &[u8]) -> String {
+    format!("{:x}", Sha256::digest(bytes))
+}
+
+fn texture(
+    device: &wgpu::Device,
+    queue: &wgpu::Queue,
+    size: wgpu::Extent3d,
+    dimension: wgpu::TextureDimension,
+    format: wgpu::TextureFormat,
+    data: &[u8],
+) -> wgpu::Texture {
+    device.create_texture_with_data(
+        queue,
+        &wgpu::TextureDescriptor {
+            label: Some("Independent native neutral fixture"),
+            size,
+            mip_level_count: 1,
+            sample_count: 1,
+            dimension,
+            format,
+            usage: wgpu::TextureUsages::TEXTURE_BINDING | wgpu::TextureUsages::COPY_DST,
+            view_formats: &[],
+        },
+        wgpu::util::TextureDataOrder::MipMajor,
+        data,
+    )
+}
+
+fn main() -> Result<(), Box<dyn std::error::Error>> {
+    assert_eq!(
+        hash(SHADER.as_bytes()),
+        "9ecb4cc31b8ce4a12f439f69935ed0c8c27f58b52501929e0dc41d22e85ca178"
+    );
+    assert_eq!(std::mem::size_of::<AllAdjustments>(), 45232);
+    let mut instance_desc = wgpu::InstanceDescriptor::new_without_display_handle();
+    instance_desc.backends = wgpu::Backends::VULKAN;
+    let instance = wgpu::Instance::new(instance_desc);
+    let adapter = pollster::block_on(instance.request_adapter(&wgpu::RequestAdapterOptions {
+        power_preference: wgpu::PowerPreference::HighPerformance,
+        ..Default::default()
+    }))?;
+    let info = adapter.get_info();
+    let (device, queue) = pollster::block_on(adapter.request_device(&wgpu::DeviceDescriptor {
+        label: Some("Independent RapidRAW reference"),
+        ..Default::default()
+    }))?;
+    let mut entries: Vec<wgpu::BindGroupLayoutEntry> = include!("original_bindings.rs");
+    // Exact substitution used by the pinned native high-precision pipeline.
+    entries[1].ty = wgpu::BindingType::StorageTexture {
+        access: wgpu::StorageTextureAccess::WriteOnly,
+        format: wgpu::TextureFormat::Rgba16Float,
+        view_dimension: wgpu::TextureViewDimension::D2,
+    };
+    let bind_group_layout = device.create_bind_group_layout(&wgpu::BindGroupLayoutDescriptor {
+        label: None,
+        entries: &entries,
+    });
+    let layout = device.create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
+        label: None,
+        bind_group_layouts: &[Some(&bind_group_layout)],
+        immediate_size: 0,
+    });
+    let shader = device.create_shader_module(wgpu::ShaderModuleDescriptor {
+        label: Some("Pinned original RapidRAW full shader"),
+        source: wgpu::ShaderSource::Wgsl(
+            SHADER
+                .replace("rgba8unorm, write>", "rgba16float, write>")
+                .into(),
+        ),
+    });
+    let pipeline = include!("original_high_precision_pipeline.rs");
+    let size = wgpu::Extent3d {
+        width: WIDTH,
+        height: HEIGHT,
+        depth_or_array_layers: 1,
+    };
+    // Binary fractions have identical f32/f16 values, isolating shader execution
+    // from the separate native half-float input quantization boundary.
+    let input: Vec<f32> = (0..WIDTH * HEIGHT)
+        .flat_map(|i| {
+            [
+                (i + 1) as f32 / 128.,
+                (i + 2) as f32 / 128.,
+                (i + 3) as f32 / 128.,
+                1.,
+            ]
+        })
+        .collect();
+    let input_f16: Vec<half::f16> = input.iter().map(|v| half::f16::from_f32(*v)).collect();
+    let input_texture = texture(
+        &device,
+        &queue,
+        size,
+        wgpu::TextureDimension::D2,
+        wgpu::TextureFormat::Rgba16Float,
+        bytemuck::cast_slice(&input_f16),
+    );
+    let input_view = input_texture.create_view(&Default::default());
+    let mask = texture(
+        &device,
+        &queue,
+        size,
+        wgpu::TextureDimension::D2,
+        wgpu::TextureFormat::R32Float,
+        bytemuck::cast_slice(&[0f32; 27]),
+    );
+    let mask_view = mask.create_view(&wgpu::TextureViewDescriptor {
+        dimension: Some(wgpu::TextureViewDimension::D2Array),
+        ..Default::default()
+    });
+    let mut lut_data = Vec::new();
+    for z in 0..2 {
+        for y in 0..2 {
+            for x in 0..2 {
+                lut_data.extend_from_slice(&[x as f32, y as f32, z as f32, 1.]);
+            }
+        }
+    }
+    let lut = texture(
+        &device,
+        &queue,
+        wgpu::Extent3d {
+            width: 2,
+            height: 2,
+            depth_or_array_layers: 2,
+        },
+        wgpu::TextureDimension::D3,
+        wgpu::TextureFormat::Rgba32Float,
+        bytemuck::cast_slice(&lut_data),
+    );
+    let lut_view = lut.create_view(&Default::default());
+    let lut_sampler = device.create_sampler(&Default::default());
+    let flare = texture(
+        &device,
+        &queue,
+        wgpu::Extent3d {
+            width: 1,
+            height: 1,
+            depth_or_array_layers: 1,
+        },
+        wgpu::TextureDimension::D2,
+        wgpu::TextureFormat::Rgba8Unorm,
+        &[0, 0, 0, 255],
+    );
+    let flare_view = flare.create_view(&Default::default());
+    let flare_sampler = device.create_sampler(&wgpu::SamplerDescriptor {
+        mag_filter: wgpu::FilterMode::Linear,
+        min_filter: wgpu::FilterMode::Linear,
+        ..Default::default()
+    });
+    let gf_data: Vec<f32> = (0..27).flat_map(|_| [1., 0., 1., 0.]).collect();
+    let gf = texture(
+        &device,
+        &queue,
+        size,
+        wgpu::TextureDimension::D2,
+        wgpu::TextureFormat::Rgba32Float,
+        bytemuck::cast_slice(&gf_data),
+    );
+    let gf_view = gf.create_view(&Default::default());
+    let output = device.create_texture(&wgpu::TextureDescriptor {
+        label: None,
+        size,
+        mip_level_count: 1,
+        sample_count: 1,
+        dimension: wgpu::TextureDimension::D2,
+        format: wgpu::TextureFormat::Rgba16Float,
+        usage: wgpu::TextureUsages::STORAGE_BINDING | wgpu::TextureUsages::COPY_SRC,
+        view_formats: &[],
+    });
+    let output_view = output.create_view(&Default::default());
+    let mut frames = Vec::new();
+    for exposure in [-1f32, 0., 1.] {
+        let mut adjustments = AllAdjustments::zeroed();
+        let identity = GpuMat3::default();
+        adjustments.global.exposure = exposure;
+        adjustments.global.centre_x = 0.5;
+        adjustments.global.centre_y = 0.5;
+        adjustments.global.is_raw_image = 1;
+        adjustments.global.vignette_center_x = 0.5;
+        adjustments.global.vignette_center_y = 0.5;
+        adjustments.global.color_grading_blending = 0.5;
+        adjustments.global.agx_pipe_to_rendering_matrix = identity;
+        adjustments.global.agx_rendering_to_pipe_matrix = identity;
+        adjustments.global.wb_rgb_to_lms_matrix = identity;
+        adjustments.global.wb_lms_to_rgb_matrix = identity;
+        adjustments.mask_atlas_cols = 1;
+        let adjustment_buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
+            label: None,
+            contents: bytemuck::bytes_of(&adjustments),
+            usage: wgpu::BufferUsages::STORAGE,
+        });
+        let views = [
+            (0, &input_view),
+            (1, &output_view),
+            (3, &mask_view),
+            (4, &lut_view),
+            (6, &input_view),
+            (7, &input_view),
+            (8, &input_view),
+            (9, &input_view),
+            (10, &flare_view),
+            (12, &gf_view),
+            (13, &gf_view),
+        ];
+        let mut bindings: Vec<_> = views
+            .into_iter()
+            .map(|(binding, view)| wgpu::BindGroupEntry {
+                binding,
+                resource: wgpu::BindingResource::TextureView(view),
+            })
+            .collect();
+        bindings.extend([
+            wgpu::BindGroupEntry {
+                binding: 2,
+                resource: adjustment_buffer.as_entire_binding(),
+            },
+            wgpu::BindGroupEntry {
+                binding: 5,
+                resource: wgpu::BindingResource::Sampler(&lut_sampler),
+            },
+            wgpu::BindGroupEntry {
+                binding: 11,
+                resource: wgpu::BindingResource::Sampler(&flare_sampler),
+            },
+        ]);
+        let group = device.create_bind_group(&wgpu::BindGroupDescriptor {
+            label: None,
+            layout: &bind_group_layout,
+            entries: &bindings,
+        });
+        let padded_bpr = (WIDTH * 8).div_ceil(256) * 256;
+        let buffer = device.create_buffer(&wgpu::BufferDescriptor {
+            label: None,
+            size: u64::from(padded_bpr * HEIGHT),
+            usage: wgpu::BufferUsages::COPY_DST | wgpu::BufferUsages::MAP_READ,
+            mapped_at_creation: false,
+        });
+        let mut encoder = device.create_command_encoder(&Default::default());
+        {
+            let mut pass = encoder.begin_compute_pass(&Default::default());
+            pass.set_pipeline(&pipeline);
+            pass.set_bind_group(0, &group, &[]);
+            pass.dispatch_workgroups(WIDTH.div_ceil(8), HEIGHT.div_ceil(8), 1);
+        }
+        encoder.copy_texture_to_buffer(
+            wgpu::TexelCopyTextureInfo {
+                texture: &output,
+                mip_level: 0,
+                origin: wgpu::Origin3d::ZERO,
+                aspect: wgpu::TextureAspect::All,
+            },
+            wgpu::TexelCopyBufferInfo {
+                buffer: &buffer,
+                layout: wgpu::TexelCopyBufferLayout {
+                    offset: 0,
+                    bytes_per_row: Some(padded_bpr),
+                    rows_per_image: Some(HEIGHT),
+                },
+            },
+            size,
+        );
+        queue.submit(Some(encoder.finish()));
+        let slice = buffer.slice(..);
+        let (tx, rx) = std::sync::mpsc::channel();
+        slice.map_async(wgpu::MapMode::Read, move |r| {
+            let _ = tx.send(r);
+        });
+        device.poll(wgpu::PollType::Wait {
+            submission_index: None,
+            timeout: Some(std::time::Duration::from_secs(30)),
+        })?;
+        rx.recv_timeout(std::time::Duration::from_secs(1))??;
+        let mapped = slice.get_mapped_range();
+        let mut pixels = Vec::new();
+        for row in mapped.chunks(padded_bpr as usize).take(HEIGHT as usize) {
+            pixels.extend_from_slice(&row[..(WIDTH * 8) as usize]);
+        }
+        let words: Vec<u16> = pixels
+            .chunks_exact(2)
+            .map(|b| u16::from_le_bytes([b[0], b[1]]))
+            .collect();
+        assert!(words.iter().all(|v| v & 0x7c00 != 0x7c00));
+        frames.push(json!({"exposure":exposure,"bytes":pixels.len(),"sha256":hash(&pixels),"rgbaF16Bits":words,"adjustmentSha256":hash(bytemuck::bytes_of(&adjustments))}));
+        drop(mapped);
+        buffer.unmap();
+    }
+    println!(
+        "{}",
+        json!({"source":"b39884b38d8f148caef6fd0d52afd264951be329","highPrecisionOutput":1,"shaderSha256":hash(SHADER.as_bytes()),"scope":"Independent native wgpu29 full original shader on neutral synthetic resources; not full native engine/preprocessing", "adapter":{"name":info.name,"driver":info.driver,"driverInfo":info.driver_info,"backend":format!("{:?}",info.backend),"deviceType":format!("{:?}",info.device_type)},"width":WIDTH,"height":HEIGHT,"inputF32Sha256":hash(bytemuck::cast_slice(&input)),"frames":frames})
+    );
+    Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    #[test]
+    fn original_source_excerpts_and_shader_match_recorded_pin() {
+        let upstream: serde_json::Value =
+            serde_json::from_str(include_str!("../UPSTREAM.json")).unwrap();
+        for (name, bytes) in [
+            (
+                "src/original_adjustments.rs",
+                include_bytes!("original_adjustments.rs").as_slice(),
+            ),
+            (
+                "src/original_bindings.rs",
+                include_bytes!("original_bindings.rs").as_slice(),
+            ),
+            (
+                "src/original_high_precision_pipeline.rs",
+                include_bytes!("original_high_precision_pipeline.rs").as_slice(),
+            ),
+            ("../rapidraw-wasm-core/shader.wgsl", SHADER.as_bytes()),
+        ] {
+            assert_eq!(
+                hash(bytes),
+                upstream["files"][name]["sha256"].as_str().unwrap()
+            );
+        }
+        assert_eq!(std::mem::size_of::<AllAdjustments>(), 45232);
+    }
+}

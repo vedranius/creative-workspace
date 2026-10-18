@@ -1,3 +1,9 @@
+# RWASM-03 — independent native shader fixture comparison passes (2026-10-18)
+
+The missing native high-precision specialization is restored. Actual browser/native SwiftShader output matches324/324 f16 components; native NVIDIA differs by at most one f16 step on the same three neutral/exposure frames. Full original source shader, source layout/bindings/pipeline excerpts, input and adjustment bytes are verified. [Evidence and remaining scope](rapidraw-wasm-webgpu-native-handoff.md).
+
+Next ready task: connect the public CC0 Canon Speed-developed pixels to the original renderer boundary, including native f32→f16 upload semantics, explicit dimensions/budgets and exposure/baseline inputs; compare native/browser output from the real RAW fixture. Do not treat this neutral synthetic comparison as original preprocessing or full editor acceptance. Reuse existing artifacts/cache, preserve private RAF/output gates and continue in MAIN only while A's owner awaits approval.
+
 # RWASM-03 — full original WGSL execution verified locally (2026-10-18)
 
 Actual sandboxed Chromium WebGPU/SwiftShader executes the pinned full shader,14 bindings, neutral resources and WASM-packed exposure fixture for three9×3 RGBA16F frames. This is synthetic software-adapter execution, not native-frame parity, real preprocessing, hardware performance or an editor. [Scope/evidence/next task](rapidraw-wasm-webgpu-execution-handoff.md).

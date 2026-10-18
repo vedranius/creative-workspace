@@ -145,6 +145,7 @@ test("dispatches original 14 bindings and returns tightly packed async readback"
   assert.equal(result.format, "rgba16float");
   assert.equal(result.pixels.byteLength, 3 * 2 * 8);
   assert.deepEqual(calls.find(([name]) => name === "dispatch"), ["dispatch", 1, 1, 1]);
+  assert.deepEqual(calls.find(([name]) => name === "pipeline")[1].compute.constants, { HIGH_PRECISION_OUTPUT: 1 });
   const bindGroup = calls.find(([name]) => name === "bindGroup")[1];
   assert.deepEqual(bindGroup.entries.map(({ binding }) => binding), Array.from({ length: 14 }, (_, i) => i));
   const layout = calls.find(([name]) => name === "layout")[1];

@@ -1,3 +1,11 @@
+# 2026-10-18 RWASM-03 — independent native shader comparison and precision correction
+
+The bounded independent native wgpu29 reference compiles exact pinned original adjustment structs,14-binding layout, high-precision pipeline creation and full WGSL. Comparison exposed a missing browser `HIGH_PRECISION_OUTPUT=1` specialization:8-bit dither had remained enabled in RGBA16F. Restored the original native specialization; kept the original shader and predeclared one-f16-step RGB/exact-alpha tolerance unchanged.
+
+Actual sandboxed Chromium/SwiftShader now matches native SwiftShader324/324 components exactly on three synthetic9×3 exposure frames. Native NVIDIA comparison is215/324 exact, maximum one f16 step; input and all adjustment bytes match in both, no GPU/page/network errors. Native source/ABI test1/1, host10/10, repo check, format/syntax/diff pass. [Handoff and next task](rapidraw-wasm-webgpu-native-handoff.md). This is neutral shader-fixture comparison, not full native engine/preprocessing/RAW/editor acceptance. No private file/service/demo/version change.
+
+Prior6c79066 Checks39107485075/parity39107485071 succeeded; downloaded artifact confirms actual Chromium140 SwiftShader execution. That run predates this precision correction/native comparison. Fresh Actions verification remains pending source push.
+
 # 2026-10-18 RWASM-03 — original full shader executes in browser
 
 An isolated sandboxed Chromium151 now runs the complete pinned RapidRAW WGSL (native RGBA16F substitution), all14 bindings and actual WASM-packed neutral/exposure fixture through WebGPU. Explicit SwiftShader software adapter produces three distinct finite9×3 frames at -1/0/+1 stops, alpha1,216 bytes each; asynchronous padded-row readback succeeds with zero GPU/page/network errors. LUT sampler binding5 now matches the native non-filtering declaration. [Proof and next task](rapidraw-wasm-webgpu-execution-handoff.md) · [browser report](evidence/rapidraw-wasm/webgpu-execution.json).

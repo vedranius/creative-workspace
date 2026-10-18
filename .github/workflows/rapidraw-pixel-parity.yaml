@@ -4,6 +4,7 @@ on:
     branches: [main, codex/rapidraw-wasm-port]
     paths:
       - 'experiments/rapidraw-wasm-core/**'
+      - 'experiments/rapidraw-native-render-reference/**'
       - 'patches/rapidraw-rawler/**'
       - 'scripts/prepare-rapidraw-quality.mjs'
       - 'scripts/smoke-rapidraw-development.mjs'
@@ -17,6 +18,7 @@ on:
   pull_request:
     paths:
       - 'experiments/rapidraw-wasm-core/**'
+      - 'experiments/rapidraw-native-render-reference/**'
       - 'patches/rapidraw-rawler/**'
       - 'scripts/prepare-rapidraw-quality.mjs'
       - 'scripts/smoke-rapidraw-development.mjs'

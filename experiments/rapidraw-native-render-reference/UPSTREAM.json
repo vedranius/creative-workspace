@@ -1,0 +1,31 @@
+{
+  "source": "https://github.com/CyberTimon/RapidRAW",
+  "commit": "b39884b38d8f148caef6fd0d52afd264951be329",
+  "license": "AGPL-3.0-only",
+  "files": {
+    "src/original_adjustments.rs": {
+      "sourcePath": "src-tauri/src/image_processing.rs",
+      "sourceSha256": "5e16c6d88c30e5728534bb67be47e79c44b96d524f90973a611c2c2e8adb3a19",
+      "sha256": "03dc420e9ddde6a7b1cf48da17021e4efe4db926e34cd24f329a7723ce1d039f",
+      "scope": "Exact contiguous source excerpt from Point derives through AllAdjustments; no transformations"
+    },
+    "src/original_bindings.rs": {
+      "sourcePath": "src-tauri/src/gpu_processing.rs",
+      "sourceSha256": "c674ad3ba42981da01566259769a250994c6d26859d468ee9fe33e594e790784",
+      "sha256": "c25d67c1e80da78cc7b23a26ed7902f5239fcc52ec5efe4141ab34dd28d3a856",
+      "scope": "Exact contiguous original main bind-group entries, wrapped in an expression block returning the entries"
+    },
+    "../rapidraw-wasm-core/shader.wgsl": {
+      "sourcePath": "src-tauri/src/shaders/shader.wgsl",
+      "sha256": "9ecb4cc31b8ce4a12f439f69935ed0c8c27f58b52501929e0dc41d22e85ca178",
+      "scope": "Byte-identical full original shader; native high-precision storage substitution at runtime"
+    },
+    "src/original_high_precision_pipeline.rs": {
+      "sourcePath": "src-tauri/src/gpu_processing.rs",
+      "sourceSha256": "c674ad3ba42981da01566259769a250994c6d26859d468ee9fe33e594e790784",
+      "sha256": "524428f171760051232f48bb1292487fac585ef8378541b65963a01413f82b67",
+      "scope": "Exact original high precision pipeline creation including HIGH_PRECISION_OUTPUT=1, wrapped to return pipeline"
+    }
+  },
+  "hostScope": "Independent compute-only native resource/dispatch/readback harness on a synthetic neutral fixture, not Tauri/AppState/cache/preprocessing or full native process_and_get_dynamic_image_with_precision."
+}

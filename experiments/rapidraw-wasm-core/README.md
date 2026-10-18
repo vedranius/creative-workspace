@@ -2,8 +2,8 @@
 
 `webgpu-renderer.js` dispatches the pinned RapidRAW `shader.wgsl` main entry
 with all 14 original bindings and accepts the upstream `AllAdjustments` Pod
-bytes unchanged. It uses the same `rgba16float` storage-format substitution as
-the pinned native high-precision pipeline and maps the output asynchronously,
+bytes unchanged. It uses the same `rgba16float` storage-format substitution and
+`HIGH_PRECISION_OUTPUT=1` specialization as the pinned native high-precision pipeline and maps the output asynchronously,
 returning tightly packed RGBA16F rows. The caller must provide textures and
 samplers from RapidRAW's existing preprocessing stages; this module does not
 replace those stages or calculate adjustment packing itself.
@@ -27,8 +27,9 @@ handling. They are protocol tests and do not prove that a browser GPU executed
 the shader. Previous default launches lacked `navigator.gpu`. An isolated sandboxed Chromium
 launch with explicit WebGPU/SwiftShader flags now executes the full shader and
 reads back three finite9×3 exposure frames. The adapter is software, not a
-hardware performance result. Native rendered-frame comparison and real
-preprocessing integration remain open. See [real execution evidence and reproduction](../../docs/rapidraw-wasm-webgpu-execution-handoff.md).
+hardware performance result. Independent native shader-fixture comparison now passes (software324/324 exact,
+native NVIDIA at most one f16 step); real RAW/preprocessing and full native-engine
+frame comparison remain open. [Current comparison](../../docs/rapidraw-wasm-webgpu-native-handoff.md). See [real execution evidence and reproduction](../../docs/rapidraw-wasm-webgpu-execution-handoff.md).
 
 ## Original exposure input slice
 
