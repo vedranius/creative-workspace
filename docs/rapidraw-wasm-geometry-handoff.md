@@ -31,6 +31,8 @@ All4,718,592 RGBA8 components,371,266 JPEG bytes, complete adjustment hashes and
 
 The same single sandboxed Chromium151/SwiftShader context retains the earlier five Exposure comparisons, all three actual Slider drag/release modes, eight malformed WASM resize refusals, oversize-GPU refusal and same-worker512→256→512 exact recovery as regression checks. After all actions GPU/page/network/external-request errors are empty; dragging=false and patch cleared. Original autosave/export remain unavailable without a fake ACK. The QA context/browser/server and owned worker/resources close. Evidence omits repeated full adjustment objects while retaining native-checked complete-payload hashes and all source pins.
 
+A trailing extraction separator blank line was removed from both exact-source copies after QA; their shared provenance hash was updated and focused geometry/source tests rechecked. Pixel arithmetic is unchanged.
+
 Core54/54 and doctests, host20/20, npm run check, source hash, focused syntax/rustfmt and diff checks pass. Buffers/upload-payload estimates and worker deadlines remain scoped limits, NOT complete peak-memory, GPU/JPEG timeout or whole editor lifecycle protection. No private photograph/EXIF/path, live studio/service, public demo or main/server checkout changed.
 
 ## Reproduction and CI

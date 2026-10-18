@@ -54,7 +54,7 @@
       "src-tauri/src/image_processing.rs::IntoCowImage/apply_coarse_rotation/apply_flip",
       "src-tauri/src/adjustment_utils.rs::apply_orientation_and_flip"
     ],
-    "referenceSha256": "52cbd5e3db3ff364e5b7ba663142bd04d7f4fef4b0176a6e6b1e5e32292a66b0",
+    "referenceSha256": "d050ac33be33f3d36859c1466b42c233f985775c6577187860e5cdbe53ad98b1",
     "sourceFileSha256": "5e16c6d88c30e5728534bb67be47e79c44b96d524f90973a611c2c2e8adb3a19",
     "adjustmentUtilsSha256": "1638c4239f50c3dec6701e2837d70152d134e351dfa9b3077fe4099e31998674",
     "scope": "Original rotation then flips after original area preview; only orientationSteps0..3 and bool flips. Crop/fine rotation/warp unsupported."

@@ -72,4 +72,3 @@ pub fn apply_orientation_and_flip<'a, I: IntoCowImage<'a>>(
     let coarse_rotated_image = apply_coarse_rotation(image.into_cow(), orientation_steps);
     apply_flip(coarse_rotated_image, flip_horizontal, flip_vertical)
 }
-
