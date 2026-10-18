@@ -1,0 +1,239 @@
+{
+  "stage": "RWASM-03 original as-shot WB metadata and original WB adjustment/adaptation mapping",
+  "nativeSource": "b39884b38d8f148caef6fd0d52afd264951be329",
+  "decoderSource": "a32bc1ff1f4f3c56d4d3226082f6eb17414f9159",
+  "publicFixture": {
+    "id": "raw.pixls.us 1327",
+    "sourceSha256": "f0d2fe47507fadf50008bddbc6bd2c5e39fddbe90cca6bca72dd360fa0e0eb38",
+    "license": "CC0-1.0"
+  },
+  "nativeReference": "Full original white_balance.rs/raw_processing.rs/baseline_exposure.rs plus pinned color helpers; native WB stub removed",
+  "nativeAsShot": {
+    "exposure": {
+      "dngBaseline": -0.5,
+      "highlightPreservation": 0,
+      "sceneReferred": true
+    },
+    "whiteBalance": {
+      "temperature": 6133.300425391969,
+      "tint": 39.766891841657326
+    }
+  },
+  "browserAsShot": {
+    "exposure": {
+      "dngBaseline": -0.5,
+      "highlightPreservation": 0,
+      "sceneReferred": true
+    },
+    "whiteBalance": {
+      "temperature": 6133.300425391969,
+      "tint": 39.766891841657326
+    }
+  },
+  "nativeCases": [
+    {
+      "adaptationLogGains": [
+        0,
+        0,
+        0
+      ],
+      "json": "{}",
+      "rgbToLms": [
+        0.42265796661376953,
+        0.055690791457891464,
+        0.02137923799455166,
+        0.49135658144950867,
+        0.961556077003479,
+        0.08764386177062988,
+        0.027364501729607582,
+        0.0231893640011549,
+        0.980743408203125
+      ],
+      "whiteBalance": {
+        "temperature": 6133.300425391969,
+        "tint": 39.766891841657326
+      }
+    },
+    {
+      "adaptationLogGains": [
+        0.015576070174574852,
+        -0.0006663159583695233,
+        -0.11949741840362549
+      ],
+      "json": "{\"temperature\":10,\"tint\":-3}",
+      "rgbToLms": [
+        0.42265796661376953,
+        0.055690791457891464,
+        0.02137923799455166,
+        0.49135658144950867,
+        0.961556077003479,
+        0.08764386177062988,
+        0.027364501729607582,
+        0.0231893640011549,
+        0.980743408203125
+      ],
+      "whiteBalance": {
+        "temperature": 6754.732479214607,
+        "tint": 35.266891841657326
+      }
+    },
+    {
+      "adaptationLogGains": [
+        -0.061787884682416916,
+        0.040349818766117096,
+        0.07562834769487381
+      ],
+      "json": "{\"temperature\":-5,\"tint\":2,\"whiteBalance\":{\"temperature\":5500,\"tint\":12}}",
+      "rgbToLms": [
+        0.42265796661376953,
+        0.055690791457891464,
+        0.02137923799455166,
+        0.49135658144950867,
+        0.961556077003479,
+        0.08764386177062988,
+        0.027364501729607582,
+        0.0231893640011549,
+        0.980743408203125
+      ],
+      "whiteBalance": {
+        "temperature": 5282.1128451380555,
+        "tint": 15
+      }
+    },
+    {
+      "adaptationLogGains": [
+        -0.16919764876365662,
+        0.3082611560821533,
+        -0.9696636199951172
+      ],
+      "json": "{\"temperature\":1000000.0,\"tint\":-1000000.0}",
+      "rgbToLms": [
+        0.42265796661376953,
+        0.055690791457891464,
+        0.02137923799455166,
+        0.49135658144950867,
+        0.961556077003479,
+        0.08764386177062988,
+        0.027364501729607582,
+        0.0231893640011549,
+        0.980743408203125
+      ],
+      "whiteBalance": {
+        "temperature": 50000,
+        "tint": -150
+      }
+    }
+  ],
+  "browserCases": [
+    {
+      "adaptationLogGains": [
+        0,
+        0,
+        0
+      ],
+      "rgbToLms": [
+        0.42265796661376953,
+        0.055690791457891464,
+        0.02137923799455166,
+        0.49135658144950867,
+        0.961556077003479,
+        0.08764386177062988,
+        0.027364501729607582,
+        0.0231893640011549,
+        0.980743408203125
+      ],
+      "whiteBalance": {
+        "temperature": 6133.300425391969,
+        "tint": 39.766891841657326
+      }
+    },
+    {
+      "adaptationLogGains": [
+        0.015576070174574852,
+        -0.0006663159583695233,
+        -0.11949741840362549
+      ],
+      "rgbToLms": [
+        0.42265796661376953,
+        0.055690791457891464,
+        0.02137923799455166,
+        0.49135658144950867,
+        0.961556077003479,
+        0.08764386177062988,
+        0.027364501729607582,
+        0.0231893640011549,
+        0.980743408203125
+      ],
+      "whiteBalance": {
+        "temperature": 6754.732479214607,
+        "tint": 35.266891841657326
+      }
+    },
+    {
+      "adaptationLogGains": [
+        -0.061787884682416916,
+        0.040349818766117096,
+        0.07562834769487381
+      ],
+      "rgbToLms": [
+        0.42265796661376953,
+        0.055690791457891464,
+        0.02137923799455166,
+        0.49135658144950867,
+        0.961556077003479,
+        0.08764386177062988,
+        0.027364501729607582,
+        0.0231893640011549,
+        0.980743408203125
+      ],
+      "whiteBalance": {
+        "temperature": 5282.1128451380555,
+        "tint": 15
+      }
+    },
+    {
+      "adaptationLogGains": [
+        -0.16919764876365662,
+        0.3082611560821533,
+        -0.9696636199951172
+      ],
+      "rgbToLms": [
+        0.42265796661376953,
+        0.055690791457891464,
+        0.02137923799455166,
+        0.49135658144950867,
+        0.961556077003479,
+        0.08764386177062988,
+        0.027364501729607582,
+        0.0231893640011549,
+        0.980743408203125
+      ],
+      "whiteBalance": {
+        "temperature": 50000,
+        "tint": -150
+      }
+    }
+  ],
+  "comparedScalars": 58,
+  "exactScalars": 58,
+  "tolerance": {
+    "temperatureKelvin": 1e-08,
+    "tint": 1e-09,
+    "adaptationLogGains": 5e-07,
+    "rgbToLms": 1e-06
+  },
+  "maxAbsoluteDifference": {
+    "temperatureKelvin": 0,
+    "tint": 0,
+    "adaptationLogGains": 0,
+    "rgbToLms": 0
+  },
+  "rejectedInvalidMappings": 8,
+  "rejectedEmptyRaw": true,
+  "wasmSha256": "35e8de4940fda2ae5a0f39897ee0fc27edc4643e9a9fcdcd72243687e99f0e75",
+  "browserVersion": "151.0.7922.34",
+  "chromiumSandbox": true,
+  "pageErrors": [],
+  "failedRequests": [],
+  "scope": "Actual original camera-neutral/as-shot WB temperature/tint, exposure and original WB UI/Bradford adaptation mapping. Actual WASM worker on one public CC0 DNG, not broad camera support. No source-image edits/private data. WB GPU adjustment fields/full rendered-frame comparison, other controls/preprocessing, React UI, file providers and full editor acceptance remain open."
+}

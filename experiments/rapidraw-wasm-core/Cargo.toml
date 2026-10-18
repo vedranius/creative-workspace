@@ -14,6 +14,8 @@ default = []
 quality-timer-compat = []
 
 [dependencies]
+glam = "=0.33.5"
+serde = { version = "=1.0.229", features = ["derive"] }
 rawler = { git = "https://github.com/CyberTimon/RapidRAW-DngLab.git", rev = "a32bc1ff1f4f3c56d4d3226082f6eb17414f9159" }
 bytemuck = { version = "=1.25.2", features = ["derive"] }
 sha2 = "0.10.9"

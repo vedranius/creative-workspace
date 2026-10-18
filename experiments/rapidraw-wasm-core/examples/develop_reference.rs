@@ -17,25 +17,10 @@ mod app_settings {
 #[rustfmt::skip]
 mod baseline_exposure;
 
-mod white_balance {
-    #[derive(Clone, Copy)]
-    pub struct WhiteBalance;
-    impl WhiteBalance {
-        pub fn reference() -> Self {
-            Self
-        }
-        pub fn from_camera_neutral(_: &[f32], _: &[f32]) -> Option<Self> {
-            Some(Self)
-        }
-        pub fn from_dual_illuminant_camera_neutral(
-            _: &[f32],
-            _: &[f32],
-            _: &[f32],
-        ) -> Option<Self> {
-            Some(Self)
-        }
-    }
-}
+#[path = "../tests/reference/white_balance.rs"]
+#[allow(dead_code)]
+#[rustfmt::skip]
+mod white_balance;
 
 mod as_shot {
     use crate::{baseline_exposure::RawExposure, white_balance::WhiteBalance};
@@ -47,6 +32,7 @@ mod as_shot {
 }
 
 mod image_processing {
+    include!("../tests/reference/wb_color.rs");
     use image::DynamicImage;
     use rawler::decoders::Orientation;
     // Exact orientation sequence used by the pinned source's apply_orientation.
@@ -88,6 +74,25 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let path = std::env::args()
         .nth(1)
         .ok_or("usage: develop_reference RAW_FILE")?;
+    if std::env::args().nth(2).as_deref() == Some("--as-shot") {
+        let bytes = std::fs::read(path)?;
+        let shot = raw_processing::read_as_shot(&bytes).ok_or("Original read_as_shot failed")?;
+        let cases = [serde_json::json!({}), serde_json::json!({"temperature":10,"tint":-3}),
+            serde_json::json!({"whiteBalance":{"temperature":5500,"tint":12},"temperature":-5,"tint":2}),
+            serde_json::json!({"temperature":1e6,"tint":-1e6})].map(|adjustments| {
+                let wb = white_balance::from_adjustments(&adjustments, shot.white_balance);
+                serde_json::json!({"json":adjustments.to_string(), "whiteBalance":wb,
+                    "adaptationLogGains":white_balance::adaptation_log_gains(shot.white_balance,wb),
+                    "rgbToLms":white_balance::rgb_to_lms().to_cols_array()})
+            });
+        println!(
+            "{}",
+            serde_json::json!({"asShot":{"whiteBalance":shot.white_balance,"exposure":{
+            "sceneReferred":shot.exposure.scene_referred,"dngBaseline":shot.exposure.dng_baseline,
+            "highlightPreservation":shot.exposure.highlight_preservation}},"cases":cases})
+        );
+        return Ok(());
+    }
     if std::env::args().nth(2).as_deref() == Some("--camera-exposure") {
         let bytes = std::fs::read(path)?;
         let shot = raw_processing::read_as_shot(&bytes).ok_or("Original read_as_shot failed")?;

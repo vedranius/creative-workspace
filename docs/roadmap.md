@@ -1,3 +1,9 @@
+# RWASM-03 — original as-shot WB slice verified (2026-10-18)
+
+Full source WB module/color helpers and original camera-neutral matrix selection now produce matching actual public-DNG WB/exposure in a browser worker.58/58 native scalars exact, eight malformed mappings plus empty RAW refused; original native WB stub removed. [Current handoff](rapidraw-wasm-as-shot-handoff.md).
+
+Next ready task: connect actual as-shot WB/exposure and original WB visibility/mapping to the pinned `AllAdjustments` fields (`rgb_to_lms`/inverse, WB gains, source white-balance semantics) and original full WGSL, with independent native adjustment bytes and real public-DNG render/PNG comparison. Preserve source formulas and effect order; avoid double-applying the decoder's camera coefficients. Do not repeat metadata-only proof as frame parity. Remaining preprocessing/controls/React/providers/full editor gates remain open; keep private RAF development budget unchanged and MAIN only while A waits approval.
+
 # RWASM-03 — original camera exposure metadata slice verified (2026-10-18)
 
 Original full reader/helpers and dummy monochrome rule are pinned; public Canon DNG−0.5EV plus explicit signed-rational variants match native through actual WASM worker,36 original UI/baseline mapped f32 cases, four malformed/resource refusals. [Compact handoff](rapidraw-wasm-camera-exposure-handoff.md).

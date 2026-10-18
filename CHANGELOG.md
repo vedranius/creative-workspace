@@ -1,3 +1,9 @@
+## Experimental RapidRAW branch — original as-shot white balance (2026-10-18)
+
+- Port full original WB module, camera-neutral single/dual-illuminant selection, sRGB/D65/color helpers and original WB adjustment/Bradford adaptation mapping. Pin native glam0.33.5/serde1.0.229 while preserving existing codec lock versions.
+- Replace the independent native reference's dummy WB stub with real source. Actual public DNG WB/exposure and58 mapping/matrix scalars match native exactly in Chromium; eight invalid mappings and empty RAW refuse. Source/shape/singular/dual-matrix tests pass.
+- Add reproducible Actions proof and upstream provenance. WB shader payload/rendered-frame integration, other controls/preprocessing, original React/providers and full editor acceptance remain open. No product version/release/demo change for this unfinished port checkpoint.
+
 ## Experimental RapidRAW branch — original camera exposure reader (2026-10-18)
 
 - Extract the pinned original baseline-exposure reader/helpers and dummy monochrome rule behind existing RAW preflight and explicit dimension/finite guards. The actual public Canon DNG reads−0.5 EV; no zero-value metadata substitute.

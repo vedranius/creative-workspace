@@ -135,5 +135,18 @@
     "readAsShotSourcePath": "src-tauri/src/raw_processing.rs",
     "scope": "Exact original baseline read/helpers and exposure portion of read_as_shot with preflight/dimension/finite guards. WB extraction is NOT implemented; existing developer still applies original decoder coefficients.",
     "license": "AGPL-3.0-only"
+  },
+  "asShotWhiteBalance": {
+    "sourcePath": "src-tauri/src/white_balance.rs",
+    "sourceSha256": "fabccede2cca8afff733b7dbd05af905dc42bbc0d5522512e7d7f9a5561174e0",
+    "referenceCopy": "tests/reference/white_balance.rs",
+    "rawProcessingHelperSha256": "1c353e8a4a2010f753e48c68dd289e1700a74e6346656300cfc112da7a22be90",
+    "colorSourcePath": "src-tauri/src/image_processing.rs",
+    "colorSourceSha256": "5e16c6d88c30e5728534bb67be47e79c44b96d524f90973a611c2c2e8adb3a19",
+    "colorExcerptsSha256": "47f64cdfcdc93f0eee18e8e4fd36a32ec001356a2fe8c2eb0d787a03fdf28905",
+    "glam": "0.33.5",
+    "serde": "1.0.229",
+    "scope": "Full original WB module and original camera-neutral matrix selection, metadata guards and original WB UI/adaptation mapping. Other settings/GPU incorporation are separate.",
+    "license": "AGPL-3.0-only"
   }
 }

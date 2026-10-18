@@ -1,3 +1,9 @@
+# 2026-10-18 RWASM-03 — original as-shot white balance
+
+The full pinned `white_balance.rs` now runs in WASM, with original camera-neutral coefficient/matrix selection and sRGB/D65/color helpers. The independent native harness's dummy WB stub was removed and replaced with the real original source. The public Canon DNG reads6133.300425391969K, tint39.766891841657326 and exposure−0.5EV identically in native and Chromium. All58 metadata/UI-shift/Bradford gain/matrix scalars match exactly; eight malformed mappings and empty RAW refuse with zero browser errors. Core37/37, host14/14, check and focused format/syntax/diff pass. [Proof and next step](rapidraw-wasm-as-shot-handoff.md).
+
+This is metadata and original WB input/adaptation mapping. WB fields still need integration into the original shader payload/rendered-frame reference; other controls/preprocessing, original React UI and provider/full editor acceptance remain open. No product version/release/demo/private-file/live-service change. Prior201a8f2 Checks39111264750/parity39111264753 succeeded; fresh as-shot CI follows source publication.
+
 # 2026-10-18 RWASM-03 — actual camera exposure metadata
 
 The original `baseline_exposure` reader/helpers now run in WASM after the existing RAW preflight and original dummy-decode monochrome check. The actual public Canon DNG reports **−0.5 EV**, rather than a hard-coded zero. Two explicitly derived signed-rational DNG cases report+0.5 and−1.25 EV. All three metadata results and36 downstream original UI/baseline exposure f32 outputs match the independent native `read_as_shot` reference exactly in an actual Chromium module worker. Empty/truncated/oversized-RAW-IFD/nonfinite-baseline inputs refuse; no browser/page/network errors. [Evidence and next task](rapidraw-wasm-camera-exposure-handoff.md).

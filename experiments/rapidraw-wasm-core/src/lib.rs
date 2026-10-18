@@ -14,7 +14,13 @@ use rawler::{
 };
 use sha2::{Digest, Sha256};
 
+pub mod camera_as_shot;
 pub mod camera_exposure;
+#[path = "wb_color.rs"]
+#[rustfmt::skip]
+pub mod image_processing;
+#[rustfmt::skip]
+pub mod white_balance;
 pub mod development;
 pub mod exposure;
 mod multi_exposure;
@@ -460,6 +466,24 @@ mod browser {
                 baseline_exposure,
                 compensate_highlight_preservation,
             },
+        )
+        .map_err(|e| JsValue::from_str(&e))
+    }
+
+    #[wasm_bindgen]
+    pub fn read_as_shot(bytes: &[u8]) -> Result<String, JsValue> {
+        let shot = super::camera_as_shot::read_as_shot(bytes).map_err(|e| JsValue::from_str(&e))?;
+        Ok(serde_json::json!({"whiteBalance":shot.white_balance,"exposure":{
+            "sceneReferred":shot.exposure.scene_referred,"dngBaseline":shot.exposure.dng_baseline,
+            "highlightPreservation":shot.exposure.highlight_preservation,
+        }}).to_string())
+    }
+
+    #[wasm_bindgen]
+    pub fn map_white_balance(json: &str, temperature: f64, tint: f64) -> Result<String, JsValue> {
+        super::camera_as_shot::map_white_balance(
+            json,
+            super::white_balance::WhiteBalance { temperature, tint },
         )
         .map_err(|e| JsValue::from_str(&e))
     }
