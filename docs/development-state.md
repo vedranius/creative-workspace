@@ -1,3 +1,9 @@
+# RWASM-03 — original JPEG preview response verified (2026-10-18)
+
+Original `mozjpeg-rs0.9.2` BaselineFastest/fast_color preview encoding and24-byte little-endian interactive envelope now run in WASM. On the previously verified public RAW rendered frame, all14,744 response bytes match independent native output: final q94, interactive full q75 and odd-dimension offset patches q85/q65. Original React reader excerpts decode all four JPEG blobs/object URLs and rectangles in sandboxed Chromium. Ten direct WASM malformed/resource/quality cases refuse; page/network errors empty. Core45/45, host17/17, repo check and focused syntax/format/diff pass. [Proof, scope and next task](rapidraw-wasm-preview-handoff.md).
+
+This is the native codec/response prerequisite, not a mounted original React editor or resize/ROI rendering/cache/cancel acceptance. No product release/version/install/demo/private-file/service change.
+
 # 2026-10-18 RWASM-03 — full original global controls/defaults
 
 Full pinned `get_global_adjustments_from_json` plus scales, curves/HSL/grading/calibration and AGX helper math now populate GlobalAdjustments with original defaults. Existing actual camera WB/exposure/visibility remain connected. Independent native full-global settings/complete packed bytes and five public-DNG EightBit shader/PNG cases match exactly:3,932,160/3,932,160 RGBA8 components, all PNG bytes and completed downloads. Six malformed/oversized/unordered curves/float-overflow/unknown-tone inputs refuse before GPU upload. Core42/42 (including18 full-native global byte comparisons), native shader reference1/1, host16/16, check/format/syntax/diff pass. [Proof and next concrete task](rapidraw-wasm-global-controls-handoff.md).

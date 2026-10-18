@@ -175,5 +175,26 @@
     ],
     "scope": "Full original GlobalAdjustments parser/defaults and exact helper math; masks and preprocessing resources remain separate. Host curve and finite guards precede GPU upload.",
     "license": "AGPL-3.0-only"
+  },
+  "preview": {
+    "sourcePath": "src-tauri/src/lib.rs",
+    "sourceSha256": "ce69ae5e06b5c5f0eb7b6592d981c727c1be07e7787000a41e50ed77618b2606",
+    "sourceCommit": "b39884b38d8f148caef6fd0d52afd264951be329",
+    "excerpts": {
+      "preview-encode.txt": "abe08858d149e83a9c7a0fea13bc49ac28e382f33b8153c41b69b9eec6bfdd81",
+      "preview-envelope.txt": "7b330e5d5f6fe6e5906243fc4bee0a679c34bc225b7b71bf7cbb38e9742666de"
+    },
+    "codecDependencies": {
+      "mozjpeg-rs": "0.9.2",
+      "imgref": "1.12.2",
+      "rgb": "0.8.53"
+    },
+    "scope": "Exact original BaselineFastest/fast_color JPEG and24-byte little-endian interactive envelope for already-rendered/cropped EightBit pixels; no resizing/cache/React integration acceptance",
+    "license": "AGPL-3.0-only",
+    "reactReader": {
+      "source": "src/hooks/useImageProcessing.ts",
+      "sourceSha256": "f0070afca39a04690ded76badd78f069c7ee046a7f3cdc8c3d4b7bad40d9b2bb",
+      "referenceSha256": "f318f83f153d3947e8d5e2e1703023d895738f9ad246e61ee8139dce1f2e1384"
+    }
   }
 }

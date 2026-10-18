@@ -26,6 +26,7 @@ pub mod development;
 pub mod exposure;
 mod multi_exposure;
 pub mod png_export;
+pub mod preview;
 pub mod renderer_adjustments;
 pub mod renderer_upload;
 pub mod ui_exposure;
@@ -414,6 +415,33 @@ mod browser {
     #[wasm_bindgen]
     pub fn apply_rgb_exposure(pixels: &[f32], exposure: f32) -> Result<Vec<f32>, JsValue> {
         super::apply_rgb_exposure(pixels, exposure).map_err(|e| JsValue::from_str(&e))
+    }
+
+    /// Original native JPEG preview and interactive rectangle response.
+    #[wasm_bindgen]
+    pub fn encode_preview_response(
+        width: u32,
+        height: u32,
+        pixels: &[u8],
+        quality: u8,
+        interactive: bool,
+        x: u32,
+        y: u32,
+        full_width: u32,
+        full_height: u32,
+    ) -> Result<Vec<u8>, JsValue> {
+        super::preview::encode_preview_response(
+            width,
+            height,
+            pixels,
+            quality,
+            interactive,
+            x,
+            y,
+            full_width,
+            full_height,
+        )
+        .map_err(|e| JsValue::from_str(&e))
     }
 
     #[wasm_bindgen]

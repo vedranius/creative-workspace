@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { createHash } from "node:crypto";
 import { readFile } from "node:fs/promises";
 import { test } from "node:test";
-import { createNeutralRendererResources, encodeRenderedFramePng, packNeutralExposureAdjustments, packRgb32fRendererInput, packUiExposureFixture, packCameraRendererFixture, packGlobalRendererFixture, renderOriginalFrame, WebGpuUnsupportedError } from "./webgpu-renderer.js";
+import { createNeutralRendererResources, encodePreviewResponse, encodeRenderedFramePng, packNeutralExposureAdjustments, packRgb32fRendererInput, packUiExposureFixture, packCameraRendererFixture, packGlobalRendererFixture, renderOriginalFrame, WebGpuUnsupportedError } from "./webgpu-renderer.js";
 
 globalThis.GPUShaderStage = { COMPUTE: 4 };
 globalThis.GPUBufferUsage = { STORAGE: 128, COPY_DST: 8, MAP_READ: 1 };
@@ -266,4 +266,23 @@ test("full global host forwards pinned parser options and refuses unknown tone o
   assert.deepEqual(args,['{"contrast":15}',6133.3,39.7,true,-0.5,0,0,true,1]);
   assert.throws(()=>packGlobalRendererFixture(wasm,'{}',shot,options,2));
   assert.throws(()=>packGlobalRendererFixture({pack_global_renderer_fixture:()=>new Uint8Array(4)},'{}',shot,options));
+});
+
+test('native JPEG preview preserves ArrayBuffer and rejects malformed envelope or precision', () => {
+  const frame={width:1,height:1,format:'rgba8unorm',pixels:new Uint8Array([0,1,2,255])};
+  const jpeg=new Uint8Array([255,216,255,217]);
+  const backed=new Uint8Array(12);backed.set(jpeg,3);
+  const wasm={encode_preview_response:()=>backed.subarray(3,7)};
+  assert.deepEqual(new Uint8Array(encodePreviewResponse(wasm,frame)),jpeg);
+  for(const options of [{quality:75},{interactive:true,quality:94},{interactive:true,x:1},{fullWidth:32768,fullHeight:32768}]) {
+    assert.throws(()=>encodePreviewResponse(wasm,frame,options));
+  }
+  assert.throws(()=>encodePreviewResponse(wasm,{...frame,format:'rgba16float'}));
+  assert.throws(()=>encodePreviewResponse({encode_preview_response:()=>new Uint8Array(30)},frame));
+  const envelope=new Uint8Array(28);const view=new DataView(envelope.buffer);
+  [2,3,1,1,4,5].forEach((v,i)=>view.setUint32(i*4,v,true));envelope.set(jpeg,24);
+  const interactive={encode_preview_response:()=>envelope};
+  const options={interactive:true,x:2,y:3,fullWidth:4,fullHeight:5};
+  assert.deepEqual(new Uint8Array(encodePreviewResponse(interactive,frame,options)),envelope);
+  view.setUint32(0,3,true);assert.throws(()=>encodePreviewResponse(interactive,frame,options),/rectangle mismatch/);
 });

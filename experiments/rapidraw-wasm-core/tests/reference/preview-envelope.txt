@@ -1,0 +1,8 @@
+                    let mut response = Vec::with_capacity(24 + jpeg_bytes.len());
+                    response.extend_from_slice(&rx.to_le_bytes());
+                    response.extend_from_slice(&ry.to_le_bytes());
+                    response.extend_from_slice(&roi_w.to_le_bytes());
+                    response.extend_from_slice(&roi_h.to_le_bytes());
+                    response.extend_from_slice(&preview_width.to_le_bytes());
+                    response.extend_from_slice(&preview_height.to_le_bytes());
+                    response.extend_from_slice(&jpeg_bytes);

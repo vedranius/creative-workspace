@@ -1,0 +1,13 @@
+        let raw_bytes: &[u8] = final_rgba_image.as_raw();
+        let rgba8_pixels: &[RGBA8] = raw_bytes.as_rgba();
+
+        let img_ref = ImgRef::new(
+            rgba8_pixels,
+            final_rgba_image.width() as usize,
+            final_rgba_image.height() as usize,
+        );
+
+        let encode_result = Encoder::new(Preset::BaselineFastest)
+            .quality(jpeg_quality)
+            .fast_color(true)
+            .encode_imgref(img_ref);

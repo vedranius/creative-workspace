@@ -357,3 +357,29 @@ export function encodeRenderedFramePng(wasm, frame, dpi) {
   if (!(png instanceof Uint8Array)||!png.length||png.byteLength>MAX_FRAME_BUFFER_BYTES) throw new TypeError("WASM returned invalid bounded PNG bytes");
   return png;
 }
+
+/** Native useImageProcessing expects an ArrayBuffer, JPEG or header+JPEG. */
+export function encodePreviewResponse(wasm, frame, { interactive=false, quality=interactive?75:94,
+    x=0, y=0, fullWidth=frame?.width, fullHeight=frame?.height }={}) {
+  if (frame?.format !== 'rgba8unorm' || !(frame.pixels instanceof Uint8Array) ||
+      ![frame.width,frame.height,fullWidth,fullHeight].every(v=>Number.isInteger(v)&&v>0&&v<=32768) ||
+      ![x,y].every(v=>Number.isInteger(v)&&v>=0&&v<=32768) || typeof interactive !== 'boolean' ||
+      x+frame.width>fullWidth || y+frame.height>fullHeight ||
+      frame.width*frame.height*4 !== frame.pixels.byteLength || fullWidth*fullHeight*4>MAX_FRAME_BUFFER_BYTES ||
+      !(interactive?[65,75,85].includes(quality):quality===94&&x===0&&y===0&&frame.width===fullWidth&&frame.height===fullHeight)) {
+    throw new TypeError('Original preview requires bounded RGBA8, valid rectangle and native quality');
+  }
+  if (typeof wasm?.encode_preview_response !== 'function') throw new TypeError('Original preview codec is required');
+  const bytes=wasm.encode_preview_response(frame.width,frame.height,frame.pixels,quality,interactive,x,y,fullWidth,fullHeight);
+  const offset=interactive?24:0;
+  if (!(bytes instanceof Uint8Array)||bytes.byteLength<offset+4||bytes.byteLength>MAX_FRAME_BUFFER_BYTES||
+      bytes[offset]!==255||bytes[offset+1]!==216||bytes.at(-2)!==255||bytes.at(-1)!==217) {
+    throw new TypeError('WASM returned invalid bounded JPEG preview');
+  }
+  if (interactive) {
+    const view=new DataView(bytes.buffer,bytes.byteOffset,24);
+    const expected=[x,y,frame.width,frame.height,fullWidth,fullHeight];
+    if(expected.some((v,i)=>view.getUint32(i*4,true)!==v)) throw new TypeError('WASM preview rectangle mismatch');
+  }
+  return bytes.buffer.slice(bytes.byteOffset,bytes.byteOffset+bytes.byteLength);
+}

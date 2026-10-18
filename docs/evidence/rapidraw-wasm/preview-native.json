@@ -1,0 +1,67 @@
+{
+  "cases": [
+    {
+      "bytes": 8416,
+      "fullHeight": 384,
+      "fullWidth": 512,
+      "height": 384,
+      "input": "frame-0.rgba",
+      "interactive": false,
+      "output": "frame-0.response",
+      "quality": 94,
+      "rgbaSha256": "5d18fe92928c361ac0fdaac7118c57b9f3ad408a8504f2eb5d84dc37cc3b3466",
+      "sha256": "91bd16dfae0fc949b647ac49a314de3b30c565a457965e7416cb5304574105aa",
+      "width": 512,
+      "x": 0,
+      "y": 0
+    },
+    {
+      "bytes": 4227,
+      "fullHeight": 384,
+      "fullWidth": 512,
+      "height": 384,
+      "input": "frame-1.rgba",
+      "interactive": true,
+      "output": "frame-1.response",
+      "quality": 75,
+      "rgbaSha256": "5d18fe92928c361ac0fdaac7118c57b9f3ad408a8504f2eb5d84dc37cc3b3466",
+      "sha256": "6802cff2166488b9522033f6fabba424cc9babe88d12ef9b95024423049cebb5",
+      "width": 512,
+      "x": 0,
+      "y": 0
+    },
+    {
+      "bytes": 1319,
+      "fullHeight": 384,
+      "fullWidth": 512,
+      "height": 139,
+      "input": "frame-2.rgba",
+      "interactive": true,
+      "output": "frame-2.response",
+      "quality": 85,
+      "rgbaSha256": "59b980f235384953da0d975ecea0074fdab543c3b25eb55e340da39e689f35fb",
+      "sha256": "d5170d42d547b739edce75e729140119ae35d73f80a3df4a5ee3870dcd20079a",
+      "width": 211,
+      "x": 16,
+      "y": 20
+    },
+    {
+      "bytes": 782,
+      "fullHeight": 384,
+      "fullWidth": 512,
+      "height": 77,
+      "input": "frame-3.rgba",
+      "interactive": true,
+      "output": "frame-3.response",
+      "quality": 65,
+      "rgbaSha256": "ac03c069980d748ed9bdeb2a8904472eb996ebab5f394dc705e62398dffa62e3",
+      "sha256": "593d724f29445499ace2199845c57e375bb5b29cb1fa716981796adab96685d5",
+      "width": 101,
+      "x": 17,
+      "y": 9
+    }
+  ],
+  "nativeRenderedPngSha256": "474bda433ee362b524b1816c968e0f49a2fbb2aa68dda1822bb41b9eb1865698",
+  "schemaVersion": 1,
+  "source": "b39884b38d8f148caef6fd0d52afd264951be329"
+}

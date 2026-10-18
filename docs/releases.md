@@ -1,3 +1,7 @@
+# Unreleased RapidRAW preview checkpoint — 2026-10-18
+
+The original JPEG preview and interactive rectangle response now match native exactly on public RAW-derived render pixels; four JPEG/reader decodes and14,744 response bytes pass. [Source, limits and next original React task](rapidraw-wasm-preview-handoff.md). This is an unfinished experimental codec/transport prerequisite on `codex/rapidraw-wasm-port`, without a mounted original React editor or provider acceptance. No product SemVer/tag/release/install/demo update. Existing immutable alpha.60 draft remains separate.
+
 # Unreleased RapidRAW full-global checkpoint — 2026-10-18
 
 Full original global controls/defaults now drive five public RAW shader/PNG cases with exact native complete adjustment and image bytes plus completed downloads. [Source, acceptance and next transport task](rapidraw-wasm-global-controls-handoff.md). This remains experimental `codex/rapidraw-wasm-port` work; original React/preview transport, effect preprocessing/masks and providers remain open. No product SemVer/tag/release/install/demo update.

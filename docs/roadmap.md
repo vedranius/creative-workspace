@@ -1,3 +1,11 @@
+# RWASM-03 — original JPEG preview response verified (2026-10-18)
+
+Original `mozjpeg-rs0.9.2` BaselineFastest/fast_color preview encoding and24-byte little-endian interactive envelope now run in WASM. On the previously verified public RAW rendered frame, all14,744 response bytes match independent native output: final q94, interactive full q75 and odd-dimension offset patches q85/q65. Original React reader excerpts decode all four JPEG blobs/object URLs and rectangles in sandboxed Chromium. Ten direct WASM malformed/resource/quality cases refuse; page/network errors empty. Core45/45, host17/17, repo check and focused syntax/format/diff pass. [Proof, scope and next task](rapidraw-wasm-preview-handoff.md).
+
+This is the native codec/response prerequisite, not a mounted original React editor or resize/ROI rendering/cache/cancel acceptance. No product release/version/install/demo/private-file/service change.
+
+Next ready task: Implement the narrow original React open/render transport: mount the pinned original useImageLoader/useImageProcessing path with original stores/panels, translate load_metadata/load_image/apply_adjustments using actual RAW/as-shot/full-global processing and the now-verified JPEG response. Trace original size/readiness/metadata and preview resize/cache/job supersession/cancel/error contracts first. Do not invent EXIF or silent success for unavailable commands. Preserve file handles/permissions, privacy/resource gates and explicit unsupported masks/preprocessing/geometry/analytics/save commands. Prove actual public RAW open and a Basic exposure edit in original React; no replacement editor or public deployment. MAIN only; A awaiting approval remains untouched.
+
 # RWASM-03 — full original GlobalAdjustments slice verified (2026-10-18)
 
 Source-complete global parser/helpers/defaults (basic tones, curves, HSL/grading/calibration, tone/AGX) now drive actual public-DNG shader/PNG output; five exact native files,3,932,160 exact byte components, complete adjustment bytes/downloads and six malformed input refusals. [Current handoff](rapidraw-wasm-global-controls-handoff.md).

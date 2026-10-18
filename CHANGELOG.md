@@ -1,3 +1,9 @@
+## Experimental RapidRAW branch — original JPEG preview boundary (2026-10-18)
+
+- Port the original BaselineFastest/fast_color JPEG encoder and exact24-byte interactive rectangle response, retaining q94 final and q65/75/85 interactive settings. Host returns the exact ArrayBuffer expected by the original hook.
+- Verify14,744/14,744 native response bytes on real public RAW-derived render pixels; original hook reader excerpts decode all four JPEGs/object URLs and rectangles in Chromium. Ten malformed/dimension/quality/rectangle inputs refuse; core45/host17/check pass.
+- Add independent native preview files, source reader/encoder/license provenance and Actions comparison. Original React mounting, resize/ROI rendering/cache/cancel, effects/masks and providers remain unfinished; no product version/release/demo change.
+
 ## Experimental RapidRAW branch — full original global controls (2026-10-18)
 
 - Port complete original GlobalAdjustments parser/defaults, scales, curves/HSL/grading/calibration and tone/AGX helper math without formula changes. Keep actual as-shot WB/exposure and original visibility mapping.
