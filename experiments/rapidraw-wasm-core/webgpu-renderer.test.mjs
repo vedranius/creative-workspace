@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { createHash } from "node:crypto";
 import { readFile } from "node:fs/promises";
 import { test } from "node:test";
-import { packNeutralExposureAdjustments, renderOriginalFrame, WebGpuUnsupportedError } from "./webgpu-renderer.js";
+import { createNeutralRendererResources, packNeutralExposureAdjustments, renderOriginalFrame, WebGpuUnsupportedError } from "./webgpu-renderer.js";
 
 globalThis.GPUShaderStage = { COMPUTE: 4 };
 globalThis.GPUBufferUsage = { STORAGE: 128, COPY_DST: 8, MAP_READ: 1 };
@@ -32,6 +32,7 @@ function makeDevice() {
     limits: { maxTextureDimension2D: 4096, maxStorageBufferBindingSize: 1 << 20, maxBufferSize: 64 << 20 },
     queue: {
       writeBuffer: (...args) => calls.push(["writeBuffer", ...args]),
+      writeTexture: (...args) => calls.push(["writeTexture", ...args]),
       submit: (...args) => calls.push(["submit", ...args]),
       onSubmittedWorkDone: async () => calls.push(["submitted"]),
     },
@@ -54,6 +55,7 @@ function makeDevice() {
       calls.push(["texture", value]);
       return { createView: () => ({}), destroy: () => calls.push(["destroyTexture"]) };
     },
+    createSampler: (value) => (calls.push(["sampler", value]), {}),
     createBindGroup: (value) => (calls.push(["bindGroup", value]), {}),
     createCommandEncoder: () => ({
       beginComputePass: () => ({
@@ -68,6 +70,30 @@ function makeDevice() {
   };
   return { device, calls };
 }
+
+test("creates bounded source-shaped neutral texture descriptors and exact payload values", () => {
+  const { device, calls } = makeDevice();
+  const inputRgba = new Float32Array([0.125, 0.25, 0.5, 1, 0.75, 0.5, 0.25, 1]);
+  const made = createNeutralRendererResources(device, { width: 2, height: 1, inputRgba });
+  const textures = calls.filter(([name]) => name === "texture").map(([, descriptor]) => descriptor);
+  assert.deepEqual(textures.map(({ label, size, format, dimension }) => ({ label, size, format, dimension })), [
+    { label: "RapidRAW neutral fixture input", size: { width: 2, height: 1, depthOrArrayLayers: 1 }, format: "rgba32float", dimension: "2d" },
+    ...["sharpness blur input", "tonal blur input", "clarity blur input", "structure blur input", "guided-filter coefficients", "guided-filter dehaze"].map((label) => ({ label: `RapidRAW neutral ${label}`, size: { width: 2, height: 1, depthOrArrayLayers: 1 }, format: "rgba32float", dimension: "2d" })),
+    { label: "RapidRAW empty neutral mask atlas", size: { width: 2, height: 1, depthOrArrayLayers: 1 }, format: "r32float", dimension: "2d" },
+    { label: "RapidRAW 2x2x2 identity LUT", size: { width: 2, height: 2, depthOrArrayLayers: 2 }, format: "rgba32float", dimension: "3d" },
+    { label: "RapidRAW neutral black flare", size: { width: 1, height: 1, depthOrArrayLayers: 1 }, format: "rgba8unorm", dimension: "2d" },
+  ]);
+  const uploads = calls.filter(([name]) => name === "writeTexture");
+  assert.equal(uploads.length, 10);
+  assert.equal(uploads[0][2], inputRgba);
+  assert.deepEqual([...uploads[5][2]], [1, 0, 1, 0, 1, 0, 1, 0]);
+  assert.deepEqual([...uploads[6][2]], [1, 0, 1, 0, 1, 0, 1, 0]);
+  assert.deepEqual([...uploads[7][2]], [0, 0]);
+  assert.deepEqual([...uploads[8][2]], [0, 0, 0, 1, 1, 0, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 0, 1, 1, 1, 0, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1]);
+  assert.deepEqual([...uploads[9][2]], [0, 0, 0, 255]);
+  assert.equal(made.ownedTextures.length, 10);
+  assert.throws(() => createNeutralRendererResources(device, { width: 1, height: 1, inputRgba: new Float32Array([NaN, 0, 0, 1]) }), /finite/);
+});
 
 function frameInput() {
   return {

@@ -1,6 +1,20 @@
+# 2026-10-18 RWASM-03 — neutral preprocessing resource factory
+
+Added a bounded WebGPU factory for the source-shaped input, empty mask atlas,
+2×2×2 identity LUT, black flare, blur inputs and neutral guided-filter
+coefficient textures. Input pixels are caller-provided; blur inputs are uploads
+of that same payload, not CPU filter substitutes. Protocol tests assert
+descriptors and exact payload values. Focused tests (8/8), `npm run check`,
+and `git diff --check` pass. The full shader still has no real WebGPU execution
+or native rendered-frame comparison because this host's Chromium exposes no
+`navigator.gpu`. See [handoff](rapidraw-wasm-webgpu-handoff.md) and
+[evidence](evidence/rapidraw-wasm/webgpu-host-boundary.json). Next: run the
+full shader and compare against the pinned native renderer on a WebGPU-capable
+browser; do not treat mocks as GPU acceptance.
+
 # 2026-10-18 RWASM-03 — original WebGPU host boundary
 
-Pinned full RapidRAW WGSL (`b39884b`, SHA-256 recorded in evidence), all14 bindings, a source-layout `AllAdjustments` neutral/exposure WASM packer (45,232 bytes), compute dispatch and async RGBA16F readback are implemented in the experimental host. Native layout/payload tests 2/2, WebGPU host protocol tests 7/7, and `npm run check` pass; wasm32 `cargo check` passes. Both local headless and isolated headed Chromium lack `navigator.gpu`; no GPU shader execution or rendered-frame parity is claimed. The packer is a neutral fixture, not the original UI JSON/baseline parser. Minimum preprocessing-resource integration and native rendered-frame comparison remain open. [Compact handoff](rapidraw-wasm-webgpu-handoff.md), [evidence](evidence/rapidraw-wasm/webgpu-host-boundary.json).
+Pinned full RapidRAW WGSL (`b39884b`, SHA-256 recorded in evidence), all14 bindings, a source-layout `AllAdjustments` neutral/exposure WASM packer (45,232 bytes), compute dispatch and async RGBA16F readback are implemented in the experimental host. Native layout/payload tests 2/2, WebGPU host protocol tests 8/8, and `npm run check` pass; wasm32 `cargo check` passes. Both local headless and isolated headed Chromium lack `navigator.gpu`; no GPU shader execution or rendered-frame parity is claimed. The packer/resource factory are neutral fixtures, not the original UI JSON/baseline parser or original preprocessing algorithms. Native rendered-frame comparison remains open. [Compact handoff](rapidraw-wasm-webgpu-handoff.md), [evidence](evidence/rapidraw-wasm/webgpu-host-boundary.json).
 
 # 2026-10-18 RWASM-02 — original PNG codec bytes and browser download
 

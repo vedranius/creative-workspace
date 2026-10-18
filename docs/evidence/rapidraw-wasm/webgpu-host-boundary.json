@@ -1,5 +1,5 @@
 {
-  "status": "host-boundary-implemented-real-browser-gpu-unavailable",
+  "status": "neutral-resource-factory-protocol-verified-real-browser-gpu-unavailable",
   "nativeSource": {
     "repo": "CyberTimon/RapidRAW",
     "commit": "b39884b38d8f148caef6fd0d52afd264951be329",
@@ -21,13 +21,24 @@
       "scope": "neutral fixture and one finite exposure value; not the UI JSON/as-shot/baseline parser"
     },
     "output": "rgba16float",
-    "readback": "mapAsync with 256-byte row padding removed"
+    "readback": "mapAsync with 256-byte row padding removed",
+    "neutralResourceFactory": {
+      "api": "createNeutralRendererResources(device, {width, height, inputRgba})",
+      "inputFormat": "rgba32float; caller-provided finite float32 RGBA payload",
+      "maskAtlas": "r32float, 2d-array view, one zero-filled layer",
+      "identityLut": "rgba32float, 2x2x2, exact RGB identity corners and alpha 1",
+      "flare": "rgba8unorm 1x1 black RGB with alpha 255; linear sampler",
+      "blurInputs": "four rgba32float uploads copying caller input payload; no CPU filtering",
+      "guidedFilter": "two rgba32float textures; per-pixel coefficients (1,0,1,0)",
+      "boundedInputBytes": 67108864,
+      "lifecycle": "factory returns ownedTextures; caller owns destruction"
+    }
   },
   "verification": {
-    "protocolTests": "node --test experiments/rapidraw-wasm-core/webgpu-renderer.test.mjs: 7 passed",
+    "protocolTests": "node --test experiments/rapidraw-wasm-core/webgpu-renderer.test.mjs: 8 passed, including exact neutral texture descriptors and upload payload assertions",
     "nativeAdjustmentTests": "cargo test renderer_adjustments: 2 passed; complete experimental core: 25 passed",
     "wasm32Check": "cargo check --locked --target wasm32-unknown-unknown: passed",
-    "repositoryCheck": "npm run check: passed",
+    "repositoryCheck": "npm run check: passed; git diff --check: passed",
     "browserCapability": {
       "headlessChromium": "navigator.gpu absent",
       "headedIsolatedChromium": "navigator.gpu absent"
@@ -36,8 +47,8 @@
     "nativeRenderedFrameComparison": false
   },
   "openGates": [
-    "Wire minimum original RapidRAW preprocessing resources into the browser host; the current neutral packer does not parse original UI settings or baseline exposure",
-    "Run the complete shader in a real browser WebGPU device",
+    "Implement original preprocessing algorithms and original UI settings/baseline conversion; neutral resource fixtures are protocol-only",
+    "Run the complete shader in a real browser WebGPU device; required missing host capability: Chromium with navigator.gpu/device",
     "Compare a bounded neutral/exposure frame against the pinned native renderer",
     "Verify async readback with real browser downloads/UI after renderer comparison"
   ],

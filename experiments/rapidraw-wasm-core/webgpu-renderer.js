@@ -8,6 +8,7 @@ export const RAPIDRAW_SHADER_SHA256 = "9ecb4cc31b8ce4a12f439f69935ed0c8c27f58b52
 export const RAPIDRAW_SHADER_URL = new URL("./shader.wgsl", import.meta.url);
 const MAX_FRAME_BUFFER_BYTES = 64 * 1024 * 1024;
 export const RAPIDRAW_ALL_ADJUSTMENTS_BYTES = 45232;
+const TEXTURE_BINDING_COPY_DST = 0x04 | 0x02;
 
 const REQUIRED_VIEWS = [
   "maskTextures", "lutTexture", "sharpnessBlurTexture", "tonalBlurTexture",
@@ -21,6 +22,74 @@ export class WebGpuUnsupportedError extends Error {
     this.name = "WebGpuUnsupportedError";
     this.code = "WEBGPU_UNSUPPORTED";
   }
+}
+
+/**
+ * Creates source-compatible neutral inputs for protocol fixtures. Input and
+ * blur payloads are supplied by the caller; this function only uploads them,
+ * it does not approximate RapidRAW's CPU/GPU preprocessing filters.
+ */
+export function createNeutralRendererResources(device, { width, height, inputRgba }) {
+  if (!device || typeof device.createTexture !== "function" || typeof device.queue?.writeTexture !== "function") {
+    throw new TypeError("A WebGPU device with texture upload support is required");
+  }
+  if (!Number.isSafeInteger(width) || !Number.isSafeInteger(height) || width < 1 || height < 1) {
+    throw new TypeError("Neutral renderer dimensions must be positive integers");
+  }
+  const pixelCount = width * height;
+  const totalUploadBytes = pixelCount * (16 * 7 + 4) + 132;
+  if (!Number.isSafeInteger(pixelCount) || !Number.isSafeInteger(totalUploadBytes) || totalUploadBytes > MAX_FRAME_BUFFER_BYTES) {
+    throw new WebGpuUnsupportedError("Neutral renderer input exceeds the bounded texture payload capacity");
+  }
+  if (width > device.limits?.maxTextureDimension2D || height > device.limits?.maxTextureDimension2D) {
+    throw new WebGpuUnsupportedError("Neutral renderer dimensions exceed the selected WebGPU device texture limit");
+  }
+  if (!(inputRgba instanceof Float32Array) || inputRgba.length !== pixelCount * 4 || inputRgba.some((v) => !Number.isFinite(v))) {
+    throw new TypeError("Input must contain exactly four finite float32 values per pixel");
+  }
+  const made = [];
+  const make = (label, size, format, data, bytesPerRow, rowsPerImage, dimension = "2d") => {
+    const texture = device.createTexture({
+      label, size, dimension, format,
+      usage: TEXTURE_BINDING_COPY_DST,
+    });
+    made.push(texture);
+    device.queue.writeTexture({ texture }, data, { bytesPerRow, rowsPerImage }, size);
+    return texture;
+  };
+  const frameSize = { width, height, depthOrArrayLayers: 1 };
+  const rgbaBytesPerRow = width * 16;
+  const frameCopy = (label, data) => make(label, frameSize, "rgba32float", data, rgbaBytesPerRow, height);
+  const inputTexture = frameCopy("RapidRAW neutral fixture input", inputRgba);
+  // These are identity/no-op preprocessing fixtures: blur inputs are caller
+  // pixels; guided coefficients (a=1,b=0) produce zero detail at neutrality.
+  const sharpnessBlurTexture = frameCopy("RapidRAW neutral sharpness blur input", inputRgba);
+  const tonalBlurTexture = frameCopy("RapidRAW neutral tonal blur input", inputRgba);
+  const clarityBlurTexture = frameCopy("RapidRAW neutral clarity blur input", inputRgba);
+  const structureBlurTexture = frameCopy("RapidRAW neutral structure blur input", inputRgba);
+  const gf = new Float32Array(pixelCount * 4);
+  for (let i = 0; i < pixelCount; i += 1) { gf[i * 4] = 1; gf[i * 4 + 2] = 1; }
+  const guidedFilterCoefficientsTexture = frameCopy("RapidRAW neutral guided-filter coefficients", gf);
+  const guidedFilterDehazeTexture = frameCopy("RapidRAW neutral guided-filter dehaze", gf);
+  const maskSize = { width, height, depthOrArrayLayers: 1 };
+  const maskTextures = make("RapidRAW empty neutral mask atlas", maskSize, "r32float", new Float32Array(pixelCount), width * 4, height);
+  const lutData = new Float32Array(2 * 2 * 2 * 4);
+  for (let z = 0; z < 2; z += 1) for (let y = 0; y < 2; y += 1) for (let x = 0; x < 2; x += 1) {
+    const i = ((z * 2 + y) * 2 + x) * 4;
+    lutData[i] = x; lutData[i + 1] = y; lutData[i + 2] = z; lutData[i + 3] = 1;
+  }
+  const lutTexture = make("RapidRAW 2x2x2 identity LUT", { width: 2, height: 2, depthOrArrayLayers: 2 }, "rgba32float", lutData, 32, 2, "3d");
+  const flareTexture = make("RapidRAW neutral black flare", { width: 1, height: 1, depthOrArrayLayers: 1 }, "rgba8unorm", new Uint8Array([0, 0, 0, 255]), 4, 1);
+  const lutSampler = device.createSampler({ label: "RapidRAW LUT sampler", magFilter: "nearest", minFilter: "nearest" });
+  const flareSampler = device.createSampler({ label: "RapidRAW flare sampler", magFilter: "linear", minFilter: "linear" });
+  return {
+    inputTexture, ownedTextures: made,
+    resources: { maskTextures: maskTextures.createView({ dimension: "2d-array" }), lutTexture: lutTexture.createView({ dimension: "3d" }), lutSampler,
+      sharpnessBlurTexture: sharpnessBlurTexture.createView(), tonalBlurTexture: tonalBlurTexture.createView(),
+      clarityBlurTexture: clarityBlurTexture.createView(), structureBlurTexture: structureBlurTexture.createView(),
+      flareTexture: flareTexture.createView(), flareSampler,
+      guidedFilterCoefficientsTexture: guidedFilterCoefficientsTexture.createView(), guidedFilterDehazeTexture: guidedFilterDehazeTexture.createView() },
+  };
 }
 
 function assertInput({ width, height, inputTexture, adjustments, resources }) {
@@ -69,17 +138,17 @@ function bindingLayout(device, adjustmentBytes) {
   return device.createBindGroupLayout({
     label: "RapidRAW original shader bindings",
     entries: [
-      { binding: 0, visibility: GPUShaderStage.COMPUTE, texture: { sampleType: "float", viewDimension: "2d" } },
+      { binding: 0, visibility: GPUShaderStage.COMPUTE, texture: { sampleType: "unfilterable-float", viewDimension: "2d" } },
       { binding: 1, visibility: GPUShaderStage.COMPUTE, storageTexture: { access: "write-only", format: "rgba16float", viewDimension: "2d" } },
       { binding: 2, visibility: GPUShaderStage.COMPUTE, buffer: { type: "read-only-storage", minBindingSize: adjustmentBytes } },
-      { binding: 3, visibility: GPUShaderStage.COMPUTE, texture: { sampleType: "float", viewDimension: "2d-array" } },
-      { binding: 4, visibility: GPUShaderStage.COMPUTE, texture: { sampleType: "float", viewDimension: "3d" } },
+      { binding: 3, visibility: GPUShaderStage.COMPUTE, texture: { sampleType: "unfilterable-float", viewDimension: "2d-array" } },
+      { binding: 4, visibility: GPUShaderStage.COMPUTE, texture: { sampleType: "unfilterable-float", viewDimension: "3d" } },
       { binding: 5, visibility: GPUShaderStage.COMPUTE, sampler: { type: "filtering" } },
-      ...[6, 7, 8, 9].map((binding) => ({ binding, visibility: GPUShaderStage.COMPUTE, texture: { sampleType: "float", viewDimension: "2d" } })),
+      ...[6, 7, 8, 9].map((binding) => ({ binding, visibility: GPUShaderStage.COMPUTE, texture: { sampleType: "unfilterable-float", viewDimension: "2d" } })),
       { binding: 10, visibility: GPUShaderStage.COMPUTE, texture: { sampleType: "float", viewDimension: "2d" } },
       { binding: 11, visibility: GPUShaderStage.COMPUTE, sampler: { type: "filtering" } },
-      { binding: 12, visibility: GPUShaderStage.COMPUTE, texture: { sampleType: "float", viewDimension: "2d" } },
-      { binding: 13, visibility: GPUShaderStage.COMPUTE, texture: { sampleType: "float", viewDimension: "2d" } },
+      { binding: 12, visibility: GPUShaderStage.COMPUTE, texture: { sampleType: "unfilterable-float", viewDimension: "2d" } },
+      { binding: 13, visibility: GPUShaderStage.COMPUTE, texture: { sampleType: "unfilterable-float", viewDimension: "2d" } },
     ],
   });
 }
