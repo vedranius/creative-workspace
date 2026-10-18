@@ -71,3 +71,7 @@ reject. Remaining effects/preprocessing are neutral and camera exposure inputs
 are explicit fixtures; metadata/XMP, transforms/watermarks, original UI and
 provider/full export acceptance remain open.
 [Current handoff](../../docs/rapidraw-wasm-rendered-png-handoff.md).
+
+## Original camera exposure metadata
+
+`camera_exposure::read_raw_exposure` and the WASM `read_raw_exposure` API preserve the exact pinned reader/helpers and dummy `read_as_shot` monochrome rule. Existing input/sensor preflight runs first; dummy dimensions and finite exposure metadata are checked. `worker.js` accepts `output: "exposure"` to return only `sceneReferred`, `dngBaseline`, and `highlightPreservation`. It does not return EXIF/location data or pretend to convert WB. Native exposure metadata and36 downstream original UI mappings match in Chromium on the CC0 Canon DNG (−0.5EV) and two explicit signed-rational derivatives. Four invalid/resource cases refuse. [Reproduction, native reference and limits](../../docs/rapidraw-wasm-camera-exposure-handoff.md). Earlier render reports retain their explicit fixture metadata; they are not retroactively relabeled as camera-driven frame parity.

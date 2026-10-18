@@ -1,0 +1,188 @@
+{
+  "stage": "RWASM-03 original RAW camera exposure reader and original UI exposure input",
+  "nativeSource": "b39884b38d8f148caef6fd0d52afd264951be329",
+  "decoderSource": "a32bc1ff1f4f3c56d4d3226082f6eb17414f9159",
+  "publicFixture": {
+    "id": "raw.pixls.us 1327",
+    "license": "CC0-1.0",
+    "sourceSha256": "f0d2fe47507fadf50008bddbc6bd2c5e39fddbe90cca6bca72dd360fa0e0eb38"
+  },
+  "variants": [
+    {
+      "id": "original-public-dng",
+      "sha256": "f0d2fe47507fadf50008bddbc6bd2c5e39fddbe90cca6bca72dd360fa0e0eb38",
+      "mutation": null,
+      "nativeExposure": {
+        "dngBaseline": -0.5,
+        "highlightPreservation": 0,
+        "sceneReferred": true
+      },
+      "browserExposure": {
+        "dngBaseline": -0.5,
+        "highlightPreservation": 0,
+        "sceneReferred": true
+      },
+      "exactMappedExposureBits": 12,
+      "nativeMappedExposureBits": [
+        0,
+        3204448256,
+        1061158912,
+        1065353216,
+        1065353216,
+        1065353216,
+        1065353216,
+        1056964608,
+        1071644672,
+        0,
+        3204448256,
+        1061158912
+      ],
+      "browserMappedExposureBits": [
+        0,
+        3204448256,
+        1061158912,
+        1065353216,
+        1065353216,
+        1065353216,
+        1065353216,
+        1056964608,
+        1071644672,
+        0,
+        3204448256,
+        1061158912
+      ]
+    },
+    {
+      "id": "derived-positive-baseline",
+      "sha256": "03afab04c447d168f19faa9a792c7a0ede5be6c7dfa8d077eeb5fc5bf605e650",
+      "mutation": {
+        "baseline": [
+          3,
+          4
+        ],
+        "offset": [
+          -1,
+          4
+        ]
+      },
+      "nativeExposure": {
+        "dngBaseline": 0.5,
+        "highlightPreservation": 0,
+        "sceneReferred": true
+      },
+      "browserExposure": {
+        "dngBaseline": 0.5,
+        "highlightPreservation": 0,
+        "sceneReferred": true
+      },
+      "exactMappedExposureBits": 12,
+      "nativeMappedExposureBits": [
+        0,
+        1056964608,
+        1071644672,
+        1065353216,
+        1065353216,
+        1065353216,
+        1065353216,
+        1069547520,
+        1076887552,
+        0,
+        1056964608,
+        1071644672
+      ],
+      "browserMappedExposureBits": [
+        0,
+        1056964608,
+        1071644672,
+        1065353216,
+        1065353216,
+        1065353216,
+        1065353216,
+        1069547520,
+        1076887552,
+        0,
+        1056964608,
+        1071644672
+      ]
+    },
+    {
+      "id": "derived-negative-baseline",
+      "sha256": "10e9bf8af6cec066996cc5d56af2a441da15509ba01ef6a8cd3345fbe3517a2d",
+      "mutation": {
+        "baseline": [
+          -3,
+          2
+        ],
+        "offset": [
+          1,
+          4
+        ]
+      },
+      "nativeExposure": {
+        "dngBaseline": -1.25,
+        "highlightPreservation": 0,
+        "sceneReferred": true
+      },
+      "browserExposure": {
+        "dngBaseline": -1.25,
+        "highlightPreservation": 0,
+        "sceneReferred": true
+      },
+      "exactMappedExposureBits": 12,
+      "nativeMappedExposureBits": [
+        0,
+        3214934016,
+        0,
+        1065353216,
+        1065353216,
+        1065353216,
+        1065353216,
+        3196059648,
+        1065353216,
+        0,
+        3214934016,
+        0
+      ],
+      "browserMappedExposureBits": [
+        0,
+        3214934016,
+        0,
+        1065353216,
+        1065353216,
+        1065353216,
+        1065353216,
+        3196059648,
+        1065353216,
+        0,
+        3214934016,
+        0
+      ]
+    }
+  ],
+  "exactMetadataMatches": 3,
+  "exactMappedExposureF32Matches": 36,
+  "rejectedInvalidCases": [
+    {
+      "id": "empty",
+      "error": "RAW input must be between 1 byte and 128 MiB"
+    },
+    {
+      "id": "truncated",
+      "error": "Error: No decoder found, model '', make: '', mode: ''"
+    },
+    {
+      "id": "oversized-raw-ifd",
+      "error": "RAW dimensions must be 1..=32768 per axis"
+    },
+    {
+      "id": "nonfinite-baseline",
+      "error": "Camera exposure metadata must be finite"
+    }
+  ],
+  "wasmSha256": "66a16a33164bba2d3825b5cf7570ceaf8036bd3194bfb961769308294e2dac43",
+  "browserVersion": "151.0.7922.34",
+  "chromiumSandbox": true,
+  "pageErrors": [],
+  "failedRequests": [],
+  "scope": "Original full baseline_exposure reader/helpers, exposure portion of original dummy read_as_shot, actual WASM module worker, original UI baseline/visibility mapping. Public Canon DNG and explicit derived signed rational tags. Native reference executes full source read_as_shot with WB result stubbed/ignored. No automatic as-shot WB conversion, other controls, rendered metadata-frame parity, React UI, file providers or full editor acceptance. Sensor estimate is not a total-memory guarantee."
+}

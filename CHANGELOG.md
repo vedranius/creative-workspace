@@ -1,3 +1,9 @@
+## Experimental RapidRAW branch — original camera exposure reader (2026-10-18)
+
+- Extract the pinned original baseline-exposure reader/helpers and dummy monochrome rule behind existing RAW preflight and explicit dimension/finite guards. The actual public Canon DNG reads−0.5 EV; no zero-value metadata substitute.
+- Add actual module-worker exposure output and independent native `read_as_shot` comparison. Three public/derived signed-rational DNG variants and36 downstream original UI exposure f32 cases match; empty/truncated/oversized-RAW-IFD/nonfinite inputs refuse.
+- Reproduce this in Actions with pinned source/license provenance. Automatic as-shot WB, original React/full controls, rendered metadata-frame parity and provider acceptance remain open; no product release/version/demo change for this unfinished checkpoint.
+
 ## Experimental RapidRAW branch — native rendered PNG slice (2026-10-18)
 
 - Preserve original export precision selection: PNG uses EightBit/dither;16-bit TIFF uses the high-precision path. Add explicit EightBit WebGPU storage/readback without altering original WGSL.

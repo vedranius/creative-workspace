@@ -126,5 +126,14 @@
     "scope": "Metadata/XMP/watermarks/transforms not included in this export slice",
     "referenceCopy": "tests/reference/png_render_precision.rs",
     "functionSha256": "628d1527de507e0166ed21a59fbc2e631c5450fb57514abb93cd86bfc5017867"
+  },
+  "cameraExposureReader": {
+    "sourcePath": "src-tauri/src/baseline_exposure.rs",
+    "sourceSha256": "e41793cdea1c72fb468569b7a8e6de0a23246db7b39963f91ac2ea94fbb578b0",
+    "readerAndHelpersSha256": "a81fb6b7d7eb03c3dc86d72a710325bb7081fe2f5df3bebc804ad9f488057f51",
+    "referenceCopy": "tests/reference/baseline_exposure.rs",
+    "readAsShotSourcePath": "src-tauri/src/raw_processing.rs",
+    "scope": "Exact original baseline read/helpers and exposure portion of read_as_shot with preflight/dimension/finite guards. WB extraction is NOT implemented; existing developer still applies original decoder coefficients.",
+    "license": "AGPL-3.0-only"
   }
 }

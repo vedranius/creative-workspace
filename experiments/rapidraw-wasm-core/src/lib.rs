@@ -14,6 +14,7 @@ use rawler::{
 };
 use sha2::{Digest, Sha256};
 
+pub mod camera_exposure;
 pub mod development;
 pub mod exposure;
 mod multi_exposure;
@@ -461,6 +462,19 @@ mod browser {
             },
         )
         .map_err(|e| JsValue::from_str(&e))
+    }
+
+    /// Actual RAW camera exposure only. No WB/EXIF/location data is returned.
+    #[wasm_bindgen]
+    pub fn read_raw_exposure(bytes: &[u8]) -> Result<String, JsValue> {
+        let exposure =
+            super::camera_exposure::read_raw_exposure(bytes).map_err(|e| JsValue::from_str(&e))?;
+        Ok(serde_json::json!({
+            "sceneReferred": exposure.scene_referred,
+            "dngBaseline": exposure.dng_baseline,
+            "highlightPreservation": exposure.highlight_preservation,
+        })
+        .to_string())
     }
 
     #[wasm_bindgen]

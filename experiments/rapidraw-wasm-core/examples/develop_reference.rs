@@ -79,10 +79,52 @@ mod raw_processing;
 #[rustfmt::skip]
 mod png_native;
 
+#[path = "../tests/reference/ui_exposure.rs"]
+#[allow(dead_code)]
+#[rustfmt::skip]
+mod native_ui;
+
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let path = std::env::args()
         .nth(1)
         .ok_or("usage: develop_reference RAW_FILE")?;
+    if std::env::args().nth(2).as_deref() == Some("--camera-exposure") {
+        let bytes = std::fs::read(path)?;
+        let shot = raw_processing::read_as_shot(&bytes).ok_or("Original read_as_shot failed")?;
+        let exposure = shot.exposure;
+        let mut cases = Vec::new();
+        for value in [
+            serde_json::Value::Null,
+            serde_json::json!({"exposure": 0.8}),
+            serde_json::json!({"exposure": 0.8, "baselineExposure":true}),
+            serde_json::json!({"exposure": 0.8, "baselineExposure":true, "activeTools":{"basic":false}}),
+        ] {
+            for baseline in [None, Some(0.0), Some(1.25)] {
+                let expected = native_ui::reference_exposure(
+                    &value,
+                    native_ui::RawExposure {
+                        scene_referred: exposure.scene_referred,
+                        dng_baseline: exposure.dng_baseline,
+                        highlight_preservation: exposure.highlight_preservation,
+                    },
+                    native_ui::BaselineOptions {
+                        baseline_exposure: baseline,
+                        compensate_highlight_preservation: true,
+                    },
+                );
+                cases.push(serde_json::json!({"json":value.to_string(),"baselineExposure":baseline,"compensateHighlightPreservation":true,"expectedExposureBits":expected.to_bits()}));
+            }
+        }
+        println!(
+            "{}",
+            serde_json::json!({"exposure": {
+            "sceneReferred": exposure.scene_referred,
+            "dngBaseline": exposure.dng_baseline,
+            "highlightPreservation": exposure.highlight_preservation,
+        }, "cases":cases})
+        );
+        return Ok(());
+    }
     let fast_demosaic = std::env::args().nth(2).as_deref() == Some("fast");
     let bytes = std::fs::read(path)?;
     let image =

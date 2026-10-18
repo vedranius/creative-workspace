@@ -1,5 +1,5 @@
 // Experimental module worker for RapidRAW RAW pixel development.
-import init, { develop_pixels, encode_rgb32f_png } from "./cw_rapidraw_wasm_probe.js";
+import init, { develop_pixels, encode_rgb32f_png, read_raw_exposure } from "./cw_rapidraw_wasm_probe.js";
 
 const MAX_INPUT_BYTES = 128 * 1024 * 1024;
 let ready;
@@ -14,13 +14,18 @@ self.onmessage = async ({ data }) => {
     self.postMessage({ id, ok: false, error: "RAW input must be between 1 byte and 128 MiB" });
     return;
   }
-  if (!["pixels", "codec-png"].includes(output) || (dpi !== undefined && (!Number.isInteger(dpi) || dpi < 0 || dpi > 65535))) {
+  if (!["pixels", "codec-png", "exposure"].includes(output) || (dpi !== undefined && (!Number.isInteger(dpi) || dpi < 0 || dpi > 65535))) {
     self.postMessage({ id, ok: false, error: "Unsupported output or invalid DPI" });
     return;
   }
   try {
     if (!ready) ready = init();
     await ready;
+    if (output === "exposure") {
+      const exposure = JSON.parse(read_raw_exposure(new Uint8Array(bytes)));
+      self.postMessage({ id, ok: true, exposure });
+      return;
+    }
     self.postMessage({ id, ok: true, status: "developing" });
     const image = develop_pixels(new Uint8Array(bytes), fastDemosaic, linearMode);
     if (output === "codec-png") {

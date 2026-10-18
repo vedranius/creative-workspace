@@ -1,3 +1,9 @@
+# 2026-10-18 RWASM-03 — actual camera exposure metadata
+
+The original `baseline_exposure` reader/helpers now run in WASM after the existing RAW preflight and original dummy-decode monochrome check. The actual public Canon DNG reports **−0.5 EV**, rather than a hard-coded zero. Two explicitly derived signed-rational DNG cases report+0.5 and−1.25 EV. All three metadata results and36 downstream original UI/baseline exposure f32 outputs match the independent native `read_as_shot` reference exactly in an actual Chromium module worker. Empty/truncated/oversized-RAW-IFD/nonfinite-baseline inputs refuse; no browser/page/network errors. [Evidence and next task](rapidraw-wasm-camera-exposure-handoff.md).
+
+As-shot white-balance temperature/tint conversion remains unported: the existing developer uses original decoder coefficients, while the renderer's other controls/preprocessing remain neutral. This checkpoint adds no accepted full UI/editor/provider availability, product version/release or public-demo change. Core34/34, host14/14, repo check and format/syntax/diff pass. Previous rendered-PNG hosted run39110720494 was still running at this task's entry; fresh camera Actions verification follows the source push.
+
 # 2026-10-18 RWASM-03 — original rendered PNG bytes and browser download
 
 Tracing `render_output_precision` corrected the planned export boundary: original PNG selects EightBit with dithering; SixteenBit is selected only for16-bit TIFF. The browser now supports both original storage/specialization paths, and the PNG helper accepts actual RGBA8 renders while refusing SixteenBit reinterpretation. A source-pinned selector test protects that distinction. WGSL remains byte-identical.

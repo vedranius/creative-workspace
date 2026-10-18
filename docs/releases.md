@@ -1,3 +1,7 @@
+# Unreleased RapidRAW camera exposure checkpoint — 2026-10-18
+
+The experimental port reads actual original camera exposure metadata and maps it through original UI/baseline semantics: three public/derived DNG results and36 exact native f32 cases, four invalid refusals. [Evidence, reproduction and limits](rapidraw-wasm-camera-exposure-handoff.md). This remains unfinished experimental groundwork on `codex/rapidraw-wasm-port`, with no product SemVer/tag/release/install/demo change. Original WB/React/full controls/provider acceptance remain open.
+
 # Unreleased RapidRAW rendered PNG checkpoint — 2026-10-18
 
 The isolated port now verifies original EightBit render/dither→RGBA8 PNG bytes, profile/DPI, decode and completed browser downloads on a public RAW fixture. Source tracing confirms PNG selects EightBit; high-precision remains the separate16-bit TIFF path. This is an incomplete native editor/export pipeline with neutral remaining effects and no camera metadata, original UI, metadata/XMP, transforms/watermarks or providers. No product version/tag/install/demo change. [Reproduction/proof](rapidraw-wasm-rendered-png-handoff.md); fresh Actions evidence remains pending source push.

@@ -1,3 +1,9 @@
+# RWASM-03 — original camera exposure metadata slice verified (2026-10-18)
+
+Original full reader/helpers and dummy monochrome rule are pinned; public Canon DNG−0.5EV plus explicit signed-rational variants match native through actual WASM worker,36 original UI/baseline mapped f32 cases, four malformed/resource refusals. [Compact handoff](rapidraw-wasm-camera-exposure-handoff.md).
+
+Next ready task: original as-shot white-balance temperature/tint extraction. Trace `as_shot_white_balance`, original `WhiteBalance::from_camera_neutral`/dual-illuminant matrix conversion and exact supporting constants/helpers; compare independent native source and browser on the public DNG before feeding original WB/exposure metadata into renderer settings. Do not confuse rawler's already-applied camera coefficients with UI chromatic adaptation or replace either with a custom color algorithm. Keep private RAF development budget and all provider/React/full-control gates unchanged. Continue MAIN only while A awaits approval.
+
 # RWASM-03 — original rendered PNG slice verified (2026-10-18)
 
 The original PNG path is EightBit RGBA with dithering, not the SixteenBit TIFF path. Public CC0 RAW-derived renders and all three PNG bytes match native exactly, with browser decode/completed download and six rejected malformed inputs. [Evidence and scope](rapidraw-wasm-rendered-png-handoff.md). Camera inputs and remaining preprocessing are still explicit neutral fixtures; no full engine/UI/provider acceptance.
