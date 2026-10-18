@@ -94,7 +94,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let path = std::env::args()
         .nth(1)
         .ok_or("usage: develop_reference RAW_FILE")?;
-    let full_global = std::env::args().nth(2).as_deref() == Some("--global-render");
+    let react_render = std::env::args().nth(2).as_deref() == Some("--react-render");
+    let full_global = react_render || std::env::args().nth(2).as_deref() == Some("--global-render");
     if full_global || std::env::args().nth(2).as_deref() == Some("--camera-render") {
         let bytes = std::fs::read(path)?;
         let as_shot = raw_processing::read_as_shot(&bytes).ok_or("Original read_as_shot failed")?;
@@ -105,7 +106,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             serde_json::json!({"exposure":0.8,"temperature":10,"tint":-3,"baselineExposure":true,"activeTools":{"whiteBalance":false}}),
             serde_json::json!({"exposure":0,"temperature":10,"tint":-3,"baselineExposure":false,"sectionVisibility":{"color":false}}),
         ];
-        if full_global {
+        if full_global && !react_render {
             inputs[0]["brightness"] = serde_json::json!(12);
             inputs[0]["contrast"] = serde_json::json!(15);
             inputs[0]["highlights"] = serde_json::json!(-10);
@@ -122,6 +123,23 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             inputs[3]["brightness"] = serde_json::json!(25);
             inputs[3]["activeTools"]["basic"] = serde_json::json!(false);
             inputs[4]["toneMapper"] = serde_json::json!("agx");
+        }
+        if react_render {
+            let path = std::env::args()
+                .nth(3)
+                .ok_or("Original default adjustments JSON required")?;
+            let json = std::fs::read(path)?;
+            if json.len() > 65536 {
+                return Err("Default adjustment input exceeds64KiB".into());
+            }
+            let defaults: serde_json::Value = serde_json::from_slice(&json)?;
+            if !defaults.is_object() {
+                return Err("Expected original defaults object".into());
+            }
+            for (input, exposure) in inputs.iter_mut().zip([0.0, 0.8, -0.8, 1.6, 0.0]) {
+                *input = defaults.clone();
+                input["exposure"] = serde_json::json!(exposure);
+            }
         }
         let mut frames = Vec::new();
         for input in inputs {

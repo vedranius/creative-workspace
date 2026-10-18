@@ -196,5 +196,24 @@
       "sourceSha256": "f0070afca39a04690ded76badd78f069c7ee046a7f3cdc8c3d4b7bad40d9b2bb",
       "referenceSha256": "f318f83f153d3947e8d5e2e1703023d895738f9ad246e61ee8139dce1f2e1384"
     }
+  },
+  "reactUi": {
+    "nativeSource": "b39884b38d8f148caef6fd0d52afd264951be329",
+    "license": "AGPL-3.0-only",
+    "sourceFiles": {
+      "src/hooks/useImageLoader.ts": "6e8cbf9c08b8b09438193e345d22bc000a086a1fd6424a2dfe928ad8f21bed30",
+      "src/hooks/useImageProcessing.ts": "f0070afca39a04690ded76badd78f069c7ee046a7f3cdc8c3d4b7bad40d9b2bb",
+      "src/hooks/useEditorActions.ts": "8de8bfb9f0dcb0a485cb9dd4476ed1ae56c21803a82c4b62023f29c5d6da422d",
+      "src/components/panel/Editor.tsx": "291466d31de13e1507b77116ef3cda219c89eb3f58039b534f1ef9a5414c8298",
+      "src/components/panel/editor/ImageCanvas.tsx": "51d1da343826f5dc957369ee4448c2f3a72423894640bd5dd6a2c14ee5c29381",
+      "src/components/adjustments/Basic.tsx": "a7d524dd383eccd483923f2d3678e3387494ce481191363967b94fa4c5ef37a6",
+      "src/components/ui/Slider.tsx": "13752203a8631fb6080b0092248f2c01e1f8e2624a81a927dc7e12376ea586b8",
+      "src/store/useEditorStore.ts": "86fdf855fab86fe2f6ef1fe8aa06b7484fb6e540cea09267208e776ee11c6742",
+      "src/utils/defaultAdjustments.json": "d650db51fe618e3522767832edf911ea8b6da68d61c2db54912193c64d2332bc",
+      "package-lock.json": "4e612a5639e68871d9fc6f8e92286eaa61d6c100d3e91154cfeef2d23f569811",
+      "src/utils/themes.ts": "e05a091ad0c7a2b05f7bb29232de026d38bd6af4e5d113dedaaa01cc12f87884",
+      "src/hooks/useAppInitialization.ts": "418afe949997ae248fb4f10a84ab4c52da27e8bad536c5fec95a2f4210f43e41"
+    },
+    "scope": "Unchanged original hooks/stores/Editor/ImageCanvas/Basic/Slider in QA composition. Core invoke redirected; native Clerk explicitly unavailable; native Speed dimensions512x384. Full App/menu/provider/resizing/ROI/effect acceptance remains open."
   }
 }

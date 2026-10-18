@@ -1,0 +1,164 @@
+{
+  "stage": "RWASM-03 actual original React Speed open/Basic exposure slice",
+  "nativeSource": "b39884b38d8f148caef6fd0d52afd264951be329",
+  "license": "AGPL-3.0-only",
+  "sourceFiles": {
+    "src/hooks/useImageLoader.ts": "6e8cbf9c08b8b09438193e345d22bc000a086a1fd6424a2dfe928ad8f21bed30",
+    "src/hooks/useImageProcessing.ts": "f0070afca39a04690ded76badd78f069c7ee046a7f3cdc8c3d4b7bad40d9b2bb",
+    "src/hooks/useEditorActions.ts": "8de8bfb9f0dcb0a485cb9dd4476ed1ae56c21803a82c4b62023f29c5d6da422d",
+    "src/components/panel/Editor.tsx": "291466d31de13e1507b77116ef3cda219c89eb3f58039b534f1ef9a5414c8298",
+    "src/components/panel/editor/ImageCanvas.tsx": "51d1da343826f5dc957369ee4448c2f3a72423894640bd5dd6a2c14ee5c29381",
+    "src/components/adjustments/Basic.tsx": "a7d524dd383eccd483923f2d3678e3387494ce481191363967b94fa4c5ef37a6",
+    "src/components/ui/Slider.tsx": "13752203a8631fb6080b0092248f2c01e1f8e2624a81a927dc7e12376ea586b8",
+    "src/store/useEditorStore.ts": "86fdf855fab86fe2f6ef1fe8aa06b7484fb6e540cea09267208e776ee11c6742",
+    "src/utils/defaultAdjustments.json": "d650db51fe618e3522767832edf911ea8b6da68d61c2db54912193c64d2332bc",
+    "package-lock.json": "4e612a5639e68871d9fc6f8e92286eaa61d6c100d3e91154cfeef2d23f569811",
+    "src/utils/themes.ts": "e05a091ad0c7a2b05f7bb29232de026d38bd6af4e5d113dedaaa01cc12f87884",
+    "src/hooks/useAppInitialization.ts": "418afe949997ae248fb4f10a84ab4c52da27e8bad536c5fec95a2f4210f43e41"
+  },
+  "scope": "Original hooks/stores/Editor/ImageCanvas/Basic/Slider unchanged, QA composition and invoke alias only. Speed-developed512x384 open and Basic exposure edit; full App menus, full-resolution load_image parity, resizing, ROI, analytics/effects/save/provider acceptance remain open.",
+  "publicFixture": {
+    "id": "raw.pixls.us 1327",
+    "license": "CC0-1.0",
+    "sourceSha256": "f0d2fe47507fadf50008bddbc6bd2c5e39fddbe90cca6bca72dd360fa0e0eb38"
+  },
+  "browserVersion": "151.0.7922.34",
+  "chromiumSandbox": true,
+  "first": {
+    "width": 512,
+    "height": 384,
+    "wb": {
+      "temperature": 6133.300425391969,
+      "tint": 39.766891841657326
+    },
+    "bytes": 62906,
+    "hash": "a525c85f47b485c4f1017860ae1e545f34dad40711b20c4b651c20d2d271ba39"
+  },
+  "result": {
+    "gpuErrors": [],
+    "adapter": {
+      "vendor": "google",
+      "architecture": "swiftshader"
+    },
+    "dimensions": [
+      512,
+      384
+    ],
+    "bytes": 62906,
+    "hash": "a525c85f47b485c4f1017860ae1e545f34dad40711b20c4b651c20d2d271ba39",
+    "exposure": 0,
+    "rendered": [
+      {
+        "exposure": 0,
+        "interactive": false,
+        "width": 512,
+        "height": 384,
+        "bytes": 62906
+      },
+      {
+        "exposure": 0.8,
+        "interactive": false,
+        "width": 512,
+        "height": 384,
+        "bytes": 86906
+      },
+      {
+        "exposure": -0.8,
+        "interactive": false,
+        "width": 512,
+        "height": 384,
+        "bytes": 38600
+      },
+      {
+        "exposure": 1.6,
+        "interactive": false,
+        "width": 512,
+        "height": 384,
+        "bytes": 98241
+      },
+      {
+        "exposure": 0,
+        "interactive": false,
+        "width": 512,
+        "height": 384,
+        "bytes": 62906
+      }
+    ],
+    "commands": [
+      "clear_session_caches",
+      "update_wgpu_transform",
+      "load_metadata",
+      "load_image",
+      "apply_adjustments",
+      "apply_adjustments",
+      "save_metadata_and_update_thumbnail",
+      "apply_adjustments",
+      "save_metadata_and_update_thumbnail",
+      "apply_adjustments",
+      "save_metadata_and_update_thumbnail",
+      "apply_adjustments",
+      "save_metadata_and_update_thumbnail",
+      "export_image",
+      "save_metadata_and_update_thumbnail"
+    ],
+    "unsupported": [
+      {
+        "command": "export_image",
+        "code": "unavailable-command"
+      },
+      {
+        "command": "save_metadata_and_update_thumbnail",
+        "code": "unavailable-command"
+      }
+    ],
+    "saveErrorVisible": true,
+    "visibleOriginalSvgImages": 1
+  },
+  "samples": [
+    {
+      "exposure": 0,
+      "bytes": 62906,
+      "adjustmentSha256": "7528054041d105912931d3cc66497b535740e7f03c198e6e9f3915cc44f1520e",
+      "rgbaSha256": "e89bbe27a6f5a51f6415689cbaf1832b214d8823cf1d3b73dfee2f4a200c7063",
+      "jpegSha256": "a525c85f47b485c4f1017860ae1e545f34dad40711b20c4b651c20d2d271ba39"
+    },
+    {
+      "exposure": 0.8,
+      "bytes": 86906,
+      "adjustmentSha256": "985219f6d0dad0546f1a4ea1fd8006bcb7123da0b87125a8da06f3b55d15b6c6",
+      "rgbaSha256": "dd75d741e92b16b409eefcd33be0c601cccd164b0be264933f4475ef137b766d",
+      "jpegSha256": "c36f9db93f8c7fc5459b21a6115f8c01db922557949e0436e3f1a16ebe7710e0"
+    },
+    {
+      "exposure": -0.8,
+      "bytes": 38600,
+      "adjustmentSha256": "b26ba4e8d6984f5667a7a2aeeaa7d6c246f882bb6eb492dac91ea2c66f1c38e7",
+      "rgbaSha256": "d9710ce1a6eb0a3e86dff74fa839697ed39ddb996710bea8e6448edcec378f42",
+      "jpegSha256": "c91460bc8faf6123ca517a1f6ef2b5f20e13265686c6f0e1f727b3e57a97cb9f"
+    },
+    {
+      "exposure": 1.6,
+      "bytes": 98241,
+      "adjustmentSha256": "67070dc4d5a1cc4083bc165544f00cc92de3caa8dfe16e1a071de6504b11ac6a",
+      "rgbaSha256": "62f7bbb0728065b52a44f508183da36b7b4e6528d8f216710445a382488e4237",
+      "jpegSha256": "ef0ec4b4e3efb9b91f39d955304e55d53bbdf8c7903d0938af239148f6b3e799"
+    },
+    {
+      "exposure": 0,
+      "bytes": 62906,
+      "adjustmentSha256": "7528054041d105912931d3cc66497b535740e7f03c198e6e9f3915cc44f1520e",
+      "rgbaSha256": "e89bbe27a6f5a51f6415689cbaf1832b214d8823cf1d3b73dfee2f4a200c7063",
+      "jpegSha256": "a525c85f47b485c4f1017860ae1e545f34dad40711b20c4b651c20d2d271ba39"
+    }
+  ],
+  "blockedExternalRequests": [],
+  "nativeComparison": {
+    "frames": 5,
+    "completeAdjustmentsExact": true,
+    "renderedPixelsExact": true,
+    "encodedJpegExact": true
+  },
+  "pageErrors": [],
+  "failedRequests": [],
+  "expectedSaveErrors": 4
+}

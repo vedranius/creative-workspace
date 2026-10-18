@@ -1,0 +1,26 @@
+// Stages exact trusted native source without modifying upstream or its modules.
+import {readFile,writeFile,cp,mkdir,readdir} from 'node:fs/promises';
+import {createHash} from 'node:crypto';
+import {spawnSync} from 'node:child_process';
+import path from 'node:path';
+const [upstream,destination,wasmDir]=process.argv.slice(2);
+if(!upstream||!destination||!wasmDir)throw Error('NATIVE_SOURCE NEW_STAGE WASM_DIR');
+const root=path.resolve(import.meta.dirname,'..'),dest=path.resolve(destination);
+const run=(cmd,args,cwd=dest)=>{const r=spawnSync(cmd,args,{cwd,stdio:'inherit',env:process.env});if(r.status!==0)throw Error(`${cmd} failed`);};
+const pin=spawnSync('git',['rev-parse','HEAD'],{cwd:upstream,encoding:'utf8'}).stdout.trim();
+if(spawnSync('git',['diff','--quiet','HEAD','--','src','package.json','package-lock.json','public'],{cwd:upstream}).status!==0)throw Error('Native source has uncommitted changes');
+if(pin!=='b39884b38d8f148caef6fd0d52afd264951be329')throw Error('Original native source pin mismatch');
+await mkdir(dest,{recursive:true});if((await readdir(dest)).length)throw Error('Stage must be empty');
+for(const name of ['src','public','package.json','package-lock.json','tsconfig.json','LICENSE'])await cp(path.join(upstream,name),path.join(dest,name),{recursive:true});
+for(const name of ['core.js','main.tsx','unavailable-native.js'])await cp(path.join(root,'experiments/rapidraw-react-proof',name),path.join(dest,name));
+await writeFile(path.join(dest,'index.html'),'<!doctype html><html><head><link rel="icon" href="data:,"><meta name="viewport" content="width=device-width, initial-scale=1"></head><body><div id="root"></div><script type="module" src="/main.tsx"></script></body></html>');
+await writeFile(path.join(dest,'vite.config.mjs'),`import {defineConfig} from 'vite';import react from '@vitejs/plugin-react';import tailwindcss from '@tailwindcss/vite';export default defineConfig({plugins:[tailwindcss(),react()],resolve:{alias:{'@tauri-apps/api/core':new URL('./core.js',import.meta.url).pathname,'tauri-plugin-clerk':new URL('./unavailable-native.js',import.meta.url).pathname}},build:{target:'esnext',minify:false,rollupOptions:{external:id=>id.startsWith('/engine/')}},});`);
+const engine=path.join(dest,'public/engine');await mkdir(engine,{recursive:true});
+for(const name of ['cw_rapidraw_wasm_probe.js','cw_rapidraw_wasm_probe_bg.wasm'])await cp(path.join(wasmDir,name),path.join(engine,name));
+for(const name of ['worker.js','decoder-client.js','webgpu-renderer.js','react-transport.js','shader.wgsl'])await cp(path.join(root,'experiments/rapidraw-wasm-core',name),path.join(engine,name));
+const sources={};for(const name of ['src/hooks/useImageLoader.ts','src/hooks/useImageProcessing.ts','src/hooks/useEditorActions.ts','src/components/panel/Editor.tsx','src/components/panel/editor/ImageCanvas.tsx','src/components/adjustments/Basic.tsx','src/components/ui/Slider.tsx','src/store/useEditorStore.ts','src/utils/defaultAdjustments.json','package-lock.json','src/utils/themes.ts','src/hooks/useAppInitialization.ts'])sources[name]=createHash('sha256').update(await readFile(path.join(upstream,name))).digest('hex');
+const expected=JSON.parse(await readFile(path.join(root,'experiments/rapidraw-wasm-core/UPSTREAM.json'),'utf8')).reactUi.sourceFiles;
+if(JSON.stringify(sources)!==JSON.stringify(expected))throw Error('Pinned original React source hashes differ');
+await writeFile(path.join(dest,'source-proof.json'),JSON.stringify({nativeSource:pin,license:'AGPL-3.0-only',sourceFiles:sources,scope:'Unchanged original hooks/stores/Editor/Basic/Slider in QA composition. Core invoke aliased; native Clerk explicitly unavailable; no full App/menu/provider acceptance.'},null,2)+'\n');
+run('npm',['ci','--ignore-scripts','--prefer-offline','--no-audit','--no-fund']);run('node',['node_modules/vite/bin/vite.js','build']);
+console.log(JSON.stringify({built:true,stage:dest}));

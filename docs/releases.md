@@ -1,3 +1,7 @@
+# Unreleased RapidRAW original React checkpoint — 2026-10-18
+
+Actual original React hooks/Editor/Basic now open a public RAW Speed preview and verify five native-identical Exposure edits,3,932,160 pixel components and349,559 JPEG bytes. Saves/export explicitly refuse; full-resolution load/resize/menus/providers remain open. [Proof and next task](rapidraw-wasm-react-handoff.md). This unfinished experimental checkpoint adds no product SemVer/tag/release/install/demo update. Existing alpha.60 remains a separate immutable draft.
+
 # Unreleased RapidRAW preview checkpoint — 2026-10-18
 
 The original JPEG preview and interactive rectangle response now match native exactly on public RAW-derived render pixels; four JPEG/reader decodes and14,744 response bytes pass. [Source, limits and next original React task](rapidraw-wasm-preview-handoff.md). This is an unfinished experimental codec/transport prerequisite on `codex/rapidraw-wasm-port`, without a mounted original React editor or provider acceptance. No product SemVer/tag/release/install/demo update. Existing immutable alpha.60 draft remains separate.

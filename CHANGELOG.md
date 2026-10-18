@@ -1,3 +1,9 @@
+## Experimental RapidRAW branch — actual original React open/exposure (2026-10-18)
+
+- Mount unchanged pinned native React hooks/stores/Editor/ImageCanvas/Basic/Slider in a QA composition, backed by actual browser File→Speed WASM→camera/global shader→native JPEG processing.
+- Match five actual UI Exposure edits against independent native complete adjustment/pixel/JPEG hashes; prove original image display, explicit autosave/export refusal and scoped worker supersession. Core45/host19/check pass.
+- Add reproducible Actions/source/evidence; align prior preview smoke with the workflow's existing Chromium setting and report it. Full-resolution load/resize/effects/menus/providers/save acceptance remain open; no product release/version/demo change.
+
 ## Experimental RapidRAW branch — original JPEG preview boundary (2026-10-18)
 
 - Port the original BaselineFastest/fast_color JPEG encoder and exact24-byte interactive rectangle response, retaining q94 final and q65/75/85 interactive settings. Host returns the exact ArrayBuffer expected by the original hook.

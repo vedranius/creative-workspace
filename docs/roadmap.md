@@ -1,3 +1,11 @@
+# RWASM-03 — original React RAW open and exposure slice (2026-10-18)
+
+The pinned original useImageLoader/useImageProcessing, stores, Editor/ImageCanvas and Basic/Slider now execute unchanged in an isolated QA composition. A real browser-selected public DNG develops through native Speed WASM and renders through the original global parser/WGSL/JPEG path. Five actual Exposure edits (0,+0.8,−0.8,+1.6,0) match independent native complete adjustment bytes, RGBA8 pixels and JPEG bytes exactly; the original SVG image is visible. [Proof, limits and next task](rapidraw-wasm-react-handoff.md).
+
+This is a bounded512×384 Speed preview slice, not full-resolution load_image or whole App/menu/provider acceptance. Autosave/export explicitly fail without a write ACK. Local sandboxed Chromium has no GPU/page/network/external-request errors; core45/45, host19/19 and repo check pass. No product version/release/install/demo change.
+
+Next ready task: Trace and port the original full-resolution load_image and compute_transformed_preview resize boundary. Preserve actual developed/original dimensions, source resize/filter/orientation behavior and existing resource limits; produce a bounded preview before GPU texture allocation. Prove Quality public-DNG open plus original React exposure edits against native, reusing the prepared timer-compatible WASM stage. Keep unsupported effects/ROI/analytics and saves explicit; do not raise budgets implicitly. MAIN only; A awaiting approval remains untouched.
+
 # RWASM-03 — original JPEG preview response verified (2026-10-18)
 
 Original `mozjpeg-rs0.9.2` BaselineFastest/fast_color preview encoding and24-byte little-endian interactive envelope now run in WASM. On the previously verified public RAW rendered frame, all14,744 response bytes match independent native output: final q94, interactive full q75 and odd-dimension offset patches q85/q65. Original React reader excerpts decode all four JPEG blobs/object URLs and rectangles in sandboxed Chromium. Ten direct WASM malformed/resource/quality cases refuse; page/network errors empty. Core45/45, host17/17, repo check and focused syntax/format/diff pass. [Proof, scope and next task](rapidraw-wasm-preview-handoff.md).

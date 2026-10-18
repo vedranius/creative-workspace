@@ -123,6 +123,23 @@ try{
  const previewReport=path.join(output,'preview-browser.json');
  await run('node',['scripts/smoke-rapidraw-preview.mjs',wasmOut,nativePreviewDir,previewReport]);
  reports.preview=JSON.parse(await readFile(previewReport,'utf8'));
+ const frontend=path.join(temp,'native-react-source');await mkdir(frontend);
+ const noHooks=path.join(temp,'no-native-hooks');await mkdir(noHooks);
+ await run('git',['init','--quiet'],{cwd:frontend});
+ await run('git',['-c',`core.hooksPath=${noHooks}`,'fetch','--quiet','--depth=1','https://github.com/CyberTimon/RapidRAW.git','b39884b38d8f148caef6fd0d52afd264951be329'],{cwd:frontend});
+ await run('git',['-c',`core.hooksPath=${noHooks}`,'checkout','--quiet','--detach','FETCH_HEAD'],{cwd:frontend});
+ const reactSettings=JSON.parse(await run('cargo',['run','--release','--locked','--manifest-path','experiments/rapidraw-wasm-core/Cargo.toml','--example','develop_reference','--',input,'--react-render',path.join(frontend,'src/utils/defaultAdjustments.json')]));
+ const reactSettingsPath=await writeJson(output,'native-react-settings.json',reactSettings),nativeReactPng=path.join(output,'native-react-png');
+ const nativeReactRender=JSON.parse(await run('cargo',['run','--release','--locked','--manifest-path',nativeRenderManifest,'--','--rgb-f32',nativeRgb,'512','384','--eight-bit','--png-dir',nativeReactPng,'--camera-settings',reactSettingsPath],{env:nativeRendererEnv}));
+ const nativeReactRenderPath=await writeJson(output,'native-react-render.json',nativeReactRender),nativeReactPreview=path.join(output,'native-react-preview');
+ await run('cargo',['run','--release','--locked','--manifest-path','experiments/rapidraw-wasm-core/Cargo.toml','--example','react_preview_reference','--',nativeReactRenderPath,nativeReactPng,nativeReactPreview]);
+ const reactStage=path.join(temp,'react-stage');
+ await run('node',['scripts/build-rapidraw-react-proof.mjs',frontend,reactStage,wasmOut]);
+ await copyFile(path.join(reactStage,'source-proof.json'),path.join(output,'react-source-proof.json'));
+ const reactReport=path.join(output,'react-browser.json');
+ await run('node',['scripts/smoke-rapidraw-react.mjs',reactStage,input,reactReport,path.join(nativeReactPreview,'reference.json')]);
+ reports.react=JSON.parse(await readFile(reactReport,'utf8'));
+
  for(const name of ['preview.rs','preview-encode.txt','preview-envelope.txt','preview-reader.js','mozjpeg-rs-LICENSE'])await copyFile(path.join(root,'experiments/rapidraw-wasm-core/tests/reference',name),path.join(output,name));
 
 

@@ -5,6 +5,10 @@ on:
     paths:
       - 'experiments/rapidraw-wasm-core/**'
       - 'experiments/rapidraw-native-render-reference/**'
+      - 'experiments/rapidraw-react-proof/**'
+      - 'scripts/build-rapidraw-react-proof.mjs'
+      - 'scripts/smoke-rapidraw-react.mjs'
+      - 'scripts/smoke-rapidraw-preview.mjs'
       - 'patches/rapidraw-rawler/**'
       - 'scripts/prepare-rapidraw-quality.mjs'
       - 'scripts/smoke-rapidraw-development.mjs'
@@ -21,6 +25,10 @@ on:
     paths:
       - 'experiments/rapidraw-wasm-core/**'
       - 'experiments/rapidraw-native-render-reference/**'
+      - 'experiments/rapidraw-react-proof/**'
+      - 'scripts/build-rapidraw-react-proof.mjs'
+      - 'scripts/smoke-rapidraw-react.mjs'
+      - 'scripts/smoke-rapidraw-preview.mjs'
       - 'patches/rapidraw-rawler/**'
       - 'scripts/prepare-rapidraw-quality.mjs'
       - 'scripts/smoke-rapidraw-development.mjs'
@@ -51,7 +59,7 @@ jobs:
       - run: npm install --no-save --package-lock=false playwright@1.55.0
       - run: npx playwright install --with-deps chromium
       - name: Verify RapidRAW browser WebGPU host boundary
-        run: node --test experiments/rapidraw-wasm-core/webgpu-renderer.test.mjs
+        run: node --test experiments/rapidraw-wasm-core/webgpu-renderer.test.mjs experiments/rapidraw-wasm-core/react-transport.test.mjs
       - name: Configure pinned Playwright Chromium
         run: node -e 'require("node:fs").appendFileSync(process.env.GITHUB_ENV, "CHROMIUM_PATH="+require("playwright").chromium.executablePath()+"\n")'
       - name: Reproduce native, Quality WASM, and Speed WASM pixels

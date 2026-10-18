@@ -41,9 +41,10 @@ const server=createServer((req,res)=>{
 });
 server.listen(0,'127.0.0.1');await once(server,'listening');
 const {chromium}=await import(process.env.PLAYWRIGHT_MODULE||'playwright');
+const chromiumSandbox=process.env.CHROMIUM_SANDBOX!=='false';
 let browser;const pageErrors=[],failedRequests=[];
 try{
- browser=await chromium.launch({executablePath:process.env.CHROMIUM_PATH,headless:true,chromiumSandbox:true,args:['--disable-dev-shm-usage']});
+ browser=await chromium.launch({executablePath:process.env.CHROMIUM_PATH,headless:true,chromiumSandbox,args:['--disable-dev-shm-usage']});
  const context=await browser.newContext();const page=await context.newPage();
  page.on('pageerror',e=>pageErrors.push(e.message));page.on('requestfailed',r=>failedRequests.push(new URL(r.url()).pathname));
  await page.goto(`http://127.0.0.1:${server.address().port}/`);
@@ -92,7 +93,7 @@ try{
  const report={stage:'RWASM-03 original JPEG preview codec and interactive envelope',nativeSource:reference.source,
   publicFixture:prior.publicFixture,nativeRenderedPngSha256:reference.nativeRenderedPngSha256,
   inputRgbaSha256:reference.cases[0].rgbaSha256,wasmSha256:digest(wasm),browserVersion:browser.version(),
-  chromiumSandbox:true,codec:upstream.preview.codecDependencies,reactReader:upstream.preview.reactReader,
+  chromiumSandbox,codec:upstream.preview.codecDependencies,reactReader:upstream.preview.reactReader,
   ...result,pageErrors,failedRequests,
   scope:'Real public RAW rendered EightBit pixels encoded with original BaselineFastest fast_color quality and original hook reader excerpts. Not a mounted React editor or resize/ROI render/cache/cancel/provider acceptance.'};
  await writeFile(output,JSON.stringify(report,null,2)+'\n');console.log(JSON.stringify(report));
