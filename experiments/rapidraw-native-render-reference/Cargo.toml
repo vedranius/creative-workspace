@@ -13,4 +13,7 @@ half = { version = "=2.7.1", features = ["bytemuck"] }
 serde = { version = "=1.0.229", features = ["derive"] }
 serde_json = "=1.0.151"
 sha2 = "=0.10.9"
-image = { version = "=0.25.10", default-features = false }
+image = { version = "=0.25.10", default-features = false, features = ["png"] }
+crc32fast = "=1.5.0"
+# Match the pinned original PNG codec lock, not the latest compressor.
+flate2 = "=1.1.9"

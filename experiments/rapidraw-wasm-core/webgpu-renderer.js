@@ -162,7 +162,7 @@ export function packUiExposureFixture(wasm, json, asShot, options) {
   return { bytes, source: "CyberTimon/RapidRAW native exposure input/visibility/baseline mapping", scope: "original UI exposure mapping only; other adjustments remain neutral fixtures" };
 }
 
-async function checkedShaderSource(source) {
+async function checkedShaderSource(source, format) {
   if (typeof source !== "string") throw new TypeError("Pinned RapidRAW WGSL source is required");
   const bytes = new TextEncoder().encode(source);
   const digest = new Uint8Array(await crypto.subtle.digest("SHA-256", bytes));
@@ -170,15 +170,15 @@ async function checkedShaderSource(source) {
   if (actual !== RAPIDRAW_SHADER_SHA256) {
     throw new Error(`Pinned RapidRAW shader hash mismatch: ${actual}`);
   }
-  return source.replace("rgba8unorm, write>", "rgba16float, write>");
+  return format === "rgba16float" ? source.replace("rgba8unorm, write>", "rgba16float, write>") : source;
 }
 
-function bindingLayout(device, adjustmentBytes) {
+function bindingLayout(device, adjustmentBytes, format) {
   return device.createBindGroupLayout({
     label: "RapidRAW original shader bindings",
     entries: [
       { binding: 0, visibility: GPUShaderStage.COMPUTE, texture: { sampleType: "unfilterable-float", viewDimension: "2d" } },
-      { binding: 1, visibility: GPUShaderStage.COMPUTE, storageTexture: { access: "write-only", format: "rgba16float", viewDimension: "2d" } },
+      { binding: 1, visibility: GPUShaderStage.COMPUTE, storageTexture: { access: "write-only", format, viewDimension: "2d" } },
       { binding: 2, visibility: GPUShaderStage.COMPUTE, buffer: { type: "read-only-storage", minBindingSize: adjustmentBytes } },
       { binding: 3, visibility: GPUShaderStage.COMPUTE, texture: { sampleType: "unfilterable-float", viewDimension: "2d-array" } },
       { binding: 4, visibility: GPUShaderStage.COMPUTE, texture: { sampleType: "unfilterable-float", viewDimension: "3d" } },
@@ -196,7 +196,7 @@ function bindingLayout(device, adjustmentBytes) {
  * Dispatches RapidRAW's complete main WGSL compute entry point.
  * The caller supplies resources produced by the pinned renderer's existing
  * preprocessing stages and its source-packed AllAdjustments bytes.
- * Returns tightly packed little-endian RGBA16F output after async GPU mapping.
+ * Returns tightly packed RGBA8 or little-endian RGBA16F after async mapping.
  */
 export async function renderOriginalFrame({
   gpu = globalThis.navigator?.gpu,
@@ -209,7 +209,10 @@ export async function renderOriginalFrame({
   resources,
   shaderSource,
   device: suppliedDevice,
+  outputPrecision = "sixteen",
 }) {
+  if (!["eight", "sixteen"].includes(outputPrecision)) throw new TypeError("Expected native eight or sixteen bit output precision");
+  const format = outputPrecision === "eight" ? "rgba8unorm" : "rgba16float";
   adjustments ??= packNeutralExposureAdjustments(wasm, exposure);
   assertInput({ width, height, inputTexture, adjustments, resources });
   if (!suppliedDevice && !gpu) {
@@ -224,7 +227,7 @@ export async function renderOriginalFrame({
   if (width > limits.maxTextureDimension2D || height > limits.maxTextureDimension2D) {
     throw new WebGpuUnsupportedError("Frame exceeds the selected WebGPU device texture limit");
   }
-  const rowBytes = width * 8;
+  const rowBytes = width * (outputPrecision === "eight" ? 4 : 8);
   const bytesPerRow = Math.ceil(rowBytes / 256) * 256;
   const readbackBytes = bytesPerRow * height;
   if (!Number.isSafeInteger(readbackBytes) || readbackBytes > MAX_FRAME_BUFFER_BYTES || readbackBytes > limits.maxBufferSize) {
@@ -233,16 +236,16 @@ export async function renderOriginalFrame({
   if (adjustments.bytes.byteLength > limits.maxStorageBufferBindingSize || adjustments.bytes.byteLength > limits.maxBufferSize) {
     throw new WebGpuUnsupportedError("AllAdjustments exceeds the selected WebGPU storage-buffer limit");
   }
-  const source = await checkedShaderSource(shaderSource);
+  const source = await checkedShaderSource(shaderSource, format);
   const shader = device.createShaderModule({ label: "RapidRAW pinned shader", code: source });
-  const layout = bindingLayout(device, adjustments.bytes.byteLength);
+  const layout = bindingLayout(device, adjustments.bytes.byteLength, format);
   const pipelineLayout = device.createPipelineLayout({ bindGroupLayouts: [layout] });
   device.pushErrorScope("validation");
   const pipeline = device.createComputePipeline({
     label: "RapidRAW original full-effects compute",
     layout: pipelineLayout,
-    // Native high-precision specialization disables the original 8-bit dither.
-    compute: { module: shader, entryPoint: "main", constants: { HIGH_PRECISION_OUTPUT: 1 } },
+    // Original EightBit output keeps dither; SixteenBit disables it.
+    compute: { module: shader, entryPoint: "main", constants: { HIGH_PRECISION_OUTPUT: outputPrecision === "eight" ? 0 : 1 } },
   });
 
   const adjustmentBuffer = device.createBuffer({
@@ -252,9 +255,9 @@ export async function renderOriginalFrame({
   });
   device.queue.writeBuffer(adjustmentBuffer, 0, adjustments.bytes);
   const output = device.createTexture({
-    label: "RapidRAW RGBA16F compute result",
+    label: `RapidRAW ${format} compute result`,
     size: { width, height, depthOrArrayLayers: 1 },
-    format: "rgba16float",
+    format,
     usage: GPUTextureUsage.STORAGE_BINDING | GPUTextureUsage.COPY_SRC,
   });
   const bindGroup = device.createBindGroup({
@@ -309,5 +312,17 @@ export async function renderOriginalFrame({
   output.destroy();
   adjustmentBuffer.destroy();
   if (!suppliedDevice) device.destroy();
-  return { width, height, format: "rgba16float", pixels };
+  return { width, height, format, pixels };
+}
+
+/** Encode the native PNG path's actual EightBit render, preserving alpha. */
+export function encodeRenderedFramePng(wasm, frame, dpi) {
+  if (frame?.format !== "rgba8unorm" || !(frame.pixels instanceof Uint8Array) ||
+      !Number.isSafeInteger(frame.width) || !Number.isSafeInteger(frame.height) || frame.width<1 || frame.height<1 || frame.width>32768 || frame.height>32768 ||
+      frame.width*frame.height*4 !== frame.pixels.length || frame.pixels.byteLength>MAX_FRAME_BUFFER_BYTES ||
+      (dpi !== undefined && (!Number.isInteger(dpi)||dpi<0||dpi>65535))) throw new TypeError("Native PNG requires a bounded RGBA8 rendered frame and valid DPI");
+  if (typeof wasm?.encode_rendered_rgba8_png !== "function") throw new TypeError("Original PNG codec is required");
+  const png=wasm.encode_rendered_rgba8_png(frame.width,frame.height,frame.pixels,dpi);
+  if (!(png instanceof Uint8Array)||!png.length||png.byteLength>MAX_FRAME_BUFFER_BYTES) throw new TypeError("WASM returned invalid bounded PNG bytes");
+  return png;
 }

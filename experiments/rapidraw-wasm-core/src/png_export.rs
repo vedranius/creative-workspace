@@ -1,6 +1,6 @@
 //! Pinned RapidRAW PNG codec boundary, not a renderer or complete export.
 //! Native source: CyberTimon/RapidRAW b39884b, AGPL-3.0-only.
-use image::{DynamicImage, ImageBuffer, ImageEncoder, Rgb, codecs::png::PngEncoder};
+use image::{DynamicImage, ImageBuffer, ImageEncoder, Rgb, Rgba, codecs::png::PngEncoder};
 use std::io::{self, Write};
 
 const SRGB_ICC_PROFILE: &[u8] = include_bytes!("../assets/sRGB-v2-magic.icc");
@@ -23,6 +23,34 @@ impl Write for CappedWriter<'_> {
 
 struct ExportSettings {
     dpi: Option<u16>,
+}
+
+/// Native PNG exports select the original EightBit GPU path. Preserve its
+/// already-rendered RGBA8 pixels/alpha; do not route through float-to-RGB16.
+pub fn encode_rendered_rgba8_png(
+    width: u32,
+    height: u32,
+    pixels: &[u8],
+    dpi: Option<u16>,
+) -> Result<Vec<u8>, String> {
+    let count = (width as usize)
+        .checked_mul(height as usize)
+        .and_then(|n| n.checked_mul(4))
+        .ok_or("PNG dimensions overflow")?;
+    if width == 0
+        || height == 0
+        || width > 32768
+        || height > 32768
+        || count > MAX_BYTES
+        || pixels.len() != count
+    {
+        return Err("Rendered PNG requires exact bounded RGBA8 input (64 MiB)".into());
+    }
+    let image = DynamicImage::ImageRgba8(
+        ImageBuffer::<Rgba<u8>, _>::from_raw(width, height, pixels.to_vec())
+            .ok_or("Invalid RGBA dimensions")?,
+    );
+    encode_png_image(&image, dpi)
 }
 
 /// Encode already-rendered RGB f32 using native float->RGB16 + sRGB ICC PNG.

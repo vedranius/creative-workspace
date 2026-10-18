@@ -1,3 +1,9 @@
+## Experimental RapidRAW branch — native rendered PNG slice (2026-10-18)
+
+- Preserve original export precision selection: PNG uses EightBit/dither;16-bit TIFF uses the high-precision path. Add explicit EightBit WebGPU storage/readback without altering original WGSL.
+- Encode actual rendered RGBA8 through the original ICC/DPI PNG branch, with bounded input/output and refusal of SixteenBit reinterpretation. Match three real RAW-derived native PNG files byte-for-byte; verify decode, completed downloads and six malformed WASM refusals.
+- Extend Actions with native rendered PNGs/reference/provenance. Other preprocessing, camera metadata, original UI, EXIF/XMP and providers remain open. Product version/release/demo unchanged for this unfinished port checkpoint.
+
 ## Experimental RapidRAW branch — real RAW renderer slice (2026-10-18)
 
 - Add original RGB32F→RGBA16F upload conversion in WASM with native half rounding/alpha and explicit bounds. Accept native f16 texture payloads in the neutral resource factory.

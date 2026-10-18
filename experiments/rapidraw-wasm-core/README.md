@@ -53,3 +53,21 @@ input/adjustment hashes also match. Other preprocessing is still neutral,
 camera exposure inputs are explicit fixture settings rather than extracted
 metadata, and the original UI/editor/export/providers remain open.
 [Reproduce and next gate](../../docs/rapidraw-wasm-raw-render-handoff.md).
+
+## Original rendered PNG path
+
+Native `render_output_precision` chooses EightBit for PNG, and SixteenBit only
+for16-bit TIFF. `renderOriginalFrame({outputPrecision:"eight",...})` therefore
+keeps the full original RGBA8 WGSL/dither specialization; the existing default
+SixteenBit probe mode is retained explicitly. `encodeRenderedFramePng` accepts
+only a bounded RGBA8 render and forwards it to WASM
+`encode_rendered_rgba8_png`; it refuses SixteenBit reinterpretation. The source
+PNG branch preserves RGBA8/alpha, ICC and optional DPI without converting to
+RGB16. Raw codec-only RGB-f32 APIs remain separate.
+
+Three real public RAW-derived exposure renders/PNGs match native byte-for-byte;
+all decode and completed download hashes pass. Six malformed direct WASM inputs
+reject. Remaining effects/preprocessing are neutral and camera exposure inputs
+are explicit fixtures; metadata/XMP, transforms/watermarks, original UI and
+provider/full export acceptance remain open.
+[Current handoff](../../docs/rapidraw-wasm-rendered-png-handoff.md).

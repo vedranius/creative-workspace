@@ -118,5 +118,13 @@
     "functionSha256": "c1e7336ef8db918a2386d4afdc04599251b2de23b17927416f2452897662dcfb",
     "referenceCopy": "tests/reference/to_rgba_f16.rs",
     "scope": "Probe extracts RGB32F branch only; original function reference unchanged except type imports; explicit bounded finite f16 domain"
+  },
+  "pngRenderPrecision": {
+    "sourcePath": "src-tauri/src/export_processing.rs",
+    "sourceCommit": "b39884b38d8f148caef6fd0d52afd264951be329",
+    "nativeBehavior": "render_output_precision selects SixteenBit only for16bit TIFF; PNG selects EightBit, original WGSL dither enabled; native ImageRgba8 passes unchanged to original PNG branch",
+    "scope": "Metadata/XMP/watermarks/transforms not included in this export slice",
+    "referenceCopy": "tests/reference/png_render_precision.rs",
+    "functionSha256": "628d1527de507e0166ed21a59fbc2e631c5450fb57514abb93cd86bfc5017867"
   }
 }

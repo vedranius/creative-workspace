@@ -6,7 +6,10 @@ use bytemuck::{Pod, Zeroable};
 use serde::{Deserialize, Serialize};
 use serde_json::json;
 use sha2::{Digest, Sha256};
+use std::io::Write;
 use wgpu::util::DeviceExt;
+#[path = "../../rapidraw-wasm-core/tests/reference/png_encode.rs"]
+mod native_png;
 
 include!("original_adjustments.rs");
 include!("original_upload.rs");
@@ -50,6 +53,35 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         "9ecb4cc31b8ce4a12f439f69935ed0c8c27f58b52501929e0dc41d22e85ca178"
     );
     assert_eq!(std::mem::size_of::<AllAdjustments>(), 45232);
+    let mut args: Vec<String> = std::env::args().collect();
+    let eight = if let Some(i) = args.iter().position(|v| v == "--eight-bit") {
+        args.remove(i);
+        true
+    } else {
+        false
+    };
+    let png_dir = if let Some(i) = args.iter().position(|v| v == "--png-dir") {
+        if i + 1 >= args.len() {
+            return Err("PNG directory required".into());
+        }
+        let p = args.remove(i + 1);
+        args.remove(i);
+        Some(std::path::PathBuf::from(p))
+    } else {
+        None
+    };
+    if png_dir.is_some() && !eight {
+        return Err("Native PNG must use EightBit render output".into());
+    }
+    if let Some(p) = &png_dir {
+        std::fs::create_dir_all(p)?;
+    }
+    let output_format = if eight {
+        wgpu::TextureFormat::Rgba8Unorm
+    } else {
+        wgpu::TextureFormat::Rgba16Float
+    };
+    let pixel_bytes = if eight { 4 } else { 8 };
     let mut instance_desc = wgpu::InstanceDescriptor::new_without_display_handle();
     instance_desc.backends = wgpu::Backends::VULKAN;
     let instance = wgpu::Instance::new(instance_desc);
@@ -66,7 +98,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     // Exact substitution used by the pinned native high-precision pipeline.
     entries[1].ty = wgpu::BindingType::StorageTexture {
         access: wgpu::StorageTextureAccess::WriteOnly,
-        format: wgpu::TextureFormat::Rgba16Float,
+        format: output_format,
         view_dimension: wgpu::TextureViewDimension::D2,
     };
     let bind_group_layout = device.create_bind_group_layout(&wgpu::BindGroupLayoutDescriptor {
@@ -81,13 +113,19 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let shader = device.create_shader_module(wgpu::ShaderModuleDescriptor {
         label: Some("Pinned original RapidRAW full shader"),
         source: wgpu::ShaderSource::Wgsl(
-            SHADER
-                .replace("rgba8unorm, write>", "rgba16float, write>")
-                .into(),
+            (if eight {
+                SHADER.to_string()
+            } else {
+                SHADER.replace("rgba8unorm, write>", "rgba16float, write>")
+            })
+            .into(),
         ),
     });
-    let pipeline = include!("original_high_precision_pipeline.rs");
-    let args: Vec<String> = std::env::args().collect();
+    let pipeline = if eight {
+        include!("original_eight_bit_pipeline.rs")
+    } else {
+        include!("original_high_precision_pipeline.rs")
+    };
     let (width, height, input_image, input_source, input_format) = if args.len() > 1 {
         if args.len() != 5 || args[1] != "--rgb-f32" {
             return Err("Usage: reference [--rgb-f32 FILE WIDTH HEIGHT]".into());
@@ -229,13 +267,13 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         mip_level_count: 1,
         sample_count: 1,
         dimension: wgpu::TextureDimension::D2,
-        format: wgpu::TextureFormat::Rgba16Float,
+        format: output_format,
         usage: wgpu::TextureUsages::STORAGE_BINDING | wgpu::TextureUsages::COPY_SRC,
         view_formats: &[],
     });
     let output_view = output.create_view(&Default::default());
     let mut frames = Vec::new();
-    for exposure in [-1f32, 0., 1.] {
+    for (index, exposure) in [-1f32, 0., 1.].into_iter().enumerate() {
         let mut adjustments = AllAdjustments::zeroed();
         let identity = GpuMat3::default();
         adjustments.global.exposure = exposure;
@@ -294,7 +332,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             layout: &bind_group_layout,
             entries: &bindings,
         });
-        let padded_bpr = (width * 8).div_ceil(256) * 256;
+        let padded_bpr = (width * pixel_bytes).div_ceil(256) * 256;
         let buffer = device.create_buffer(&wgpu::BufferDescriptor {
             label: None,
             size: u64::from(padded_bpr * height),
@@ -339,20 +377,40 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         let mapped = slice.get_mapped_range();
         let mut pixels = Vec::new();
         for row in mapped.chunks(padded_bpr as usize).take(height as usize) {
-            pixels.extend_from_slice(&row[..(width * 8) as usize]);
+            pixels.extend_from_slice(&row[..(width * pixel_bytes) as usize]);
         }
-        let words: Vec<u16> = pixels
-            .chunks_exact(2)
-            .map(|b| u16::from_le_bytes([b[0], b[1]]))
-            .collect();
-        assert!(words.iter().all(|v| v & 0x7c00 != 0x7c00));
-        frames.push(json!({"exposure":exposure,"bytes":pixels.len(),"sha256":hash(&pixels),"rgbaF16Bits":words,"adjustmentSha256":hash(bytemuck::bytes_of(&adjustments))}));
+        let mut frame = json!({"exposure":exposure,"bytes":pixels.len(),"sha256":hash(&pixels),"adjustmentSha256":hash(bytemuck::bytes_of(&adjustments))});
+        if eight {
+            frame["rgbaU8"] = json!(&pixels);
+            if let Some(dir) = &png_dir {
+                let image = image::DynamicImage::ImageRgba8(
+                    image::RgbaImage::from_raw(width, height, pixels.clone())
+                        .ok_or("invalid image")?,
+                );
+                let png = native_png::encode(&image, Some(300))?;
+                let name = format!("frame-{index}.png");
+                let mut file = std::fs::OpenOptions::new()
+                    .create_new(true)
+                    .write(true)
+                    .open(dir.join(&name))?;
+                file.write_all(&png)?;
+                frame["png"] = json!({"filename":name,"sha256":hash(&png),"bytes":png.len(),"bitDepth":8,"colorType":6,"dpi":300});
+            }
+        } else {
+            let words: Vec<u16> = pixels
+                .chunks_exact(2)
+                .map(|b| u16::from_le_bytes([b[0], b[1]]))
+                .collect();
+            assert!(words.iter().all(|v| v & 0x7c00 != 0x7c00));
+            frame["rgbaF16Bits"] = json!(words);
+        }
+        frames.push(frame);
         drop(mapped);
         buffer.unmap();
     }
     println!(
         "{}",
-        json!({"source":"b39884b38d8f148caef6fd0d52afd264951be329","highPrecisionOutput":1,"shaderSha256":hash(SHADER.as_bytes()),"scope":"Independent native wgpu29 full original shader on neutral synthetic resources; not full native engine/preprocessing", "adapter":{"name":info.name,"driver":info.driver,"driverInfo":info.driver_info,"backend":format!("{:?}",info.backend),"deviceType":format!("{:?}",info.device_type)},"width":width,"height":height,"inputFormat":input_format,"inputF32Sha256":hash(bytemuck::cast_slice(&input_source)),"inputRgbaF16Sha256":hash(bytemuck::cast_slice(&input_f16)),"frames":frames})
+        json!({"source":"b39884b38d8f148caef6fd0d52afd264951be329","highPrecisionOutput":if eight{0}else{1},"format":if eight{"rgba8unorm"}else{"rgba16float"},"shaderSha256":hash(SHADER.as_bytes()),"scope":"Independent native wgpu29 full original shader on neutral synthetic resources; not full native engine/preprocessing", "adapter":{"name":info.name,"driver":info.driver,"driverInfo":info.driver_info,"backend":format!("{:?}",info.backend),"deviceType":format!("{:?}",info.device_type)},"width":width,"height":height,"inputFormat":input_format,"inputF32Sha256":hash(bytemuck::cast_slice(&input_source)),"inputRgbaF16Sha256":hash(bytemuck::cast_slice(&input_f16)),"frames":frames})
     );
     Ok(())
 }
@@ -380,6 +438,10 @@ mod tests {
             (
                 "src/original_upload.rs",
                 include_bytes!("original_upload.rs").as_slice(),
+            ),
+            (
+                "src/original_eight_bit_pipeline.rs",
+                include_bytes!("original_eight_bit_pipeline.rs").as_slice(),
             ),
             ("../rapidraw-wasm-core/shader.wgsl", SHADER.as_bytes()),
         ] {

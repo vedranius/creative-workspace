@@ -1,3 +1,7 @@
+# Latest rendered PNG checkpoint — 2026-10-18
+
+Source tracing confirms original PNG selects EightBit/dither (SixteenBit is16-bit TIFF). Three actual RAW-derived RGBA8 PNGs now match native byte-for-byte with decode/completed download and six malformed refusals. [Current source/proof/next task](rapidraw-wasm-rendered-png-handoff.md). Remaining preprocessing/camera metadata/original UI/providers/full acceptance remain open. Prior43431e2 hosted raw-frame report was downloaded and verifies2,359,296 exact f16 components.
+
 # Real public RAW Speed renderer slice — 2026-10-18
 
 ## Actual connected behavior

@@ -1,3 +1,11 @@
+# 2026-10-18 RWASM-03 — original rendered PNG bytes and browser download
+
+Tracing `render_output_precision` corrected the planned export boundary: original PNG selects EightBit with dithering; SixteenBit is selected only for16-bit TIFF. The browser now supports both original storage/specialization paths, and the PNG helper accepts actual RGBA8 renders while refusing SixteenBit reinterpretation. A source-pinned selector test protects that distinction. WGSL remains byte-identical.
+
+Actual public DNG→Speed worker→f16 upload→original exposure/EightBit shader/dither→original PNG branch passes:2,359,296/2,359,296 byte components exact, all three PNG files byte-identical to independent native output (341,836 /386,072 /424,473 bytes), browser decode and completed download hashes/lengths match. ICC/300DPI preserved; six malformed WASM inputs reject with no GPU/page/network errors. Core32/32, native reference1/1, host14/14, repo check, format/syntax/diff pass. [Source, limits and next task](rapidraw-wasm-rendered-png-handoff.md).
+
+Other preprocessing/effects remain neutral and camera inputs explicit; metadata/XMP/watermarks/transforms/original React UI/providers/full editor acceptance remain open. No private file/service/demo/version change. Prior43431e2 parity39109630466 succeeded; downloaded hosted real-RAW report verifies2,359,296 exact f16 components. Fresh rendered-PNG Actions verification remains pending source push.
+
 # 2026-10-18 RWASM-03 — real public RAW Speed frame matches native
 
 The original RGB32F→RGBA16F conversion now runs in WASM, preserving half rounding and alpha1. Finite/domain/dimension/64MiB input/output guards precede conversion; the resource factory accepts validated f16 words with a64MiB combined upload-payload cap (not total memory protection). Public CC0 Canon DNG development in the actual worker feeds f16 textures, explicit original exposure mapping and the full high-precision WGSL.

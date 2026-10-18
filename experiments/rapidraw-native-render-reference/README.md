@@ -60,3 +60,14 @@ native RGB samples as its fourth argument, exclusively creating a new file.
 The Actions test derives that file from the hash-pinned CC0 DNG and compares
 actual worker→f16 upload→full-shader browser output; it never supplies private
 photographs. [Real RAW proof/scope](../../docs/rapidraw-wasm-raw-render-handoff.md).
+
+## Original EightBit PNG reference
+
+Add `--eight-bit --png-dir NEW_DIRECTORY` to the RGB input command to retain
+the original unmodified EightBit shader, default HIGH_PRECISION_OUTPUT=0/dither,
+RGBA8 storage/readback and original PNG branch. The PNG compressor is pinned
+flate2=1.1.9 to match the original native/core lock. Files `frame-0.png` through
+`frame-2.png` use create_new; existing output is refused. The JSON includes
+actual RGBA8 words and PNG hashes. SixteenBit remains the separate source
+pipeline for the high-precision fixture, not the normal native PNG export.
+Source excerpt/name mappings and AGPL attribution remain in UPSTREAM.json.

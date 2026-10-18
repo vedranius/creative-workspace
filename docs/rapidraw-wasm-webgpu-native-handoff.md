@@ -1,3 +1,7 @@
+# Latest rendered PNG checkpoint — 2026-10-18
+
+Source tracing confirms original PNG selects EightBit/dither (SixteenBit is16-bit TIFF). Three actual RAW-derived RGBA8 PNGs now match native byte-for-byte with decode/completed download and six malformed refusals. [Current source/proof/next task](rapidraw-wasm-rendered-png-handoff.md). Remaining preprocessing/camera metadata/original UI/providers/full acceptance remain open. Prior43431e2 hosted raw-frame report was downloaded and verifies2,359,296 exact f16 components.
+
 # Latest RAW renderer checkpoint — 2026-10-18
 
 Actual public CC0 Canon Speed-developed pixels now pass original f16 upload/exposure/full shader comparison:2,359,296/2,359,296 components exact across three512×384 frames. Remaining preprocessing/effects are neutral, metadata inputs explicit, and full engine/UI/export/provider acceptance remains open. [Current source/proof/next step](rapidraw-wasm-raw-render-handoff.md). Prior da37854 Actions parity39108228207 passed and its native/browser324-component report was downloaded/verified.

@@ -30,6 +30,11 @@
       "sourcePath": "src-tauri/src/gpu_processing.rs",
       "sha256": "a6340e70935613f1d5703ac7e7f1cf0844a61c6db2d45061e595a14fba9e4793",
       "scope": "Exact original to_rgba_f16 function plus only DynamicImage/f16 type imports"
+    },
+    "src/original_eight_bit_pipeline.rs": {
+      "sourcePath": "src-tauri/src/gpu_processing.rs",
+      "sha256": "6e4cb4ceebd89ab29a1fcf3900fdd358689e0c83ec7cefc4261ef09828e2c09b",
+      "scope": "Original main EightBit pipeline creation; only local variable names(main_pipeline/shader_module/pipeline_layout to pipeline/shader/layout) mapped, expression block wrapper; original compilation defaults retained"
     }
   },
   "hostScope": "Independent compute-only native resource/dispatch/readback harness on a synthetic neutral fixture, not Tauri/AppState/cache/preprocessing or full native process_and_get_dynamic_image_with_precision."

@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { createHash } from "node:crypto";
 import { readFile } from "node:fs/promises";
 import { test } from "node:test";
-import { createNeutralRendererResources, packNeutralExposureAdjustments, packRgb32fRendererInput, packUiExposureFixture, renderOriginalFrame, WebGpuUnsupportedError } from "./webgpu-renderer.js";
+import { createNeutralRendererResources, encodeRenderedFramePng, packNeutralExposureAdjustments, packRgb32fRendererInput, packUiExposureFixture, renderOriginalFrame, WebGpuUnsupportedError } from "./webgpu-renderer.js";
 
 globalThis.GPUShaderStage = { COMPUTE: 4 };
 globalThis.GPUBufferUsage = { STORAGE: 128, COPY_DST: 8, MAP_READ: 1 };
@@ -32,6 +32,7 @@ test("native upload rejects corrupt half words, shape and combined resource budg
 });
 
 const shaderSource = await readFile(new URL("./shader.wgsl", import.meta.url), "utf8");
+
 const textureView = {};
 const resourceViews = {
   maskTextures: textureView,
@@ -221,4 +222,25 @@ test("UI exposure host rejects oversized JSON/missing metadata and corrupt paylo
   assert.throws(()=>packUiExposureFixture(wasm,"{}",shot,{}),/Explicit finite/);
   assert.equal(called,false);
   assert.throws(()=>packUiExposureFixture(wasm,"{}",shot,options),/invalid pinned/);
+});
+
+test("original EightBit PNG render retains shader/dither and uses RGBA8 storage/readback", async () => {
+  const { device, calls } = makeDevice();
+  const result=await renderOriginalFrame({...frameInput(),device,outputPrecision:'eight'});
+  assert.equal(result.format,'rgba8unorm');assert.equal(result.pixels.length,3*2*4);
+  assert.equal(calls.find(([n])=>n==='shader')[1].code,shaderSource);
+  assert.deepEqual(calls.find(([n])=>n==='pipeline')[1].compute.constants,{HIGH_PRECISION_OUTPUT:0});
+  assert.equal(calls.find(([n])=>n==='layout')[1].entries[1].storageTexture.format,'rgba8unorm');
+  await assert.rejects(renderOriginalFrame({...frameInput(),device,outputPrecision:'auto'}),/native eight or sixteen/);
+});
+
+test("rendered PNG forwards actual RGBA8 output and refuses SixteenBit reinterpretation", () => {
+  let received;const bytes=new Uint8Array([137,80,78,71]);
+  const wasm={encode_rendered_rgba8_png:(...args)=>(received=args,bytes)};
+  const frame={width:1,height:1,format:'rgba8unorm',pixels:new Uint8Array([0,1,2,255])};
+  assert.equal(encodeRenderedFramePng(wasm,frame,300),bytes);
+  assert.deepEqual(received,[1,1,frame.pixels,300]);
+  assert.throws(()=>encodeRenderedFramePng(wasm,{...frame,format:'rgba16float'},300),/RGBA8 rendered/);
+  assert.throws(()=>encodeRenderedFramePng(wasm,{...frame,pixels:new Uint8Array(3)},300),/RGBA8 rendered/);
+  assert.throws(()=>encodeRenderedFramePng(wasm,frame,65536),/valid DPI/);
 });

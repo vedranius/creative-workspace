@@ -1,0 +1,64 @@
+{
+  "adapter": {
+    "backend": "Vulkan",
+    "deviceType": "Cpu",
+    "driver": "SwiftShader driver",
+    "driverInfo": "",
+    "name": "SwiftShader Device (Subzero)"
+  },
+  "format": "rgba8unorm",
+  "height": 384,
+  "highPrecisionOutput": 0,
+  "inputF32Sha256": "d9d7e96227a8346bd6599f1987aa4f30ee53403e4284a3161c62478507baf53a",
+  "inputFormat": "RGB32F",
+  "inputRgbaF16Sha256": "6951afa470833b4946ebda380f9b9cfd8ff61c88a0bd6a62bbc6b6ad6b681fab",
+  "scope": "Independent native original EightBit shader/dither plus original RGBA8 PNG branch on public RAW-derived input; neutral remaining preprocessing, no metadata/XMP/transforms/watermarks",
+  "shaderSha256": "9ecb4cc31b8ce4a12f439f69935ed0c8c27f58b52501929e0dc41d22e85ca178",
+  "source": "b39884b38d8f148caef6fd0d52afd264951be329",
+  "width": 512,
+  "referenceSha256": "fbb5276b996c6641921f98f3839dc1ce9690172870a597cce991e2b6fcd8cf02",
+  "frames": [
+    {
+      "adjustmentSha256": "b9a487f7b167ec2a49f6203db3f8a0a5b1cc33fc70242c45aa77f50076c81266",
+      "bytes": 786432,
+      "exposure": -1.0,
+      "png": {
+        "bitDepth": 8,
+        "bytes": 341836,
+        "colorType": 6,
+        "dpi": 300,
+        "filename": "frame-0.png",
+        "sha256": "702a81f2980ad0c01e445808946519f44f1591c931176a34af404e81c8d796a3"
+      },
+      "sha256": "8c87fbd36dbf08b24fc79653cb72f036b4f8c7b5b29f0653da21ac04809876f9"
+    },
+    {
+      "adjustmentSha256": "e25701ba23c4c5046838a8ff40229f326a5c52aa33117736029cbcd8bb41534b",
+      "bytes": 786432,
+      "exposure": 0.0,
+      "png": {
+        "bitDepth": 8,
+        "bytes": 386072,
+        "colorType": 6,
+        "dpi": 300,
+        "filename": "frame-1.png",
+        "sha256": "bc963d11bb457e595890033120d72544b99711919c4da23be730f4b67958bab5"
+      },
+      "sha256": "cbca66107fae04f0039c3970dcce2b753157efb5db1c9ea93f8ef031588a9d1b"
+    },
+    {
+      "adjustmentSha256": "f8b0b808c4c32f6913988eb9cfe3e90a5ca5a8663c30df1c4c9b69269d365049",
+      "bytes": 786432,
+      "exposure": 1.0,
+      "png": {
+        "bitDepth": 8,
+        "bytes": 424473,
+        "colorType": 6,
+        "dpi": 300,
+        "filename": "frame-2.png",
+        "sha256": "c82dd8e43686fb7a005c6d7ad66ad4b67b6ef909791e689f4c6c1afe47d24546"
+      },
+      "sha256": "5f06edbe1e5d3a2412b8e30bdb7d86c49d28b54b3e68487b2502b842992873c4"
+    }
+  ]
+}

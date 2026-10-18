@@ -1,3 +1,7 @@
+# Unreleased RapidRAW rendered PNG checkpoint — 2026-10-18
+
+The isolated port now verifies original EightBit render/dither→RGBA8 PNG bytes, profile/DPI, decode and completed browser downloads on a public RAW fixture. Source tracing confirms PNG selects EightBit; high-precision remains the separate16-bit TIFF path. This is an incomplete native editor/export pipeline with neutral remaining effects and no camera metadata, original UI, metadata/XMP, transforms/watermarks or providers. No product version/tag/install/demo change. [Reproduction/proof](rapidraw-wasm-rendered-png-handoff.md); fresh Actions evidence remains pending source push.
+
 # Unreleased RapidRAW real RAW-render checkpoint — 2026-10-18
 
 The isolated port now verifies a real public DNG through native-equivalent Speed development, RGB32F→RGBA16F upload, explicit exposure mapping and original high-precision shader. Three frames match native exactly. This remains an incomplete editor pipeline with neutral preprocessing/effects and no original React/export/provider acceptance. Product version, release tags, installation and public demo remain unchanged. [Build/reproduction/proof](rapidraw-wasm-raw-render-handoff.md); fresh Actions evidence is pending source push.

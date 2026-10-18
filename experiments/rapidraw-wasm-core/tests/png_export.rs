@@ -1,4 +1,4 @@
-use cw_rapidraw_wasm_probe::png_export::encode_rgb32f_png;
+use cw_rapidraw_wasm_probe::png_export::{encode_rendered_rgba8_png, encode_rgb32f_png};
 use image::{DynamicImage, ImageBuffer, ImageDecoder, Rgb, codecs::png::PngDecoder};
 use sha2::{Digest, Sha256};
 use std::io::Cursor;
@@ -7,6 +7,85 @@ use std::io::Cursor;
 #[allow(dead_code)]
 #[rustfmt::skip]
 mod native;
+
+mod precision {
+    #[derive(Debug, PartialEq)]
+    pub enum RenderOutputPrecision {
+        EightBit,
+        SixteenBit,
+    }
+    #[derive(PartialEq)]
+    enum TiffBitDepth {
+        Eight,
+        Sixteen,
+    }
+    struct ExportSettings {
+        tiff_bit_depth: TiffBitDepth,
+    }
+    include!("reference/png_render_precision.rs");
+    pub fn selected(format: &str, sixteen: bool) -> RenderOutputPrecision {
+        render_output_precision(
+            format,
+            &ExportSettings {
+                tiff_bit_depth: if sixteen {
+                    TiffBitDepth::Sixteen
+                } else {
+                    TiffBitDepth::Eight
+                },
+            },
+        )
+    }
+}
+
+#[test]
+fn original_png_export_uses_eight_bit_render_and_preserves_rgba_bytes() {
+    assert_eq!(
+        precision::selected("png", true),
+        precision::RenderOutputPrecision::EightBit
+    );
+    assert_eq!(
+        precision::selected("PNG", false),
+        precision::RenderOutputPrecision::EightBit
+    );
+    assert_eq!(
+        precision::selected("tiff", true),
+        precision::RenderOutputPrecision::SixteenBit
+    );
+    let original = include_bytes!("reference/png_render_precision.rs");
+    let metadata: serde_json::Value =
+        serde_json::from_str(include_str!("../UPSTREAM.json")).unwrap();
+    assert_eq!(
+        format!("{:x}", Sha256::digest(original)),
+        metadata["pngRenderPrecision"]["functionSha256"]
+            .as_str()
+            .unwrap()
+    );
+    let pixels = vec![0, 64, 255, 255, 12, 34, 56, 127];
+    let image = DynamicImage::ImageRgba8(image::RgbaImage::from_raw(2, 1, pixels.clone()).unwrap());
+    let expected = native::encode(&image, Some(300)).unwrap();
+    assert_eq!(
+        encode_rendered_rgba8_png(2, 1, &pixels, Some(300)).unwrap(),
+        expected
+    );
+    assert_eq!(expected[24], 8);
+    assert_eq!(expected[25], 6);
+    let decoded = image::load_from_memory(&expected).unwrap().to_rgba8();
+    assert_eq!(decoded.into_raw(), pixels);
+}
+
+#[test]
+fn rendered_png_rejects_invalid_shapes_and_oversize() {
+    for (w, h, p) in [
+        (0, 1, vec![]),
+        (1, 0, vec![]),
+        (32769, 1, vec![]),
+        (32768, 32768, vec![]),
+        (1, 1, vec![]),
+        (1, 1, vec![0; 3]),
+    ] {
+        assert!(encode_rendered_rgba8_png(w, h, &p, None).is_err());
+    }
+}
 
 #[test]
 fn pinned_png_source_excerpts_and_profile_are_preserved() {

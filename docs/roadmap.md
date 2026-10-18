@@ -1,3 +1,9 @@
+# RWASM-03 — original rendered PNG slice verified (2026-10-18)
+
+The original PNG path is EightBit RGBA with dithering, not the SixteenBit TIFF path. Public CC0 RAW-derived renders and all three PNG bytes match native exactly, with browser decode/completed download and six rejected malformed inputs. [Evidence and scope](rapidraw-wasm-rendered-png-handoff.md). Camera inputs and remaining preprocessing are still explicit neutral fixtures; no full engine/UI/provider acceptance.
+
+Next ready task: original camera/as-shot exposure metadata extraction from the pinned native source, first on the public DNG, compared against an independent native reference and fed into existing baseline/exposure mapping. Trace white-balance dependencies and keep unimplemented WB/settings explicit. Do not substitute zero metadata as automatic camera support; preserve RAW resource/privacy gates and the private RAF development budget. Continue in MAIN only while A's owner awaits approval.
+
 # RWASM-03 — public RAW Speed renderer slice verified (2026-10-18)
 
 Actual public CC0 DNG→WASM development→original f16 upload→original exposure mapping/full WGSL produces three512×384 frames,2,359,296/2,359,296 components matching native exactly. Other preprocessing/effects are neutral; no complete engine/UI/editor acceptance. [Handoff and evidence](rapidraw-wasm-raw-render-handoff.md).
