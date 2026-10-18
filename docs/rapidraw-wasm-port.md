@@ -1,3 +1,9 @@
+# RWASM-03 — original integer crop presets (2026-10-18)
+
+Unchanged original CropPanel 1:1/16:9 presets, Rotate Right, Flip Horiz and reset now drive source crop-specific preview sizing followed by orientation→flip→crop. Six actual UI actions match independent native RGB, complete adjustment hashes,5,308,416 RGBA8 components and391,185 JPEG bytes exactly; resets restore the initial JPEG. [Proof and next task](rapidraw-wasm-crop-handoff.md).
+
+Core57/57 and doctests, host23/23, npm run check and focused format/syntax/diff pass. Eleven malformed/resource WASM crop requests and four bridge crop requests refuse; the same document restores its original image. This accepts bounded integer crop presets, not crop-canvas/tool activation or fractional/fine-rotation/warp/effect/ROI/provider/export acceptance. No product release/version/install/demo change.
+
 # RapidRAW browser engine port
 
 ## Current checkpoint — 2026-10-18

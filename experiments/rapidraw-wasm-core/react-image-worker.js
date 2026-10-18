@@ -1,9 +1,9 @@
 // Persistent, private-to-document Quality image owner. No paths/network/writes.
-import init,{develop_pixels,read_as_shot,resize_preview_rgb32f,resize_interactive_rgb32f,orient_preview_rgb32f,preview_dimensions} from './cw_rapidraw_wasm_probe.js';
+import init,{develop_pixels,read_as_shot,resize_preview_rgb32f,resize_interactive_rgb32f,orient_preview_rgb32f,crop_preview_rgb32f,preview_dimensions} from './cw_rapidraw_wasm_probe.js';
 let ready,image=null,base=null,geometry=null;
 const hash=async bytes=>[...new Uint8Array(await crypto.subtle.digest('SHA-256',bytes))].map(x=>x.toString(16).padStart(2,'0')).join('');
 self.onmessage=async({data})=>{
- const {id,command,bytes,previewDim,interactive=false,liveQuality='high',orientationSteps=0,flipHorizontal=false,flipVertical=false}=data??{};
+ const {id,command,bytes,previewDim,interactive=false,liveQuality='high',orientationSteps=0,flipHorizontal=false,flipVertical=false,crop=null}=data??{};
  if(!Number.isSafeInteger(id)){self.postMessage({id,ok:false,error:'Expected request id'});return;}
  try{
   if(!ready)ready=init();await ready;
@@ -18,13 +18,22 @@ self.onmessage=async({data})=>{
   }else if(command==='preview'){
    if(!image)throw Error('No Quality image loaded');
    if(!Number.isSafeInteger(previewDim)||previewDim<1||previewDim>32768)throw Error('Invalid preview target');
-   const dimensions=preview_dimensions(image.width,image.height,previewDim);
-   if(dimensions.width*dimensions.height*76+132>64*1024*1024)throw Error('Preview exceeds bounded64MiB texture payload capacity');
-   if(base?.target!==previewDim){base={...resize_preview_rgb32f(image.width,image.height,image.data,previewDim),target:previewDim};geometry=null;}
-   const key=`${orientationSteps}:${flipHorizontal}:${flipVertical}`;
-   if(geometry?.key!==key)geometry={...orient_preview_rgb32f(base.width,base.height,base.data,orientationSteps,flipHorizontal,flipVertical),key};
-   const scaleForGpu=Math.fround(geometry.width/(orientationSteps%2?image.height:image.width));
+   const key=JSON.stringify([previewDim,orientationSteps,flipHorizontal,flipVertical,crop]);
+   if(geometry?.key!==key){
+    if(crop!==null){
+     geometry={...crop_preview_rgb32f(image.width,image.height,image.data,previewDim,orientationSteps,flipHorizontal,flipVertical,JSON.stringify(crop)),key};
+     base=null;
+    }else{
+     const dimensions=preview_dimensions(image.width,image.height,previewDim);
+     if(dimensions.width*dimensions.height*76+132>64*1024*1024)throw Error('Preview exceeds bounded64MiB texture payload capacity');
+     if(base?.target!==previewDim)base={...resize_preview_rgb32f(image.width,image.height,image.data,previewDim),target:previewDim};
+     geometry={...orient_preview_rgb32f(base.width,base.height,base.data,orientationSteps,flipHorizontal,flipVertical),key};
+     geometry.scaleForGpu=Math.fround(geometry.width/(orientationSteps%2?image.height:image.width));geometry.cropOffsetX=0;geometry.cropOffsetY=0;
+    }
+   }
+   const scaleForGpu=geometry.scaleForGpu;
    const preview=interactive?resize_interactive_rgb32f(geometry.width,geometry.height,geometry.data,previewDim,liveQuality):{...geometry,data:geometry.data.slice(),quality:94,divisor:1};
+   preview.cropOffsetX=geometry.cropOffsetX;preview.cropOffsetY=geometry.cropOffsetY;
    preview.scaleForGpu=Math.fround(scaleForGpu*Math.fround(preview.width/geometry.width));
    self.postMessage({id,ok:true,...preview,rgbSha256:await hash(preview.data)},[preview.data.buffer]);
   }else throw Error('Unsupported image worker command');

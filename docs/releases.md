@@ -1,3 +1,7 @@
+# Unreleased RapidRAW integer crop checkpoint — 2026-10-18
+
+Actual unchanged CropPanel 1:1/16:9 preset, rotation, flip and reset controls now drive source crop-specific working resolution and native-identical RGB/pixels/JPEG. [Proof and next crop-canvas task](rapidraw-wasm-crop-handoff.md). Crop tool/uncropped-preview/canvas, fine rotation/warp/effects/ROI/metadata/menus/export/provider acceptance remain open. No product SemVer/tag/release/install/demo update; the remote v0.2.0-alpha.60 remains draft/prerelease, authenticated as vedranius.
+
 # Unreleased RapidRAW rotation/flip checkpoint — 2026-10-18
 
 Actual unchanged CropPanel Rotate/Flip controls now drive original spatial processing, with native-identical portrait/landscape RGB/pixels/JPEG and exact restoration. [Proof and next crop task](rapidraw-wasm-geometry-handoff.md). Crop/fine rotation/warp/effects/ROI/metadata/menus/export/provider acceptance remain open. No product SemVer/tag/release/install/demo update; existing immutable draft remains separate.

@@ -1,3 +1,9 @@
+## Experimental RapidRAW branch — original bounded crop presets (2026-10-18)
+
+- Preserve original crop-specific working resolution, quarter-turn→flip→crop order, rounded/clamped preview coordinates, f32 scale and full-image offsets behind integer/resource/input guards.
+- Six unchanged CropPanel preset/rotate/flip/reset actions match native5,308,416 RGBA8 components/391,185 JPEG bytes and restore the starting JPEG. Eleven WASM and four bridge crop refusals preserve the document. Core57/host23/check pass.
+- Record native/source/settled browser evidence and Actions reproduction. Actual crop canvas/uncropped-preview command, fine rotation/warp/effects/ROI/menus/export/providers remain open; no product release/version/demo change.
+
 ## Experimental RapidRAW branch — original CropPanel rotation/flips (2026-10-18)
 
 - Retain exact source quarter-turn→horizontal/vertical flip stage after original preview downscale, with bounded RGB input and geometry-aware worker/GPU cache keys.

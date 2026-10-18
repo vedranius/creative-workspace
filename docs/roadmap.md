@@ -1,3 +1,11 @@
+# RWASM-03 — original integer crop presets (2026-10-18)
+
+Unchanged original CropPanel 1:1/16:9 presets, Rotate Right, Flip Horiz and reset now drive source crop-specific preview sizing followed by orientation→flip→crop. Six actual UI actions match independent native RGB, complete adjustment hashes,5,308,416 RGBA8 components and391,185 JPEG bytes exactly; resets restore the initial JPEG. [Proof and next task](rapidraw-wasm-crop-handoff.md).
+
+Core57/57 and doctests, host23/23, npm run check and focused format/syntax/diff pass. Eleven malformed/resource WASM crop requests and four bridge crop requests refuse; the same document restores its original image. This accepts bounded integer crop presets, not crop-canvas/tool activation or fractional/fine-rotation/warp/effect/ROI/provider/export acceptance. No product release/version/install/demo change.
+
+Next ready task: Activate the original crop tool in the unchanged Editor/ImageCanvas, trace generate_uncropped_preview and implement its bounded source contract: source square-area resize before orientation/flips, original pre-orientation f32 scale, show_clipping=0, crop offset0, original q80 JPEG/data URL codec policy (not the q94 fast-color final preview). Preserve source latest-job handling. Prove an actual original crop-canvas edge/corner drag and return to Adjustments with native RGB/pixel/JPEG parity and reset/refusal recovery. Keep fine rotation/warp/effects/ROI/export/providers explicit; no custom crop editor or fake uncropped image. MAIN only; A waitingOnApproval untouched.
+
 # RWASM-03 — original CropPanel rotate/flip controls (2026-10-18)
 
 Unchanged original CropPanel/useEditorActions now drive source quarter-turn→horizontal/vertical flip processing after the original area preview. Six actual UI actions change portrait/landscape output and restore the initial image; all4,718,592 RGBA8 components,371,266 JPEG bytes, RGB and complete adjustment hashes match independent native source. [Proof and scope](rapidraw-wasm-geometry-handoff.md).

@@ -244,5 +244,15 @@
     "sourceFileSha256": "5e16c6d88c30e5728534bb67be47e79c44b96d524f90973a611c2c2e8adb3a19",
     "adjustmentUtilsSha256": "1638c4239f50c3dec6701e2837d70152d134e351dfa9b3077fe4099e31998674",
     "scope": "Original rotation then flips after original area preview; only orientationSteps0..3 and bool flips. Crop/fine rotation/warp unsupported."
+  },
+  "cropPreview": {
+    "source": "CyberTimon/RapidRAW",
+    "commit": "b39884b38d8f148caef6fd0d52afd264951be329",
+    "imageProcessingSha256": "5e16c6d88c30e5728534bb67be47e79c44b96d524f90973a611c2c2e8adb3a19",
+    "libSha256": "ce69ae5e06b5c5f0eb7b6592d981c727c1be07e7787000a41e50ed77618b2606",
+    "applyCropSha256": "3b90c83f5438cac692beaf46e5410231f4614439b10f47da43ddb18238482913",
+    "referenceSha256": "64c1db8195b7054e7204d694ef1083bc4867689b1b27b8ba8d7434d4b715d255",
+    "scope": "Integer full-image crop, source crop-specific area working size then orientation/flip/crop. Fine rotation/warp/effects/ROI remain unsupported.",
+    "pipelineReferenceSha256": "95d47d2beb1f23663096eba0afcfaba3ec57c2e7828f437ce215b812fa8211ce"
   }
 }

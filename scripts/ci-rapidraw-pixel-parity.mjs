@@ -162,8 +162,20 @@ try{
   geometryReferences.push({action,...reference});
  }
  const geometryReferencePath=await writeJson(output,'geometry-native.json',geometryReferences);
+ const cropReferences=[];
+ const cropCases=[['1:1',0,false,false,{x:256,y:0,width:1536,height:1536}],['Rotate Right',1,false,false,{x:0,y:256,width:1536,height:1536}],['Flip Horiz',1,true,false,{x:0,y:256,width:1536,height:1536}],['Reset geometry',0,false,false,null],['16:9',0,false,false,{x:0,y:192,width:2048,height:1152}],['Reset geometry',0,false,false,null]];
+ for(const [index,[action,steps,horizontal,vertical,crop]]of cropCases.entries()){
+  const directory=path.join(output,'crop-'+index);
+  const prepared=JSON.parse(await run('cargo',['run','--release','--locked','--manifest-path','experiments/rapidraw-wasm-core/Cargo.toml','--example','crop_reference','--','prepare',nativeQualityRgb,'2048','1536',String(steps),String(horizontal),String(vertical),JSON.stringify(crop),directory]));
+  const pngDirectory=path.join(directory,'native-png');
+  const rendered=JSON.parse(await run('cargo',['run','--release','--locked','--manifest-path',nativeRenderManifest,'--','--rgb-f32',path.join(directory,'rgb.f32'),String(prepared.width),String(prepared.height),'--eight-bit','--png-dir',pngDirectory,'--camera-settings',reactSettingsPath],{env:nativeRendererEnv}));
+  const renderPath=await writeJson(directory,'native-render.json',rendered);
+  const reference=JSON.parse(await run('cargo',['run','--release','--locked','--manifest-path','experiments/rapidraw-wasm-core/Cargo.toml','--example','crop_reference','--','encode',directory,renderPath,pngDirectory]));
+  cropReferences.push({action,...reference});
+ }
+ const cropReferencePath=await writeJson(output,'crop-native.json',cropReferences);
  const reactReport=path.join(output,'react-browser.json');
- await run('node',['scripts/smoke-rapidraw-react.mjs',reactStage,input,reactReport,path.join(nativeReactPreview,'reference.json'),nativeResizePath,interactiveReferencePath,geometryReferencePath]);
+ await run('node',['scripts/smoke-rapidraw-react.mjs',reactStage,input,reactReport,path.join(nativeReactPreview,'reference.json'),nativeResizePath,interactiveReferencePath,geometryReferencePath,cropReferencePath]);
  reports.react=JSON.parse(await readFile(reactReport,'utf8'));
 
  for(const name of ['preview.rs','preview-encode.txt','preview-envelope.txt','preview-reader.js','mozjpeg-rs-LICENSE'])await copyFile(path.join(root,'experiments/rapidraw-wasm-core/tests/reference',name),path.join(output,name));

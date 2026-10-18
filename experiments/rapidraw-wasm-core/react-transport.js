@@ -62,10 +62,14 @@ export function createReactTransport({wasm,device,shaderSource,defaults,getPrevi
    if(!adjustments||typeof adjustments!=='object'||Array.isArray(adjustments))throw TypeError('Expected original adjustments');
    const orientationSteps=adjustments.orientationSteps??0,flipHorizontal=adjustments.flipHorizontal??false,flipVertical=adjustments.flipVertical??false;
    if(!Number.isSafeInteger(orientationSteps)||orientationSteps<0||orientationSteps>3||typeof flipHorizontal!=='boolean'||typeof flipVertical!=='boolean')throw TypeError('Invalid original rotation/flip');
-   const geometry={orientationSteps,flipHorizontal,flipVertical};
-   const key=`${previewDim}:${orientationSteps}:${flipHorizontal}:${flipVertical}:${interactive?liveQuality:'final'}`;
+   const crop=adjustments.crop??null;
+   if(crop!==null){
+    if(typeof crop!=='object'||Array.isArray(crop)||Object.keys(crop).some(k=>!['x','y','width','height','unit'].includes(k))||crop.unit!==undefined&&crop.unit!=='px'||!['x','y','width','height'].every(k=>Number.isSafeInteger(crop[k]))||crop.x<0||crop.y<0||crop.width<1||crop.height<1||crop.width>32768||crop.height>32768)throw TypeError('Expected bounded integer full-image crop');
+   }
+   const geometry={orientationSteps,flipHorizontal,flipVertical,crop:crop===null?null:{x:crop.x,y:crop.y,width:crop.width,height:crop.height}};
+   const key=JSON.stringify([previewDim,geometry,interactive?liveQuality:'final']);
    for(const [key,value] of Object.entries(adjustments)){
-    if(supported.has(key)||['orientationSteps','flipHorizontal','flipVertical'].includes(key))continue;
+    if(supported.has(key)||['orientationSteps','flipHorizontal','flipVertical','crop','aspectRatio'].includes(key))continue;
     if(JSON.stringify(value)!==JSON.stringify(defaults[key]))throw new UnavailableCommandError(`adjustment ${key}`);
    }
    for(const key of supported){if(key==='toneMapper'){if(!['basic','agx'].includes(adjustments[key]??'basic'))throw TypeError('Invalid tone mapper');}
@@ -76,8 +80,8 @@ export function createReactTransport({wasm,device,shaderSource,defaults,getPrevi
     await device.queue.onSubmittedWorkDone();check(image.version);
     image.resources?.ownedTextures.forEach(t=>t.destroy());image.resources=null;image.preview=null;
     image.resources=createNeutralRendererResources(device,{width:preview.width,height:preview.height,inputRgbaF16});
-    image.preview={width:preview.width,height:preview.height,target:previewDim,key,quality:preview.quality,divisor:preview.divisor,scaleForGpu:preview.scaleForGpu};
-    trace.push({command:'preview-result',geometry,target:previewDim,interactive,liveQuality,quality:preview.quality,divisor:preview.divisor,width:preview.width,height:preview.height,originalWidth:image.width,originalHeight:image.height,scaleForGpu:preview.scaleForGpu,rgbSha256:preview.rgbSha256});
+    image.preview={width:preview.width,height:preview.height,target:previewDim,key,quality:preview.quality,divisor:preview.divisor,scaleForGpu:preview.scaleForGpu,cropOffset:[preview.cropOffsetX??0,preview.cropOffsetY??0]};
+    trace.push({command:'preview-result',geometry,target:previewDim,interactive,liveQuality,quality:preview.quality,divisor:preview.divisor,width:preview.width,height:preview.height,originalWidth:image.width,originalHeight:image.height,scaleForGpu:preview.scaleForGpu,cropOffset:[preview.cropOffsetX??0,preview.cropOffsetY??0],rgbSha256:preview.rgbSha256});
    }
    const packed=packGlobalRendererFixture(wasm,JSON.stringify(adjustments),image.asShot,{baselineExposure:0,compensateHighlightPreservation:true});
    const frame=await renderOriginalFrame({device,width:image.preview.width,height:image.preview.height,shaderSource,

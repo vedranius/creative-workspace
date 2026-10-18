@@ -27,7 +27,10 @@ pub mod exposure;
 mod multi_exposure;
 pub mod png_export;
 pub mod preview;
+pub mod preview_crop;
 pub mod preview_geometry;
+#[rustfmt::skip]
+pub mod original_crop;
 pub mod preview_resize;
 #[rustfmt::skip]
 mod original_geometry;
@@ -709,6 +712,41 @@ mod browser {
             &out,
             &"data".into(),
             Float32Array::from(result.data.as_slice()).as_ref(),
+        )?;
+        Ok(out.into())
+    }
+
+    #[wasm_bindgen]
+    pub fn crop_preview_rgb32f(
+        width: u32,
+        height: u32,
+        pixels: &[f32],
+        target: u32,
+        steps: u32,
+        horizontal: bool,
+        vertical: bool,
+        crop_json: &str,
+    ) -> Result<JsValue, JsValue> {
+        let crop: Option<super::original_crop::Crop> =
+            serde_json::from_str(crop_json).map_err(|_| JsValue::from_str("Invalid crop JSON"))?;
+        let result = super::preview_crop::crop_preview(
+            width, height, pixels, target, steps, horizontal, vertical, crop,
+        )
+        .map_err(|e| JsValue::from_str(&e))?;
+        let out = Object::new();
+        for (key, value) in [
+            ("width", result.pixels.width as f64),
+            ("height", result.pixels.height as f64),
+            ("scaleForGpu", result.scale as f64),
+            ("cropOffsetX", result.offset[0] as f64),
+            ("cropOffsetY", result.offset[1] as f64),
+        ] {
+            Reflect::set(&out, &key.into(), &JsValue::from_f64(value))?;
+        }
+        Reflect::set(
+            &out,
+            &"data".into(),
+            Float32Array::from(result.pixels.data.as_slice()).as_ref(),
         )?;
         Ok(out.into())
     }
