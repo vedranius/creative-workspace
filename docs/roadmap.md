@@ -1,3 +1,9 @@
+# PAR-03 alpha.62 — CI observer race corrected (2026-10-19)
+
+The alpha62 Build/release run39226350624 failed in the page-selection smoke because it read the previous asynchronously observed ACK after the application had already applied revision7. The smoke now waits for its exact response revision; CI includes a750ms observer-only delay. Real sandboxed browser proof records waiting for ACK7, page0 and byte-identical PNG restored, with no browser/network errors. [Diagnosis and evidence](evidence/designcraft-par03-pages-select-observer.md).
+
+Checks39226350612 passed, but publication was skipped and no alpha62 tag/release exists. The correction changes tests/workflow only; native/UI/product metadata remain unchanged. Fresh Actions and downloaded asset verification are still required before release acceptance. Next A: that release gate, then selected-page Text Tool/caret/typing geometry. Alternate B: full browser export render/lifecycle from its current JPEG handoff. MAIN only.
+
 # PAR-03 alpha.62 — original Pages selection verified locally (2026-10-19)
 
 Original Pages thumbnail clicks now queue the existing bounded server `page.select` view operation. Canonical document/selection, selected-page PNG, page index and revision hydrate only after matching ACK. Invalid/extra params, stale revisions, render failure and malformed PNG preserve the previous page/revision; client ACK checks also reject mismatched or out-of-document pages. Native worker code is unchanged.

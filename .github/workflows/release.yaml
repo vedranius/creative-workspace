@@ -259,6 +259,7 @@ jobs:
           CW_DESIGNCRAFT_ACK_FAILURE_RECOVERY_SCREENSHOT: ${{ github.workspace }}/build/designcraft-par03-evidence/save-copy-ack-failure-recovery.png
           CW_PAR03_PAGES_SELECT_REPORT: ${{ github.workspace }}/build/designcraft-par03-evidence/pages-select-browser.json
           CW_PAR03_PAGES_SELECT_SCREENSHOT: ${{ github.workspace }}/build/designcraft-par03-evidence/pages-select-browser.png
+          CW_PAR03_ACK_OBSERVER_DELAY_MS: '750'
           CW_PAR03_PAGES_MOVE_REPORT: ${{ github.workspace }}/build/designcraft-par03-evidence/pages-move-browser.json
           CW_PAR03_PAGES_MOVE_SCREENSHOT: ${{ github.workspace }}/build/designcraft-par03-evidence/pages-move-browser.png
           CW_PAR03_DELETE_PAGE_REPORT: ${{ github.workspace }}/build/designcraft-par03-evidence/delete-page-browser.json
