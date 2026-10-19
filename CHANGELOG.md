@@ -1,3 +1,9 @@
+## [0.2.0-alpha.62] - 2026-10-19
+
+- Connect original DesignCraft Pages thumbnail clicks to bounded server `page.select`. The selected-page PNG, highlight and revision change together only after matching ACK; failed renders preserve the prior view and revision.
+- Preserve native document/page identity, selection and dirty state during view selection. Reject extra parameters, invalid indexes, stale revisions and mismatched ACKs.
+- Keep DesignCraft planned and the release draft-only: real OS folder permission, broad original parity and provider acceptance remain incomplete. Assets require fresh GitHub Actions verification.
+
 ## [0.2.0-alpha.61] - 2026-10-19
 
 - Route the original DesignCraft Pages panel drag through `layout.pages.move` with unchanged final-index semantics, current-document bounds and exact parameters. Worker failure cannot consume a revision; UI order, canonical state and server render wait for matching ACK.

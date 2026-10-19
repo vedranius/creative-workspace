@@ -1,3 +1,11 @@
+# PAR-03 alpha.62 — original Pages selection verified locally (2026-10-19)
+
+Original Pages thumbnail clicks now queue the existing bounded server `page.select` view operation. Canonical document/selection, selected-page PNG, page index and revision hydrate only after matching ACK. Invalid/extra params, stale revisions, render failure and malformed PNG preserve the previous page/revision; client ACK checks also reject mismatched or out-of-document pages. Native worker code is unchanged.
+
+Local proof: JavaScript 87/87, exact-source UI 156 pass/1 existing ignored, optimized WASM and sandboxed Chromium. Actual original A4/Insert Page/Text Tool setup produces two distinct-content pages; the delayed click retains page 0/revision 5 until ACK 6 selects page 1, and ACK 7 returns byte-identical first-page PNG. Canonical document, page IDs, item selection and dirty state are unchanged. Screenshot inspected; zero browser/network errors; own QA context/server/workers closed. [Evidence](evidence/designcraft-par03-pages-select.md).
+
+Alpha.62 requires fresh Actions-built assets and immutable tag/draft/checksum verification; keep draft/prerelease and DesignCraft planned. Real OS folder permission, full original parity and all-provider acceptance remain open. Next A after that release gate: prove original Text Tool frame/caret/typing on the selected second page against worker page coordinates, fixing only a demonstrated geometry mismatch. By alternation next independent B: pinned native fine-rotation interactive resizing/alpha conversion and actual post-fine Exposure drag parity from its current handoff. MAIN only; no new writer/chat. Preserve protected sessions, FilmCraft and demo.
+
 # PAR-03 alpha.61 — Actions draft assets verified (2026-10-19)
 
 Authenticated as vedranius; tag and draft target resolve to a5d4795. Build/release39196652263 and Checks39196652250 succeeded. Fresh downloads verify all24 GitHub asset digests and12 archive/sidecar pairs. Three platform archives also verify all12 engine binaries, three Node24 binaries, target/product/source manifests, launchers and licenses. [Release evidence](evidence/creative-workspace-alpha61-release.md).

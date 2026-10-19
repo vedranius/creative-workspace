@@ -1,0 +1,68 @@
+{
+  "status": "original-pages-select-server-ack-browser-proof",
+  "browser": "Chromium",
+  "sourcePin": "a127c6d5c3576972bbd60445f26d893db071eef3",
+  "sourcePatch": "par-03-pages-insert-v1",
+  "workerSha256": "35aada596b7a9810d32dad58cdc004b7294f04b3404e64f04a973970ff83185d",
+  "uiPackage": "a127c6d5c3576972bbd60445f26d893db071eef3-c788bbf747fa",
+  "setup": {
+    "originalActions": [
+      "A4 preset",
+      "Properties > Page > Insert Page",
+      "Text Tool frame/caret/typing"
+    ],
+    "revision": 5,
+    "pageCount": 2,
+    "itemsPerPage": [
+      1,
+      0
+    ]
+  },
+  "action": {
+    "originalAction": "Pages panel thumbnail click",
+    "gatewayMethod": "page.select",
+    "params": {
+      "index": 1
+    },
+    "ackCommandId": "page.select",
+    "revision": 6,
+    "page": 1,
+    "pageCount": 2,
+    "dirty": true,
+    "pendingMirrorUnchanged": true,
+    "documentAndPageIdentitiesUnchanged": true,
+    "canonicalDocumentUnchanged": true,
+    "selectionUnchanged": true,
+    "serverPngChanged": true,
+    "beforeRenderSha256": "c5d02012671d89a93d2c993498d993f13a3866bc384d295d3857c9c9d730bb91",
+    "selectedRenderSha256": "40402e053fbcda7f6379931420bdbea7192004fd1973c890cafb6cd40efdc273",
+    "returnSelection": {
+      "params": {
+        "index": 0
+      },
+      "revision": 7,
+      "page": 0,
+      "pixelsRestored": true
+    },
+    "thumbnailCenters": [
+      {
+        "center": [
+          1327.080810546875,
+          193.5
+        ],
+        "index": 0
+      },
+      {
+        "center": [
+          1300.919189453125,
+          260.5
+        ],
+        "index": 1
+      }
+    ]
+  },
+  "permission": "synthetic connected-folder chooser fixture; not real OS permission evidence",
+  "browserErrors": [],
+  "failedResponses": [],
+  "requestFailures": []
+}

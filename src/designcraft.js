@@ -58,10 +58,10 @@ export function createDesignCraft({binary=process.env.CW_DESIGNCRAFT_BINARY||pat
     }catch(e){engine?.stop();if(privateRoot)await rm(path.dirname(privateRoot),{recursive:true,force:true}).catch(()=>{});throw e;}finally{creating--;}
   }
   const get=id=>{const s=sessions.get(id);if(!s||s.engine.closed)throw fail('DesignCraft session is not available',404);if(s.closing)throw fail('DesignCraft session is closing',409);s.lastUsed=Date.now();return s;};
-  async function snapshot(s){
+  async function snapshot(s,selectedPage=s.page){
     const document=await s.engine.call('state');let preview=null,documentSnapshot=null;
-    s.dirty=document?.dirty||false;
-    if(document){documentSnapshot=boundedCanonicalDocument(document.documentSnapshot);delete document.documentSnapshot;document.name=s.name||document.title;s.page=Math.max(0,Math.min(s.page,(document.pageCount||1)-1));const frame=await s.engine.call('render',{page:s.page});s.frames.set(++s.previewVersion,boundedPng(frame.pngBase64));while(s.frames.size>3)s.frames.delete(s.frames.keys().next().value);preview=`/api/designcraft/sessions/${s.id}/preview.png?v=${s.previewVersion}`;}
+    if(document){documentSnapshot=boundedCanonicalDocument(document.documentSnapshot);delete document.documentSnapshot;document.name=s.name||document.title;selectedPage=Math.max(0,Math.min(selectedPage,(document.pageCount||1)-1));const frame=await s.engine.call('render',{page:selectedPage});const png=boundedPng(frame.pngBase64);s.frames.set(++s.previewVersion,png);while(s.frames.size>3)s.frames.delete(s.frames.keys().next().value);preview=`/api/designcraft/sessions/${s.id}/preview.png?v=${s.previewVersion}`;}
+    s.page=selectedPage;s.dirty=document?.dirty||false;
     return {document,documentSnapshot,page:s.page,stateVersion:s.version,preview};
   }
   async function importInput(id,stream,target,destinationChoice){
@@ -86,7 +86,7 @@ export function createDesignCraft({binary=process.env.CW_DESIGNCRAFT_BINARY||pat
         else{const width=number(params.width,1,10000,'width'),height=number(params.height,1,10000,'height');if(!Number.isInteger(params.pages))throw fail('Page count must be an integer');s.version++;s.dirty=true;result=await s.engine.call('new',{title:typeof params.name==='string'?params.name.slice(0,100):'Untitled',width,height,pages:number(params.pages,1,64,'page count'),facingPages:false});result={...result,commandId:'file.new'};s.name=typeof params.name==='string'?params.name.slice(0,100):'Untitled';}
       }else{
         if(!(await s.engine.call('state')))throw fail('Open a publication first');
-        if(method==='page.select'){if(!Number.isSafeInteger(params.index)||params.index<0)throw fail('Invalid page');const doc=await s.engine.call('state');if(params.index>=doc.pageCount)throw fail('Unknown page');s.version++;s.page=params.index;}
+        if(method==='page.select'){if(Object.keys(params).length!==1||!Number.isSafeInteger(params.index)||params.index<0)throw fail('page.select requires one non-negative page index');const doc=await s.engine.call('state');if(params.index>=doc.pageCount)throw fail('Unknown page');const selected=await snapshot(s,params.index);selected.stateVersion=++s.version;return {result:{commandId:'page.select'},...selected};}
         else if(method==='file.saveACopy'){
           if(Object.keys(params).sort().join(',')!=='destination,path,retention')throw fail('Save a Copy needs an explicit path, destination and retention choice');
           if(!['server','laptop'].includes(params.destination))throw fail('Choose a server or laptop destination');

@@ -94,6 +94,28 @@ test('Original Pages drag moves to the final index only after worker ACK and ref
   await design.close(session.id,{discard:true});
 });
 
+test('Pages selection commits its view revision only after a bounded render, without mutating the native document',async t=>{
+  const {project,design,engines,call}=await fixture(t),session=await design.create(project);
+  await call(session.id,'file.new',{preset:'A4'});await call(session.id,'layout.pages.insert',{after:0,count:1},{expectedVersion:1});
+  const worker=engines.find(engine=>!engine.closed),original=worker.call.bind(worker),document=structuredClone(worker.doc);
+  for(const params of [{},{index:-1},{index:2},{index:0.5},{index:'1'},{index:1,path:'/private'},{index:Number.MAX_SAFE_INTEGER+1}])await assert.rejects(call(session.id,'page.select',params,{expectedVersion:2}));
+  await assert.rejects(call(session.id,'page.select',{index:1},{expectedVersion:1}),e=>e.code==='STATE_VERSION_CONFLICT');
+  worker.call=async(method,p)=>{if(method==='render'&&p.page===1)throw new Error('render failed');return original(method,p);};
+  await assert.rejects(call(session.id,'page.select',{index:1},{expectedVersion:2}),/render failed/);
+  let state=await call(session.id,'state');assert.equal(state.page,0);assert.equal(state.stateVersion,2);
+  worker.call=async(method,p)=>method==='render'&&p.page===1?{pngBase64:'invalid'}:original(method,p);
+  await assert.rejects(call(session.id,'page.select',{index:1},{expectedVersion:2}),/preview/);
+  state=await call(session.id,'state');assert.equal(state.page,0);assert.equal(state.stateVersion,2);
+  let release,entered;const gate=new Promise(resolve=>{release=resolve;}),started=new Promise(resolve=>{entered=resolve;});
+  worker.call=async(method,p)=>{if(method==='render'&&p.page===1){entered();await gate;}return original(method,p);};
+  const pending=call(session.id,'page.select',{index:1},{expectedVersion:2});await started;assert.deepEqual(worker.doc,document);release();
+  const selected=await pending;assert.equal(selected.page,1);assert.equal(selected.stateVersion,3);assert.equal(selected.result.commandId,'page.select');assert.equal(selected.document.dirty,true);
+  assert.deepEqual(worker.doc,document);assert.deepEqual(worker.commands,['layout.pages.insert']);
+  worker.doc.dirty=false;const clean=await call(session.id,'page.select',{index:0},{expectedVersion:3});assert.equal(clean.page,0);assert.equal(clean.stateVersion,4);assert.equal(clean.document.dirty,false);
+  assert.deepEqual(clean.document.selection,selected.document.selection);assert.deepEqual(clean.documentSnapshot.spreads,selected.documentSnapshot.spreads);
+  await design.close(session.id,{discard:true});
+});
+
 test('Original Delete Page command preserves its engine ID and rejects invalid or final-page deletions before worker mutation',async t=>{
   const {project,design,engines,call}=await fixture(t),session=await design.create(project);await call(session.id,'file.new',{preset:'A4'});await call(session.id,'layout.pages.duplicateSpread',{spread:0},{expectedVersion:1});
   const worker=engines.find(engine=>!engine.closed),deleted=await call(session.id,'layout.pages.delete',{pages:[1]},{expectedVersion:2});

@@ -1,3 +1,7 @@
+## Alpha.62 candidate — original Pages selection
+
+`0.2.0-alpha.62` adds the bounded original Pages thumbnail → server `page.select` bridge. Install only its new Actions-built assets into a fresh package root after source/tag/checksum verification; keep existing live installations intact. The release remains draft/prerelease until verified. DesignCraft stays planned: real OS folder permissions, all-provider paths and full original parity are still open. [Local evidence](evidence/designcraft-par03-pages-select.md).
+
 # Alpha.61 candidate — original DesignCraft Pages drag
 
 The original Pages panel thumbnail drag sends unchanged `layout.pages.move` with final-index `{from,to}` semantics. Both indexes must belong to the current document; malformed/extra parameters, stale revisions and rejected worker calls do not mutate order or consume a revision. The UI hydrates canonical state and server PNG only after matching ACK.

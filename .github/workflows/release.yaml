@@ -195,6 +195,10 @@ jobs:
           path: build/staged/designcraft
       - name: Build/register the reviewed original UI variant
         run: node scripts/build-designcraft-par03-ui.mjs build/original-ui/source-designcraft build/original-ui/assets-designcraft build/original-ui/packages
+      - name: Verify original Pages selection waits for matching bounded ACK
+        env:
+          CARGO_BUILD_JOBS: '1'
+        run: cargo test --manifest-path build/original-ui/source-designcraft/Cargo.toml -p designcraft-ui-egui original_page_selection_waits_for_matching_bounded_ack
       - name: Verify original Selection Tool and Type Tool actions against the server worker
         env:
           CARGO_BUILD_JOBS: '1'
@@ -253,6 +257,8 @@ jobs:
           CW_DESIGNCRAFT_ACK_FAILURE_REPORT: ${{ github.workspace }}/build/designcraft-par03-evidence/save-copy-ack-failure-browser.json
           CW_DESIGNCRAFT_ACK_FAILURE_SCREENSHOT: ${{ github.workspace }}/build/designcraft-par03-evidence/save-copy-ack-failure-browser.png
           CW_DESIGNCRAFT_ACK_FAILURE_RECOVERY_SCREENSHOT: ${{ github.workspace }}/build/designcraft-par03-evidence/save-copy-ack-failure-recovery.png
+          CW_PAR03_PAGES_SELECT_REPORT: ${{ github.workspace }}/build/designcraft-par03-evidence/pages-select-browser.json
+          CW_PAR03_PAGES_SELECT_SCREENSHOT: ${{ github.workspace }}/build/designcraft-par03-evidence/pages-select-browser.png
           CW_PAR03_PAGES_MOVE_REPORT: ${{ github.workspace }}/build/designcraft-par03-evidence/pages-move-browser.json
           CW_PAR03_PAGES_MOVE_SCREENSHOT: ${{ github.workspace }}/build/designcraft-par03-evidence/pages-move-browser.png
           CW_PAR03_DELETE_PAGE_REPORT: ${{ github.workspace }}/build/designcraft-par03-evidence/delete-page-browser.json
@@ -271,6 +277,7 @@ jobs:
           node scripts/smoke-designcraft-save-copy-ack-failure.mjs
           node scripts/smoke-designcraft-delete-page-browser.mjs
           node scripts/smoke-designcraft-pages-move-browser.mjs
+          node scripts/smoke-designcraft-pages-select-browser.mjs
       - name: Build and prove the original preset/server-canvas candidate
         env:
           CW_DESIGNCRAFT_BINARY: ${{ github.workspace }}/build/staged/designcraft/cw-designcraft-engine

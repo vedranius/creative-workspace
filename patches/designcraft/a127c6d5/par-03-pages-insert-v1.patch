@@ -516,7 +516,7 @@ index 0000000000000000000000000000000000000000..bb2e0fb37de326f98eae7fac7d3afe74
 +  document.body.append(button);
 +}
 diff --git a/apps/designcraft-web/src/web.rs b/apps/designcraft-web/src/web.rs
-index fe7cca4ae5e51ab3101b9d0b73a543fde8beae16..9456014ca0ce8274e7b439f793bcc153a95d172e 100644
+index fe7cca4ae5e51ab3101b9d0b73a543fde8beae16..732c561ec73e58bc24db7a86b9a5fcb9721fb928 100644
 --- a/apps/designcraft-web/src/web.rs
 +++ b/apps/designcraft-web/src/web.rs
 @@ -2,31 +2,19 @@
@@ -598,7 +598,7 @@ index fe7cca4ae5e51ab3101b9d0b73a543fde8beae16..9456014ca0ce8274e7b439f793bcc153
                  }),
              )
              .await;
-@@ -81,60 +81,110 @@ fn query() -> String {
+@@ -81,60 +81,113 @@ fn query() -> String {
  /// and feed them through the inbox.
  struct WebShell {
      app: DesignApp,
@@ -649,6 +649,8 @@ index fe7cca4ae5e51ab3101b9d0b73a543fde8beae16..9456014ca0ce8274e7b439f793bcc153
 +                        let redo_ack = command == "edit.redo" && result.get("redone").and_then(serde_json::Value::as_str).is_some_and(|label| !label.is_empty());
 +                        if !command_ack && !undo_ack && !redo_ack { return Err("Unexpected server action acknowledgement".into()); }
 +                        let revision = reply.get("stateVersion").and_then(serde_json::Value::as_u64).filter(|v|*v>0).ok_or("Missing acknowledged revision")?;
++                        let page = reply.get("page").and_then(serde_json::Value::as_u64).filter(|v| *v < 64).ok_or("Missing bounded acknowledged page")? as usize;
++                        if command == "page.select" && params.get("index").and_then(serde_json::Value::as_u64) != Some(page as u64) { return Err("Unexpected selected page acknowledgement".into()); }
 +                        let snapshot = reply.get("documentSnapshot").cloned().ok_or("Missing canonical document snapshot")?;
 +                        let preview_path = reply.get("preview").and_then(serde_json::Value::as_str).ok_or("Missing server preview")?;
 +                        let prefix = format!("/api/designcraft/sessions/{session_id}/preview.png?v=");
@@ -657,7 +659,7 @@ index fe7cca4ae5e51ab3101b9d0b73a543fde8beae16..9456014ca0ce8274e7b439f793bcc153
 +                        let dirty = reply.get("document").and_then(|d|d.get("dirty")).and_then(serde_json::Value::as_bool).ok_or("Missing acknowledged dirty state")?;
 +                        let selection = reply.get("document").and_then(|d|d.get("selection")).cloned().ok_or("Missing acknowledged selection")?;
 +                        let display_name = reply.get("document").and_then(|d|d.get("name")).and_then(serde_json::Value::as_str).filter(|n|n.len()<=1024).map(str::to_owned);
-+                        Ok(HostActionAck { command_id:command, revision, snapshot, preview, dirty, display_name, selection })
++                        Ok(HostActionAck { command_id:command, revision, page, snapshot, preview, dirty, display_name, selection })
 +                    }.await;
 +                    replies.lock().unwrap_or_else(|e| e.into_inner()).push(result); ctx.request_repaint();
 +                });
@@ -703,6 +705,7 @@ index fe7cca4ae5e51ab3101b9d0b73a543fde8beae16..9456014ca0ce8274e7b439f793bcc153
 +                let ids: Vec<_> = st.doc.pages().map(|(_, _, p)| p.id).collect();
 +                let _ = canvas.set_attribute("data-server-page-ids", &serde_json::json!(ids).to_string());
 +            }
++            let _ = canvas.set_attribute("data-server-page", &self.app.host_page().to_string());
 +            let _ = canvas.set_attribute("data-server-revision", &self.app.host_revision().to_string());
 +            let _ = canvas.set_attribute("data-server-render", if self.app.has_host_preview() { "true" } else { "false" });
 +        }
@@ -741,7 +744,7 @@ index fe7cca4ae5e51ab3101b9d0b73a543fde8beae16..9456014ca0ce8274e7b439f793bcc153
              });
          })),
          // Exports ask for a name; the browser decides where the download goes.
-@@ -146,10 +196,39 @@ fn services(inbox: Inbox, ctx: egui::Context) -> Services {
+@@ -146,10 +199,39 @@ fn services(inbox: Inbox, ctx: egui::Context) -> Services {
              }
          })),
          inbox: Some(inbox),
@@ -963,10 +966,29 @@ index c1032bccf395d43e1f5d0be0275ead5a3fe8330d..6702d269f349a9234be80c89f2d3b39e
 +    assert_eq!(s.active().map(|state| state.doc.clone()), Some(std::sync::Arc::new(document)));
 +}
 diff --git a/crates/ui-egui/src/canvas.rs b/crates/ui-egui/src/canvas.rs
-index 34dd6144278a6bac68705fb8012f987b9909a599..62ea48309ae9a4863132336b99b4907d93d75ec4 100644
+index 34dd6144278a6bac68705fb8012f987b9909a599..7d30e32a4bbff76a9d837c693be2a7e15424598e 100644
 --- a/crates/ui-egui/src/canvas.rs
 +++ b/crates/ui-egui/src/canvas.rs
-@@ -243,6 +243,25 @@ pub fn show(app: &mut DesignApp, ui: &mut egui::Ui) {
+@@ -141,6 +141,7 @@ pub fn current_slot(app: &DesignApp, layout: &CanvasLayout) -> Option<usize> {
+ 
+ /// Absolute page index under the view centre.
+ pub fn current_page(app: &DesignApp) -> Option<usize> {
++    if app.services.host_action.is_some() { return app.session.active().map(|_| app.host_page()); }
+     let st = app.session.active()?;
+     let layout = CanvasLayout::new(&st.doc, st.editing_parents);
+     let i = current_slot(app, &layout)?;
+@@ -155,6 +156,10 @@ pub fn current_page(app: &DesignApp) -> Option<usize> {
+ 
+ /// Scroll so absolute page `abs` is centred (keeps zoom).
+ pub fn go_to_page(app: &mut DesignApp, abs: usize) {
++    if app.services.host_action.is_some() {
++        if let Err(error) = app.run("page.select", serde_json::json!({"index": abs})) { app.host_action_error(error); }
++        return;
++    }
+     let Some(st) = app.session.active() else { return };
+     let layout = CanvasLayout::new(&st.doc, false);
+     let Some(pr) = layout.page_rect(&st.doc, abs) else { return };
+@@ -243,6 +248,25 @@ pub fn show(app: &mut DesignApp, ui: &mut egui::Ui) {
      if !app.view().is_some_and(|v| v.fitted) {
          fit(app, rect, "spread");
      }
@@ -992,7 +1014,7 @@ index 34dd6144278a6bac68705fb8012f987b9909a599..62ea48309ae9a4863132336b99b4907d
      handle_input(app, ui, &resp, rect);
      let Some(st) = app.session.active() else { return };
      let Some(&v) = app.view() else { return };
-@@ -1435,9 +1454,15 @@ fn handle_input(app: &mut DesignApp, ui: &mut egui::Ui, resp: &egui::Response, r
+@@ -1435,9 +1459,15 @@ fn handle_input(app: &mut DesignApp, ui: &mut egui::Ui, resp: &egui::Response, r
      }
      ui.data_mut(|d| d.insert_temp(down_id, down));
      for e in events {
@@ -1008,7 +1030,7 @@ index 34dd6144278a6bac68705fb8012f987b9909a599..62ea48309ae9a4863132336b99b4907d
      }
      app.after_engine();
      if resp.clicked() || resp.drag_started() {
-@@ -1445,6 +1470,19 @@ fn handle_input(app: &mut DesignApp, ui: &mut egui::Ui, resp: &egui::Response, r
+@@ -1445,6 +1475,19 @@ fn handle_input(app: &mut DesignApp, ui: &mut egui::Ui, resp: &egui::Response, r
      }
      // Keyboard for the active tool.
      if ui.ctx().text_edit_focused() && !resp.has_focus() {
@@ -1028,7 +1050,7 @@ index 34dd6144278a6bac68705fb8012f987b9909a599..62ea48309ae9a4863132336b99b4907d
          return;
      }
      let evs = ui.input(|i| i.events.clone());
-@@ -1486,6 +1524,11 @@ fn handle_input(app: &mut DesignApp, ui: &mut egui::Ui, resp: &egui::Response, r
+@@ -1486,6 +1529,11 @@ fn handle_input(app: &mut DesignApp, ui: &mut egui::Ui, resp: &egui::Response, r
                  if let Some(k) = k {
                      let m = Mods { shift: modifiers.shift, alt: modifiers.alt, cmd: modifiers.command, ctrl: modifiers.ctrl, space: false };
                      let handled = app.session.tool_key(k, m, vi).unwrap_or(false);
@@ -1151,7 +1173,7 @@ index fdf20e6c455a0c89e86ee54b25a209db177aa794..f0e439910964389724616e882e250683
                          ui.painter().rect_filled(r, 0.0, t.panel);
                      }
 diff --git a/crates/ui-egui/src/lib.rs b/crates/ui-egui/src/lib.rs
-index fb81e9c344d4390d2e3ff8a4d0d016ad563376fc..ec54d06b140e5cdd668a1a97b0c14c7b1047fde6 100644
+index fb81e9c344d4390d2e3ff8a4d0d016ad563376fc..f3b8200570c9f316d58244add3a627f7ffb1903b 100644
 --- a/crates/ui-egui/src/lib.rs
 +++ b/crates/ui-egui/src/lib.rs
 @@ -25,7 +25,7 @@ pub mod theme;
@@ -1163,7 +1185,7 @@ index fb81e9c344d4390d2e3ff8a4d0d016ad563376fc..ec54d06b140e5cdd668a1a97b0c14c7b
  use std::sync::mpsc::{Receiver, Sender};
  
  use designcraft_engine::{Session, SnapView, UiRequest, ViewInfo};
-@@ -54,6 +54,19 @@ pub type DownloadFn = Box<dyn FnMut(&str, &[u8])>;
+@@ -54,6 +54,20 @@ pub type DownloadFn = Box<dyn FnMut(&str, &[u8])>;
  /// Files delivered asynchronously with their original operation and document identity.
  pub type Inbox = std::sync::Arc<std::sync::Mutex<Vec<ImportedFile>>>;
  
@@ -1172,6 +1194,7 @@ index fb81e9c344d4390d2e3ff8a4d0d016ad563376fc..ec54d06b140e5cdd668a1a97b0c14c7b
 +pub struct HostActionAck {
 +    pub command_id: String,
 +    pub revision: u64,
++    pub page: usize,
 +    pub snapshot: serde_json::Value,
 +    pub preview: egui::ColorImage,
 +    pub dirty: bool,
@@ -1183,7 +1206,7 @@ index fb81e9c344d4390d2e3ff8a4d0d016ad563376fc..ec54d06b140e5cdd668a1a97b0c14c7b
  /// Platform services injected by the host (desktop or web).
  #[derive(Default)]
  pub struct Services {
-@@ -71,6 +84,8 @@ pub struct Services {
+@@ -71,6 +85,8 @@ pub struct Services {
      pub download: Option<DownloadFn>,
      /// Files delivered asynchronously, drained every frame with their captured request context.
      pub inbox: Option<Inbox>,
@@ -1192,11 +1215,12 @@ index fb81e9c344d4390d2e3ff8a4d0d016ad563376fc..ec54d06b140e5cdd668a1a97b0c14c7b
  }
  
  #[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
-@@ -484,6 +499,19 @@ pub struct DesignApp {
+@@ -484,6 +500,20 @@ pub struct DesignApp {
      last_time: f64,
      /// When recovery data was last written (seconds, egui time).
      pub last_recovery: f64,
 +    host_revision: u64,
++    host_page: usize,
 +    pub host_pages_tab_rect: Option<egui::Rect>,
 +    pub host_page_rects: Vec<(usize, egui::Rect)>,
 +    pub host_preset_rect: Option<egui::Rect>,
@@ -1212,15 +1236,15 @@ index fb81e9c344d4390d2e3ff8a4d0d016ad563376fc..ec54d06b140e5cdd668a1a97b0c14c7b
  }
  
  impl DesignApp {
-@@ -521,6 +549,7 @@ impl DesignApp {
+@@ -521,6 +551,7 @@ impl DesignApp {
              native_shortcuts: Default::default(),
              last_time: 0.0,
              last_recovery: 0.0,
-+            host_pages_tab_rect: None, host_page_rects: Vec::new(), host_preset_rect: None, host_open_rect: None, host_revision: 0, host_pending: false, host_open_pending: false, host_pending_command: None, host_text_queue: VecDeque::new(), host_text_queue_bytes: 0, host_draining_text: false, host_preview: None, host_texture: None,
++            host_pages_tab_rect: None, host_page_rects: Vec::new(), host_preset_rect: None, host_open_rect: None, host_revision: 0, host_page: 0, host_pending: false, host_open_pending: false, host_pending_command: None, host_text_queue: VecDeque::new(), host_text_queue_bytes: 0, host_draining_text: false, host_preview: None, host_texture: None,
          }
      }
  
-@@ -561,6 +590,44 @@ impl DesignApp {
+@@ -561,6 +592,44 @@ impl DesignApp {
  
      /// THE entry point for every action (menus, shortcuts, palette, panels, control channel).
      pub fn run(&mut self, id: &str, params: Value) -> Result<Value, String> {
@@ -1254,7 +1278,7 @@ index fb81e9c344d4390d2e3ff8a4d0d016ad563376fc..ec54d06b140e5cdd668a1a97b0c14c7b
 +                return Ok(json!({"pending": true, "queued": queued, "commandId": id}));
 +            }
 +            let allowed = (matches!(id, "file.new" | "file.open") && self.session.active().is_none())
-+                || (matches!(id, "frame.create" | "layout.pages.move" | "layout.pages.insert" | "layout.pages.duplicateSpread" | "layout.pages.delete" | "selection.set" | "edit.selectAll" | "edit.deselectAll" | "edit.clear" | "edit.undo" | "edit.redo" | "file.saveACopy" | "text.insert" | "text.delete" | "text.select" | "text.placeCaret") && self.session.active().is_some());
++                || (matches!(id, "page.select" | "frame.create" | "layout.pages.move" | "layout.pages.insert" | "layout.pages.duplicateSpread" | "layout.pages.delete" | "selection.set" | "edit.selectAll" | "edit.deselectAll" | "edit.clear" | "edit.undo" | "edit.redo" | "file.saveACopy" | "text.insert" | "text.delete" | "text.select" | "text.placeCaret") && self.session.active().is_some());
 +            if !allowed {
 +                let error = "This original action is not connected to the server yet";
 +                self.status(error); return Err(error.into());
@@ -1265,7 +1289,7 @@ index fb81e9c344d4390d2e3ff8a4d0d016ad563376fc..ec54d06b140e5cdd668a1a97b0c14c7b
          if let Some(r) = menus::run_ui(self, id, &params) {
              return r;
          }
-@@ -572,6 +639,93 @@ impl DesignApp {
+@@ -572,6 +641,95 @@ impl DesignApp {
          r
      }
  
@@ -1290,7 +1314,7 @@ index fb81e9c344d4390d2e3ff8a4d0d016ad563376fc..ec54d06b140e5cdd668a1a97b0c14c7b
 +            return Ok(());
 +        }
 +        let allowed = (matches!(id, "file.new" | "file.open") && self.session.active().is_none())
-+            || (matches!(id, "frame.create" | "layout.pages.move" | "layout.pages.insert" | "layout.pages.duplicateSpread" | "layout.pages.delete" | "selection.set" | "edit.selectAll" | "edit.deselectAll" | "edit.clear" | "text.placeCaret" | "text.select" | "edit.undo" | "edit.redo" | "file.saveACopy" | "text.insert" | "text.delete") && self.session.active().is_some());
++            || (matches!(id, "page.select" | "frame.create" | "layout.pages.move" | "layout.pages.insert" | "layout.pages.duplicateSpread" | "layout.pages.delete" | "selection.set" | "edit.selectAll" | "edit.deselectAll" | "edit.clear" | "text.placeCaret" | "text.select" | "edit.undo" | "edit.redo" | "file.saveACopy" | "text.insert" | "text.delete") && self.session.active().is_some());
 +        if !allowed { return Err("This original action is not connected to the server yet".into()); }
 +        let Some(host_action) = self.services.host_action.as_mut() else { return Err("Server action host is unavailable".into()); };
 +        host_action(id, params)?;
@@ -1311,6 +1335,7 @@ index fb81e9c344d4390d2e3ff8a4d0d016ad563376fc..ec54d06b140e5cdd668a1a97b0c14c7b
 +        if document.spreads.is_empty() || document.spreads.len() > 32 || page_count == 0 || page_count > 64 {
 +            return Err("Server document exceeds the 32-spread / 64-page hydration limit".into());
 +        }
++        if ack.page >= page_count { return Err("Acknowledged page is outside the document".into()); }
 +        if self.session.active().is_some() {
 +            let selection: designcraft_doc::Selection = serde_json::from_value(ack.selection).map_err(|e| format!("Invalid acknowledged selection: {e}"))?;
 +            self.session.replace_server_mirror_selection(document, ack.dirty, selection).map_err(|e| e.to_string())?;
@@ -1320,7 +1345,7 @@ index fb81e9c344d4390d2e3ff8a4d0d016ad563376fc..ec54d06b140e5cdd668a1a97b0c14c7b
 +            if ack.command_id == "file.open" { mirror.path = ack.display_name; }
 +            self.session.add_document(mirror);
 +        }
-+        self.host_revision = ack.revision; self.host_pending = false; self.host_pending_command = None; self.host_preview = Some(ack.preview); self.host_texture = None;
++        self.host_page = ack.page; self.host_revision = ack.revision; self.host_pending = false; self.host_pending_command = None; self.host_preview = Some(ack.preview); self.host_texture = None;
 +        self.after_engine();
 +        if let Some((command_id, params)) = self.host_text_queue.pop_front() {
 +            self.host_text_queue_bytes = self.host_text_queue_bytes.saturating_sub(if command_id == "text.insert" { params.get("text").and_then(Value::as_str).map(str::len).unwrap_or(0) } else { serde_json::to_vec(&params).map(|value| value.len()).unwrap_or(0) });
@@ -1338,6 +1363,7 @@ index fb81e9c344d4390d2e3ff8a4d0d016ad563376fc..ec54d06b140e5cdd668a1a97b0c14c7b
 +        Ok(())
 +    }
 +
++    pub fn host_page(&self) -> usize { self.host_page }
 +    pub fn host_revision(&self) -> u64 { self.host_revision }
 +    pub fn host_pending(&self) -> bool { self.host_pending || self.host_open_pending }
 +    pub fn finish_host_open(&mut self, result: Result<Option<String>,String>) {
@@ -1359,7 +1385,7 @@ index fb81e9c344d4390d2e3ff8a4d0d016ad563376fc..ec54d06b140e5cdd668a1a97b0c14c7b
      /// Handle requests produced by tools/commands (dialogs, view changes, file pickers).
      pub fn after_engine(&mut self) {
          let reqs = std::mem::take(&mut self.session.ui_requests);
-@@ -757,8 +911,8 @@ impl DesignApp {
+@@ -757,8 +915,8 @@ impl DesignApp {
              self.perf.fps = self.perf.fps * 0.9 + (1.0 / dt).min(240.0) * 0.1;
          }
          self.last_time = now;
@@ -1370,7 +1396,7 @@ index fb81e9c344d4390d2e3ff8a4d0d016ad563376fc..ec54d06b140e5cdd668a1a97b0c14c7b
              self.drain_inbox();
          }
          if !self.synthetic.is_empty() {
-@@ -816,6 +970,7 @@ impl DesignApp {
+@@ -816,6 +974,7 @@ impl DesignApp {
  
      /// Lay out the whole window.
      pub fn ui(&mut self, ui: &mut egui::Ui) {
@@ -1378,7 +1404,7 @@ index fb81e9c344d4390d2e3ff8a4d0d016ad563376fc..ec54d06b140e5cdd668a1a97b0c14c7b
          let ctx = ui.ctx().clone();
          if !self.fonts_ready {
              ctx.request_repaint();
-@@ -1047,6 +1202,246 @@ pub fn drop_key_name_text(raw: &mut egui::RawInput, text_field_focused: bool) {
+@@ -1047,6 +1206,275 @@ pub fn drop_key_name_text(raw: &mut egui::RawInput, text_field_focused: bool) {
  mod tests {
      use super::*;
  
@@ -1394,9 +1420,38 @@ index fb81e9c344d4390d2e3ff8a4d0d016ad563376fc..ec54d06b140e5cdd668a1a97b0c14c7b
 +
 +    fn server_ack(command_id: &str, revision: u64) -> HostActionAck {
 +        let document = designcraft_doc::Document::new(&designcraft_doc::build::NewDocument::default());
-+        HostActionAck { command_id: command_id.into(), revision, snapshot: serde_json::to_value(document).unwrap(),
++        HostActionAck { command_id: command_id.into(), revision, page: 0, snapshot: serde_json::to_value(document).unwrap(),
 +            preview: egui::ColorImage::filled([1, 1], egui::Color32::WHITE), dirty: false, display_name: None,
 +            selection: json!({"items":[],"text":null}) }
++    }
++
++    #[test]
++    fn original_page_selection_waits_for_matching_bounded_ack() {
++        let actions = std::sync::Arc::new(std::sync::Mutex::new(Vec::new()));
++        let mut app = host_mirror_app(actions.clone());
++        app.run("file.new", json!({"preset":"A4"})).unwrap();
++        let mut initial = server_ack("file.new", 1);
++        let mut server = Session::new();
++        server.execute("file.new", &json!({"preset":"A4"})).unwrap();
++        server.execute("layout.pages.insert", &json!({"after":0,"count":1})).unwrap();
++        initial.snapshot = serde_json::to_value(&server.active().unwrap().doc).unwrap();
++        initial.dirty = true;
++        app.apply_host_action_ack(initial.clone()).unwrap();
++        let uid = app.session.active().unwrap().uid;
++        crate::canvas::go_to_page(&mut app, 1);
++        assert_eq!(actions.lock().unwrap().last(), Some(&("page.select".into(), json!({"index":1}))));
++        assert_eq!(crate::canvas::current_page(&app), Some(0));
++        assert_eq!(app.host_revision(), 1);
++        assert!(app.apply_host_action_ack(server_ack("layout.pages.move", 2)).is_err());
++        let mut ack = initial.clone(); ack.command_id = "page.select".into(); ack.revision = 2; ack.page = 2;
++        assert!(app.apply_host_action_ack(ack.clone()).is_err());
++        assert_eq!(app.host_page(), 0); assert!(app.host_pending());
++        ack.page = 1; app.apply_host_action_ack(ack.clone()).unwrap();
++        assert_eq!(app.host_page(), 1); assert_eq!(crate::canvas::current_page(&app), Some(1));
++        assert_eq!(app.session.active().unwrap().uid, uid);
++        assert!(app.session.active().unwrap().is_dirty());
++        assert_eq!(serde_json::to_value(&app.session.active().unwrap().doc).unwrap(), initial.snapshot);
++        assert!(app.apply_host_action_ack(ack).is_err());
 +    }
 +
 +    #[test]

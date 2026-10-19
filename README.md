@@ -2,7 +2,7 @@
 
 # Creative Workspace
 
-**Version: 0.2.0-alpha.61** — prototype/prerelease draft candidate. The original DesignCraft Pages panel drag now routes `layout.pages.move` through bounded worker ACK/read-model/render handling. Server processing remains the product goal; real folder permission, full original parity and provider acceptance remain open. Fresh Actions/tag/assets verification is required; keep DesignCraft planned. The protected [local studio](docs/test-suite-alpha51-20261017.md) stays separate.
+**Version: 0.2.0-alpha.62** — prototype/prerelease draft candidate. Original DesignCraft Pages thumbnail clicks now select a server-rendered page through bounded `page.select` and matching ACK. Server processing remains the product goal; real folder permission, full original parity and provider acceptance remain open. Fresh Actions/tag/assets verification is required; keep DesignCraft planned. The protected [local studio](docs/test-suite-alpha51-20261017.md) stays separate.
 
 Bring your creative tools together in one browser studio. Choose an application, select your files, and access your own server from a lightweight laptop. The goal is **the original application interfaces and tools in the browser, with the server doing the heavy work**: photography, image editing, illustration, PDF, publishing, video, motion graphics, office documents, spreadsheets, presentations, CAD, interface design and audio. Browser controls run locally; document commands, data and previews travel to the server. No VNC or remote desktop is involved.
 
@@ -16,6 +16,7 @@ Alpha.24 adds an original Open-dialog candidate for a selected laptop `.designcr
 
 - **Browser playground (alpha.57):** twelve original interfaces with explicit consent that processing uses the visitor's computer. The independent Cloudflare Pages export preserves licenses and source provenance while excluding private workspaces/backends. The main product continues toward server processing. [Demo and deployment](docs/cloudflare-demo.md).
 
+- **DesignCraft PAR-03 page selection (alpha.62 candidate):** original Pages clicks update the selected page and server PNG only after matching ACK, without dirtying or replacing the native document. [Evidence](docs/evidence/designcraft-par03-pages-select.md) · [Handoff](docs/par-03a-handoff.md). Real folder/provider/full original acceptance remains open.
 - **DesignCraft PAR-03 page move (alpha.61 candidate):** original thumbnail drag preserves page/content identity and the engine's final-index semantics, with no local reorder before matching ACK. Chromium verifies both directions and exact server-pixel restoration. [Evidence](docs/evidence/designcraft-par03-pages-move.md) · [Handoff](docs/par-03a-handoff.md). Full original/server/provider acceptance remains open.
 - **DesignCraft PAR-03 Insert Page (alpha.60 draft):** the original Properties panel action sends unchanged `layout.pages.insert` to the owned worker. The gateway validates `after`, count and the 64-page cap; the UI hydrates only after matching ACK. Chromium confirms revision 2, two server-owned pages and a revisioned server PNG. Actions/tag/assets verify, but this is one action only; real folder permission and full parity remain open, so DesignCraft stays planned. [Browser evidence](docs/evidence/designcraft-par03-pages-insert-browser.json) · [Release verification](docs/evidence/creative-workspace-alpha60-release.md) · [Handoff](docs/par-03a-handoff.md).
 
@@ -233,7 +234,7 @@ npm run ui:install -- photocraft /path/to/pinned/photocraft /path/to/photocraft/
 
 Set `CW_ORIGINAL_UI_DIR` to the same registration root before starting the gateway; default is `DATA_DIR/original-ui`. FilmCraft and DesignCraft require their exact reviewed patch variants, not an unpatched arbitrary build. [Registration guide](docs/studio-original-uis.md) · [FilmCraft variant](docs/filmcraft-mkv-import-handoff.md) · [DesignCraft variant](docs/designcraft-par03-sample-bridge.md).
 
-The alpha.61 DesignCraft `layout.pages.move` bridge requires its new Actions-built package. Extract it into a fresh package root; preserve existing live installations and unsaved work. It is not an install/availability claim; follow [release status](docs/releases.md) and [PAR-03 handoff](docs/par-03a-handoff.md).
+The alpha.62 DesignCraft `page.select` bridge requires its new Actions-built package. Extract it into a fresh package root; preserve existing live installations and unsaved work. It is not an install/availability claim; follow [release status](docs/releases.md) and [PAR-03 handoff](docs/par-03a-handoff.md).
 
 For a suitable Linux on-demand host, install the separate helper with `npm run storage:install`; read [host/browser requirements](engines/storage/README.md). This does not grant browser folder permission or complete original-UI provider integration.
 
