@@ -175,7 +175,7 @@ try{
  }
  const cropReferencePath=await writeJson(output,'crop-native.json',cropReferences);
  await run('cargo',['build','--locked','--release','--manifest-path','experiments/rapidraw-wasm-core/Cargo.toml','--example','uncropped_reference','--example','fine_reference']);
- const canvasConfigPath=await writeJson(temp,'crop-canvas-native-config.json',{finePointer:true,fineBinary:path.join(targetDir,'release/examples/fine_reference'),fineOutput:path.join(output,'fine-native'),fullRgb:nativeQualityRgb,uncroppedBinary:path.join(targetDir,'release/examples/uncropped_reference'),cropBinary:path.join(targetDir,'release/examples/crop_reference'),renderBinary:path.join(targetDir,'release/cw-rapidraw-native-render-reference'),cameraSettings:reactSettingsPath,output:path.join(output,'crop-canvas-native'),nativeEnv:nativeRendererEnv});
+ const canvasConfigPath=await writeJson(temp,'crop-canvas-native-config.json',{finePointer:true,fineInteractive:true,fineBinary:path.join(targetDir,'release/examples/fine_reference'),fineOutput:path.join(output,'fine-native'),fullRgb:nativeQualityRgb,uncroppedBinary:path.join(targetDir,'release/examples/uncropped_reference'),cropBinary:path.join(targetDir,'release/examples/crop_reference'),renderBinary:path.join(targetDir,'release/cw-rapidraw-native-render-reference'),cameraSettings:reactSettingsPath,output:path.join(output,'crop-canvas-native'),nativeEnv:nativeRendererEnv});
  const reactReport=path.join(output,'react-browser.json');
  await run('node',['scripts/smoke-rapidraw-react.mjs',reactStage,input,reactReport,path.join(nativeReactPreview,'reference.json'),nativeResizePath,interactiveReferencePath,geometryReferencePath,cropReferencePath,canvasConfigPath]);
  reports.react=JSON.parse(await readFile(reactReport,'utf8'));

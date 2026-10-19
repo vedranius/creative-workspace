@@ -1,3 +1,9 @@
+# RWASM-03 — original post-fine Exposure drag (2026-10-19)
+
+Six actual original Exposure drags after+5.3/−7.1° fine rotation now match native full/high/performance preview sizing, complete GPU upload/adjustments/pixels/JPEG/header, and q94 on release. Three backend transparent-border cases prove full/high retain alpha while actual performance resampling becomes RGB. All9 interactive frames match5,758,992 RGBA8 components/247,038 response bytes;6 releases match446,427 JPEG bytes. [Evidence, limits and next task](rapidraw-wasm-fine-interactive-handoff.md).
+
+Core65/doctests, host24, check/source/format/syntax/JSON/diff and sandboxed Chromium pass. Original17 React source hashes and prior WASM2b1499c1 remain exact; only worker/transport alpha policy changes, with independent native harness additions. No public editor/release/demo change or peak-memory safety claim. Full App/export/provider/fractional/ROI/effects acceptance stays open. Next A: current alpha62 release gate and selected-page editing proof; next B: original native JPEG export path with bounded settings and real write ACK. MAIN only.
+
 # RWASM-03 — original fine Slider pointer drag (2026-10-19)
 
 Real original Slider mouse drags+18/−23px show local CSS angles+7.6/−9.8° and source crop feedback while committed rotation stays0. Release commits the angle/integer crop, then original Adjustments displays native-exact511×384/512×384 final frames:1,571,328 RGBA8 components and108,370 JPEG bytes, complete RGB/RGBA16F/adjustment hashes and scale/offset. Both Full Resets restore the same document's baseline. [Proof and next task](rapidraw-wasm-fine-pointer-handoff.md).

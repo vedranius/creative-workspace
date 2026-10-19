@@ -65,7 +65,6 @@ export function createReactTransport({wasm,device,shaderSource,defaults,getPrevi
    if(!Number.isSafeInteger(orientationSteps)||orientationSteps<0||orientationSteps>3||typeof flipHorizontal!=='boolean'||typeof flipVertical!=='boolean')throw TypeError('Invalid original rotation/flip');
    const rotation=uncropped?0:adjustments.rotation??0;
    if(typeof rotation!=='number'||!Number.isFinite(rotation)||rotation < -45||rotation > 45)throw TypeError('Expected fine rotation -45..45 degrees');
-   if(interactive&&rotation!==0)throw new UnavailableCommandError('fine rotation interactive sizing');
    const crop=uncropped?null:adjustments.crop??null;
    if(crop!==null){
     if(typeof crop!=='object'||Array.isArray(crop)||Object.keys(crop).some(k=>!['x','y','width','height','unit'].includes(k))||crop.unit!==undefined&&crop.unit!=='px'||!['x','y','width','height'].every(k=>Number.isSafeInteger(crop[k]))||crop.x<0||crop.y<0||crop.width<1||crop.height<1||crop.width>32768||crop.height>32768)throw TypeError('Expected bounded integer full-image crop');

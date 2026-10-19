@@ -45,10 +45,11 @@ self.onmessage=async({data})=>{
      geometry.scaleForGpu=Math.fround(geometry.width/(orientationSteps%2?image.height:image.width));geometry.cropOffsetX=0;geometry.cropOffsetY=0;
     }
    }
-   if(interactive&&rotation!==0)throw Error("Fine rotation interactive sizing remains unsupported");
    const scaleForGpu=geometry.scaleForGpu;
    const preview=interactive?resize_interactive_rgb32f(geometry.width,geometry.height,geometry.data,previewDim,liveQuality):{...geometry,data:geometry.data.slice(),quality:94,divisor:1};
-   if(geometry.alphaWords)preview.alphaWords=geometry.alphaWords.slice();
+   // Native downscale_f32_image converts a resized RGBA image to RGB; a no-op
+   // returns the original image with alpha. Keep the cached final alpha intact.
+   if(geometry.alphaWords&&preview.width===geometry.width&&preview.height===geometry.height)preview.alphaWords=geometry.alphaWords.slice();
    preview.cropOffsetX=geometry.cropOffsetX;preview.cropOffsetY=geometry.cropOffsetY;
    preview.scaleForGpu=Math.fround(scaleForGpu*Math.fround(preview.width/geometry.width));
    self.postMessage({id,ok:true,...preview,rgbSha256:await hash(preview.data)},[preview.data.buffer,...(preview.alphaWords?[preview.alphaWords.buffer]:[])]);

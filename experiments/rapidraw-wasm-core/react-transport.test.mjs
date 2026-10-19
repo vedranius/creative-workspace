@@ -34,12 +34,11 @@ test('Quality worker remains owned after load, rejects a concurrent stale path, 
   await bridge.invoke('clear_session_caches');assert.equal(terminated,1);await bridge.close();assert.equal(terminated,1);
  }finally{globalThis.Worker=previous;}
 });
-test('fine rotation refuses malformed angles and unverified interactive sizing without losing the document',async()=>{
+test('fine rotation refuses malformed angles without losing the document',async()=>{
  const previous=globalThis.Worker;
  globalThis.Worker=class{terminate(){}postMessage(data){queueMicrotask(()=>this.onmessage({data:{id:data.id,ok:true,width:2048,height:1536,asShot:{}}}));}};
  try{const bridge=create(),path=bridge.selectFile(new File(['x'],'public.dng'));await bridge.invoke('load_image',{path});
  for(const rotation of [NaN,Infinity,-46,46,'5'])await assert.rejects(bridge.invoke('apply_adjustments',{jsAdjustments:{rotation}}),/fine rotation/);
- await assert.rejects(bridge.invoke('apply_adjustments',{jsAdjustments:{rotation:5},isInteractive:true}),/interactive sizing/);
  assert.deepEqual(await bridge.invoke('load_metadata',{path}),{adjustments:null});await bridge.close();
  }finally{globalThis.Worker=previous;}
 });

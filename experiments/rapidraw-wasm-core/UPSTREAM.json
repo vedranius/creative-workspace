@@ -274,5 +274,12 @@
     "referenceSha256": "f705015bf638b7d77a21ef0fcf9b73285a33a2a1092f375b66a5e1b8d05d65c3",
     "imageproc": "0.27.0",
     "scope": "Original fixed-canvas RGBA32f bilinear center rotation, transparent black border; bounded -45..45 angle and per-buffer64MiB estimate. Source orientation/flip\u2192rotation\u2192crop after working resize; uncropped source intentionally omits fine rotation. Not whole allocator/peak-memory/warp/effects/export acceptance. Alpha is preserved through source f16 GPU upload and original shader output. Nonzero fine rotation with interactive sizing remains explicitly unavailable until independently verified."
+  },
+  "fineInteractive": {
+    "sourcePath": "src-tauri/src/lib.rs",
+    "sourceSha256": "ce69ae5e06b5c5f0eb7b6592d981c727c1be07e7787000a41e50ed77618b2606",
+    "referenceCopy": "tests/reference/fine-interactive-assembly.txt",
+    "excerptSha256": "b10aec3e38ca4e859af2f9956cc1fec87c864a4c2a104bae8722fdc418adeedd",
+    "scope": "Pinned no-ROI processing-image selection/effective scale after fine rotation; original downscale converts resized RGBA to RGB, no-op preserves RGBA. Full/high/performance only, no allocator/peak-memory claim."
   }
 }

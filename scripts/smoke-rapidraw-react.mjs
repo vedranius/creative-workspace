@@ -236,16 +236,16 @@ try{
   delete drag.frame.adjustments;
   cropCanvas={actualOriginalTab:true,actualCorner:'se',pointerDelta:[-72,-54],uncropped,nativeUncropped,drag,nativeDrag,displaySettled:true,restored};
   if(canvasConfig.fineBinary){
-   const cases=[];
-   async function fineReference(geometry,name){
+   const cases=[],fineInteractiveCases=[],alphaInteractiveCases=[];
+   async function fineReference(geometry,name,liveQuality=null,frameIndex=0){
     const directory=path.join(canvasConfig.fineOutput,name);await mkdir(directory,{recursive:true});
     let expected;
-    try{expected=JSON.parse(await readFile(path.join(directory,'reference.json'),'utf8'));assert.deepEqual(expected.geometry,{...geometry,rotation:Math.fround(geometry.rotation)});assert.equal(expected.baseRgbSha256,nativeResize.originalRgbSha256);}
+    try{expected=JSON.parse(await readFile(path.join(directory,'reference.json'),'utf8'));assert.deepEqual(expected.geometry,{...geometry,rotation:Math.fround(geometry.rotation)});assert.equal(expected.baseRgbSha256,nativeResize.originalRgbSha256);if(liveQuality)assert.equal(expected.preset,liveQuality);if(frameIndex)assert.equal(expected.frameIndex,frameIndex);}
     catch{
-     const prepared=JSON.parse(await runNative(canvasConfig.fineBinary,['prepare',canvasConfig.fullRgb,'2048','1536',String(geometry.orientationSteps),String(geometry.flipHorizontal),String(geometry.flipVertical),JSON.stringify(geometry.crop),String(geometry.rotation),directory]));
+     const prepared=JSON.parse(await runNative(canvasConfig.fineBinary,['prepare',canvasConfig.fullRgb,'2048','1536',String(geometry.orientationSteps),String(geometry.flipHorizontal),String(geometry.flipVertical),JSON.stringify(geometry.crop),String(geometry.rotation),directory,...(liveQuality?[liveQuality]:[])]));
      const renderPath=path.join(directory,'native-render.json'),png=path.join(directory,'native-png');
      await writeFile(renderPath,await runNative(canvasConfig.renderBinary,['--rgba-f32',path.join(directory,'rgba.f32'),String(prepared.width),String(prepared.height),'--eight-bit','--png-dir',png,'--camera-settings',canvasConfig.cameraSettings]));
-     expected=JSON.parse(await runNative(canvasConfig.fineBinary,['encode',directory,renderPath,png]));
+     expected=JSON.parse(await runNative(canvasConfig.fineBinary,['encode',directory,renderPath,png,String(frameIndex)]));
     }
     return expected;
    }
@@ -264,6 +264,41 @@ try{
     assert.equal(captured.preview.rgbSha256,expected.rgbSha256);assert.equal(captured.preview.uploadSha256,expected.inputRgbaF16Sha256);assert.equal(captured.preview.scaleForGpu,expected.scaleForGpu);assert.deepEqual(captured.preview.cropOffset,expected.cropOffset);
     await page.waitForFunction(()=>[...document.querySelectorAll('svg image')].some(n=>n.href.baseVal===proof.store.getState().finalPreviewUrl&&n.parentElement.querySelectorAll('image').length===1&&n.getBoundingClientRect().width>0));
     delete captured.frame.adjustments;cases.push({angle,geometry,expected,...captured});
+    if(canvasConfig.fineInteractive){
+     const finalExposure=await fineReference(geometry,'interactive-final-'+angle,null,1);
+     for(const mode of ['full','high','performance']){
+      const expectedLive=await fineReference(geometry,'interactive-'+angle+'-'+mode,mode,1);
+      await page.evaluate(mode=>proof.setLiveQuality(mode),mode);
+      const minimum=await page.evaluate(()=>proof.trace.length-1);
+      const slider=page.getByLabel('Original Basic panel').locator('input[type=range]').first(),box=await slider.boundingBox();assert.ok(box);
+      const x=box.x+box.width/2,y=box.y+box.height/2;
+      await page.keyboard.down('Shift');await page.mouse.move(x,y);await page.mouse.down();
+      await page.waitForFunction(()=>proof.store.getState().isSliderDragging);
+      await page.mouse.move(x+box.width*0.4,y);
+      await page.waitForFunction(()=>proof.store.getState().adjustments.exposure===0.8);
+      const live=await page.evaluate(async({minimum,angle,quality})=>{
+       const end=performance.now()+30000;
+       while(performance.now()<end){
+        const s=proof.store.getState(),frame=proof.trace.findLast((t,i)=>i>minimum&&t.command==='render-result'&&t.interactive&&t.exposure===0.8&&t.geometry.rotation===angle&&t.quality===quality),patch=s.interactivePatch;
+        if(frame&&s.isSliderDragging&&patch?.url){try{const b=await(await fetch(patch.url)).arrayBuffer(),hash=[...new Uint8Array(await crypto.subtle.digest('SHA-256',b))].map(v=>v.toString(16).padStart(2,'0')).join('');if(hash===frame.jpegSha256){const bitmap=await createImageBitmap(new Blob([b],{type:'image/jpeg'}));const dimensions=[bitmap.width,bitmap.height];bitmap.close();return{frame,preview:proof.trace.findLast((t,i)=>i>minimum&&t.command==='preview-result'&&t.interactive&&t.geometry.rotation===angle&&t.quality===quality),hash,dimensions,patch:[patch.normX,patch.normY,patch.normW,patch.normH],sameDocument:s.selectedImage.path};}}catch{}}
+        await new Promise(r=>requestAnimationFrame(r));
+       }throw Error('No native-comparable original post-fine Exposure interactive patch');
+      },{minimum,angle,quality:expectedLive.quality});
+      for(const key of ['responseSha256','jpegSha256','rgbaSha256','adjustmentSha256','bytes'])assert.equal(live.frame[key],expectedLive[key],`Fine interactive ${angle}/${mode} ${key}`);
+      assert.deepEqual(live.frame.rect,expectedLive.rect);assert.deepEqual(live.dimensions,[expectedLive.width,expectedLive.height]);assert.deepEqual(live.patch,[0,0,1,1]);
+      assert.equal(live.preview.rgbSha256,expectedLive.rgbSha256);assert.equal(live.preview.uploadSha256,expectedLive.inputRgbaF16Sha256);assert.equal(live.preview.scaleForGpu,expectedLive.scaleForGpu);assert.deepEqual(live.preview.cropOffset,expectedLive.cropOffset);
+      if(mode==='performance')await page.screenshot({path:output.replace(/\.json$/,`-fine-interactive-${angle}-performance.png`)});
+      await page.mouse.up();await page.keyboard.up('Shift');
+      await page.waitForFunction(()=>!proof.store.getState().isSliderDragging&&proof.store.getState().interactivePatch===null);
+      const released=await page.evaluate(async expected=>{const end=performance.now()+30000;while(performance.now()<end){const s=proof.store.getState(),frame=proof.trace.findLast(t=>t.command==='render-result'&&!t.interactive&&t.exposure===0.8&&t.jpegSha256===expected.jpegSha256);if(frame&&s.finalPreviewUrl){try{const b=await(await fetch(s.finalPreviewUrl)).arrayBuffer(),hash=[...new Uint8Array(await crypto.subtle.digest('SHA-256',b))].map(v=>v.toString(16).padStart(2,'0')).join('');if(hash===expected.jpegSha256)return{frame,hash};}catch{}}await new Promise(r=>requestAnimationFrame(r));}throw Error('Post-fine Exposure release did not publish native final JPEG');},finalExposure);
+      for(const key of ['jpegSha256','rgbaSha256','adjustmentSha256','bytes'])assert.equal(released.frame[key],finalExposure[key]);
+      delete live.frame.adjustments;delete released.frame.adjustments;
+      fineInteractiveCases.push({angle,mode,expected:expectedLive,live,releaseExpected:finalExposure,released,actualOriginalExposureDrag:true,patchClearedOnRelease:true});
+      const control=slider.locator('xpath=../..');await control.locator('span[data-tooltip]').click();const input=control.locator('input[type=text]');await input.fill('0');await input.press('Enter');
+      await page.waitForFunction(async expected=>{const s=proof.store.getState();if(s.adjustments.exposure!==0||!s.finalPreviewUrl)return false;try{const b=await(await fetch(s.finalPreviewUrl)).arrayBuffer();return [...new Uint8Array(await crypto.subtle.digest('SHA-256',b))].map(v=>v.toString(16).padStart(2,'0')).join('')===expected.jpegSha256;}catch{return false;}},expected);
+     }
+    }
+
     await page.locator('[data-tab-id="layout-tab-crop"]').click();await page.getByLabel('Original geometry panel').locator('button[data-tooltip="Reset Fine Rotation"]').click();await page.waitForFunction(()=>proof.store.getState().adjustments.rotation===0);
     lastTraceIndex=await page.evaluate(()=>proof.trace.length-1);lastUrl=await page.evaluate(()=>proof.store.getState().finalPreviewUrl);
     await page.locator('[data-tab-id="layout-tab-adjustments"]').click();
@@ -320,10 +355,20 @@ try{
    const alphaResult=await page.evaluate(async geometry=>{const b=await rapidRawTransport.invoke('apply_adjustments',{jsAdjustments:{...proof.store.getState().adjustments,...geometry},isInteractive:false}),frame=proof.trace.findLast(t=>t.command==='render-result'),preview=proof.trace.findLast(t=>t.command==='preview-result');return{frame,preview,jpegSha256:[...new Uint8Array(await crypto.subtle.digest('SHA-256',b))].map(v=>v.toString(16).padStart(2,'0')).join('')};},alphaGeometry);
    for(const key of ['jpegSha256','rgbaSha256','adjustmentSha256','bytes'])assert.equal(alphaResult.frame[key],nativeAlpha[key],`Native transparent border ${key}`);
    assert.equal(alphaResult.preview.uploadSha256,nativeAlpha.inputRgbaF16Sha256);assert.equal(alphaResult.preview.rgbSha256,nativeAlpha.rgbSha256);delete alphaResult.frame.adjustments;
+   if(canvasConfig.fineInteractive){
+    for(const mode of ['full','high','performance']){
+     const expected=await fineReference(alphaGeometry,'interactive-alpha-'+mode,mode,0);
+     await page.evaluate(mode=>proof.setLiveQuality(mode),mode);
+     const captured=await page.evaluate(async geometry=>{const b=await rapidRawTransport.invoke('apply_adjustments',{jsAdjustments:{...proof.store.getState().adjustments,...geometry},isInteractive:true});return{frame:proof.trace.findLast(t=>t.command==='render-result'),preview:proof.trace.findLast(t=>t.command==='preview-result'),responseSha256:[...new Uint8Array(await crypto.subtle.digest('SHA-256',b))].map(v=>v.toString(16).padStart(2,'0')).join('')};},alphaGeometry);
+     for(const key of ['responseSha256','jpegSha256','rgbaSha256','adjustmentSha256','bytes'])assert.equal(captured.frame[key],expected[key],`Transparent interactive ${mode} ${key}`);
+     assert.equal(captured.responseSha256,expected.responseSha256);assert.deepEqual(captured.frame.rect,expected.rect);assert.equal(captured.preview.uploadSha256,expected.inputRgbaF16Sha256);assert.equal(captured.preview.rgbSha256,expected.rgbSha256);assert.equal(captured.preview.scaleForGpu,expected.scaleForGpu);
+     assert.equal(expected.alphaPreserved,mode!=='performance');delete captured.frame.adjustments;alphaInteractiveCases.push({mode,expected,...captured,directBackendContract:true});
+    }
+   }
    const refusals=await page.evaluate(async()=>{const m=await import('/engine/cw_rapidraw_wasm_probe.js');let wasm=0,bridge=0;for(const angle of [NaN,Infinity,-46,46])try{m.fine_preview_rgb32f(8,6,new Float32Array(144),8,0,false,false,'null',angle);}catch{wasm++;}try{m.fine_preview_rgb32f(2098,2098,new Float32Array(0),512,0,false,false,JSON.stringify({x:0,y:0,width:1,height:1}),5);}catch{wasm++;}for(const rotation of [NaN,Infinity,46,'5'])try{await rapidRawTransport.invoke('apply_adjustments',{jsAdjustments:{...proof.store.getState().adjustments,rotation},isInteractive:false});}catch{bridge++;}return{wasm,bridge};});
    assert.deepEqual(refusals,{wasm:5,bridge:4});
    const recovered=await page.evaluate(async()=>{const b=await rapidRawTransport.invoke('apply_adjustments',{jsAdjustments:proof.store.getState().adjustments,isInteractive:false});return [...new Uint8Array(await crypto.subtle.digest('SHA-256',b))].map(v=>v.toString(16).padStart(2,'0')).join('');});assert.equal(recovered,result.hash);
-   fineRotation={sameDocumentRecoveredAfterRefusal:true,actualOriginalSlider:true,actualOriginalReset:true,rgbaAlphaPreserved:true,fullNativeUploadExact:true,cases,pointerCases,transparentBorder:{directBackendCase:true,nonOpaqueInputPixels,nativeAlpha,...alphaResult},refusals,baselineRestored:true,interactiveSizing:'explicitly unavailable until independently proved'};
+   fineRotation={sameDocumentRecoveredAfterRefusal:true,actualOriginalSlider:true,actualOriginalReset:true,rgbaAlphaPreserved:true,fullNativeUploadExact:true,cases,pointerCases,transparentBorder:{directBackendCase:true,nonOpaqueInputPixels,nativeAlpha,...alphaResult},refusals,baselineRestored:true,interactiveSizing:canvasConfig.fineInteractive?'native-exact no-ROI full/high/performance':'not exercised in this run',fineInteractiveCases,alphaInteractiveCases};
   }
 
  }
@@ -335,6 +380,6 @@ try{
  await page.evaluate(()=>proof.close());
  for(const entry of [...geometrySamples,...interactiveSamples])delete entry.frame.adjustments;
  const report={stage:canvasConfig?.fineBinary?'RWASM-03 original fine rotation Slider and reset, RGBA alpha/native shader/JPEG parity':canvasConfig?'RWASM-03 original crop tool, uncropped q80 data URL and actual corner drag':nativeCrop?'RWASM-03 original CropPanel integer crop presets, rotate/flip and reset':'RWASM-03 original CropPanel quarter-turn and flip controls',...provenance,publicFixture:{id:pin.id,license:pin.license,sourceSha256:pin.sourceSha256},browserVersion:browser.version(),chromiumSandbox,first,result,samples,blockedExternalRequests,nativeComparison:native?{frames:5,completeAdjustmentsExact:true,renderedPixelsExact:true,encodedJpegExact:true}:null,nativeGeometry,nativeCrop,geometrySamples,cropRefusals,cropCanvas,fineRotation,nativeInteractive,interactiveSamples,afterInteractive,nativeResize,resizeRecovery,rejectedResizeInputs,refusedOversizePreview:true,workerUsableAfterRefusal:true,pageErrors,failedRequests,expectedSaveErrors:consoleErrors.filter(x=>x.includes('Auto-save failed:')).length,expectedUnavailableLensReads:consoleErrors.filter(x=>x.includes('get_lensfun_makers')).length,
-  scope:canvasConfig?.fineBinary?"Original CropPanel Slider value edit and reset drive source fixed-canvas bilinear fine rotation at +5.3/-7.1 degrees. Original RGBA alpha, complete f16 upload, RGB, original WGSL RGBA8 and q94 JPEG compare against independent native source. Integer crops/orientation/flip remain supported; interactive fine sizing explicitly refuses. Actual original pointer fine drag/release is separately reported when configured, including source live CSS/safe crop and delayed adjustment commit. One public fixture; interactive fine sizing, fractional crops/warp/effects/ROI/full App/export/providers remain open.":canvasConfig?"Unchanged original PanelSwitcher/useImageProcessing/Editor/ImageCanvas/ReactCrop handles activate Crop, display source q80 uncropped data URL, commit integer crop through a real corner pointer drag, return to Adjustments and reset. Original App distance5 pointer sensor config is retained in the QA wrapper. One public fixture/corner/native comparison; other crop interactions/fine rotation/warp/effects/ROI/metadata/full App/menus/analytics/provider/save/export acceptance remain open.":'Original hooks/stores/Editor/ImageCanvas/Basic/Slider unchanged, QA composition and invoke alias only. Quality-developed2048x1536 load and original neutral-geometry512x384 area preview before bounded GPU upload. Original Slider drag/release verifies no-ROI full/high/performance preview sizing/quality. Original CropPanel quarter-turn and flip actions verified; full App menus, metadata/sidecars, crop canvas/tool activation, fine rotation/warp/effects/ROI/analytics/save/provider acceptance remain open. Integer crop presets/rotation/flip/reset are bounded source processing.'};
+  scope:canvasConfig?.fineBinary?"Original CropPanel Slider value edit and reset drive source fixed-canvas bilinear fine rotation at +5.3/-7.1 degrees. Original RGBA alpha, complete f16 upload, RGB, original WGSL RGBA8 and q94 JPEG compare against independent native source. Integer crops/orientation/flip remain supported; configured post-fine Exposure drag proves no-ROI full/high/performance sizing, native alpha policy and release to q94. Actual original pointer fine drag/release is separately reported when configured, including source live CSS/safe crop and delayed adjustment commit. One public fixture; fractional crops/warp/effects/ROI/full App/export/providers remain open.":canvasConfig?"Unchanged original PanelSwitcher/useImageProcessing/Editor/ImageCanvas/ReactCrop handles activate Crop, display source q80 uncropped data URL, commit integer crop through a real corner pointer drag, return to Adjustments and reset. Original App distance5 pointer sensor config is retained in the QA wrapper. One public fixture/corner/native comparison; other crop interactions/fine rotation/warp/effects/ROI/metadata/full App/menus/analytics/provider/save/export acceptance remain open.":'Original hooks/stores/Editor/ImageCanvas/Basic/Slider unchanged, QA composition and invoke alias only. Quality-developed2048x1536 load and original neutral-geometry512x384 area preview before bounded GPU upload. Original Slider drag/release verifies no-ROI full/high/performance preview sizing/quality. Original CropPanel quarter-turn and flip actions verified; full App menus, metadata/sidecars, crop canvas/tool activation, fine rotation/warp/effects/ROI/analytics/save/provider acceptance remain open. Integer crop presets/rotation/flip/reset are bounded source processing.'};
  await writeFile(output,JSON.stringify(report,null,2)+'\n');console.log(JSON.stringify(report));await context.close();
 }catch(error){console.log(JSON.stringify({pageErrors,failedRequests,consoleErrors}));try{await page.screenshot({path:output.replace(/\.json$/,'-failure.png')});}catch{}throw error;}finally{await browser?.close();await new Promise(resolve=>server.close(resolve));}

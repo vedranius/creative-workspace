@@ -1,0 +1,53 @@
+    let small_preview_base = if small_valid {
+        Arc::clone(&cached_preview_lock.as_ref().unwrap().small_image)
+    } else {
+        let small = if interactive_divisor > 1.0 {
+            let target_size = (preview_dim as f32 / interactive_divisor) as u32;
+            let (w, h) = final_preview_base.dimensions();
+            let (small_w, small_h) = if w > h {
+                let ratio = h as f32 / w as f32;
+                (target_size, (target_size as f32 * ratio) as u32)
+            } else {
+                let ratio = w as f32 / h as f32;
+                ((target_size as f32 * ratio) as u32, target_size)
+            };
+            Arc::new(image_processing::downscale_f32_image(
+                &final_preview_base,
+                small_w,
+                small_h,
+            ))
+        } else {
+            Arc::clone(&final_preview_base)
+        };
+
+        if is_interactive && base_valid {
+            *state
+                .gpu_image_cache
+                .lock()
+                .unwrap_or_else(|e| e.into_inner()) = None;
+        }
+
+        small
+    };
+
+    *cached_preview_lock = Some(CachedPreview {
+        image: Arc::clone(&final_preview_base),
+        small_image: Arc::clone(&small_preview_base),
+        transform_hash: new_transform_hash,
+        scale: scale_for_gpu,
+        unscaled_crop_offset,
+        preview_dim,
+        interactive_divisor,
+    });
+
+    drop(cached_preview_lock);
+
+    let (processing_image, effective_scale, jpeg_quality) = if is_interactive {
+        let orig_w = final_preview_base.width() as f32;
+        let small_w = small_preview_base.width() as f32;
+        let scale_factor = if orig_w > 0.0 { small_w / orig_w } else { 1.0 };
+        let new_scale = scale_for_gpu * scale_factor;
+        (small_preview_base, new_scale, interactive_quality)
+    } else {
+        (final_preview_base, scale_for_gpu, 94)
+    };
