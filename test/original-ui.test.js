@@ -12,12 +12,13 @@ test('DesignCraft PAR-03 variant is pinned to its exact reviewed source patch',a
   const patch=originalUiPatches.designcraft,bytes=await readFile(new URL('../'+patch.path,import.meta.url));
   assert.equal(patch.id,'par-03-pages-insert-v1');
   assert.equal(patch.path,'patches/designcraft/a127c6d5/par-03-pages-insert-v1.patch');
-  assert.equal(patch.sha256,'b1530ec9c973e8534f23850941035043273e9fc6a6e6ce2f3b400c2a1b9887df');
+  assert.equal(patch.sha256,'6a56500b279d5eb9488b8f72602e79f461e30aeadf3c3a84c8cd653f6e86a4bf');
   assert.equal(createHash('sha256').update(bytes).digest('hex'),patch.sha256);
   assert.match(bytes.toString('utf8'),/diff --git a\/apps\/designcraft-web\/file-provider\.js/);
   assert.match(bytes.toString('utf8'),/openRecovery\(\{app:"designcraft"/);
   assert.match(bytes.toString('utf8'),/js_name = installDesignCraftRecovery/);
   assert.match(bytes.toString('utf8'),/original_page_insert_queues_exact_engine_command_and_hydrates_only_after_ack/);
+  assert.match(bytes.toString('utf8'),/original_page_move_waits_for_matching_ack_and_preserves_page_identity/);
   assert.equal(originalUiPackageId('designcraft'),`${originalUiPins.designcraft}-${patch.sha256.slice(0,12)}`);
 });
 

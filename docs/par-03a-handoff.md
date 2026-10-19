@@ -1,3 +1,15 @@
+# PAR-03 alpha.61 — original Pages drag handoff (2026-10-19)
+
+The original Pages panel thumbnail drag sends unchanged `layout.pages.move` with final-index `{from,to}` semantics. Both indexes must belong to the current document; malformed/extra parameters, stale revisions and rejected worker calls do not mutate order or consume a revision. The UI hydrates canonical state and server PNG only after matching ACK.
+
+Local evidence passes: JavaScript 86/86, exact-source Rust UI 1/1, owned native tests 4/4 and isolated sandboxed Chromium. Actual source Text Tool creates “M”; actual Pages thumbnail drag 1→0 holds the mirror at revision 5 until ACK 6, moves page identity/content and changes server pixels. Reverse drag 0→1 ACK 7 restores identities and byte-identical PNG. Zero browser/network errors. The QA screenshot was visually inspected; the context, server and workers closed.
+
+Original pin `a127c6d5c3576972bbd60445f26d893db071eef3`; registered patch SHA-256 `6a56500b279d5eb9488b8f72602e79f461e30aeadf3c3a84c8cd653f6e86a4bf`. UI package `a127c6d5c3576972bbd60445f26d893db071eef3-6a56500b279d`; optimized WASM `eb543dea6defea45b99db5d47a170b84ded364fb12c4d3f1478f7608f0252376`; local dev worker `35aada596b7a9810d32dad58cdc004b7294f04b3404e64f04a973970ff83185d`. [Report/screenshot and checks](evidence/designcraft-par03-pages-move.md).
+
+The folder chooser is synthetic. Real OS permission, full original parity and all-provider acceptance remain open; DesignCraft stays planned. Alpha.61 requires fresh Actions-built assets, immutable tag/draft and downloaded checksum verification; keep the prototype prerelease draft.
+
+Next A task: connect original Pages thumbnail selection to acknowledged server `page.select` and the selected page’s server PNG, using two pages with distinct content. Preserve view/selection semantics, document identity, dirty state and bounds. Alternate with B’s ready fine-rotation task from its coordinator. MAIN only under the temporary override; preserve protected studios and `engines/filmcraft/`.
+
 # 2026-10-17 PAR-03 `layout.pages.insert` server ACK candidate — alpha.60
 
 The original DesignCraft Properties → Page → Insert Page button now passes its unchanged engine action `layout.pages.insert` (`after`, `count`) through the existing ordered host-action lifecycle. The owned server worker is authoritative. The gateway rejects malformed parameters, an index outside current page count, or a result over 64 pages before mutation. The original UI keeps its prior revision until the matching command-ID ACK supplies the canonical document and server-render PNG.

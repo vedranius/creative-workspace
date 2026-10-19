@@ -1,3 +1,13 @@
+# PAR-03 alpha.61 — original page move verified locally (2026-10-19)
+
+The original Pages panel thumbnail drag sends unchanged `layout.pages.move` with final-index `{from,to}` semantics. Both indexes must belong to the current document; malformed/extra parameters, stale revisions and rejected worker calls do not mutate order or consume a revision. The UI hydrates canonical state and server PNG only after matching ACK.
+
+Local evidence passes: JavaScript 86/86, exact-source Rust UI 1/1, owned native tests 4/4 and isolated sandboxed Chromium. Actual source Text Tool creates “M”; actual Pages thumbnail drag 1→0 holds the mirror at revision 5 until ACK 6, moves page identity/content and changes server pixels. Reverse drag 0→1 ACK 7 restores identities and byte-identical PNG. Zero browser/network errors. The QA screenshot was visually inspected; the context, server and workers closed. [Evidence](evidence/designcraft-par03-pages-move.md).
+
+The folder chooser is synthetic. Real OS permission, full original parity and all-provider acceptance remain open; DesignCraft stays planned. Alpha.61 requires fresh Actions-built assets, immutable tag/draft and downloaded checksum verification; keep the prototype prerelease draft.
+
+Next A task: connect original Pages thumbnail selection to acknowledged server `page.select` and the selected page’s server PNG, using two pages with distinct content. Preserve view/selection semantics, document identity, dirty state and bounds. Alternate with B’s ready fine-rotation task from its coordinator. MAIN only under the temporary override; preserve protected studios and `engines/filmcraft/`.
+
 # PAR-03 next action identified — page move is not bridged (2026-10-18)
 
 A bounded comparison of the exact pinned DesignCraft UI and the registered `par-03-pages-insert-v1` patch found the original Pages panel emits `layout.pages.move` with `{from,to}` when a page is moved (`crates/ui-egui/src/panels/pages.rs:210` in the pinned checkout). The current patch does not intercept it; `src/designcraft.js` and `engines/designcraft/native/src/main.rs` also omit the method. Thus the action currently remains local and cannot be treated as server-owned. This is the next concrete PAR-03 implementation: preserve the original command ID and page-index semantics, validate bounds against the current page count, bridge the original caller through ordered host-action pending/ACK, hydrate only from the matching server read model/render, and add an isolated browser proof using the actual Pages panel interaction. Keep DesignCraft planned; no product or provider acceptance follows from this discovery.

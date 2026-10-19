@@ -14,6 +14,7 @@ const MAX_CANONICAL_STATE: usize = 16 * 1024 * 1024;
 const COMMANDS: &[&str] = &[
     "frame.create",
     "layout.pages.duplicateSpread",
+    "layout.pages.move",
     "layout.pages.insert",
     "layout.pages.delete",
     "selection.set",
@@ -67,6 +68,31 @@ fn zip_budget(bytes: &[u8]) -> Result<(), Box<dyn std::error::Error>> {
 #[cfg(test)]
 mod tests {
     use super::*;
+    #[test]
+    fn owned_page_move_preserves_identity_and_recovers_after_bad_index() -> Result<(), Box<dyn std::error::Error>> {
+        let mut h = Headless::new();
+        let mut saved = None;
+        let root = std::env::temp_dir();
+        answer(&mut h, &mut saved, &root, &root, &json!({"method":"new","params":{"pages":3,"facingPages":false}}))?;
+        let ids = |h: &Headless| h.session.active().map(|s| s.doc.pages().map(|(_, _, p)| p.id).collect::<Vec<_>>());
+        let before = ids(&h).ok_or("Missing document")?;
+        assert!(
+            answer(
+                &mut h,
+                &mut saved,
+                &root,
+                &root,
+                &json!({"method":"command","params":{"command":"layout.pages.move","params":{"from":3,"to":0}}})
+            )
+            .is_err()
+        );
+        assert_eq!(ids(&h), Some(before.clone()));
+        answer(&mut h, &mut saved, &root, &root, &json!({"method":"command","params":{"command":"layout.pages.move","params":{"from":2,"to":0}}}))?;
+        assert_eq!(ids(&h), Some(vec![before[2], before[0], before[1]]));
+        answer(&mut h, &mut saved, &root, &root, &json!({"method":"command","params":{"command":"layout.pages.move","params":{"from":0,"to":2}}}))?;
+        assert_eq!(ids(&h), Some(before));
+        Ok(())
+    }
     #[test]
     fn canonical_document_snapshot_round_trips() -> Result<(), Box<dyn std::error::Error>> {
         let doc = Document::new(&designcraft_doc::build::NewDocument::default());
@@ -268,7 +294,9 @@ fn answer(h: &mut Headless, saved: &mut Option<Arc<Document>>, read: &Path, writ
             let file = output_path(write, p.get("path").and_then(Value::as_str).ok_or("Missing copy filename")?)?;
             budget(&h.session.active().ok_or("No document")?.doc)?;
             let mut value = h.call("engine.execute", json!({"command":"file.saveACopy","params":{"path":file}}))?;
-            if let Some(o) = value.as_object_mut() { o.remove("path"); }
+            if let Some(o) = value.as_object_mut() {
+                o.remove("path");
+            }
             Ok(value)
         }
         "mark_saved" => {

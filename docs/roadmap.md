@@ -1,3 +1,11 @@
+# PAR-03 alpha.61 — original Pages drag, local proof complete
+
+The original Pages panel thumbnail drag sends unchanged `layout.pages.move` with final-index `{from,to}` semantics. Both indexes must belong to the current document; malformed/extra parameters, stale revisions and rejected worker calls do not mutate order or consume a revision. The UI hydrates canonical state and server PNG only after matching ACK.
+
+Local evidence passes: JavaScript 86/86, exact-source Rust UI 1/1, owned native tests 4/4 and isolated sandboxed Chromium. Actual source Text Tool creates “M”; actual Pages thumbnail drag 1→0 holds the mirror at revision 5 until ACK 6, moves page identity/content and changes server pixels. Reverse drag 0→1 ACK 7 restores identities and byte-identical PNG. Zero browser/network errors. The QA screenshot was visually inspected; the context, server and workers closed. [Evidence](evidence/designcraft-par03-pages-move.md). The folder chooser is synthetic. Real OS permission, full original parity and all-provider acceptance remain open; DesignCraft stays planned. Alpha.61 requires fresh Actions-built assets, immutable tag/draft and downloaded checksum verification; keep the prototype prerelease draft.
+
+Next A: original page selection/server-render ownership. Next independent feature: B fine rotation, after its coordinator check.
+
 # PAR-03 alpha.60 — original Insert Page ACK candidate
 
 The original Properties → Page → Insert Page action is bridged to the owned worker as `layout.pages.insert`; gateway validates original `after`/`count` and the 64-page cap, and UI applies server document/render only after matching ACK. Exact-source Rust UI test, gateway fixture, optimized worker/UI builds and isolated Chromium pass. Chromium confirms revision 2, two pages, dirty server document, server PNG HTTP 200 and no browser/network errors. [Evidence](evidence/designcraft-par03-pages-insert-browser.json). Folder chooser is synthetic; DesignCraft stays planned. Alpha.60 Actions, immutable tag/draft and all assets/checksum pairs verify. Next: one bounded original DesignCraft server action, preserving original IDs and ACK gating.

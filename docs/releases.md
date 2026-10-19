@@ -1,3 +1,11 @@
+# Alpha.61 candidate — original DesignCraft Pages drag
+
+The original Pages panel thumbnail drag sends unchanged `layout.pages.move` with final-index `{from,to}` semantics. Both indexes must belong to the current document; malformed/extra parameters, stale revisions and rejected worker calls do not mutate order or consume a revision. The UI hydrates canonical state and server PNG only after matching ACK.
+
+Local evidence passes: JavaScript 86/86, exact-source Rust UI 1/1, owned native tests 4/4 and isolated sandboxed Chromium. Actual source Text Tool creates “M”; actual Pages thumbnail drag 1→0 holds the mirror at revision 5 until ACK 6, moves page identity/content and changes server pixels. Reverse drag 0→1 ACK 7 restores identities and byte-identical PNG. Zero browser/network errors. The QA screenshot was visually inspected; the context, server and workers closed. [Evidence](evidence/designcraft-par03-pages-move.md).
+
+The folder chooser is synthetic. Real OS permission, full original parity and all-provider acceptance remain open; DesignCraft stays planned. Alpha.61 requires fresh Actions-built assets, immutable tag/draft and downloaded checksum verification; keep the prototype prerelease draft. Extract any new verified package into a fresh root and preserve existing live installations and unsaved documents. [Handoff](par-03a-handoff.md).
+
 # Alpha.60 verified draft: DesignCraft Insert Page server action
 
 The original Properties → Page → Insert Page control routes the exact `layout.pages.insert` command through the owned worker. Gateway bounds insertion index/count and refuses exceeding 64 pages. Exact-source tests and Chromium verify command identity, matching ACK, revision 2, two pages and a fresh server render with no browser/network errors. Actions Build/release `39060796090` and Checks `39060796105` passed on `0773db1`; immutable tag `v0.2.0-alpha.60` and its draft prerelease point to that commit. All 24 downloaded assets and 12 archive/checksum pairs verify. The chooser was synthetic, and broad parity/provider acceptance remains open; keep DesignCraft planned and the release draft. [Release evidence](evidence/creative-workspace-alpha60-release.md) · [Browser evidence](evidence/designcraft-par03-pages-insert-browser.json) · [PAR-03 handoff](par-03a-handoff.md).

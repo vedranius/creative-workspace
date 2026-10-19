@@ -1,3 +1,9 @@
+## [0.2.0-alpha.61] - 2026-10-19
+
+- Route the original DesignCraft Pages panel drag through `layout.pages.move` with unchanged final-index semantics, current-document bounds and exact parameters. Worker failure cannot consume a revision; UI order, canonical state and server render wait for matching ACK.
+- Verify JavaScript 86/86, native 4/4 and exact-source UI 1/1, including delayed/rejected worker calls, malformed/stale/out-of-range moves and wrong command-ID ACK. Actual original thumbnail drag in both directions moves page/content identity and restores the exact server PNG. Keep DesignCraft planned; the chooser fixture does not establish OS permission or full provider/app acceptance.
+- Fresh Actions-built platform assets, immutable tag/draft and downloaded checksums must verify before any distribution claim. The prototype release remains draft-only.
+
 ## [0.2.0-alpha.60] - 2026-10-17
 
 - Bridge the original DesignCraft Properties → Page → Insert Page action to the owned server worker as `layout.pages.insert`; validate index/count and the 64-page session limit before mutation, then hydrate read-model and render only after matching ACK.
