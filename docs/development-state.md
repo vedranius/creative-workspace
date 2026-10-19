@@ -1,3 +1,9 @@
+# PAR-03 alpha.61 — Actions draft assets verified (2026-10-19)
+
+Authenticated as vedranius; tag and draft target resolve to a5d4795. Build/release39196652263 and Checks39196652250 succeeded. Fresh downloads verify all24 GitHub asset digests and12 archive/sidecar pairs. Three platform archives also verify all12 engine binaries, three Node24 binaries, target/product/source manifests, launchers and licenses. [Release evidence](evidence/creative-workspace-alpha61-release.md).
+
+Keep the prototype prerelease draft and DesignCraft planned: real folder permission, full original/provider/all13 acceptance remain open. This is evidence-only, no version/tag/release/demo change. Next A: original Pages thumbnail selection → bounded server page.select, matching selected-page PNG/ACK on two distinct-content pages, unchanged dirty/document identity. MAIN only; preserve engines/filmcraft/ and protected sessions.
+
 # PAR-03 alpha.61 — original page move verified locally (2026-10-19)
 
 The original Pages panel thumbnail drag sends unchanged `layout.pages.move` with final-index `{from,to}` semantics. Both indexes must belong to the current document; malformed/extra parameters, stale revisions and rejected worker calls do not mutate order or consume a revision. The UI hydrates canonical state and server PNG only after matching ACK.
