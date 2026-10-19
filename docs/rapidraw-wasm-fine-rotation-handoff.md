@@ -1,5 +1,7 @@
 # RWASM-03 — original fine rotation
 
+Follow-up: actual original Slider pointer drag/local CSS/release now has [separate native/browser evidence](rapidraw-wasm-fine-pointer-handoff.md). Backend fine interactive sizing still refuses.
+
 Completed2026-10-19 after bc76a40 on codex/rapidraw-wasm-port. Source CyberTimon/RapidRAW b39884b38d8f148caef6fd0d52afd264951be329; original React components/handlers and AGPL3 attribution/pins remain unchanged. This is an unfinished WASM experiment checkpoint, with no product SemVer/tag/release/install/public-demo change.
 
 ## Source contract

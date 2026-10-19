@@ -1,3 +1,9 @@
+# RWASM-03 — original fine Slider pointer drag (2026-10-19)
+
+Real original Slider mouse drags+18/−23px show local CSS angles+7.6/−9.8° and source crop feedback while committed rotation stays0. Release commits the angle/integer crop, then original Adjustments displays native-exact511×384/512×384 final frames:1,571,328 RGBA8 components and108,370 JPEG bytes, complete RGB/RGBA16F/adjustment hashes and scale/offset. Both Full Resets restore the same document's baseline. [Proof and next task](rapidraw-wasm-fine-pointer-handoff.md).
+
+Original17-source hashes and prior WASM2b1499c1 remain exact; no native/WASM/runtime change or rebuild. Fresh host24/24, repo check, focused syntax/source/diff and sandboxed browser proof pass. Backend interactive sizing with fine rotation remains explicitly unavailable. Full App/ROI/fractional/effects/providers/save/export remain open; no product release/version/demo change. Next A: original Pages selection → server page.select/selected PNG/ACK; next B: independent native interactive fine sizing/alpha policy before enabling it.
+
 # RWASM-03 — original fine rotation (2026-10-19)
 
 The original CropPanel numeric Slider edits +5.3°/−7.1° now drive the pinned fixed-canvas bilinear RGBA rotation between orientation/flips and integer crop. Independent native source, GPU upload, rendered pixels and final JPEG comparisons cover both signs and a separate transparent-border backend case. [Evidence, limits and next task](rapidraw-wasm-fine-rotation-handoff.md).

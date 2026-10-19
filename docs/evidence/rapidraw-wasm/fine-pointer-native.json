@@ -1,0 +1,68 @@
+[
+  {
+    "pointerDelta": 18,
+    "adjustmentSha256": "7528054041d105912931d3cc66497b535740e7f03c198e6e9f3915cc44f1520e",
+    "baseRgbSha256": "f052bba0940702e068fb03d6a9f1cc78b9c57e7ff5758f1c460f28d11fb49e30",
+    "bytes": 54343,
+    "cropOffset": [
+      147,
+      110
+    ],
+    "geometry": {
+      "crop": {
+        "height": 1316,
+        "unit": "px",
+        "width": 1754,
+        "x": 147,
+        "y": 110
+      },
+      "flipHorizontal": false,
+      "flipVertical": false,
+      "orientationSteps": 0,
+      "rotation": 7.599999904632568
+    },
+    "height": 384,
+    "inputRgbaF16Sha256": "6bb0f7fd4d62edc442a820f6ff09980d0fd3d026f5ed76c6cbfaaec9afaaf725",
+    "jpegSha256": "c291dac9dda43bc370371f1e4f9e17b11a89e8a682e622c24ed04b49bc887040",
+    "rgbSha256": "3c3a61d495dad7788b3439d4736bcc1e0c295884b080a319ab92effeec131eb2",
+    "rgbaInputSha256": "41c58fa5e5f2826efff7227a76eaa8837d6936313975f00168a72bbd629b0f7e",
+    "rgbaSha256": "bb37be6d612319ddc700f9b69880305f057e33ef184f9b69f86883f761622b35",
+    "scaleForGpu": 0.2913340926170349,
+    "scope": "Original crop-specific area resize then quarter turn, flips and crop; fine rotation original bilinear fixed-canvas; warp/effects unsupported",
+    "source": "b39884b38d8f148caef6fd0d52afd264951be329",
+    "width": 511
+  },
+  {
+    "pointerDelta": -23,
+    "adjustmentSha256": "7528054041d105912931d3cc66497b535740e7f03c198e6e9f3915cc44f1520e",
+    "baseRgbSha256": "f052bba0940702e068fb03d6a9f1cc78b9c57e7ff5758f1c460f28d11fb49e30",
+    "bytes": 54027,
+    "cropOffset": [
+      179,
+      135
+    ],
+    "geometry": {
+      "crop": {
+        "height": 1267,
+        "unit": "px",
+        "width": 1689,
+        "x": 179,
+        "y": 135
+      },
+      "flipHorizontal": false,
+      "flipVertical": false,
+      "orientationSteps": 0,
+      "rotation": -9.800000190734863
+    },
+    "height": 384,
+    "inputRgbaF16Sha256": "caaead14eb9f033f430e7178b5e57c0225045735740835b0a6d06e7e7259a122",
+    "jpegSha256": "6028356864fcc3d907a42f6094192dbd274baa1af155ba125d8503701c29a3b1",
+    "rgbSha256": "dced15b9559d73bb1c548893ebaaf292b849833ec004b0329d0e551051b63346",
+    "rgbaInputSha256": "625f540f16b853c7b9e2e64daa52380a1282256fe2218b54526b2936d2207bb0",
+    "rgbaSha256": "05db956472eee0f940907f515bc7d93231ec975644fa17606b79224917b631b6",
+    "scaleForGpu": 0.30313795804977417,
+    "scope": "Original crop-specific area resize then quarter turn, flips and crop; fine rotation original bilinear fixed-canvas; warp/effects unsupported",
+    "source": "b39884b38d8f148caef6fd0d52afd264951be329",
+    "width": 512
+  }
+]
