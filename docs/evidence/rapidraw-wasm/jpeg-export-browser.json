@@ -1,0 +1,208 @@
+{
+  "scope": "Post-render codec on real full native public-DNG pixels. OPFS write/close/readback QA; not original ExportPanel, browser full GPU pipeline, OS destination permission or export_images acceptance.",
+  "wasmSha256": "aac0f23a3eb5bc639cdee609bc38f4b7a26aa6ab058eef0ffaf4ae2695c1d4b2",
+  "width": 2048,
+  "height": 1536,
+  "inputRgba8Sha256": "e6273b8a5b8d8d653e6cbe19328ac88a77caae50af2f5295cf3c7a8444888bae",
+  "cases": [
+    {
+      "settings": {
+        "dpi": 300,
+        "jpegQuality": 90
+      },
+      "bytes": 655924,
+      "sha256": "9cdca25668bdf162cc052c2cce115e968d16780fee43567971532474067e0462",
+      "width": 2048,
+      "height": 1536,
+      "iccSha256": "af4efe28f6d311799865f325ba39184a2e978b113ca74124d60af7de22b105f4",
+      "dpi": {
+        "unit": 1,
+        "x": 300,
+        "y": 300
+      },
+      "write": {
+        "kind": "OPFS QA only",
+        "beforeClose": false,
+        "closeAcknowledged": true,
+        "readbackExact": true
+      }
+    },
+    {
+      "settings": {
+        "jpegQuality": 90
+      },
+      "bytes": 655924,
+      "sha256": "85f95017c281a61a41c1b31cf0331c7b029be6b80b73b28b7885cc0c97614268",
+      "width": 2048,
+      "height": 1536,
+      "iccSha256": "af4efe28f6d311799865f325ba39184a2e978b113ca74124d60af7de22b105f4",
+      "dpi": {
+        "unit": 0,
+        "x": 1,
+        "y": 1
+      },
+      "write": {
+        "kind": "OPFS QA only",
+        "beforeClose": false,
+        "closeAcknowledged": true,
+        "readbackExact": true
+      }
+    },
+    {
+      "settings": {
+        "dpi": 72,
+        "jpegQuality": 75,
+        "resize": {
+          "dontEnlarge": true,
+          "mode": "longEdge",
+          "value": 1024
+        }
+      },
+      "bytes": 99810,
+      "sha256": "aca2ae1a388b54ce7a37e6a145e97031389b411ca81292bf5a3f23fbe179adf1",
+      "width": 1024,
+      "height": 768,
+      "iccSha256": "af4efe28f6d311799865f325ba39184a2e978b113ca74124d60af7de22b105f4",
+      "dpi": {
+        "unit": 1,
+        "x": 72,
+        "y": 72
+      },
+      "write": {
+        "kind": "OPFS QA only",
+        "beforeClose": false,
+        "closeAcknowledged": true,
+        "readbackExact": true
+      }
+    },
+    {
+      "settings": {
+        "dpi": 65535,
+        "jpegQuality": 100,
+        "resize": {
+          "dontEnlarge": false,
+          "mode": "shortEdge",
+          "value": 384
+        }
+      },
+      "bytes": 223181,
+      "sha256": "d41f6a40dc850b76712890bef2009954be2393fc91b28776cbeaf08bd1312a57",
+      "width": 512,
+      "height": 384,
+      "iccSha256": "af4efe28f6d311799865f325ba39184a2e978b113ca74124d60af7de22b105f4",
+      "dpi": {
+        "unit": 1,
+        "x": 65535,
+        "y": 65535
+      },
+      "write": {
+        "kind": "OPFS QA only",
+        "beforeClose": false,
+        "closeAcknowledged": true,
+        "readbackExact": true
+      }
+    },
+    {
+      "settings": {
+        "jpegQuality": 1,
+        "resize": {
+          "dontEnlarge": false,
+          "mode": "width",
+          "value": 777
+        }
+      },
+      "bytes": 15101,
+      "sha256": "4aff9c557c225f2a4ce4c3ab64c8cf742ae8947a111bccf648db6e040bccadef",
+      "width": 777,
+      "height": 583,
+      "iccSha256": "af4efe28f6d311799865f325ba39184a2e978b113ca74124d60af7de22b105f4",
+      "dpi": {
+        "unit": 0,
+        "x": 1,
+        "y": 1
+      },
+      "write": {
+        "kind": "OPFS QA only",
+        "beforeClose": false,
+        "closeAcknowledged": true,
+        "readbackExact": true
+      }
+    },
+    {
+      "settings": {
+        "dpi": 300,
+        "jpegQuality": 90,
+        "resize": {
+          "dontEnlarge": false,
+          "mode": "height",
+          "value": 333
+        }
+      },
+      "bytes": 51368,
+      "sha256": "298b027322847c588609fb26b5969c52c1205e2d790b661f5cd7c05436b8becd",
+      "width": 444,
+      "height": 333,
+      "iccSha256": "af4efe28f6d311799865f325ba39184a2e978b113ca74124d60af7de22b105f4",
+      "dpi": {
+        "unit": 1,
+        "x": 300,
+        "y": 300
+      },
+      "write": {
+        "kind": "OPFS QA only",
+        "beforeClose": false,
+        "closeAcknowledged": true,
+        "readbackExact": true
+      }
+    },
+    {
+      "settings": {
+        "jpegQuality": 90,
+        "resize": {
+          "dontEnlarge": true,
+          "mode": "longEdge",
+          "value": 4096
+        }
+      },
+      "bytes": 655924,
+      "sha256": "85f95017c281a61a41c1b31cf0331c7b029be6b80b73b28b7885cc0c97614268",
+      "width": 2048,
+      "height": 1536,
+      "iccSha256": "af4efe28f6d311799865f325ba39184a2e978b113ca74124d60af7de22b105f4",
+      "dpi": {
+        "unit": 0,
+        "x": 1,
+        "y": 1
+      },
+      "write": {
+        "kind": "OPFS QA only",
+        "beforeClose": false,
+        "closeAcknowledged": true,
+        "readbackExact": true
+      }
+    }
+  ],
+  "refusals": [
+    "JPEG requires nonzero dimensions <=32768 and RGBA8 <=64 MiB",
+    "JPEG requires nonzero dimensions <=32768 and RGBA8 <=64 MiB",
+    "JPEG input/settings length mismatch",
+    "missing field `jpegQuality` at line 1 column 2",
+    "EOF while parsing an object at line 1 column 1",
+    "JPEG quality, DPI or resize value outside supported range",
+    "JPEG quality, DPI or resize value outside supported range",
+    "invalid value: integer `65536`, expected u16 at line 1 column 29",
+    "unknown field `keepMetadata`, expected one of `jpegQuality`, `dpi`, `resize` at line 1 column 32",
+    "JPEG requires nonzero dimensions <=32768 and RGBA8 <=64 MiB",
+    "JPEG requires nonzero dimensions <=32768 and RGBA8 <=64 MiB"
+  ],
+  "abort": {
+    "success": false,
+    "retainedBytes": 655924,
+    "persistedBytes": 0,
+    "replayed": false
+  },
+  "recovered": true,
+  "pageErrors": [],
+  "externalRequests": [],
+  "failedRequests": []
+}

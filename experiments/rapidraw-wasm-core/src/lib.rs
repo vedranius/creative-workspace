@@ -26,6 +26,7 @@ pub mod development;
 pub mod exposure;
 mod multi_exposure;
 pub mod png_export;
+pub mod jpeg_export;
 pub mod preview;
 #[rustfmt::skip]
 pub mod original_rotation;
@@ -455,6 +456,17 @@ mod browser {
             full_height,
         )
         .map_err(|e| JsValue::from_str(&e))
+    }
+
+    #[wasm_bindgen]
+    pub fn encode_rendered_rgba8_jpeg(
+        width: u32,
+        height: u32,
+        pixels: &[u8],
+        settings_json: &str,
+    ) -> Result<Vec<u8>, JsValue> {
+        super::jpeg_export::encode(width, height, pixels, settings_json)
+            .map_err(|e| JsValue::from_str(&e))
     }
 
     #[wasm_bindgen]

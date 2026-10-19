@@ -89,8 +89,9 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             return Err("Camera fixture exceeds64KiB".into());
         }
         let camera: CameraSettings = serde_json::from_slice(&bytes)?;
-        if camera.source != "b39884b38d8f148caef6fd0d52afd264951be329" || camera.frames.len() != 5 {
-            return Err("Expected five original camera fixture cases".into());
+        let expected_frames = if args.iter().any(|v| v == "--export-codec-reference") { 1 } else { 5 };
+        if camera.source != "b39884b38d8f148caef6fd0d52afd264951be329" || camera.frames.len() != expected_frames {
+            return Err("Unexpected original camera fixture case count".into());
         }
         Some(camera)
     } else {
@@ -168,6 +169,16 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     } else {
         include!("original_high_precision_pipeline.rs")
     };
+    // Independent native-only full public-DNG reference for the post-render codec.
+    // Browser preview budgets stay unchanged. Limit to one2048x1536 frame.
+    let export_codec_reference = if let Some(i) = args.iter().position(|v| v == "--export-codec-reference") {
+        args.remove(i);
+        if !eight || args.len() != 5 || camera.as_ref().is_none_or(|c| c.frames.len() != 1) {
+            return Err("Export codec reference requires explicit input and one EightBit camera frame".into());
+        }
+        true
+    } else { false };
+    let texture_budget = if export_codec_reference { 256 * 1024 * 1024 } else { 64 * 1024 * 1024 };
     let (width, height, input_image, input_source, input_format) = if args.len() > 1 {
         if args.len() != 5 || !matches!(args[1].as_str(), "--rgb-f32" | "--rgba-f32") {
             return Err("Usage: reference [--rgb-f32 FILE WIDTH HEIGHT]".into());
@@ -189,7 +200,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             || count
                 .checked_mul(76)
                 .and_then(|v| v.checked_add(132))
-                .is_none_or(|v| v > 64 * 1024 * 1024)
+                .is_none_or(|v| v > texture_budget)
+            || (export_codec_reference && (width, height) != (2048, 1536))
         {
             return Err("bounded RGB input required".into());
         }

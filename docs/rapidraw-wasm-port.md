@@ -1,3 +1,9 @@
+# RWASM-03 — post-render JPEG export codec (2026-10-19)
+
+The pinned native Lanczos3→RGB8 JPEG encoder, sRGB ICC and optional JFIF DPI now run in WASM on full native-rendered public DNG pixels. Seven browser outputs match2,357,232 native bytes;11 malformed/oversize/truncated requests refuse and the same worker recovers. Real OPFS close/readback and aborted-write QA pass. [Evidence, limits and next task](rapidraw-wasm-jpeg-export-handoff.md).
+
+This is the post-render codec only. Full browser render, original ExportPanel/export_images, OS folder permission and provider acceptance remain open; browser preview budgets and public demo stay unchanged. Native reference full-image mode is explicit and separately bounded. No peak-memory safety or product release claim. Next A: alpha62 release gate and selected-page editing; next B: full browser export render/lifecycle before original UI wiring. MAIN only.
+
 # RWASM-03 — original post-fine Exposure drag (2026-10-19)
 
 Six actual original Exposure drags after+5.3/−7.1° fine rotation now match native full/high/performance preview sizing, complete GPU upload/adjustments/pixels/JPEG/header, and q94 on release. Three backend transparent-border cases prove full/high retain alpha while actual performance resampling becomes RGB. All9 interactive frames match5,758,992 RGBA8 components/247,038 response bytes;6 releases match446,427 JPEG bytes. [Evidence, limits and next task](rapidraw-wasm-fine-interactive-handoff.md).

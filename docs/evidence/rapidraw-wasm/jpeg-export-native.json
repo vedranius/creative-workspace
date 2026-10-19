@@ -1,0 +1,175 @@
+{
+  "scope": "Independent original shader native EightBit render of full public CC0 DNG developed RGB, then pinned post-render export codec. Not browser full GPU rendering or original ExportPanel/provider acceptance.",
+  "nativeCommit": "b39884b38d8f148caef6fd0d52afd264951be329",
+  "decoderCommit": "a32bc1ff1f4f3c56d4d3226082f6eb17414f9159",
+  "fixture": {
+    "id": "raw.pixls.us 1327",
+    "camera": "Canon PowerShot A410",
+    "format": "DNG from CHDK RAW",
+    "license": "CC0-1.0",
+    "licenseSourceUrl": "https://raw.pixls.us/json/getrepository.php",
+    "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+    "sourceUrl": "https://raw.pixls.us/getfile.php/1327/nice/Canon%20-%20Canon%20PowerShot%20A410%20-%2010bit%2010bit%20CHDK%20ver.%201.5.0%20%284%3A3%29.DNG",
+    "sourceSha256": "f0d2fe47507fadf50008bddbc6bd2c5e39fddbe90cca6bca72dd360fa0e0eb38",
+    "nativeDecoded": true,
+    "wasmWorkerDecoded": true,
+    "nativeAndWasmReportExactMatch": true,
+    "width": 2144,
+    "height": 1560,
+    "componentsPerPixel": 1,
+    "bitsPerSample": 10,
+    "sampleCount": 3344640,
+    "decodedSensorSha256": "17124596990a87b26c4ea02994e0b0ddd5e65897d5661041142311a1e727a208"
+  },
+  "render": {
+    "width": 2048,
+    "height": 1536,
+    "inputF32Sha256": "f052bba0940702e068fb03d6a9f1cc78b9c57e7ff5758f1c460f28d11fb49e30",
+    "inputRgbaF16Sha256": "c9d0f0c230d432faa28555950cb713d4911552b1f4363a0120eecc29fd3cb352",
+    "shaderSha256": "9ecb4cc31b8ce4a12f439f69935ed0c8c27f58b52501929e0dc41d22e85ca178",
+    "highPrecisionOutput": 0,
+    "format": "rgba8unorm"
+  },
+  "nativeFrame": {
+    "adjustmentSha256": "7528054041d105912931d3cc66497b535740e7f03c198e6e9f3915cc44f1520e",
+    "bytes": 12582912,
+    "exposure": -0.5,
+    "png": {
+      "bitDepth": 8,
+      "bytes": 5094889,
+      "colorType": 6,
+      "dpi": 300,
+      "filename": "frame-0.png",
+      "sha256": "53109852ddfda1dfee009d64467a1fded0acf5135ee8619ecbfc859adb7f81fd"
+    },
+    "sha256": "e6273b8a5b8d8d653e6cbe19328ac88a77caae50af2f5295cf3c7a8444888bae"
+  },
+  "nativeOnlyBudget": {
+    "flag": "--export-codec-reference",
+    "dimensions": [
+      2048,
+      1536
+    ],
+    "cameraFrames": 1,
+    "estimatedTextureLimitBytes": 268435456,
+    "estimatedTextureBytes": 239075460,
+    "inputLimitBytes": 67108864,
+    "browserPreviewLimitUnchanged": true,
+    "invalidExplicitInputCasesRejected": 2
+  },
+  "reference": {
+    "source": "src-tauri/src/export_processing.rs",
+    "sourceSha256": "1393afa5760c14822344e6a8744b9dfc1591d52716b321916e80b2b3d7d82aa0",
+    "referenceCopy": "tests/reference/jpeg_export.rs",
+    "referenceSha256": "76d88d63981de45f79e96f7c219cfe918e6dcaaa0e819f89e23ce92db06966ac",
+    "sourceCommit": "b39884b38d8f148caef6fd0d52afd264951be329",
+    "scope": "Post-render RGBA8, no border/pad/watermark, original f32 target + Lanczos3 resize then RGB8 image JPEG encoder, source ICC and optional JFIF DPI; keepMetadata=false only. Not full export_images or provider acceptance."
+  },
+  "nativeSourceMatrixComparisons": 108,
+  "nativeCodec": {
+    "cases": [
+      {
+        "bytes": 655924,
+        "file": "case-0.jpg",
+        "settings": {
+          "dpi": 300,
+          "jpegQuality": 90
+        },
+        "sha256": "9cdca25668bdf162cc052c2cce115e968d16780fee43567971532474067e0462"
+      },
+      {
+        "bytes": 655924,
+        "file": "case-1.jpg",
+        "settings": {
+          "jpegQuality": 90
+        },
+        "sha256": "85f95017c281a61a41c1b31cf0331c7b029be6b80b73b28b7885cc0c97614268"
+      },
+      {
+        "bytes": 99810,
+        "file": "case-2.jpg",
+        "settings": {
+          "dpi": 72,
+          "jpegQuality": 75,
+          "resize": {
+            "dontEnlarge": true,
+            "mode": "longEdge",
+            "value": 1024
+          }
+        },
+        "sha256": "aca2ae1a388b54ce7a37e6a145e97031389b411ca81292bf5a3f23fbe179adf1"
+      },
+      {
+        "bytes": 223181,
+        "file": "case-3.jpg",
+        "settings": {
+          "dpi": 65535,
+          "jpegQuality": 100,
+          "resize": {
+            "dontEnlarge": false,
+            "mode": "shortEdge",
+            "value": 384
+          }
+        },
+        "sha256": "d41f6a40dc850b76712890bef2009954be2393fc91b28776cbeaf08bd1312a57"
+      },
+      {
+        "bytes": 15101,
+        "file": "case-4.jpg",
+        "settings": {
+          "jpegQuality": 1,
+          "resize": {
+            "dontEnlarge": false,
+            "mode": "width",
+            "value": 777
+          }
+        },
+        "sha256": "4aff9c557c225f2a4ce4c3ab64c8cf742ae8947a111bccf648db6e040bccadef"
+      },
+      {
+        "bytes": 51368,
+        "file": "case-5.jpg",
+        "settings": {
+          "dpi": 300,
+          "jpegQuality": 90,
+          "resize": {
+            "dontEnlarge": false,
+            "mode": "height",
+            "value": 333
+          }
+        },
+        "sha256": "298b027322847c588609fb26b5969c52c1205e2d790b661f5cd7c05436b8becd"
+      },
+      {
+        "bytes": 655924,
+        "file": "case-6.jpg",
+        "settings": {
+          "jpegQuality": 90,
+          "resize": {
+            "dontEnlarge": true,
+            "mode": "longEdge",
+            "value": 4096
+          }
+        },
+        "sha256": "85f95017c281a61a41c1b31cf0331c7b029be6b80b73b28b7885cc0c97614268"
+      }
+    ],
+    "height": 1536,
+    "inputRgba8Sha256": "e6273b8a5b8d8d653e6cbe19328ac88a77caae50af2f5295cf3c7a8444888bae",
+    "scope": "post-render codec only; full native rendered public DNG input, not browser full export_images",
+    "width": 2048
+  },
+  "sourceHashes": {
+    "experiments/rapidraw-wasm-core/src/jpeg_export.rs": "90d5a19402ea2092f864dbcb985e9577e4efed3889f31335dc01f25ae8692ab6",
+    "experiments/rapidraw-wasm-core/assets/sRGB-v2-magic.icc": "af4efe28f6d311799865f325ba39184a2e978b113ca74124d60af7de22b105f4",
+    "experiments/rapidraw-native-render-reference/src/main.rs": "cbf2ea7eefef6102368323346340cac16c0a5e0ded4d6d2d5d7f19b150ea8970",
+    "scripts/smoke-rapidraw-jpeg-export.mjs": "2930e703077af684c865f632bafd7a600f9785e227e0151608cd0b58aa607636"
+  },
+  "validation": {
+    "coreTests": 68,
+    "doctests": "pass",
+    "npmRunCheck": "pass",
+    "browser": "pass",
+    "focusedSyntaxFormatSourcePins": "pass"
+  }
+}
