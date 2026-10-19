@@ -289,5 +289,20 @@
     "referenceSha256": "76d88d63981de45f79e96f7c219cfe918e6dcaaa0e819f89e23ce92db06966ac",
     "sourceCommit": "b39884b38d8f148caef6fd0d52afd264951be329",
     "scope": "Post-render RGBA8, no border/pad/watermark, original f32 target + Lanczos3 resize then RGB8 image JPEG encoder, source ICC and optional JFIF DPI; keepMetadata=false only. Not full export_images or provider acceptance."
+  },
+  "fullExport": {
+    "nativeCommand": "export_images",
+    "source": "src-tauri/src/export_processing.rs",
+    "sourceSha256": "1393afa5760c14822344e6a8744b9dfc1591d52716b321916e80b2b3d7d82aa0",
+    "pipeline": "process_image_for_export_pipeline: full apply_all_transformations before EightBit GPU; show_clipping=0; then export geometry/JPEG codec",
+    "implementedSlice": "Original Basic controls and quarter-turn/flip on full native Quality-developed RGB; neutral preprocessing only. Fine rotation/crop/warp/effects/masks/metadata/ExportPanel/providers remain unavailable.",
+    "defaultsSha256": "d650db51fe618e3522767832edf911ea8b6da68d61c2db54912193c64d2332bc",
+    "nativeGeometryReference": "tests/reference/orientation_flip.rs",
+    "nativeGeometryReferenceSha256": "d050ac33be33f3d36859c1466b42c233f985775c6577187860e5cdbe53ad98b1",
+    "maxSensorSamplesBeforeDecode": 4194304,
+    "maxRenderPixels": 3145728,
+    "estimatedGpuPayloadLimitBytes": 268435456,
+    "previewPayloadLimitUnchangedBytes": 67108864,
+    "scope": "Dedicated worker/device/job lifecycle, no file writes or original full editor export acceptance. Estimates are not aggregate CPU/GPU peak-memory or allocator protection."
   }
 }

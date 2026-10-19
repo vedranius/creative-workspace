@@ -29,7 +29,27 @@ export class WebGpuUnsupportedError extends Error {
  * blur payloads are supplied by the caller; this function only uploads them,
  * it does not approximate RapidRAW's CPU/GPU preprocessing filters.
  */
-export function createNeutralRendererResources(device, { width, height, inputRgba, inputRgbaF16 }) {
+export function createNeutralRendererResources(device, options) {
+  return createRendererResources(device,options,MAX_FRAME_BUFFER_BYTES);
+}
+
+/** Separate experimental export budget; no preview budget override argument. */
+export function fullExportPlan(width,height) {
+  const pixels=width*height,rowBytes=Math.ceil(width*4/256)*256;
+  const estimatedGpuBytes=pixels*80+132+rowBytes*height+RAPIDRAW_ALL_ADJUSTMENTS_BYTES;
+  if(!Number.isSafeInteger(width)||!Number.isSafeInteger(height)||width<1||height<1||width>4096||height>4096||
+    !Number.isSafeInteger(pixels)||pixels>2048*1536||estimatedGpuBytes>256*1024*1024) {
+    throw new WebGpuUnsupportedError('Full export exceeds dedicated3MP/256MiB estimated GPU payload budget');
+  }
+  return {width,height,pixels,estimatedGpuBytes};
+}
+export function createFullExportResources(device,options) {
+  fullExportPlan(options.width,options.height);
+  if(!(options.inputRgbaF16 instanceof Uint16Array)||options.inputRgba!==undefined)throw new TypeError('Full export requires native RGBA16F upload');
+  return createRendererResources(device,options,256*1024*1024);
+}
+
+function createRendererResources(device, { width, height, inputRgba, inputRgbaF16 },textureBudget) {
   if (!device || typeof device.createTexture !== "function" || typeof device.queue?.writeTexture !== "function") {
     throw new TypeError("A WebGPU device with texture upload support is required");
   }
@@ -40,7 +60,7 @@ export function createNeutralRendererResources(device, { width, height, inputRgb
   const useF16 = inputRgbaF16 !== undefined;
   const frameBytes = useF16 ? 8 : 16;
   const totalUploadBytes = pixelCount * (frameBytes * 5 + 16 * 2 + 4) + 132;
-  if (!Number.isSafeInteger(pixelCount) || !Number.isSafeInteger(totalUploadBytes) || totalUploadBytes > MAX_FRAME_BUFFER_BYTES) {
+  if (!Number.isSafeInteger(pixelCount) || !Number.isSafeInteger(totalUploadBytes) || totalUploadBytes > textureBudget) {
     throw new WebGpuUnsupportedError("Neutral renderer input exceeds the bounded texture payload capacity");
   }
   if (width > device.limits?.maxTextureDimension2D || height > device.limits?.maxTextureDimension2D) {
@@ -241,6 +261,7 @@ export async function renderOriginalFrame({
   shaderSource,
   device: suppliedDevice,
   outputPrecision = "sixteen",
+  onSubmitted,
 }) {
   if (!["eight", "sixteen"].includes(outputPrecision)) throw new TypeError("Expected native eight or sixteen bit output precision");
   const format = outputPrecision === "eight" ? "rgba8unorm" : "rgba16float";
@@ -328,6 +349,7 @@ export async function renderOriginalFrame({
     { width, height, depthOrArrayLayers: 1 },
   );
   device.queue.submit([encoder.finish()]);
+  onSubmitted?.();
   await device.queue.onSubmittedWorkDone();
   const validationError = await device.popErrorScope();
   if (validationError) throw new Error(`RapidRAW WebGPU validation failed: ${validationError.message}`);

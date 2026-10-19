@@ -459,6 +459,11 @@ mod browser {
     }
 
     #[wasm_bindgen]
+    pub fn preflight_jpeg_export(width:u32,height:u32,json:&str)->Result<(),JsValue>{
+        super::jpeg_export::preflight(width,height,json).map_err(|e|JsValue::from_str(&e))
+    }
+
+    #[wasm_bindgen]
     pub fn encode_rendered_rgba8_jpeg(
         width: u32,
         height: u32,
@@ -593,6 +598,14 @@ mod browser {
             "sceneReferred":shot.exposure.scene_referred,"dngBaseline":shot.exposure.dng_baseline,
             "highlightPreservation":shot.exposure.highlight_preservation,
         }}).to_string())
+    }
+
+    /// Sensor metadata only, before allocation/decompression in a dedicated export job.
+    #[wasm_bindgen]
+    pub fn inspect_sensor(bytes: &[u8]) -> Result<String, JsValue> {
+        let p = super::preflight_sensor_bytes(bytes).map_err(|e| JsValue::from_str(&e))?;
+        Ok(serde_json::json!({"width":p.width,"height":p.height,"cpp":p.cpp,
+            "sampleCount":p.sample_count,"estimatedSensorBytes":p.estimated_sensor_bytes}).to_string())
     }
 
     #[wasm_bindgen]

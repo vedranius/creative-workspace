@@ -88,12 +88,10 @@ impl Write for Capped<'_> {
     }
 }
 
-/// Exact already-rendered RGBA8 only. No metadata copy, border/pad/watermark,
-/// path access, file write or preview fallback. Per-buffer caps are not peak RAM protection.
-pub fn encode(w: u32, h: u32, pixels: &[u8], json: &str) -> Result<Vec<u8>, String> {
-    let count = bounded(w, h)?;
-    if pixels.len() != count || json.len() > 4096 {
-        return Err("JPEG input/settings length mismatch".into());
+fn plan(w: u32, h: u32, json: &str) -> Result<(Settings, u32, u32), String> {
+    bounded(w, h)?;
+    if json.len() > 4096 {
+        return Err("JPEG settings exceed4096 bytes".into());
     }
     let settings: Settings = serde_json::from_str(json).map_err(|e| e.to_string())?;
     if !(1..=100).contains(&settings.jpeg_quality)
@@ -112,6 +110,20 @@ pub fn encode(w: u32, h: u32, pixels: &[u8], json: &str) -> Result<Vec<u8>, Stri
     if (tw, th) != (w, h) && u64::from(w) * u64::from(th) * 16 > MAX_BYTES as u64 {
         return Err("JPEG Lanczos intermediate exceeds64 MiB".into());
     }
+    Ok((settings, tw, th))
+}
+/// Validate source/target/intermediate/settings without cloning pixels or rendering.
+pub fn preflight(w: u32, h: u32, json: &str) -> Result<(), String> {
+    plan(w, h, json).map(|_| ())
+}
+
+/// Exact already-rendered RGBA8 only. No metadata copy, border/pad/watermark,
+/// path access, file write or preview fallback. Per-buffer caps are not peak RAM protection.
+pub fn encode(w: u32, h: u32, pixels: &[u8], json: &str) -> Result<Vec<u8>, String> {
+    if pixels.len() != bounded(w, h)? {
+        return Err("JPEG input length mismatch".into());
+    }
+    let (settings, tw, th) = plan(w, h, json)?;
     let mut image =
         DynamicImage::ImageRgba8(RgbaImage::from_raw(w, h, pixels.to_vec()).ok_or("Invalid RGBA")?);
     if (tw, th) != (w, h) {

@@ -89,3 +89,18 @@ fn reference_excerpt_and_icc_remain_pinned() {
     );
     assert_eq!(include_bytes!("../assets/sRGB-v2-magic.icc").len(), 736);
 }
+
+#[test]
+fn codec_preflight_rejects_before_pixels_or_gpu_are_needed() {
+    use cw_rapidraw_wasm_probe::jpeg_export::preflight;
+    assert!(preflight(2048, 1536, r#"{"jpegQuality":90,"dpi":300}"#).is_ok());
+    assert!(
+        preflight(
+            2048,
+            1536,
+            r#"{"jpegQuality":90,"resize":{"mode":"width","value":32768,"dontEnlarge":false}}"#
+        )
+        .is_err()
+    );
+    assert!(preflight(2048, 1536, r#"{"jpegQuality":90,"keepMetadata":true}"#).is_err());
+}

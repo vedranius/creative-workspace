@@ -286,3 +286,13 @@ test('native JPEG preview preserves ArrayBuffer and rejects malformed envelope o
   assert.deepEqual(new Uint8Array(encodePreviewResponse(interactive,frame,options)),envelope);
   view.setUint32(0,3,true);assert.throws(()=>encodePreviewResponse(interactive,frame,options),/rectangle mismatch/);
 });
+
+test('full export has fixed separate GPU budget while preview cap stays unchanged', async()=>{
+ const {fullExportPlan,createFullExportResources}=await import('./webgpu-renderer.js');
+ assert.equal(fullExportPlan(2048,1536).estimatedGpuBytes,264286516);
+ for(const [w,h]of [[0,1],[4096,4096],[2048,1537],[Infinity,1]])assert.throws(()=>fullExportPlan(w,h),/dedicated/);
+ const {device,calls}=makeDevice();
+ assert.throws(()=>createNeutralRendererResources(device,{width:2048,height:1536,inputRgbaF16:new Uint16Array(0),textureBudget:256*1024*1024}),/bounded texture/);
+ assert.throws(()=>createFullExportResources(device,{width:4096,height:4096,inputRgbaF16:new Uint16Array(0)}),/dedicated/);
+ assert.equal(calls.length,0);
+});

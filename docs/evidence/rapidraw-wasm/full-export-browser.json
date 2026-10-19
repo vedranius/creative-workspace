@@ -1,0 +1,219 @@
+{
+  "scope": "Real full public RAW Quality -> original Basic/quarter-turn full EightBit render -> JPEG. No original ExportPanel/provider/write acceptance.",
+  "fixture": {
+    "id": "raw.pixls.us 1327",
+    "license": "CC0-1.0",
+    "sourceSha256": "f0d2fe47507fadf50008bddbc6bd2c5e39fddbe90cca6bca72dd360fa0e0eb38"
+  },
+  "wasmSha256": "510003f644af4f22034a5c02e41b5e0e1d790d17fa42253506f1151e6ed5c0ce",
+  "defaultsSha256": "d650db51fe618e3522767832edf911ea8b6da68d61c2db54912193c64d2332bc",
+  "previewRefused": true,
+  "refusals": [
+    {
+      "name": "sensor-budget",
+      "reason": "export-error",
+      "error": "Full export sensor exceeds dedicated4M sample preflight",
+      "stages": []
+    },
+    {
+      "name": "truncated",
+      "reason": "export-error",
+      "error": "Error: No decoder found, model '', make: '', mode: ''",
+      "stages": []
+    },
+    {
+      "name": "quality",
+      "reason": "export-error",
+      "error": "JPEG quality, DPI or resize value outside supported range",
+      "stages": []
+    },
+    {
+      "name": "unknown-codec",
+      "reason": "export-error",
+      "error": "unknown field `keepMetadata`, expected one of `jpegQuality`, `dpi`, `resize` at line 1 column 32",
+      "stages": []
+    },
+    {
+      "name": "crop-not-supported",
+      "reason": "export-error",
+      "error": "Unsupported full export adjustment crop",
+      "stages": []
+    },
+    {
+      "name": "nonfinite-basic",
+      "reason": "export-error",
+      "error": "Expected finite original Basic values",
+      "stages": []
+    },
+    {
+      "name": "oversize-output",
+      "reason": "export-error",
+      "error": "JPEG requires nonzero dimensions <=32768 and RGBA8 <=64 MiB",
+      "stages": []
+    }
+  ],
+  "cancelled": {
+    "id": 8,
+    "ok": false,
+    "reason": "aborted",
+    "forcedTermination": false,
+    "deviceDestroyed": true
+  },
+  "cancelStages": [
+    "sensor-preflight",
+    "developed",
+    "prepared",
+    "gpu-submitted"
+  ],
+  "overlapping": {
+    "ok": false,
+    "reason": "busy"
+  },
+  "timedOut": {
+    "id": 9,
+    "ok": false,
+    "reason": "timeout",
+    "forcedTermination": false,
+    "deviceDestroyed": false
+  },
+  "cases": [
+    {
+      "name": "identity-full",
+      "id": 10,
+      "ok": true,
+      "width": 2048,
+      "height": 1536,
+      "developedSha256": "f052bba0940702e068fb03d6a9f1cc78b9c57e7ff5758f1c460f28d11fb49e30",
+      "rgbSha256": "f052bba0940702e068fb03d6a9f1cc78b9c57e7ff5758f1c460f28d11fb49e30",
+      "uploadSha256": "c9d0f0c230d432faa28555950cb713d4911552b1f4363a0120eecc29fd3cb352",
+      "adjustmentSha256": "7528054041d105912931d3cc66497b535740e7f03c198e6e9f3915cc44f1520e",
+      "rgbaSha256": "e6273b8a5b8d8d653e6cbe19328ac88a77caae50af2f5295cf3c7a8444888bae",
+      "jpegSha256": "9cdca25668bdf162cc052c2cce115e968d16780fee43567971532474067e0462",
+      "plan": {
+        "width": 2048,
+        "height": 1536,
+        "pixels": 3145728,
+        "estimatedGpuBytes": 264286516
+      },
+      "gpuErrors": [],
+      "deviceDestroyed": true,
+      "jpegDimensions": [
+        2048,
+        1536
+      ],
+      "stages": [
+        {
+          "id": 10,
+          "status": "sensor-preflight",
+          "sensor": {
+            "cpp": 1,
+            "estimatedSensorBytes": 6689280,
+            "height": 1560,
+            "sampleCount": 3344640,
+            "width": 2144
+          }
+        },
+        {
+          "id": 10,
+          "status": "developed",
+          "width": 2048,
+          "height": 1536,
+          "rgbSha256": "f052bba0940702e068fb03d6a9f1cc78b9c57e7ff5758f1c460f28d11fb49e30"
+        },
+        {
+          "id": 10,
+          "status": "prepared",
+          "width": 2048,
+          "height": 1536,
+          "pixels": 3145728,
+          "estimatedGpuBytes": 264286516,
+          "rgbSha256": "f052bba0940702e068fb03d6a9f1cc78b9c57e7ff5758f1c460f28d11fb49e30",
+          "uploadSha256": "c9d0f0c230d432faa28555950cb713d4911552b1f4363a0120eecc29fd3cb352",
+          "adjustmentSha256": "7528054041d105912931d3cc66497b535740e7f03c198e6e9f3915cc44f1520e"
+        },
+        {
+          "id": 10,
+          "status": "gpu-submitted"
+        },
+        {
+          "id": 10,
+          "status": "rendered",
+          "width": 2048,
+          "height": 1536,
+          "rgbaSha256": "e6273b8a5b8d8d653e6cbe19328ac88a77caae50af2f5295cf3c7a8444888bae"
+        }
+      ]
+    },
+    {
+      "name": "quarter-turn-flip-resized",
+      "id": 11,
+      "ok": true,
+      "width": 2048,
+      "height": 1536,
+      "developedSha256": "f052bba0940702e068fb03d6a9f1cc78b9c57e7ff5758f1c460f28d11fb49e30",
+      "rgbSha256": "b9d58e14274805b8fc71e1489c03ed6cb3573f7e9753f9cae266afba50141651",
+      "uploadSha256": "a3193c1c59512246f103874c8a77585f2ae7b100a87cf52b4378883d42492961",
+      "adjustmentSha256": "7528054041d105912931d3cc66497b535740e7f03c198e6e9f3915cc44f1520e",
+      "rgbaSha256": "6c3c901bb53ba9eac7409d4675d71c022502ead589f606aa36e75be4364d429b",
+      "jpegSha256": "d903af3c48de4b94b7309b61a12901447ef69db47d54fcdb36261467a3fe1bb1",
+      "plan": {
+        "width": 2048,
+        "height": 1536,
+        "pixels": 3145728,
+        "estimatedGpuBytes": 264286516
+      },
+      "gpuErrors": [],
+      "deviceDestroyed": true,
+      "jpegDimensions": [
+        1024,
+        768
+      ],
+      "stages": [
+        {
+          "id": 11,
+          "status": "sensor-preflight",
+          "sensor": {
+            "cpp": 1,
+            "estimatedSensorBytes": 6689280,
+            "height": 1560,
+            "sampleCount": 3344640,
+            "width": 2144
+          }
+        },
+        {
+          "id": 11,
+          "status": "developed",
+          "width": 2048,
+          "height": 1536,
+          "rgbSha256": "f052bba0940702e068fb03d6a9f1cc78b9c57e7ff5758f1c460f28d11fb49e30"
+        },
+        {
+          "id": 11,
+          "status": "prepared",
+          "width": 2048,
+          "height": 1536,
+          "pixels": 3145728,
+          "estimatedGpuBytes": 264286516,
+          "rgbSha256": "b9d58e14274805b8fc71e1489c03ed6cb3573f7e9753f9cae266afba50141651",
+          "uploadSha256": "a3193c1c59512246f103874c8a77585f2ae7b100a87cf52b4378883d42492961",
+          "adjustmentSha256": "7528054041d105912931d3cc66497b535740e7f03c198e6e9f3915cc44f1520e"
+        },
+        {
+          "id": 11,
+          "status": "gpu-submitted"
+        },
+        {
+          "id": 11,
+          "status": "rendered",
+          "width": 2048,
+          "height": 1536,
+          "rgbaSha256": "6c3c901bb53ba9eac7409d4675d71c022502ead589f606aa36e75be4364d429b"
+        }
+      ]
+    }
+  ],
+  "recoveredAfterCancelAndTimeout": true,
+  "pageErrors": [],
+  "failedRequests": [],
+  "externalRequests": []
+}

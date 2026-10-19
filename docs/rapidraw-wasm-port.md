@@ -1,3 +1,9 @@
+# RWASM-03 — full image Basic export worker (2026-10-19)
+
+The browser now develops the real public RAW, applies source quarter-turn/flip and renders the full2048×1536 image before JPEG export resize. Two jobs match25,165,824 native RGBA8 components and755,670 JPEG bytes exactly. GPU-submit cancellation, timeout, overlap refusal, seven invalid-input refusals and successful subsequent jobs are verified. [Evidence, resource limits and next task](rapidraw-wasm-full-export-handoff.md).
+
+Core69/host25/check and sandboxed browser pass. A separate3MP/256MiB estimated GPU export budget preserves the64MiB preview cap; no aggregate memory guarantee. This is the Basic/quarter-turn slice only: original ExportPanel/export_images, destination/provider acceptance and other transformations/effects remain open. No public editor/release/demo change. Next A: current alpha62 Actions/assets gate; next B: original single-file ExportPanel bridge and real write-ACK lifecycle. MAIN only.
+
 # RWASM-03 — post-render JPEG export codec (2026-10-19)
 
 The pinned native Lanczos3→RGB8 JPEG encoder, sRGB ICC and optional JFIF DPI now run in WASM on full native-rendered public DNG pixels. Seven browser outputs match2,357,232 native bytes;11 malformed/oversize/truncated requests refuse and the same worker recovers. Real OPFS close/readback and aborted-write QA pass. [Evidence, limits and next task](rapidraw-wasm-jpeg-export-handoff.md).
