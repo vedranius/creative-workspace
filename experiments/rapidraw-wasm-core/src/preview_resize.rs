@@ -75,3 +75,49 @@ pub fn resize_preview(
         data: result.into_raw(),
     })
 }
+
+/// Original generate_uncropped_preview uses square bounds directly, before orientation.
+pub fn resize_uncropped(
+    width: u32,
+    height: u32,
+    pixels: &[f32],
+    target: u32,
+) -> Result<PreviewPixels, String> {
+    let count = samples(width, height)?;
+    if target == 0
+        || target > 32768
+        || pixels.len() != count
+        || pixels.iter().any(|v| !v.is_finite() || v.abs() > 65504.)
+    {
+        return Err("Expected bounded uncropped target and finite RGB".into());
+    }
+    let ratio = (target as f32 / width as f32).min(target as f32 / height as f32);
+    let (w, h) = if target >= width && target >= height {
+        (width, height)
+    } else {
+        let w = (width as f32 * ratio).round() as u32;
+        let h = (height as f32 * ratio).round() as u32;
+        if w == 0 || h == 0 {
+            (width, height)
+        } else {
+            (w, h)
+        }
+    };
+    samples(w, h)?;
+    if w as u64 * h as u64 * 76 + 132 > 64 * 1024 * 1024 {
+        return Err("Uncropped preview exceeds bounded64MiB GPU payload".into());
+    }
+    let source = DynamicImage::ImageRgb32F(
+        Rgb32FImage::from_raw(width, height, pixels.to_vec()).ok_or("Uncropped shape mismatch")?,
+    );
+    let result =
+        crate::original_downscale::downscale_f32_image(&source, target, target).into_rgb32f();
+    if result.dimensions() != (w, h) {
+        return Err("Original uncropped size mismatch".into());
+    }
+    Ok(PreviewPixels {
+        width: w,
+        height: h,
+        data: result.into_raw(),
+    })
+}

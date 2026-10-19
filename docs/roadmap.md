@@ -1,3 +1,11 @@
+# RWASM-03 — original crop tool and corner drag (2026-10-19)
+
+Actual original PanelSwitcher activates Crop; original useImageProcessing receives the source q80 uncropped JPEG data URL. A real original ReactCrop southeast-handle drag creates1891×1418 integer crop, then actual Adjustments tab/reset restores the baseline. Uncropped29,977 bytes and cropped60,876 bytes plus RGB/complete adjustment/pixel hashes match independent native source exactly. [Proof and next task](rapidraw-wasm-crop-canvas-handoff.md).
+
+Core60/60 and doctests, host23/23, npm run check and focused format/syntax/diff pass. Original components and App distance5 sensor configuration are retained; this is one fixture/corner, not all geometry/full App/provider/export acceptance. No product version/release/install/demo change.
+
+Next ready WASM task: Trace pinned original apply_rotation and compute_transformed_preview fine-rotation behavior, including RGBA intermediate sizing, orientation/flip→fine rotation→crop order, source angle/rounding/filter policy and original CropPanel fine-rotation control. Port one bounded supported fine-rotation slice without changing source handlers or raising resource limits. Prove actual original slider edit and reset plus native/WASM RGB or RGBA, final pixels/JPEG, malformed/oversize refusal and document recovery. Keep warp/effects/ROI/export/provider acceptance explicit. MAIN only; one writer.
+
 # RWASM-03 — original integer crop presets (2026-10-18)
 
 Unchanged original CropPanel 1:1/16:9 presets, Rotate Right, Flip Horiz and reset now drive source crop-specific preview sizing followed by orientation→flip→crop. Six actual UI actions match independent native RGB, complete adjustment hashes,5,308,416 RGBA8 components and391,185 JPEG bytes exactly; resets restore the initial JPEG. [Proof and next task](rapidraw-wasm-crop-handoff.md).

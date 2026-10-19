@@ -50,11 +50,12 @@ export function createReactTransport({wasm,device,shaderSource,defaults,getPrevi
    return {width:image.width,height:image.height,is_raw:true,as_shot_white_balance:image.asShot.whiteBalance,
     metadata:{adjustments:null},exif:{},development_mode:image.developmentMode};
   }
-  if(command==='apply_adjustments'){
+  if(command==='apply_adjustments'||command==='generate_uncropped_preview'){
+   const uncropped=command==='generate_uncropped_preview';
    const image=current;if(!image)throw Error('No browser RAW image loaded');check(image.version);
    if(args.roi!=null||args.computeWaveform)throw new UnavailableCommandError('ROI/waveform');
    const settings=getPreviewSettings(),liveQuality=settings?.livePreviewQuality??'high';
-   const interactive=!!args.isInteractive,previewDim=args.targetResolution??settings?.editorPreviewResolution??1920;
+   const interactive=uncropped?false:!!args.isInteractive,previewDim=args.targetResolution??settings?.editorPreviewResolution??1920;
    if(typeof liveQuality!=='string'||liveQuality.length>128)throw TypeError('Invalid live preview quality');
 
    if(!Number.isSafeInteger(previewDim)||previewDim<1||previewDim>32768)throw TypeError('Invalid original preview target');
@@ -62,31 +63,38 @@ export function createReactTransport({wasm,device,shaderSource,defaults,getPrevi
    if(!adjustments||typeof adjustments!=='object'||Array.isArray(adjustments))throw TypeError('Expected original adjustments');
    const orientationSteps=adjustments.orientationSteps??0,flipHorizontal=adjustments.flipHorizontal??false,flipVertical=adjustments.flipVertical??false;
    if(!Number.isSafeInteger(orientationSteps)||orientationSteps<0||orientationSteps>3||typeof flipHorizontal!=='boolean'||typeof flipVertical!=='boolean')throw TypeError('Invalid original rotation/flip');
-   const crop=adjustments.crop??null;
+   const crop=uncropped?null:adjustments.crop??null;
    if(crop!==null){
     if(typeof crop!=='object'||Array.isArray(crop)||Object.keys(crop).some(k=>!['x','y','width','height','unit'].includes(k))||crop.unit!==undefined&&crop.unit!=='px'||!['x','y','width','height'].every(k=>Number.isSafeInteger(crop[k]))||crop.x<0||crop.y<0||crop.width<1||crop.height<1||crop.width>32768||crop.height>32768)throw TypeError('Expected bounded integer full-image crop');
    }
    const geometry={orientationSteps,flipHorizontal,flipVertical,crop:crop===null?null:{x:crop.x,y:crop.y,width:crop.width,height:crop.height}};
-   const key=JSON.stringify([previewDim,geometry,interactive?liveQuality:'final']);
+   const key=JSON.stringify([uncropped,previewDim,geometry,interactive?liveQuality:'final']);
    for(const [key,value] of Object.entries(adjustments)){
+    if(uncropped&&key==='showClipping')continue;
     if(supported.has(key)||['orientationSteps','flipHorizontal','flipVertical','crop','aspectRatio'].includes(key))continue;
     if(JSON.stringify(value)!==JSON.stringify(defaults[key]))throw new UnavailableCommandError(`adjustment ${key}`);
    }
    for(const key of supported){if(key==='toneMapper'){if(!['basic','agx'].includes(adjustments[key]??'basic'))throw TypeError('Invalid tone mapper');}
     else if(typeof adjustments[key]!=='number'||!Number.isFinite(adjustments[key]))throw TypeError('Expected finite original Basic value');}
    if(image.preview?.key!==key){
-    const preview=await image.client.call('preview',{previewDim,interactive,liveQuality,...geometry});check(image.version);
+    const preview=await image.client.call(uncropped?'uncropped':'preview',{previewDim,interactive,liveQuality,...geometry});check(image.version);
     const inputRgbaF16=packRgb32fRendererInput(wasm,preview.width,preview.height,preview.data);
     await device.queue.onSubmittedWorkDone();check(image.version);
     image.resources?.ownedTextures.forEach(t=>t.destroy());image.resources=null;image.preview=null;
     image.resources=createNeutralRendererResources(device,{width:preview.width,height:preview.height,inputRgbaF16});
     image.preview={width:preview.width,height:preview.height,target:previewDim,key,quality:preview.quality,divisor:preview.divisor,scaleForGpu:preview.scaleForGpu,cropOffset:[preview.cropOffsetX??0,preview.cropOffsetY??0]};
-    trace.push({command:'preview-result',geometry,target:previewDim,interactive,liveQuality,quality:preview.quality,divisor:preview.divisor,width:preview.width,height:preview.height,originalWidth:image.width,originalHeight:image.height,scaleForGpu:preview.scaleForGpu,cropOffset:[preview.cropOffsetX??0,preview.cropOffsetY??0],rgbSha256:preview.rgbSha256});
+    trace.push({command:uncropped?'uncropped-preview-result':'preview-result',geometry,target:previewDim,interactive,liveQuality,quality:preview.quality,divisor:preview.divisor,width:preview.width,height:preview.height,originalWidth:image.width,originalHeight:image.height,scaleForGpu:preview.scaleForGpu,cropOffset:[preview.cropOffsetX??0,preview.cropOffsetY??0],rgbSha256:preview.rgbSha256});
    }
-   const packed=packGlobalRendererFixture(wasm,JSON.stringify(adjustments),image.asShot,{baselineExposure:0,compensateHighlightPreservation:true});
+   const packed=packGlobalRendererFixture(wasm,JSON.stringify(uncropped?{...adjustments,showClipping:false}:adjustments),image.asShot,{baselineExposure:0,compensateHighlightPreservation:true});
    const frame=await renderOriginalFrame({device,width:image.preview.width,height:image.preview.height,shaderSource,
     inputTexture:image.resources.inputTexture,adjustments:packed,resources:image.resources.resources,outputPrecision:'eight'});
    check(image.version);
+   if(uncropped){
+    const bytes=wasm.encode_uncropped_preview(frame.width,frame.height,frame.pixels);
+    const reader=new FileReader();const dataUrl=await new Promise((resolve,reject)=>{reader.onload=()=>resolve(reader.result);reader.onerror=()=>reject(reader.error);reader.readAsDataURL(new Blob([bytes],{type:'image/jpeg'}));});check(image.version);
+    trace.push({command:'uncropped-result',geometry,width:frame.width,height:frame.height,quality:80,bytes:bytes.byteLength,rgbSha256:trace.findLast(t=>t.command==='uncropped-preview-result')?.rgbSha256,scaleForGpu:image.preview.scaleForGpu,cropOffset:image.preview.cropOffset,adjustmentSha256:await hash(packed.bytes),rgbaSha256:await hash(frame.pixels),jpegSha256:await hash(bytes)});
+    check(image.version);return dataUrl;
+   }
    const response=encodePreviewResponse(wasm,frame,{interactive,quality:image.preview.quality});
    const hashes={adjustmentSha256:await hash(packed.bytes),rgbaSha256:await hash(frame.pixels),responseSha256:await hash(response),jpegSha256:await hash(interactive?response.slice(24):response)};check(image.version);
    trace.push({...hashes,command:'render-result',geometry,exposure:adjustments.exposure,width:frame.width,height:frame.height,

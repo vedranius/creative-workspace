@@ -76,3 +76,32 @@ pub fn encode_preview_response(
         Ok(jpeg_bytes)
     }
 }
+
+/// Exact source generate_uncropped_preview codec: RGBA->RGB, q80, default color conversion.
+pub fn encode_uncropped_preview(width: u32, height: u32, pixels: &[u8]) -> Result<Vec<u8>, String> {
+    let count = (width as usize)
+        .checked_mul(height as usize)
+        .and_then(|n| n.checked_mul(4))
+        .ok_or("Uncropped size overflow")?;
+    if width == 0
+        || height == 0
+        || width > 32768
+        || height > 32768
+        || count > MAX_BYTES
+        || pixels.len() != count
+    {
+        return Err("Expected exact bounded uncropped RGBA8".into());
+    }
+    let rgb_pixels = pixels
+        .chunks_exact(4)
+        .flat_map(|p| p[..3].iter().copied())
+        .collect::<Vec<_>>();
+    let bytes = Encoder::new(Preset::BaselineFastest)
+        .quality(80)
+        .encode_rgb(&rgb_pixels, width, height)
+        .map_err(|e| e.to_string())?;
+    if bytes.len() > MAX_BYTES {
+        return Err("Uncropped JPEG exceeds64MiB".into());
+    }
+    Ok(bytes)
+}

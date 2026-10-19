@@ -215,7 +215,9 @@
       "src/hooks/useAppInitialization.ts": "418afe949997ae248fb4f10a84ab4c52da27e8bad536c5fec95a2f4210f43e41",
       "src/components/panel/right/CropPanel.tsx": "7543bd1a89fbb0fc27c98e31939f33f2781ca534fbfec9a1a3670d42f584376a",
       "src/context/ContextMenuContext.tsx": "0aba3ced9cfe5daebf7d5683fa0e6b1b784f7f8fef7092629548a80b31ba31a6",
-      "src/utils/cropUtils.ts": "f8db8c6fcf86a6d44c25b5f72233d40f4d5df2a0733d346b76ea6836c6fd24d1"
+      "src/utils/cropUtils.ts": "f8db8c6fcf86a6d44c25b5f72233d40f4d5df2a0733d346b76ea6836c6fd24d1",
+      "src/components/panel/PanelSwitcher.tsx": "37e260cbb8bda71c8f3e960cdde887a5a349510e444220fe19e95c45c5978413",
+      "src/App.tsx": "a68247133c1796b6b29b7772f2a3efe2dab4ca3ea4faef860cd9d1877f9abdf2"
     },
     "scope": "Unchanged original hooks/stores/Editor/ImageCanvas/Basic/Slider in QA composition. Core invoke redirected; native Clerk explicitly unavailable; native Speed dimensions512x384. Full App/menu/provider/resizing/ROI/effect acceptance remains open."
   },
@@ -254,5 +256,13 @@
     "referenceSha256": "64c1db8195b7054e7204d694ef1083bc4867689b1b27b8ba8d7434d4b715d255",
     "scope": "Integer full-image crop, source crop-specific area working size then orientation/flip/crop. Fine rotation/warp/effects/ROI remain unsupported.",
     "pipelineReferenceSha256": "95d47d2beb1f23663096eba0afcfaba3ec57c2e7828f437ce215b812fa8211ce"
+  },
+  "uncroppedPreview": {
+    "source": "CyberTimon/RapidRAW",
+    "commit": "b39884b38d8f148caef6fd0d52afd264951be329",
+    "libSha256": "ce69ae5e06b5c5f0eb7b6592d981c727c1be07e7787000a41e50ed77618b2606",
+    "codecReferenceSha256": "25d4484d315941852ec84b1b09f7d62ed2d10eaa6e75f6701957f4c75f1eb0af",
+    "scope": "Direct square area resize before orientation/flips, pre-orientation f32 scale, crop offset0/show_clipping0, source q80 encode_rgb with default color conversion and JPEG data URL.",
+    "layoutSensorSource": "App.tsx layoutSensors: PointerSensor activationConstraint distance5"
   }
 }

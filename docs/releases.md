@@ -1,3 +1,7 @@
+# Unreleased RapidRAW crop canvas checkpoint — 2026-10-19
+
+Actual original Crop tab, source q80 uncropped JPEG data URL, corner drag and Adjustments/reset now match independent native processing. [Proof and next fine-rotation task](rapidraw-wasm-crop-canvas-handoff.md). One public fixture/corner is evidenced; full geometry/editor/provider/export acceptance remains open. No product SemVer/tag/release/install/demo update; existing immutable draft stays separate.
+
 # Unreleased RapidRAW integer crop checkpoint — 2026-10-18
 
 Actual unchanged CropPanel 1:1/16:9 preset, rotation, flip and reset controls now drive source crop-specific working resolution and native-identical RGB/pixels/JPEG. [Proof and next crop-canvas task](rapidraw-wasm-crop-handoff.md). Crop tool/uncropped-preview/canvas, fine rotation/warp/effects/ROI/metadata/menus/export/provider acceptance remain open. No product SemVer/tag/release/install/demo update; the remote v0.2.0-alpha.60 remains draft/prerelease, authenticated as vedranius.

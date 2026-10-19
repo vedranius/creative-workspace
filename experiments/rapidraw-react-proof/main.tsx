@@ -4,6 +4,8 @@ import {createRoot} from 'react-dom/client';
 import {ToastContainer} from 'react-toastify';
 import Editor from './src/components/panel/Editor';
 import Basic from './src/components/adjustments/Basic';
+import {DndContext,PointerSensor,useSensor,useSensors} from '@dnd-kit/core';
+import PanelSwitcher from './src/components/panel/PanelSwitcher';
 import CropPanel from './src/components/panel/right/CropPanel';
 import {ContextMenuProvider} from './src/context/ContextMenuContext';
 import {useImageLoader} from './src/hooks/useImageLoader';
@@ -43,11 +45,12 @@ function Proof(){
    useEditorStore.getState().setEditor({selectedImage:{path,width:0,height:0,exif:{},isRaw:false,thumbnailUrl:'',isReady:false} as any,finalPreviewUrl:null,interactivePatch:null});
   }}/></header><main style={{display:'flex',height:'calc(100vh - 70px)',background:'#171717',color:'white'}}>
   <section style={{flex:1,minWidth:0,display:'flex'}}><Editor transformWrapperRef={transform} onBackToLibrary={()=>{}} onContextMenu={e=>e.preventDefault()}/></section>
-  <aside aria-label="Original Basic panel" style={{width:300,padding:16,overflow:'auto'}}><Basic adjustments={adjustments} appSettings={settings}
+  <aside aria-label="Original Basic panel" style={{width:300,padding:16,overflow:'auto'}}><PanelSwitcher region="rightTop" side="right" placement="top"/><Basic adjustments={adjustments} appSettings={settings}
    setAdjustments={(update:any)=>useEditorStore.getState().setEditor(state=>({adjustments:typeof update==='function'?update(state.adjustments):{...state.adjustments,...update}}))}
    onDragStateChange={isSliderDragging=>useEditorStore.getState().setEditor({isSliderDragging})}/>
  <section aria-label="Original geometry panel"><CropPanel/></section></aside>
  </main><ToastContainer position="bottom-left" theme="dark"/></>;
 }
-const root=createRoot(document.getElementById('root')!);root.render(<ContextMenuProvider><Proof/></ContextMenuProvider>);
-(globalThis as any).proof={gpuErrors,adapter:{vendor:adapter.info.vendor,architecture:adapter.info.architecture},store:useEditorStore,trace:transport.trace,setLiveQuality(livePreviewQuality:string){useSettingsStore.getState().setAppSettings({...useSettingsStore.getState().appSettings,livePreviewQuality} as any);},async close(){root.unmount();await transport.close();device.destroy();},settings};
+function Layout(){const layoutSensors=useSensors(useSensor(PointerSensor,{activationConstraint:{distance:5}}));return <DndContext sensors={layoutSensors}><ContextMenuProvider><Proof/></ContextMenuProvider></DndContext>;}
+const root=createRoot(document.getElementById('root')!);root.render(<Layout/>);
+(globalThis as any).proof={gpuErrors,adapter:{vendor:adapter.info.vendor,architecture:adapter.info.architecture},store:useEditorStore,trace:transport.trace,uiStore:useUIStore,setLiveQuality(livePreviewQuality:string){useSettingsStore.getState().setAppSettings({...useSettingsStore.getState().appSettings,livePreviewQuality} as any);},async close(){root.unmount();await transport.close();device.destroy();},settings};

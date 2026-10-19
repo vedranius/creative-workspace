@@ -1,3 +1,9 @@
+## Experimental RapidRAW branch — original crop canvas (2026-10-19)
+
+- Add source direct-square area resize and original q80/default-color RGB JPEG/data URL path for generate_uncropped_preview, preserving pre-orientation scale, zero crop offset and clipping-off policy.
+- Mount unchanged PanelSwitcher and source App distance5 sensor config. Actual original crop-corner drag commits1891×1418; q80 uncropped/q94 cropped pixels/JPEG match native, Adjustments/reset restores initial image. Core60/host23/check pass.
+- Record source/native/browser evidence and Actions reproduction. Fine rotation/warp/effects/ROI/metadata/full App/export/providers remain open; no product version/release/demo change.
+
 ## Experimental RapidRAW branch — original bounded crop presets (2026-10-18)
 
 - Preserve original crop-specific working resolution, quarter-turn→flip→crop order, rounded/clamped preview coordinates, f32 scale and full-image offsets behind integer/resource/input guards.

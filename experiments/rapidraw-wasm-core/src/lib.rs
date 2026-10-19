@@ -751,6 +751,35 @@ mod browser {
         Ok(out.into())
     }
 
+    #[wasm_bindgen]
+    pub fn encode_uncropped_preview(
+        width: u32,
+        height: u32,
+        pixels: &[u8],
+    ) -> Result<Vec<u8>, JsValue> {
+        super::preview::encode_uncropped_preview(width, height, pixels)
+            .map_err(|e| JsValue::from_str(&e))
+    }
+    #[wasm_bindgen]
+    pub fn resize_uncropped_rgb32f(
+        width: u32,
+        height: u32,
+        pixels: &[f32],
+        target: u32,
+    ) -> Result<JsValue, JsValue> {
+        let p = super::preview_resize::resize_uncropped(width, height, pixels, target)
+            .map_err(|e| JsValue::from_str(&e))?;
+        let out = Object::new();
+        Reflect::set(&out, &"width".into(), &JsValue::from_f64(p.width as f64))?;
+        Reflect::set(&out, &"height".into(), &JsValue::from_f64(p.height as f64))?;
+        Reflect::set(
+            &out,
+            &"data".into(),
+            Float32Array::from(p.data.as_slice()).as_ref(),
+        )?;
+        Ok(out.into())
+    }
+
     /// Develop an image with the pinned native RapidRAW float-pixel path.
     #[wasm_bindgen]
     pub fn develop_pixels(

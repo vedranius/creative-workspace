@@ -1,11 +1,12 @@
+import {spawn} from 'node:child_process';
 // Actual original React hooks/Editor/Basic UI against browser-local native code.
 import assert from 'node:assert/strict';
-import {readFile,writeFile,readdir} from 'node:fs/promises';
+import {readFile,writeFile,readdir,mkdir} from 'node:fs/promises';
 import {createServer} from 'node:http';
 import {once} from 'node:events';
 import {createHash} from 'node:crypto';
 import path from 'node:path';
-const [stage,fixture,output,nativeReferencePath,nativeResizePath,nativeInteractivePath,nativeGeometryPath,nativeCropPath]=process.argv.slice(2);
+const [stage,fixture,output,nativeReferencePath,nativeResizePath,nativeInteractivePath,nativeGeometryPath,nativeCropPath,canvasConfigPath]=process.argv.slice(2);
 if(!stage||!fixture||!output)throw Error('BUILT_REACT_STAGE PUBLIC_CC0_DNG OUTPUT_JSON');
 const digest=b=>createHash('sha256').update(b).digest('hex');
 const pin=JSON.parse(await readFile(new URL('../docs/evidence/rapidraw-wasm/runtime-smoke.json',import.meta.url),'utf8')).fixtures.find(x=>x.id==='raw.pixls.us 1327');
@@ -15,6 +16,7 @@ const nativeResize=nativeResizePath?JSON.parse(await readFile(nativeResizePath,'
 const nativeInteractive=nativeInteractivePath?JSON.parse(await readFile(nativeInteractivePath,'utf8')):null;
 const nativeGeometry=nativeGeometryPath?JSON.parse(await readFile(nativeGeometryPath,'utf8')):null;
 const nativeCrop=nativeCropPath?JSON.parse(await readFile(nativeCropPath,'utf8')):null;
+const canvasConfig=canvasConfigPath?JSON.parse(await readFile(canvasConfigPath,'utf8')):null;
 const allowedConsoleError=x=>(x.includes('Auto-save failed:')&&x.includes('save_metadata_and_update_thumbnail'))||x.includes('Browser experiment does not support get_lensfun_makers');
 const provenance=JSON.parse(await readFile(path.join(stage,'source-proof.json'),'utf8'));
 const chromiumSandbox=process.env.CHROMIUM_SANDBOX!=='false';
@@ -28,14 +30,14 @@ await walk(path.join(stage,'dist'));assets.set('/',assets.get('/index.html'));
 const server=createServer((req,res)=>{const a=req.method==='GET'&&assets.get(new URL(req.url,'http://localhost').pathname);
  if(!a){res.writeHead(404).end();return;}res.writeHead(200,{'Content-Type':a[0],'Cache-Control':'no-store'}).end(a[1]);});
 server.listen(0,'127.0.0.1');await once(server,'listening');
-const {chromium}=await import(process.env.PLAYWRIGHT_MODULE||'playwright');let browser;
+const {chromium}=await import(process.env.PLAYWRIGHT_MODULE||'playwright');let browser,page;
 const pageErrors=[],failedRequests=[],consoleErrors=[],blockedExternalRequests=[];
 try{
  browser=await chromium.launch({executablePath:process.env.CHROMIUM_PATH,headless:true,chromiumSandbox,args:['--disable-dev-shm-usage','--enable-unsafe-webgpu','--use-angle=swiftshader','--use-webgpu-adapter=swiftshader']});
  const context=await browser.newContext({viewport:{width:1280,height:850}});
  const localOrigin=`http://127.0.0.1:${server.address().port}`;
  await context.route('**/*',route=>{const u=new URL(route.request().url());if(['http:','https:'].includes(u.protocol)&&u.origin!==localOrigin){blockedExternalRequests.push(u.origin);return route.abort('blockedbyclient');}return route.continue();});
- const page=await context.newPage();page.setDefaultTimeout(60000);
+ page=await context.newPage();page.setDefaultTimeout(60000);
  page.on('pageerror',e=>pageErrors.push(e.message));page.on('requestfailed',r=>failedRequests.push(new URL(r.url()).pathname));page.on('console',m=>{if(m.type()==='error')consoleErrors.push(m.text());});
  await page.goto(`http://127.0.0.1:${server.address().port}/`);await page.waitForFunction(()=>!!globalThis.proof);
  await page.getByLabel('Open RAW fixture').setInputFiles(fixture);
@@ -192,6 +194,48 @@ try{
   const restoredHash=[...new Uint8Array(await crypto.subtle.digest('SHA-256',restored))].map(v=>v.toString(16).padStart(2,'0')).join('');
   return {wasmRejected,transportRejected,restoredHash};
  });assert.equal(cropRefusals.wasmRejected,11);assert.equal(cropRefusals.transportRejected,4);assert.equal(cropRefusals.restoredHash,result.hash);
+ let cropCanvas=null;
+ if(canvasConfig){
+  const runNative=(command,args)=>new Promise((resolve,reject)=>{const child=spawn(command,args,{env:{...process.env,...canvasConfig.nativeEnv},stdio:['ignore','pipe','pipe']});let stdout='',stderr='';child.stdout.on('data',b=>stdout+=b);child.stderr.on('data',b=>stderr+=b);child.on('error',reject);child.on('exit',code=>code===0?resolve(stdout):reject(Error('Native reference failed: '+stderr.slice(-1500))));});
+  async function reference(kind,crop){
+   const directory=path.join(canvasConfig.output,kind);await mkdir(directory,{recursive:true});
+   try{const cached=JSON.parse(await readFile(path.join(directory,'reference.json'),'utf8'));assert.equal(cached.baseRgbSha256,nativeResize.originalRgbSha256);if(kind==='uncropped')return cached;assert.deepEqual(cached.geometry.crop,crop);return cached;}catch{}
+   const binary=kind==='uncropped'?canvasConfig.uncroppedBinary:canvasConfig.cropBinary;
+   const args=['prepare',canvasConfig.fullRgb,'2048','1536','0','false','false',...(kind==='uncropped'?[]:[JSON.stringify(crop)]),directory];
+   const prepared=JSON.parse(await runNative(binary,args));
+   const renderPath=path.join(directory,'native-render.json'),png=path.join(directory,'native-png');
+   await writeFile(renderPath,await runNative(canvasConfig.renderBinary,['--rgb-f32',path.join(directory,'rgb.f32'),String(prepared.width),String(prepared.height),'--eight-bit','--png-dir',png,'--camera-settings',canvasConfig.cameraSettings]));
+   const expected=JSON.parse(await runNative(binary,['encode',directory,renderPath,png]));return expected;
+  }
+  await page.locator('[data-tab-id="layout-tab-crop"]').click();
+  await page.waitForFunction(()=>proof.uiStore.getState().activePanel==='crop');
+  const cropImage=page.getByAltText('Crop preview');await cropImage.waitFor({state:'visible'});
+  await page.waitForFunction(()=>{const i=document.querySelector('img[alt="Crop preview"]');return i?.complete&&i.naturalWidth>0&&i.src===proof.store.getState().uncroppedAdjustedPreviewUrl&&proof.trace.some(t=>t.command==='uncropped-result');});
+  const uncropped=await page.evaluate(async()=>{const s=proof.store.getState(),bytes=await(await fetch(s.uncroppedAdjustedPreviewUrl)).arrayBuffer();return{frame:proof.trace.findLast(t=>t.command==='uncropped-result'),sha256:[...new Uint8Array(await crypto.subtle.digest('SHA-256',bytes))].map(v=>v.toString(16).padStart(2,'0')).join(''),dataUrl:s.uncroppedAdjustedPreviewUrl.startsWith('data:image/jpeg;base64,'),crop:s.adjustments.crop};});
+  const nativeUncropped=await reference('uncropped',null);
+  assert.equal(uncropped.dataUrl,true);assert.equal(uncropped.sha256,nativeUncropped.jpegSha256);
+  for(const key of ['jpegSha256','rgbaSha256','adjustmentSha256','rgbSha256','scaleForGpu','bytes'])assert.equal(uncropped.frame[key],nativeUncropped[key],`Native uncropped ${key}`);
+  assert.deepEqual(uncropped.frame.cropOffset,[0,0]);
+  const handle=page.locator('.ReactCrop__drag-handle[data-ord="se"]');await handle.waitFor({state:'visible'});
+  const box=await handle.boundingBox();assert.ok(box);
+  const point=await handle.evaluate(node=>{const r=node.getBoundingClientRect();for(const dx of [2,4,6,8,10])for(const dy of [2,4,6,8,10]){const x=r.x+dx,y=r.y+dy;if(document.elementFromPoint(x,y)?.closest('[data-ord="se"]')===node)return{x,y};}return null;});
+  assert.ok(point,'Original visible crop handle must receive the pointer');
+  await page.mouse.move(point.x,point.y);await page.mouse.down();await page.mouse.move(point.x-72,point.y-54,{steps:8});await page.mouse.up();
+  await page.waitForFunction(()=>{const c=proof.store.getState().adjustments.crop;return c?.width>0&&c?.height>0&&c.width<2048&&c.height<1536;},{},{timeout:5000});
+  const crop=await page.evaluate(()=>proof.store.getState().adjustments.crop);
+  assert.ok(['x','y','width','height'].every(k=>Number.isInteger(crop[k])));
+  await page.screenshot({path:output.replace(/\.json$/,'-crop-canvas.png')});
+  const nativeDrag=await reference('drag',crop);
+  await page.locator('[data-tab-id="layout-tab-adjustments"]').click();
+  const drag=await page.evaluate(async(expected)=>{const end=performance.now()+30000;while(performance.now()<end){const s=proof.store.getState(),frame=proof.trace.findLast(t=>t.command==='render-result'&&t.jpegSha256===expected.jpegSha256);if(frame&&s.finalPreviewUrl){const b=await(await fetch(s.finalPreviewUrl)).arrayBuffer();const hash=[...new Uint8Array(await crypto.subtle.digest('SHA-256',b))].map(v=>v.toString(16).padStart(2,'0')).join('');if(hash===expected.jpegSha256)return{frame,crop:s.adjustments.crop,preview:proof.trace.findLast(t=>t.command==='preview-result'&&t.geometry.crop?.width===s.adjustments.crop.width)};}await new Promise(r=>requestAnimationFrame(r));}throw Error('Original crop drag did not publish native frame');},nativeDrag);
+  for(const key of ['jpegSha256','rgbaSha256','adjustmentSha256','bytes'])assert.equal(drag.frame[key],nativeDrag[key],`Native drag ${key}`);
+  assert.equal(drag.preview.rgbSha256,nativeDrag.rgbSha256);assert.equal(drag.preview.scaleForGpu,nativeDrag.scaleForGpu);assert.deepEqual(drag.preview.cropOffset,nativeDrag.cropOffset);
+  await page.waitForFunction(({width,height})=>[...document.querySelectorAll('svg image')].some(node=>{const box=node.getBoundingClientRect();return node.href.baseVal===proof.store.getState().finalPreviewUrl&&node.parentElement.querySelectorAll('image').length===1&&box.width>0&&Math.abs(box.width/box.height-width/height)<0.005;}),nativeDrag);
+  lastTraceIndex=await page.evaluate(()=>proof.trace.length-1);lastUrl=await page.evaluate(()=>proof.store.getState().finalPreviewUrl);
+  await page.getByLabel('Original geometry panel').locator('button[data-tooltip="Reset Crop & Transform"]').click();await sample(0);const restored=samples.pop();assert.equal(restored.jpegSha256,result.hash);
+  delete drag.frame.adjustments;
+  cropCanvas={actualOriginalTab:true,actualCorner:'se',pointerDelta:[-72,-54],uncropped,nativeUncropped,drag,nativeDrag,displaySettled:true,restored};
+ }
  const afterInteractive=await page.evaluate(()=>({gpuErrors:proof.gpuErrors,exposure:proof.store.getState().adjustments.exposure,originalSize:proof.store.getState().originalSize,patchCleared:proof.store.getState().interactivePatch===null,dragging:proof.store.getState().isSliderDragging}));
  assert.deepEqual(afterInteractive.gpuErrors,[]);assert.equal(afterInteractive.exposure,0);assert.equal(afterInteractive.patchCleared,true);assert.equal(afterInteractive.dragging,false);assert.deepEqual(afterInteractive.originalSize,{width:2048,height:1536});
  assert.deepEqual(pageErrors,[]);assert.deepEqual(failedRequests,[]);assert.deepEqual(blockedExternalRequests,[]);
@@ -199,7 +243,7 @@ try{
  await page.screenshot({path:output.replace(/\.json$/,'.png')});
  await page.evaluate(()=>proof.close());
  for(const entry of [...geometrySamples,...interactiveSamples])delete entry.frame.adjustments;
- const report={stage:nativeCrop?'RWASM-03 original CropPanel integer crop presets, rotate/flip and reset':'RWASM-03 original CropPanel quarter-turn and flip controls',...provenance,publicFixture:{id:pin.id,license:pin.license,sourceSha256:pin.sourceSha256},browserVersion:browser.version(),chromiumSandbox,first,result,samples,blockedExternalRequests,nativeComparison:native?{frames:5,completeAdjustmentsExact:true,renderedPixelsExact:true,encodedJpegExact:true}:null,nativeGeometry,nativeCrop,geometrySamples,cropRefusals,nativeInteractive,interactiveSamples,afterInteractive,nativeResize,resizeRecovery,rejectedResizeInputs,refusedOversizePreview:true,workerUsableAfterRefusal:true,pageErrors,failedRequests,expectedSaveErrors:consoleErrors.filter(x=>x.includes('Auto-save failed:')).length,expectedUnavailableLensReads:consoleErrors.filter(x=>x.includes('get_lensfun_makers')).length,
-  scope:'Original hooks/stores/Editor/ImageCanvas/Basic/Slider unchanged, QA composition and invoke alias only. Quality-developed2048x1536 load and original neutral-geometry512x384 area preview before bounded GPU upload. Original Slider drag/release verifies no-ROI full/high/performance preview sizing/quality. Original CropPanel quarter-turn and flip actions verified; full App menus, metadata/sidecars, crop canvas/tool activation, fine rotation/warp/effects/ROI/analytics/save/provider acceptance remain open. Integer crop presets/rotation/flip/reset are bounded source processing.'};
+ const report={stage:canvasConfig?'RWASM-03 original crop tool, uncropped q80 data URL and actual corner drag':nativeCrop?'RWASM-03 original CropPanel integer crop presets, rotate/flip and reset':'RWASM-03 original CropPanel quarter-turn and flip controls',...provenance,publicFixture:{id:pin.id,license:pin.license,sourceSha256:pin.sourceSha256},browserVersion:browser.version(),chromiumSandbox,first,result,samples,blockedExternalRequests,nativeComparison:native?{frames:5,completeAdjustmentsExact:true,renderedPixelsExact:true,encodedJpegExact:true}:null,nativeGeometry,nativeCrop,geometrySamples,cropRefusals,cropCanvas,nativeInteractive,interactiveSamples,afterInteractive,nativeResize,resizeRecovery,rejectedResizeInputs,refusedOversizePreview:true,workerUsableAfterRefusal:true,pageErrors,failedRequests,expectedSaveErrors:consoleErrors.filter(x=>x.includes('Auto-save failed:')).length,expectedUnavailableLensReads:consoleErrors.filter(x=>x.includes('get_lensfun_makers')).length,
+  scope:canvasConfig?"Unchanged original PanelSwitcher/useImageProcessing/Editor/ImageCanvas/ReactCrop handles activate Crop, display source q80 uncropped data URL, commit integer crop through a real corner pointer drag, return to Adjustments and reset. Original App distance5 pointer sensor config is retained in the QA wrapper. One public fixture/corner/native comparison; other crop interactions/fine rotation/warp/effects/ROI/metadata/full App/menus/analytics/provider/save/export acceptance remain open.":'Original hooks/stores/Editor/ImageCanvas/Basic/Slider unchanged, QA composition and invoke alias only. Quality-developed2048x1536 load and original neutral-geometry512x384 area preview before bounded GPU upload. Original Slider drag/release verifies no-ROI full/high/performance preview sizing/quality. Original CropPanel quarter-turn and flip actions verified; full App menus, metadata/sidecars, crop canvas/tool activation, fine rotation/warp/effects/ROI/analytics/save/provider acceptance remain open. Integer crop presets/rotation/flip/reset are bounded source processing.'};
  await writeFile(output,JSON.stringify(report,null,2)+'\n');console.log(JSON.stringify(report));await context.close();
-}catch(error){console.log(JSON.stringify({pageErrors,failedRequests,consoleErrors}));throw error;}finally{await browser?.close();await new Promise(resolve=>server.close(resolve));}
+}catch(error){console.log(JSON.stringify({pageErrors,failedRequests,consoleErrors}));try{await page.screenshot({path:output.replace(/\.json$/,'-failure.png')});}catch{}throw error;}finally{await browser?.close();await new Promise(resolve=>server.close(resolve));}
