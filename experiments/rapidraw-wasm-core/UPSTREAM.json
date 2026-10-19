@@ -264,5 +264,15 @@
     "codecReferenceSha256": "25d4484d315941852ec84b1b09f7d62ed2d10eaa6e75f6701957f4c75f1eb0af",
     "scope": "Direct square area resize before orientation/flips, pre-orientation f32 scale, crop offset0/show_clipping0, source q80 encode_rgb with default color conversion and JPEG data URL.",
     "layoutSensorSource": "App.tsx layoutSensors: PointerSensor activationConstraint distance5"
+  },
+  "fineRotation": {
+    "source": "src-tauri/src/image_processing.rs",
+    "sourceSha256": "5e16c6d88c30e5728534bb67be47e79c44b96d524f90973a611c2c2e8adb3a19",
+    "function": "apply_rotation",
+    "functionSha256": "b075c699203eba78b2121229e4a7809911797709620ef5ca024a6e70998b7a88",
+    "referenceCopy": "tests/reference/rotation.rs",
+    "referenceSha256": "f705015bf638b7d77a21ef0fcf9b73285a33a2a1092f375b66a5e1b8d05d65c3",
+    "imageproc": "0.27.0",
+    "scope": "Original fixed-canvas RGBA32f bilinear center rotation, transparent black border; bounded -45..45 angle and per-buffer64MiB estimate. Source orientation/flip\u2192rotation\u2192crop after working resize; uncropped source intentionally omits fine rotation. Not whole allocator/peak-memory/warp/effects/export acceptance. Alpha is preserved through source f16 GPU upload and original shader output. Nonzero fine rotation with interactive sizing remains explicitly unavailable until independently verified."
   }
 }

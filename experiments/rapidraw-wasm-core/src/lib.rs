@@ -27,6 +27,8 @@ pub mod exposure;
 mod multi_exposure;
 pub mod png_export;
 pub mod preview;
+#[rustfmt::skip]
+pub mod original_rotation;
 pub mod preview_crop;
 pub mod preview_geometry;
 #[rustfmt::skip]
@@ -392,7 +394,7 @@ fn hex_digest(digest: impl AsRef<[u8]>) -> String {
 
 #[cfg(target_arch = "wasm32")]
 mod browser {
-    use js_sys::{Float32Array, Object, Reflect};
+    use js_sys::{Float32Array, Object, Reflect, Uint16Array};
     use wasm_bindgen::prelude::*;
 
     #[wasm_bindgen]
@@ -742,6 +744,53 @@ mod browser {
             ("cropOffsetY", result.offset[1] as f64),
         ] {
             Reflect::set(&out, &key.into(), &JsValue::from_f64(value))?;
+        }
+        Reflect::set(
+            &out,
+            &"data".into(),
+            Float32Array::from(result.pixels.data.as_slice()).as_ref(),
+        )?;
+        Ok(out.into())
+    }
+
+    #[wasm_bindgen]
+    pub fn fine_preview_rgb32f(
+        width: u32,
+        height: u32,
+        pixels: &[f32],
+        target: u32,
+        steps: u32,
+        horizontal: bool,
+        vertical: bool,
+        crop_json: &str,
+        rotation: f32,
+    ) -> Result<JsValue, JsValue> {
+        let crop: Option<super::original_crop::Crop> =
+            serde_json::from_str(crop_json).map_err(|_| JsValue::from_str("Invalid crop JSON"))?;
+        let result = super::preview_crop::fine_preview(
+            width, height, pixels, target, steps, horizontal, vertical, crop, rotation,
+        )
+        .map_err(|e| JsValue::from_str(&e))?;
+        let out = Object::new();
+        for (key, value) in [
+            ("width", result.pixels.width as f64),
+            ("height", result.pixels.height as f64),
+            ("scaleForGpu", result.scale as f64),
+            ("cropOffsetX", result.offset[0] as f64),
+            ("cropOffsetY", result.offset[1] as f64),
+        ] {
+            Reflect::set(&out, &key.into(), &JsValue::from_f64(value))?;
+        }
+        if let Some(alpha) = result.alpha {
+            let words: Vec<u16> = alpha
+                .into_iter()
+                .map(|a| half::f16::from_f32(a).to_bits())
+                .collect();
+            Reflect::set(
+                &out,
+                &"alphaWords".into(),
+                Uint16Array::from(words.as_slice()).as_ref(),
+            )?;
         }
         Reflect::set(
             &out,

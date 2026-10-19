@@ -1,0 +1,2393 @@
+{
+  "stage": "RWASM-03 original fine rotation Slider and reset, RGBA alpha/native shader/JPEG parity",
+  "nativeSource": "b39884b38d8f148caef6fd0d52afd264951be329",
+  "license": "AGPL-3.0-only",
+  "sourceFiles": {
+    "src/hooks/useImageLoader.ts": "6e8cbf9c08b8b09438193e345d22bc000a086a1fd6424a2dfe928ad8f21bed30",
+    "src/hooks/useImageProcessing.ts": "f0070afca39a04690ded76badd78f069c7ee046a7f3cdc8c3d4b7bad40d9b2bb",
+    "src/hooks/useEditorActions.ts": "8de8bfb9f0dcb0a485cb9dd4476ed1ae56c21803a82c4b62023f29c5d6da422d",
+    "src/components/panel/Editor.tsx": "291466d31de13e1507b77116ef3cda219c89eb3f58039b534f1ef9a5414c8298",
+    "src/components/panel/editor/ImageCanvas.tsx": "51d1da343826f5dc957369ee4448c2f3a72423894640bd5dd6a2c14ee5c29381",
+    "src/components/adjustments/Basic.tsx": "a7d524dd383eccd483923f2d3678e3387494ce481191363967b94fa4c5ef37a6",
+    "src/components/ui/Slider.tsx": "13752203a8631fb6080b0092248f2c01e1f8e2624a81a927dc7e12376ea586b8",
+    "src/store/useEditorStore.ts": "86fdf855fab86fe2f6ef1fe8aa06b7484fb6e540cea09267208e776ee11c6742",
+    "src/utils/defaultAdjustments.json": "d650db51fe618e3522767832edf911ea8b6da68d61c2db54912193c64d2332bc",
+    "package-lock.json": "4e612a5639e68871d9fc6f8e92286eaa61d6c100d3e91154cfeef2d23f569811",
+    "src/utils/themes.ts": "e05a091ad0c7a2b05f7bb29232de026d38bd6af4e5d113dedaaa01cc12f87884",
+    "src/hooks/useAppInitialization.ts": "418afe949997ae248fb4f10a84ab4c52da27e8bad536c5fec95a2f4210f43e41",
+    "src/components/panel/right/CropPanel.tsx": "7543bd1a89fbb0fc27c98e31939f33f2781ca534fbfec9a1a3670d42f584376a",
+    "src/context/ContextMenuContext.tsx": "0aba3ced9cfe5daebf7d5683fa0e6b1b784f7f8fef7092629548a80b31ba31a6",
+    "src/utils/cropUtils.ts": "f8db8c6fcf86a6d44c25b5f72233d40f4d5df2a0733d346b76ea6836c6fd24d1",
+    "src/components/panel/PanelSwitcher.tsx": "37e260cbb8bda71c8f3e960cdde887a5a349510e444220fe19e95c45c5978413",
+    "src/App.tsx": "a68247133c1796b6b29b7772f2a3efe2dab4ca3ea4faef860cd9d1877f9abdf2"
+  },
+  "wasmSha256": "2b1499c18e24876f782009932adc061946e4f4f7e5dc0b689b9f3c50a295eda8",
+  "qualityTimerCompatibility": {
+    "schemaVersion": 1,
+    "decoderSource": "a32bc1ff1f4f3c56d4d3226082f6eb17414f9159",
+    "patch": {
+      "path": "patches/rapidraw-rawler/a32bc1ff/ppg-wasm-profiling.patch",
+      "sha256": "d80f45df13380ea0dfa0554565c633116e8ad726b2096b8c0b9a602259497f95",
+      "file": "rawler/src/imgop/sensor/bayer/ppg.rs",
+      "beforeSha256": "9320de465bbef900e00fe794627e7c5e652f2415205c0b39f89837934e031f6c",
+      "afterSha256": "02fc66b032a6bb98f8ed5c03a261e119de17739cb8a72fffcc5c395334d91e4d",
+      "scope": "Only wasm32 profiling timer/debug log cfgs; all PPG pixel arithmetic unchanged; native timing retained",
+      "license": "LGPL-2.1"
+    },
+    "scope": "Isolated timer-patched rawler plus source-equivalent probe; only wasm32 profiling is removed, native behavior and interpolation preserved"
+  },
+  "previewResize": {
+    "source": "src-tauri/src/image_processing.rs::downscale_f32_image",
+    "sourceFileSha256": "5e16c6d88c30e5728534bb67be47e79c44b96d524f90973a611c2c2e8adb3a19",
+    "functionSha256": "79028a5f33e259fb7bdcae97ae7bece8b8f2c55c100bbac930b7243c1f944e3f",
+    "referenceSha256": "bbefb75cfb347af08232b4a99c6f7456e33d582a5927222e9e50bc9509e589a1",
+    "dimensionSource": "src-tauri/src/lib.rs::compute_transformed_preview",
+    "dimensionFileSha256": "ce69ae5e06b5c5f0eb7b6592d981c727c1be07e7787000a41e50ed77618b2606",
+    "adaptation": "Only non-wasm32 cfg on profiling Instant/log; area weights/order/math unchanged. Neutral geometry only; orientation already applied by development; no crop/rotation/patch/effects support."
+  },
+  "interactivePreview": {
+    "source": "src-tauri/src/lib.rs::process_preview_job",
+    "selectionSha256": "98499fbe2c273dd17190165354b5f44d853764da25541fdababcb3d0de215805",
+    "smallSizeSha256": "b85c25252f83e473e00cec10b6b9926194e79296600ff12768f34275104bf682",
+    "referenceSha256": "e859fdab34c2d3fe9c3496846a96b975bfbae89afcb8d1092d270382792b465c",
+    "scope": "Original no-ROI live quality/divisor, two-stage original area filter and interactive envelope. ROI selector values retained as reference only; ROI rendering unsupported."
+  },
+  "orientationFlip": {
+    "source": [
+      "src-tauri/src/image_processing.rs::IntoCowImage/apply_coarse_rotation/apply_flip",
+      "src-tauri/src/adjustment_utils.rs::apply_orientation_and_flip"
+    ],
+    "referenceSha256": "d050ac33be33f3d36859c1466b42c233f985775c6577187860e5cdbe53ad98b1",
+    "sourceFileSha256": "5e16c6d88c30e5728534bb67be47e79c44b96d524f90973a611c2c2e8adb3a19",
+    "adjustmentUtilsSha256": "1638c4239f50c3dec6701e2837d70152d134e351dfa9b3077fe4099e31998674",
+    "scope": "Original rotation then flips after original area preview; only orientationSteps0..3 and bool flips. Crop/fine rotation/warp unsupported."
+  },
+  "scope": "Original CropPanel Slider value edit and reset drive source fixed-canvas bilinear fine rotation at +5.3/-7.1 degrees. Original RGBA alpha, complete f16 upload, RGB, original WGSL RGBA8 and q94 JPEG compare against independent native source. Integer crops/orientation/flip remain supported; interactive fine sizing explicitly refuses. One public fixture; pointer fine drag, fractional crops/warp/effects/ROI/full App/export/providers remain open.",
+  "cropPreview": {
+    "source": "CyberTimon/RapidRAW",
+    "commit": "b39884b38d8f148caef6fd0d52afd264951be329",
+    "imageProcessingSha256": "5e16c6d88c30e5728534bb67be47e79c44b96d524f90973a611c2c2e8adb3a19",
+    "libSha256": "ce69ae5e06b5c5f0eb7b6592d981c727c1be07e7787000a41e50ed77618b2606",
+    "applyCropSha256": "3b90c83f5438cac692beaf46e5410231f4614439b10f47da43ddb18238482913",
+    "referenceSha256": "64c1db8195b7054e7204d694ef1083bc4867689b1b27b8ba8d7434d4b715d255",
+    "scope": "Integer full-image crop, source crop-specific area working size then orientation/flip/crop. Fine rotation/warp/effects/ROI remain unsupported.",
+    "pipelineReferenceSha256": "95d47d2beb1f23663096eba0afcfaba3ec57c2e7828f437ce215b812fa8211ce"
+  },
+  "uncroppedPreview": {
+    "source": "CyberTimon/RapidRAW",
+    "commit": "b39884b38d8f148caef6fd0d52afd264951be329",
+    "libSha256": "ce69ae5e06b5c5f0eb7b6592d981c727c1be07e7787000a41e50ed77618b2606",
+    "codecReferenceSha256": "25d4484d315941852ec84b1b09f7d62ed2d10eaa6e75f6701957f4c75f1eb0af",
+    "scope": "Direct square area resize before orientation/flips, pre-orientation f32 scale, crop offset0/show_clipping0, source q80 encode_rgb with default color conversion and JPEG data URL.",
+    "layoutSensorSource": "App.tsx layoutSensors: PointerSensor activationConstraint distance5"
+  },
+  "fineRotation": {
+    "sameDocumentRecoveredAfterRefusal": true,
+    "actualOriginalSlider": true,
+    "actualOriginalReset": true,
+    "rgbaAlphaPreserved": true,
+    "fullNativeUploadExact": true,
+    "cases": [
+      {
+        "angle": 5.3,
+        "geometry": {
+          "orientationSteps": 0,
+          "flipHorizontal": false,
+          "flipVertical": false,
+          "crop": {
+            "unit": "px",
+            "x": 109,
+            "y": 82,
+            "width": 1830,
+            "height": 1373
+          },
+          "rotation": 5.3
+        },
+        "expected": {
+          "adjustmentSha256": "7528054041d105912931d3cc66497b535740e7f03c198e6e9f3915cc44f1520e",
+          "baseRgbSha256": "f052bba0940702e068fb03d6a9f1cc78b9c57e7ff5758f1c460f28d11fb49e30",
+          "bytes": 54662,
+          "cropOffset": [
+            109,
+            82
+          ],
+          "geometry": {
+            "crop": {
+              "height": 1373,
+              "unit": "px",
+              "width": 1830,
+              "x": 109,
+              "y": 82
+            },
+            "flipHorizontal": false,
+            "flipVertical": false,
+            "orientationSteps": 0,
+            "rotation": 5.300000190734863
+          },
+          "height": 384,
+          "inputRgbaF16Sha256": "83e6f0c0ff06bf2f0bfff64318ff6e484cb14ce91fe82a90f7e55b86bf8bb528",
+          "jpegSha256": "9620d873a746b2a5d1f89dc75ba6d1ac8fda05700f57078045e7e9ae297e50db",
+          "rgbSha256": "cc57228c22445e49dc0bcda89ddb6206c5a240bfe79a6e52356af2aa17156e42",
+          "rgbaInputSha256": "70dbf8b23932a776d19d6b6d6784a0104f51de74249465a13840583c4c4e7b02",
+          "rgbaSha256": "bce3923d2e3419f4de6a8b29e2bebd8bef369b998866c55955e586158b0baddf",
+          "scaleForGpu": 0.27978143095970154,
+          "scope": "Original crop-specific area resize then quarter turn, flips and crop; fine rotation original bilinear fixed-canvas; warp/effects unsupported",
+          "source": "b39884b38d8f148caef6fd0d52afd264951be329",
+          "width": 512
+        },
+        "frame": {
+          "adjustmentSha256": "7528054041d105912931d3cc66497b535740e7f03c198e6e9f3915cc44f1520e",
+          "rgbaSha256": "bce3923d2e3419f4de6a8b29e2bebd8bef369b998866c55955e586158b0baddf",
+          "responseSha256": "9620d873a746b2a5d1f89dc75ba6d1ac8fda05700f57078045e7e9ae297e50db",
+          "jpegSha256": "9620d873a746b2a5d1f89dc75ba6d1ac8fda05700f57078045e7e9ae297e50db",
+          "command": "render-result",
+          "geometry": {
+            "orientationSteps": 0,
+            "flipHorizontal": false,
+            "flipVertical": false,
+            "rotation": 5.3,
+            "crop": {
+              "x": 109,
+              "y": 82,
+              "width": 1830,
+              "height": 1373
+            }
+          },
+          "exposure": 0,
+          "width": 512,
+          "height": 384,
+          "interactive": false,
+          "liveQuality": "performance",
+          "quality": 94,
+          "divisor": 1,
+          "rect": null,
+          "bytes": 54662,
+          "analytics": "unavailable"
+        },
+        "preview": {
+          "command": "preview-result",
+          "geometry": {
+            "orientationSteps": 0,
+            "flipHorizontal": false,
+            "flipVertical": false,
+            "rotation": 5.3,
+            "crop": {
+              "x": 109,
+              "y": 82,
+              "width": 1830,
+              "height": 1373
+            }
+          },
+          "target": 512,
+          "interactive": false,
+          "liveQuality": "performance",
+          "quality": 94,
+          "divisor": 1,
+          "width": 512,
+          "height": 384,
+          "originalWidth": 2048,
+          "originalHeight": 1536,
+          "scaleForGpu": 0.27978143095970154,
+          "cropOffset": [
+            109,
+            82
+          ],
+          "rgbSha256": "cc57228c22445e49dc0bcda89ddb6206c5a240bfe79a6e52356af2aa17156e42",
+          "uploadSha256": "83e6f0c0ff06bf2f0bfff64318ff6e484cb14ce91fe82a90f7e55b86bf8bb528"
+        },
+        "hash": "9620d873a746b2a5d1f89dc75ba6d1ac8fda05700f57078045e7e9ae297e50db",
+        "fineReset": {
+          "expected": {
+            "adjustmentSha256": "7528054041d105912931d3cc66497b535740e7f03c198e6e9f3915cc44f1520e",
+            "baseRgbSha256": "f052bba0940702e068fb03d6a9f1cc78b9c57e7ff5758f1c460f28d11fb49e30",
+            "bytes": 61812,
+            "cropOffset": [
+              0,
+              0
+            ],
+            "geometry": {
+              "crop": null,
+              "flipHorizontal": false,
+              "flipVertical": false,
+              "orientationSteps": 0,
+              "rotation": 0
+            },
+            "height": 384,
+            "inputRgbaF16Sha256": "937216f2d1e1771c7721f2d8ed8c9d62ecf1a9ea3358ebac76a937c87946374e",
+            "jpegSha256": "042350b5c54e9244b8a9f33089efa25b0516ae59f4e188ba0345fcd60a86f869",
+            "rgbSha256": "c0d07e55c42bd67059613035283567cc83e324ad95f75c9008de854ac5d7ec9f",
+            "rgbaInputSha256": "c18743fce3ca3b46b655ded38addee69d7d250e3e43bb4063c6f14b7166a9772",
+            "rgbaSha256": "220a870ec41b3f9a81899d8b33d60fd7bfbbf896c4d844497ff4ddfe5640d28d",
+            "scaleForGpu": 0.25,
+            "scope": "Original crop-specific area resize then quarter turn, flips and crop; fine rotation original bilinear fixed-canvas; warp/effects unsupported",
+            "source": "b39884b38d8f148caef6fd0d52afd264951be329",
+            "width": 512
+          },
+          "geometry": {
+            "orientationSteps": 0,
+            "flipHorizontal": false,
+            "flipVertical": false,
+            "rotation": 0,
+            "crop": null
+          },
+          "frame": {
+            "adjustmentSha256": "7528054041d105912931d3cc66497b535740e7f03c198e6e9f3915cc44f1520e",
+            "rgbaSha256": "220a870ec41b3f9a81899d8b33d60fd7bfbbf896c4d844497ff4ddfe5640d28d",
+            "responseSha256": "042350b5c54e9244b8a9f33089efa25b0516ae59f4e188ba0345fcd60a86f869",
+            "jpegSha256": "042350b5c54e9244b8a9f33089efa25b0516ae59f4e188ba0345fcd60a86f869",
+            "command": "render-result",
+            "geometry": {
+              "orientationSteps": 0,
+              "flipHorizontal": false,
+              "flipVertical": false,
+              "rotation": 0,
+              "crop": null
+            },
+            "exposure": 0,
+            "width": 512,
+            "height": 384,
+            "interactive": false,
+            "liveQuality": "performance",
+            "quality": 94,
+            "divisor": 1,
+            "rect": null,
+            "bytes": 61812,
+            "analytics": "unavailable"
+          },
+          "preview": {
+            "command": "preview-result",
+            "geometry": {
+              "orientationSteps": 0,
+              "flipHorizontal": false,
+              "flipVertical": false,
+              "rotation": 0,
+              "crop": null
+            },
+            "target": 512,
+            "interactive": false,
+            "liveQuality": "performance",
+            "quality": 94,
+            "divisor": 1,
+            "width": 512,
+            "height": 384,
+            "originalWidth": 2048,
+            "originalHeight": 1536,
+            "scaleForGpu": 0.25,
+            "cropOffset": [
+              0,
+              0
+            ],
+            "rgbSha256": "c0d07e55c42bd67059613035283567cc83e324ad95f75c9008de854ac5d7ec9f",
+            "uploadSha256": "937216f2d1e1771c7721f2d8ed8c9d62ecf1a9ea3358ebac76a937c87946374e"
+          },
+          "jpegSha256": "042350b5c54e9244b8a9f33089efa25b0516ae59f4e188ba0345fcd60a86f869"
+        },
+        "fullReset": {
+          "exposure": 0,
+          "bytes": 61812,
+          "adjustmentSha256": "7528054041d105912931d3cc66497b535740e7f03c198e6e9f3915cc44f1520e",
+          "rgbaSha256": "220a870ec41b3f9a81899d8b33d60fd7bfbbf896c4d844497ff4ddfe5640d28d",
+          "jpegSha256": "042350b5c54e9244b8a9f33089efa25b0516ae59f4e188ba0345fcd60a86f869"
+        }
+      },
+      {
+        "angle": -7.1,
+        "geometry": {
+          "orientationSteps": 0,
+          "flipHorizontal": false,
+          "flipVertical": false,
+          "crop": {
+            "unit": "px",
+            "x": 139,
+            "y": 104,
+            "width": 1770,
+            "height": 1327
+          },
+          "rotation": -7.1
+        },
+        "expected": {
+          "adjustmentSha256": "7528054041d105912931d3cc66497b535740e7f03c198e6e9f3915cc44f1520e",
+          "baseRgbSha256": "f052bba0940702e068fb03d6a9f1cc78b9c57e7ff5758f1c460f28d11fb49e30",
+          "bytes": 54951,
+          "cropOffset": [
+            139,
+            104
+          ],
+          "geometry": {
+            "crop": {
+              "height": 1327,
+              "unit": "px",
+              "width": 1770,
+              "x": 139,
+              "y": 104
+            },
+            "flipHorizontal": false,
+            "flipVertical": false,
+            "orientationSteps": 0,
+            "rotation": -7.099999904632568
+          },
+          "height": 384,
+          "inputRgbaF16Sha256": "44d77b06fa2f6ca8c1c7a65bb5fa8b6e170ffb474725e9f848828a7fdb632b66",
+          "jpegSha256": "aa4ae32d0ffa2d17e34eb0d671ed9c0bd6053fcf8ce9e9b2bc3ed7f61943f281",
+          "rgbSha256": "6bdcbdac86bb7c5c99a0e4dab2fec6cbeda49e72dff248a70908a2109cc1dfe4",
+          "rgbaInputSha256": "36aded1119fd8bd571ff2befb26594693bb79e62f5c2987f0ae3de53047f3e96",
+          "rgbaSha256": "9c68d811efad613d5f1b4f0abdfd2746cfe67b34115fde115d635bb741258d90",
+          "scaleForGpu": 0.28926554322242737,
+          "scope": "Original crop-specific area resize then quarter turn, flips and crop; fine rotation original bilinear fixed-canvas; warp/effects unsupported",
+          "source": "b39884b38d8f148caef6fd0d52afd264951be329",
+          "width": 512
+        },
+        "frame": {
+          "adjustmentSha256": "7528054041d105912931d3cc66497b535740e7f03c198e6e9f3915cc44f1520e",
+          "rgbaSha256": "9c68d811efad613d5f1b4f0abdfd2746cfe67b34115fde115d635bb741258d90",
+          "responseSha256": "aa4ae32d0ffa2d17e34eb0d671ed9c0bd6053fcf8ce9e9b2bc3ed7f61943f281",
+          "jpegSha256": "aa4ae32d0ffa2d17e34eb0d671ed9c0bd6053fcf8ce9e9b2bc3ed7f61943f281",
+          "command": "render-result",
+          "geometry": {
+            "orientationSteps": 0,
+            "flipHorizontal": false,
+            "flipVertical": false,
+            "rotation": -7.1,
+            "crop": {
+              "x": 139,
+              "y": 104,
+              "width": 1770,
+              "height": 1327
+            }
+          },
+          "exposure": 0,
+          "width": 512,
+          "height": 384,
+          "interactive": false,
+          "liveQuality": "performance",
+          "quality": 94,
+          "divisor": 1,
+          "rect": null,
+          "bytes": 54951,
+          "analytics": "unavailable"
+        },
+        "preview": {
+          "command": "preview-result",
+          "geometry": {
+            "orientationSteps": 0,
+            "flipHorizontal": false,
+            "flipVertical": false,
+            "rotation": -7.1,
+            "crop": {
+              "x": 139,
+              "y": 104,
+              "width": 1770,
+              "height": 1327
+            }
+          },
+          "target": 512,
+          "interactive": false,
+          "liveQuality": "performance",
+          "quality": 94,
+          "divisor": 1,
+          "width": 512,
+          "height": 384,
+          "originalWidth": 2048,
+          "originalHeight": 1536,
+          "scaleForGpu": 0.28926554322242737,
+          "cropOffset": [
+            139,
+            104
+          ],
+          "rgbSha256": "6bdcbdac86bb7c5c99a0e4dab2fec6cbeda49e72dff248a70908a2109cc1dfe4",
+          "uploadSha256": "44d77b06fa2f6ca8c1c7a65bb5fa8b6e170ffb474725e9f848828a7fdb632b66"
+        },
+        "hash": "aa4ae32d0ffa2d17e34eb0d671ed9c0bd6053fcf8ce9e9b2bc3ed7f61943f281",
+        "fineReset": {
+          "expected": {
+            "adjustmentSha256": "7528054041d105912931d3cc66497b535740e7f03c198e6e9f3915cc44f1520e",
+            "baseRgbSha256": "f052bba0940702e068fb03d6a9f1cc78b9c57e7ff5758f1c460f28d11fb49e30",
+            "bytes": 61812,
+            "cropOffset": [
+              0,
+              0
+            ],
+            "geometry": {
+              "crop": null,
+              "flipHorizontal": false,
+              "flipVertical": false,
+              "orientationSteps": 0,
+              "rotation": 0
+            },
+            "height": 384,
+            "inputRgbaF16Sha256": "937216f2d1e1771c7721f2d8ed8c9d62ecf1a9ea3358ebac76a937c87946374e",
+            "jpegSha256": "042350b5c54e9244b8a9f33089efa25b0516ae59f4e188ba0345fcd60a86f869",
+            "rgbSha256": "c0d07e55c42bd67059613035283567cc83e324ad95f75c9008de854ac5d7ec9f",
+            "rgbaInputSha256": "c18743fce3ca3b46b655ded38addee69d7d250e3e43bb4063c6f14b7166a9772",
+            "rgbaSha256": "220a870ec41b3f9a81899d8b33d60fd7bfbbf896c4d844497ff4ddfe5640d28d",
+            "scaleForGpu": 0.25,
+            "scope": "Original crop-specific area resize then quarter turn, flips and crop; fine rotation original bilinear fixed-canvas; warp/effects unsupported",
+            "source": "b39884b38d8f148caef6fd0d52afd264951be329",
+            "width": 512
+          },
+          "geometry": {
+            "orientationSteps": 0,
+            "flipHorizontal": false,
+            "flipVertical": false,
+            "rotation": 0,
+            "crop": null
+          },
+          "frame": {
+            "adjustmentSha256": "7528054041d105912931d3cc66497b535740e7f03c198e6e9f3915cc44f1520e",
+            "rgbaSha256": "220a870ec41b3f9a81899d8b33d60fd7bfbbf896c4d844497ff4ddfe5640d28d",
+            "responseSha256": "042350b5c54e9244b8a9f33089efa25b0516ae59f4e188ba0345fcd60a86f869",
+            "jpegSha256": "042350b5c54e9244b8a9f33089efa25b0516ae59f4e188ba0345fcd60a86f869",
+            "command": "render-result",
+            "geometry": {
+              "orientationSteps": 0,
+              "flipHorizontal": false,
+              "flipVertical": false,
+              "rotation": 0,
+              "crop": null
+            },
+            "exposure": 0,
+            "width": 512,
+            "height": 384,
+            "interactive": false,
+            "liveQuality": "performance",
+            "quality": 94,
+            "divisor": 1,
+            "rect": null,
+            "bytes": 61812,
+            "analytics": "unavailable"
+          },
+          "preview": {
+            "command": "preview-result",
+            "geometry": {
+              "orientationSteps": 0,
+              "flipHorizontal": false,
+              "flipVertical": false,
+              "rotation": 0,
+              "crop": null
+            },
+            "target": 512,
+            "interactive": false,
+            "liveQuality": "performance",
+            "quality": 94,
+            "divisor": 1,
+            "width": 512,
+            "height": 384,
+            "originalWidth": 2048,
+            "originalHeight": 1536,
+            "scaleForGpu": 0.25,
+            "cropOffset": [
+              0,
+              0
+            ],
+            "rgbSha256": "c0d07e55c42bd67059613035283567cc83e324ad95f75c9008de854ac5d7ec9f",
+            "uploadSha256": "937216f2d1e1771c7721f2d8ed8c9d62ecf1a9ea3358ebac76a937c87946374e"
+          },
+          "jpegSha256": "042350b5c54e9244b8a9f33089efa25b0516ae59f4e188ba0345fcd60a86f869"
+        },
+        "fullReset": {
+          "exposure": 0,
+          "bytes": 61812,
+          "adjustmentSha256": "7528054041d105912931d3cc66497b535740e7f03c198e6e9f3915cc44f1520e",
+          "rgbaSha256": "220a870ec41b3f9a81899d8b33d60fd7bfbbf896c4d844497ff4ddfe5640d28d",
+          "jpegSha256": "042350b5c54e9244b8a9f33089efa25b0516ae59f4e188ba0345fcd60a86f869"
+        }
+      }
+    ],
+    "transparentBorder": {
+      "directBackendCase": true,
+      "nonOpaqueInputPixels": 18608,
+      "nativeAlpha": {
+        "adjustmentSha256": "7528054041d105912931d3cc66497b535740e7f03c198e6e9f3915cc44f1520e",
+        "baseRgbSha256": "f052bba0940702e068fb03d6a9f1cc78b9c57e7ff5758f1c460f28d11fb49e30",
+        "bytes": 53694,
+        "cropOffset": [
+          0,
+          0
+        ],
+        "geometry": {
+          "crop": null,
+          "flipHorizontal": false,
+          "flipVertical": false,
+          "orientationSteps": 0,
+          "rotation": 12.5
+        },
+        "height": 384,
+        "inputRgbaF16Sha256": "4a1b73db3566db6399768ea10851e9426a7edb06d8daa955baabeba05df8a864",
+        "jpegSha256": "7471f5d86782a69687eccf27d61aa5c04eee442d5fe605071bc322b8fe9379c2",
+        "rgbSha256": "d1c3bc20764414c3a2f04e5b82ddc52c3add6f34fab6b33674b7da79ce9f4c77",
+        "rgbaInputSha256": "4550faaf861173c0871ef4efd7f8ceb0ab31360cf580f87172cd9baff7c37ffc",
+        "rgbaSha256": "68da13433d2f145a8bdc1e76b89c26eac85d8dfa3feb93e6cb462a2f608cd35c",
+        "scaleForGpu": 0.25,
+        "scope": "Original crop-specific area resize then quarter turn, flips and crop; fine rotation original bilinear fixed-canvas; warp/effects unsupported",
+        "source": "b39884b38d8f148caef6fd0d52afd264951be329",
+        "width": 512
+      },
+      "frame": {
+        "adjustmentSha256": "7528054041d105912931d3cc66497b535740e7f03c198e6e9f3915cc44f1520e",
+        "rgbaSha256": "68da13433d2f145a8bdc1e76b89c26eac85d8dfa3feb93e6cb462a2f608cd35c",
+        "responseSha256": "7471f5d86782a69687eccf27d61aa5c04eee442d5fe605071bc322b8fe9379c2",
+        "jpegSha256": "7471f5d86782a69687eccf27d61aa5c04eee442d5fe605071bc322b8fe9379c2",
+        "command": "render-result",
+        "geometry": {
+          "orientationSteps": 0,
+          "flipHorizontal": false,
+          "flipVertical": false,
+          "rotation": 12.5,
+          "crop": null
+        },
+        "exposure": 0,
+        "width": 512,
+        "height": 384,
+        "interactive": false,
+        "liveQuality": "performance",
+        "quality": 94,
+        "divisor": 1,
+        "rect": null,
+        "bytes": 53694,
+        "analytics": "unavailable"
+      },
+      "preview": {
+        "command": "preview-result",
+        "geometry": {
+          "orientationSteps": 0,
+          "flipHorizontal": false,
+          "flipVertical": false,
+          "rotation": 12.5,
+          "crop": null
+        },
+        "target": 512,
+        "interactive": false,
+        "liveQuality": "performance",
+        "quality": 94,
+        "divisor": 1,
+        "width": 512,
+        "height": 384,
+        "originalWidth": 2048,
+        "originalHeight": 1536,
+        "scaleForGpu": 0.25,
+        "cropOffset": [
+          0,
+          0
+        ],
+        "rgbSha256": "d1c3bc20764414c3a2f04e5b82ddc52c3add6f34fab6b33674b7da79ce9f4c77",
+        "uploadSha256": "4a1b73db3566db6399768ea10851e9426a7edb06d8daa955baabeba05df8a864"
+      },
+      "jpegSha256": "7471f5d86782a69687eccf27d61aa5c04eee442d5fe605071bc322b8fe9379c2"
+    },
+    "refusals": {
+      "wasm": 5,
+      "bridge": 4
+    },
+    "baselineRestored": true,
+    "interactiveSizing": "explicitly unavailable until independently proved"
+  },
+  "publicFixture": {
+    "id": "raw.pixls.us 1327",
+    "license": "CC0-1.0",
+    "sourceSha256": "f0d2fe47507fadf50008bddbc6bd2c5e39fddbe90cca6bca72dd360fa0e0eb38"
+  },
+  "browserVersion": "151.0.7922.34",
+  "chromiumSandbox": true,
+  "first": {
+    "width": 2048,
+    "height": 1536,
+    "wb": {
+      "temperature": 6133.300425391969,
+      "tint": 39.766891841657326
+    },
+    "bytes": 61812,
+    "hash": "042350b5c54e9244b8a9f33089efa25b0516ae59f4e188ba0345fcd60a86f869"
+  },
+  "result": {
+    "gpuErrors": [],
+    "adapter": {
+      "vendor": "google",
+      "architecture": "swiftshader"
+    },
+    "originalSize": {
+      "width": 2048,
+      "height": 1536
+    },
+    "loaded": {
+      "command": "load-result",
+      "width": 2048,
+      "height": 1536,
+      "developmentMode": "native-quality",
+      "rgbSha256": "f052bba0940702e068fb03d6a9f1cc78b9c57e7ff5758f1c460f28d11fb49e30"
+    },
+    "previews": [
+      {
+        "command": "preview-result",
+        "geometry": {
+          "orientationSteps": 0,
+          "flipHorizontal": false,
+          "flipVertical": false,
+          "rotation": 0,
+          "crop": null
+        },
+        "target": 512,
+        "interactive": false,
+        "liveQuality": "high",
+        "quality": 94,
+        "divisor": 1,
+        "width": 512,
+        "height": 384,
+        "originalWidth": 2048,
+        "originalHeight": 1536,
+        "scaleForGpu": 0.25,
+        "cropOffset": [
+          0,
+          0
+        ],
+        "rgbSha256": "c0d07e55c42bd67059613035283567cc83e324ad95f75c9008de854ac5d7ec9f",
+        "uploadSha256": "937216f2d1e1771c7721f2d8ed8c9d62ecf1a9ea3358ebac76a937c87946374e"
+      }
+    ],
+    "dimensions": [
+      512,
+      384
+    ],
+    "bytes": 61812,
+    "hash": "042350b5c54e9244b8a9f33089efa25b0516ae59f4e188ba0345fcd60a86f869",
+    "exposure": 0,
+    "rendered": [
+      {
+        "exposure": 0,
+        "interactive": false,
+        "width": 512,
+        "height": 384,
+        "bytes": 61812
+      },
+      {
+        "exposure": 0.8,
+        "interactive": false,
+        "width": 512,
+        "height": 384,
+        "bytes": 85035
+      },
+      {
+        "exposure": -0.8,
+        "interactive": false,
+        "width": 512,
+        "height": 384,
+        "bytes": 38183
+      },
+      {
+        "exposure": 1.6,
+        "interactive": false,
+        "width": 512,
+        "height": 384,
+        "bytes": 95957
+      },
+      {
+        "exposure": 0,
+        "interactive": false,
+        "width": 512,
+        "height": 384,
+        "bytes": 61812
+      }
+    ],
+    "commands": [
+      "get_lensfun_makers",
+      "load_settings",
+      "clear_session_caches",
+      "update_wgpu_transform",
+      "load_metadata",
+      "load_image",
+      "load-result",
+      "apply_adjustments",
+      "preview-result",
+      "apply_adjustments",
+      "save_metadata_and_update_thumbnail",
+      "apply_adjustments",
+      "save_metadata_and_update_thumbnail",
+      "apply_adjustments",
+      "save_metadata_and_update_thumbnail",
+      "apply_adjustments",
+      "save_metadata_and_update_thumbnail",
+      "export_image",
+      "save_metadata_and_update_thumbnail"
+    ],
+    "unsupported": [
+      {
+        "command": "export_image",
+        "code": "unavailable-command"
+      },
+      {
+        "command": "save_metadata_and_update_thumbnail",
+        "code": "unavailable-command"
+      }
+    ],
+    "saveErrorVisible": true,
+    "visibleOriginalSvgImages": 1
+  },
+  "samples": [
+    {
+      "exposure": 0,
+      "bytes": 61812,
+      "adjustmentSha256": "7528054041d105912931d3cc66497b535740e7f03c198e6e9f3915cc44f1520e",
+      "rgbaSha256": "220a870ec41b3f9a81899d8b33d60fd7bfbbf896c4d844497ff4ddfe5640d28d",
+      "jpegSha256": "042350b5c54e9244b8a9f33089efa25b0516ae59f4e188ba0345fcd60a86f869"
+    },
+    {
+      "exposure": 0.8,
+      "bytes": 85035,
+      "adjustmentSha256": "985219f6d0dad0546f1a4ea1fd8006bcb7123da0b87125a8da06f3b55d15b6c6",
+      "rgbaSha256": "a039edaab4f09f6d21ba71b4f1b9afd420e0d3e0214a5ee0f336c3a3ee43124c",
+      "jpegSha256": "4b4b8363d79e6f622ad79923c4049c795887bb4b4b413c66b0d3a0d8d9de569a"
+    },
+    {
+      "exposure": -0.8,
+      "bytes": 38183,
+      "adjustmentSha256": "b26ba4e8d6984f5667a7a2aeeaa7d6c246f882bb6eb492dac91ea2c66f1c38e7",
+      "rgbaSha256": "505bd61272cb6fe0e4a3752933c48799c71275c9ff46cf7393fa30cb9ccc5ec9",
+      "jpegSha256": "19c623239f33aee12b0aed7bd39dff6041aff8bc69254647967ee4a40a90b8ca"
+    },
+    {
+      "exposure": 1.6,
+      "bytes": 95957,
+      "adjustmentSha256": "67070dc4d5a1cc4083bc165544f00cc92de3caa8dfe16e1a071de6504b11ac6a",
+      "rgbaSha256": "55d931f68ef38ceb0843e6ee24fb1756bbec2214327f734119ae6ca7cc3a9b11",
+      "jpegSha256": "83f27b034e2eea7b427d0577a0eadd9d612c0c7d11bf1d8284b7c2a8daf98766"
+    },
+    {
+      "exposure": 0,
+      "bytes": 61812,
+      "adjustmentSha256": "7528054041d105912931d3cc66497b535740e7f03c198e6e9f3915cc44f1520e",
+      "rgbaSha256": "220a870ec41b3f9a81899d8b33d60fd7bfbbf896c4d844497ff4ddfe5640d28d",
+      "jpegSha256": "042350b5c54e9244b8a9f33089efa25b0516ae59f4e188ba0345fcd60a86f869"
+    }
+  ],
+  "blockedExternalRequests": [],
+  "nativeComparison": {
+    "frames": 5,
+    "completeAdjustmentsExact": true,
+    "renderedPixelsExact": true,
+    "encodedJpegExact": true
+  },
+  "nativeGeometry": [
+    {
+      "adjustmentSha256": "7528054041d105912931d3cc66497b535740e7f03c198e6e9f3915cc44f1520e",
+      "baseRgbSha256": "c0d07e55c42bd67059613035283567cc83e324ad95f75c9008de854ac5d7ec9f",
+      "bytes": 61910,
+      "geometry": {
+        "flipHorizontal": false,
+        "flipVertical": false,
+        "orientationSteps": 1
+      },
+      "height": 512,
+      "jpegSha256": "6075493f7ee18a424a7b0067328c7043b07bb90c832dbb1e27c0690f26cf1f62",
+      "rgbSha256": "50b027e31b27694c75fcdc80ebd565d5e7b92bfefa25b271b37d8097f34e1b21",
+      "rgbaSha256": "d42f566a12637dd617102ccf1fc68da1a4a36b36e207522b750e6ef76c9d87bd",
+      "scope": "Original quarter turn then horizontal/vertical flips after original area preview; crop/fine rotation/warp/effects unsupported",
+      "source": "b39884b38d8f148caef6fd0d52afd264951be329",
+      "width": 384,
+      "action": "Rotate Right"
+    },
+    {
+      "adjustmentSha256": "7528054041d105912931d3cc66497b535740e7f03c198e6e9f3915cc44f1520e",
+      "baseRgbSha256": "c0d07e55c42bd67059613035283567cc83e324ad95f75c9008de854ac5d7ec9f",
+      "bytes": 61831,
+      "geometry": {
+        "flipHorizontal": true,
+        "flipVertical": false,
+        "orientationSteps": 1
+      },
+      "height": 512,
+      "jpegSha256": "4d5b9d591ea3bbe15a08cd1f3c7786e7f97a24e0a913054b9eee7ee9d02cf519",
+      "rgbSha256": "7804866abf60df8b6b0b50aed4170ad2da06dfd7b2efd2308b46d23ab8df8b67",
+      "rgbaSha256": "c3e1be4d93d8976440606bdb474fa9f80769990ac9793976f75ddc955f360c7d",
+      "scope": "Original quarter turn then horizontal/vertical flips after original area preview; crop/fine rotation/warp/effects unsupported",
+      "source": "b39884b38d8f148caef6fd0d52afd264951be329",
+      "width": 384,
+      "action": "Flip Horiz"
+    },
+    {
+      "adjustmentSha256": "7528054041d105912931d3cc66497b535740e7f03c198e6e9f3915cc44f1520e",
+      "baseRgbSha256": "c0d07e55c42bd67059613035283567cc83e324ad95f75c9008de854ac5d7ec9f",
+      "bytes": 61927,
+      "geometry": {
+        "flipHorizontal": true,
+        "flipVertical": true,
+        "orientationSteps": 1
+      },
+      "height": 512,
+      "jpegSha256": "28aa5ed2edb34341bd6392f92f7a9220e8bfc158f52ce6579dae93558b5eead0",
+      "rgbSha256": "3d8f055e866a6cc7fd68eb778e5d7b03528d4a8566db57f1828f283b43472483",
+      "rgbaSha256": "05444a8e6a932275523c6c9461685494ab5152eae1aa42d3ca297e146d2a1a26",
+      "scope": "Original quarter turn then horizontal/vertical flips after original area preview; crop/fine rotation/warp/effects unsupported",
+      "source": "b39884b38d8f148caef6fd0d52afd264951be329",
+      "width": 384,
+      "action": "Flip Vert"
+    },
+    {
+      "adjustmentSha256": "7528054041d105912931d3cc66497b535740e7f03c198e6e9f3915cc44f1520e",
+      "baseRgbSha256": "c0d07e55c42bd67059613035283567cc83e324ad95f75c9008de854ac5d7ec9f",
+      "bytes": 61837,
+      "geometry": {
+        "flipHorizontal": true,
+        "flipVertical": true,
+        "orientationSteps": 0
+      },
+      "height": 384,
+      "jpegSha256": "a809da86b63391e79fee10761e08b4fb8d74071c68f34bb12d5cb2e32711bbcd",
+      "rgbSha256": "d85540e1b01f9c690a29f8e278522ce10bb8e22bd3a16995135046b41bf1952f",
+      "rgbaSha256": "c4e8818cbe9f1feb145d9c2fae29d9eb80d65bd066dc1774ba45db46fe19c891",
+      "scope": "Original quarter turn then horizontal/vertical flips after original area preview; crop/fine rotation/warp/effects unsupported",
+      "source": "b39884b38d8f148caef6fd0d52afd264951be329",
+      "width": 512,
+      "action": "Rotate Left"
+    },
+    {
+      "adjustmentSha256": "7528054041d105912931d3cc66497b535740e7f03c198e6e9f3915cc44f1520e",
+      "baseRgbSha256": "c0d07e55c42bd67059613035283567cc83e324ad95f75c9008de854ac5d7ec9f",
+      "bytes": 61949,
+      "geometry": {
+        "flipHorizontal": false,
+        "flipVertical": true,
+        "orientationSteps": 0
+      },
+      "height": 384,
+      "jpegSha256": "8db763c31078c578f10539bc48341a3b405c04f4c3d42fcdbc505f1e28e69a40",
+      "rgbSha256": "4188894b72ec11b3e1c88fdcbcc8664b4cea06c96adf22bbecba1e91d747ddbd",
+      "rgbaSha256": "e3e5f91a3d62edecea12db767aac51cc7360d9cd39e20c3b0b839c8b1f584117",
+      "scope": "Original quarter turn then horizontal/vertical flips after original area preview; crop/fine rotation/warp/effects unsupported",
+      "source": "b39884b38d8f148caef6fd0d52afd264951be329",
+      "width": 512,
+      "action": "Flip Horiz"
+    },
+    {
+      "adjustmentSha256": "7528054041d105912931d3cc66497b535740e7f03c198e6e9f3915cc44f1520e",
+      "baseRgbSha256": "c0d07e55c42bd67059613035283567cc83e324ad95f75c9008de854ac5d7ec9f",
+      "bytes": 61812,
+      "geometry": {
+        "flipHorizontal": false,
+        "flipVertical": false,
+        "orientationSteps": 0
+      },
+      "height": 384,
+      "jpegSha256": "042350b5c54e9244b8a9f33089efa25b0516ae59f4e188ba0345fcd60a86f869",
+      "rgbSha256": "c0d07e55c42bd67059613035283567cc83e324ad95f75c9008de854ac5d7ec9f",
+      "rgbaSha256": "220a870ec41b3f9a81899d8b33d60fd7bfbbf896c4d844497ff4ddfe5640d28d",
+      "scope": "Original quarter turn then horizontal/vertical flips after original area preview; crop/fine rotation/warp/effects unsupported",
+      "source": "b39884b38d8f148caef6fd0d52afd264951be329",
+      "width": 512,
+      "action": "Flip Vert"
+    }
+  ],
+  "nativeCrop": [
+    {
+      "adjustmentSha256": "7528054041d105912931d3cc66497b535740e7f03c198e6e9f3915cc44f1520e",
+      "baseRgbSha256": "f052bba0940702e068fb03d6a9f1cc78b9c57e7ff5758f1c460f28d11fb49e30",
+      "bytes": 73068,
+      "cropOffset": [
+        256,
+        0
+      ],
+      "geometry": {
+        "crop": {
+          "height": 1536,
+          "width": 1536,
+          "x": 256,
+          "y": 0
+        },
+        "flipHorizontal": false,
+        "flipVertical": false,
+        "orientationSteps": 0
+      },
+      "height": 512,
+      "jpegSha256": "91a108164fd7b486f38b4bbd265290083ee50669e8986c401b3d8959c8f93851",
+      "rgbSha256": "f13b3a8f4b0e67d761a636e17ac0c807c277ff88de2127afc0e1e4e04bfb475f",
+      "rgbaSha256": "3554524b3be9210dc7c090986da94b6a1c1841fb688c1b9318f048e23961685a",
+      "scaleForGpu": 0.3333333432674408,
+      "scope": "Original crop-specific area resize then quarter turn, flips and crop; fine rotation/warp/effects unsupported",
+      "source": "b39884b38d8f148caef6fd0d52afd264951be329",
+      "width": 512,
+      "action": "1:1"
+    },
+    {
+      "adjustmentSha256": "7528054041d105912931d3cc66497b535740e7f03c198e6e9f3915cc44f1520e",
+      "baseRgbSha256": "f052bba0940702e068fb03d6a9f1cc78b9c57e7ff5758f1c460f28d11fb49e30",
+      "bytes": 73103,
+      "cropOffset": [
+        0,
+        256
+      ],
+      "geometry": {
+        "crop": {
+          "height": 1536,
+          "width": 1536,
+          "x": 0,
+          "y": 256
+        },
+        "flipHorizontal": false,
+        "flipVertical": false,
+        "orientationSteps": 1
+      },
+      "height": 512,
+      "jpegSha256": "8be75a538bed60c17bac84d42e0c1559a42b62290fcd4a11312a267187fb15d8",
+      "rgbSha256": "c6e4f35e4f133d4d865e330ebdaa51204a739f3b8e0d7e35071da2f606216780",
+      "rgbaSha256": "7256a323c43e59e6b4108db14e8169b6406294ea8a4883af650dfb35d11b92ee",
+      "scaleForGpu": 0.3333333432674408,
+      "scope": "Original crop-specific area resize then quarter turn, flips and crop; fine rotation/warp/effects unsupported",
+      "source": "b39884b38d8f148caef6fd0d52afd264951be329",
+      "width": 512,
+      "action": "Rotate Right"
+    },
+    {
+      "adjustmentSha256": "7528054041d105912931d3cc66497b535740e7f03c198e6e9f3915cc44f1520e",
+      "baseRgbSha256": "f052bba0940702e068fb03d6a9f1cc78b9c57e7ff5758f1c460f28d11fb49e30",
+      "bytes": 73012,
+      "cropOffset": [
+        0,
+        256
+      ],
+      "geometry": {
+        "crop": {
+          "height": 1536,
+          "width": 1536,
+          "x": 0,
+          "y": 256
+        },
+        "flipHorizontal": true,
+        "flipVertical": false,
+        "orientationSteps": 1
+      },
+      "height": 512,
+      "jpegSha256": "7363cafcf8fab6c6628d76711158988fbfc04676846f57487f8dd02b22b75e45",
+      "rgbSha256": "f63af8430cf3b7147d7ad42adc72a27e2fe645e7efac668e4cc5aef208946e68",
+      "rgbaSha256": "161cf24131322f006dbdf2514bcf33b99b83a1e46f5ee8e49d508388dbd0dc26",
+      "scaleForGpu": 0.3333333432674408,
+      "scope": "Original crop-specific area resize then quarter turn, flips and crop; fine rotation/warp/effects unsupported",
+      "source": "b39884b38d8f148caef6fd0d52afd264951be329",
+      "width": 512,
+      "action": "Flip Horiz"
+    },
+    {
+      "adjustmentSha256": "7528054041d105912931d3cc66497b535740e7f03c198e6e9f3915cc44f1520e",
+      "baseRgbSha256": "f052bba0940702e068fb03d6a9f1cc78b9c57e7ff5758f1c460f28d11fb49e30",
+      "bytes": 61812,
+      "cropOffset": [
+        0,
+        0
+      ],
+      "geometry": {
+        "crop": null,
+        "flipHorizontal": false,
+        "flipVertical": false,
+        "orientationSteps": 0
+      },
+      "height": 384,
+      "jpegSha256": "042350b5c54e9244b8a9f33089efa25b0516ae59f4e188ba0345fcd60a86f869",
+      "rgbSha256": "c0d07e55c42bd67059613035283567cc83e324ad95f75c9008de854ac5d7ec9f",
+      "rgbaSha256": "220a870ec41b3f9a81899d8b33d60fd7bfbbf896c4d844497ff4ddfe5640d28d",
+      "scaleForGpu": 0.25,
+      "scope": "Original crop-specific area resize then quarter turn, flips and crop; fine rotation/warp/effects unsupported",
+      "source": "b39884b38d8f148caef6fd0d52afd264951be329",
+      "width": 512,
+      "action": "Reset geometry"
+    },
+    {
+      "adjustmentSha256": "7528054041d105912931d3cc66497b535740e7f03c198e6e9f3915cc44f1520e",
+      "baseRgbSha256": "f052bba0940702e068fb03d6a9f1cc78b9c57e7ff5758f1c460f28d11fb49e30",
+      "bytes": 48378,
+      "cropOffset": [
+        0,
+        192
+      ],
+      "geometry": {
+        "crop": {
+          "height": 1152,
+          "width": 2048,
+          "x": 0,
+          "y": 192
+        },
+        "flipHorizontal": false,
+        "flipVertical": false,
+        "orientationSteps": 0
+      },
+      "height": 288,
+      "jpegSha256": "a16b90d77f8e56011823ac1bcb4e439102e4632ed7e70c26ab12dc03e8a0dc5f",
+      "rgbSha256": "f6d34a9d84c11835b657500a08e29b4a09cc34fb672babea2341ef83e16a298c",
+      "rgbaSha256": "990a02b11cb33cfa2d99ab1e8a87bd1c2820d90402fc8b22e87f7c2fd8e6f8ec",
+      "scaleForGpu": 0.25,
+      "scope": "Original crop-specific area resize then quarter turn, flips and crop; fine rotation/warp/effects unsupported",
+      "source": "b39884b38d8f148caef6fd0d52afd264951be329",
+      "width": 512,
+      "action": "16:9"
+    },
+    {
+      "adjustmentSha256": "7528054041d105912931d3cc66497b535740e7f03c198e6e9f3915cc44f1520e",
+      "baseRgbSha256": "f052bba0940702e068fb03d6a9f1cc78b9c57e7ff5758f1c460f28d11fb49e30",
+      "bytes": 61812,
+      "cropOffset": [
+        0,
+        0
+      ],
+      "geometry": {
+        "crop": null,
+        "flipHorizontal": false,
+        "flipVertical": false,
+        "orientationSteps": 0
+      },
+      "height": 384,
+      "jpegSha256": "042350b5c54e9244b8a9f33089efa25b0516ae59f4e188ba0345fcd60a86f869",
+      "rgbSha256": "c0d07e55c42bd67059613035283567cc83e324ad95f75c9008de854ac5d7ec9f",
+      "rgbaSha256": "220a870ec41b3f9a81899d8b33d60fd7bfbbf896c4d844497ff4ddfe5640d28d",
+      "scaleForGpu": 0.25,
+      "scope": "Original crop-specific area resize then quarter turn, flips and crop; fine rotation/warp/effects unsupported",
+      "source": "b39884b38d8f148caef6fd0d52afd264951be329",
+      "width": 512,
+      "action": "Reset geometry"
+    }
+  ],
+  "geometrySamples": [
+    {
+      "action": "Rotate Right",
+      "displaySettled": true,
+      "frame": {
+        "adjustmentSha256": "7528054041d105912931d3cc66497b535740e7f03c198e6e9f3915cc44f1520e",
+        "rgbaSha256": "d42f566a12637dd617102ccf1fc68da1a4a36b36e207522b750e6ef76c9d87bd",
+        "responseSha256": "6075493f7ee18a424a7b0067328c7043b07bb90c832dbb1e27c0690f26cf1f62",
+        "jpegSha256": "6075493f7ee18a424a7b0067328c7043b07bb90c832dbb1e27c0690f26cf1f62",
+        "command": "render-result",
+        "geometry": {
+          "orientationSteps": 1,
+          "flipHorizontal": false,
+          "flipVertical": false,
+          "rotation": 0,
+          "crop": null
+        },
+        "exposure": 0,
+        "width": 384,
+        "height": 512,
+        "interactive": false,
+        "liveQuality": "performance",
+        "quality": 94,
+        "divisor": 1,
+        "rect": null,
+        "bytes": 61910,
+        "analytics": "unavailable"
+      },
+      "dimensions": [
+        384,
+        512
+      ],
+      "originalSize": {
+        "width": 2048,
+        "height": 1536
+      },
+      "crop": null,
+      "preview": {
+        "command": "preview-result",
+        "geometry": {
+          "orientationSteps": 1,
+          "flipHorizontal": false,
+          "flipVertical": false,
+          "rotation": 0,
+          "crop": null
+        },
+        "target": 512,
+        "interactive": false,
+        "liveQuality": "performance",
+        "quality": 94,
+        "divisor": 1,
+        "width": 384,
+        "height": 512,
+        "originalWidth": 2048,
+        "originalHeight": 1536,
+        "scaleForGpu": 0.25,
+        "cropOffset": [
+          0,
+          0
+        ],
+        "rgbSha256": "50b027e31b27694c75fcdc80ebd565d5e7b92bfefa25b271b37d8097f34e1b21",
+        "uploadSha256": "e6e3c15d59121d80c51e0c088d9514ba9a696df32c58e0efdde6cce5d9330e62"
+      }
+    },
+    {
+      "action": "Flip Horiz",
+      "displaySettled": true,
+      "frame": {
+        "adjustmentSha256": "7528054041d105912931d3cc66497b535740e7f03c198e6e9f3915cc44f1520e",
+        "rgbaSha256": "c3e1be4d93d8976440606bdb474fa9f80769990ac9793976f75ddc955f360c7d",
+        "responseSha256": "4d5b9d591ea3bbe15a08cd1f3c7786e7f97a24e0a913054b9eee7ee9d02cf519",
+        "jpegSha256": "4d5b9d591ea3bbe15a08cd1f3c7786e7f97a24e0a913054b9eee7ee9d02cf519",
+        "command": "render-result",
+        "geometry": {
+          "orientationSteps": 1,
+          "flipHorizontal": true,
+          "flipVertical": false,
+          "rotation": 0,
+          "crop": null
+        },
+        "exposure": 0,
+        "width": 384,
+        "height": 512,
+        "interactive": false,
+        "liveQuality": "performance",
+        "quality": 94,
+        "divisor": 1,
+        "rect": null,
+        "bytes": 61831,
+        "analytics": "unavailable"
+      },
+      "dimensions": [
+        384,
+        512
+      ],
+      "originalSize": {
+        "width": 2048,
+        "height": 1536
+      },
+      "crop": null,
+      "preview": {
+        "command": "preview-result",
+        "geometry": {
+          "orientationSteps": 1,
+          "flipHorizontal": true,
+          "flipVertical": false,
+          "rotation": 0,
+          "crop": null
+        },
+        "target": 512,
+        "interactive": false,
+        "liveQuality": "performance",
+        "quality": 94,
+        "divisor": 1,
+        "width": 384,
+        "height": 512,
+        "originalWidth": 2048,
+        "originalHeight": 1536,
+        "scaleForGpu": 0.25,
+        "cropOffset": [
+          0,
+          0
+        ],
+        "rgbSha256": "7804866abf60df8b6b0b50aed4170ad2da06dfd7b2efd2308b46d23ab8df8b67",
+        "uploadSha256": "38a7f2b9b2e4440b01984ac2b31d04706b04fb9e0e35af9a82a5baccad33c190"
+      }
+    },
+    {
+      "action": "Flip Vert",
+      "displaySettled": true,
+      "frame": {
+        "adjustmentSha256": "7528054041d105912931d3cc66497b535740e7f03c198e6e9f3915cc44f1520e",
+        "rgbaSha256": "05444a8e6a932275523c6c9461685494ab5152eae1aa42d3ca297e146d2a1a26",
+        "responseSha256": "28aa5ed2edb34341bd6392f92f7a9220e8bfc158f52ce6579dae93558b5eead0",
+        "jpegSha256": "28aa5ed2edb34341bd6392f92f7a9220e8bfc158f52ce6579dae93558b5eead0",
+        "command": "render-result",
+        "geometry": {
+          "orientationSteps": 1,
+          "flipHorizontal": true,
+          "flipVertical": true,
+          "rotation": 0,
+          "crop": null
+        },
+        "exposure": 0,
+        "width": 384,
+        "height": 512,
+        "interactive": false,
+        "liveQuality": "performance",
+        "quality": 94,
+        "divisor": 1,
+        "rect": null,
+        "bytes": 61927,
+        "analytics": "unavailable"
+      },
+      "dimensions": [
+        384,
+        512
+      ],
+      "originalSize": {
+        "width": 2048,
+        "height": 1536
+      },
+      "crop": null,
+      "preview": {
+        "command": "preview-result",
+        "geometry": {
+          "orientationSteps": 1,
+          "flipHorizontal": true,
+          "flipVertical": true,
+          "rotation": 0,
+          "crop": null
+        },
+        "target": 512,
+        "interactive": false,
+        "liveQuality": "performance",
+        "quality": 94,
+        "divisor": 1,
+        "width": 384,
+        "height": 512,
+        "originalWidth": 2048,
+        "originalHeight": 1536,
+        "scaleForGpu": 0.25,
+        "cropOffset": [
+          0,
+          0
+        ],
+        "rgbSha256": "3d8f055e866a6cc7fd68eb778e5d7b03528d4a8566db57f1828f283b43472483",
+        "uploadSha256": "e7277fc518232ace53f32f9927c9fbe9e3c81a64b221171d5905e961ff16ee2f"
+      }
+    },
+    {
+      "action": "Rotate Left",
+      "displaySettled": true,
+      "frame": {
+        "adjustmentSha256": "7528054041d105912931d3cc66497b535740e7f03c198e6e9f3915cc44f1520e",
+        "rgbaSha256": "c4e8818cbe9f1feb145d9c2fae29d9eb80d65bd066dc1774ba45db46fe19c891",
+        "responseSha256": "a809da86b63391e79fee10761e08b4fb8d74071c68f34bb12d5cb2e32711bbcd",
+        "jpegSha256": "a809da86b63391e79fee10761e08b4fb8d74071c68f34bb12d5cb2e32711bbcd",
+        "command": "render-result",
+        "geometry": {
+          "orientationSteps": 0,
+          "flipHorizontal": true,
+          "flipVertical": true,
+          "rotation": 0,
+          "crop": null
+        },
+        "exposure": 0,
+        "width": 512,
+        "height": 384,
+        "interactive": false,
+        "liveQuality": "performance",
+        "quality": 94,
+        "divisor": 1,
+        "rect": null,
+        "bytes": 61837,
+        "analytics": "unavailable"
+      },
+      "dimensions": [
+        512,
+        384
+      ],
+      "originalSize": {
+        "width": 2048,
+        "height": 1536
+      },
+      "crop": null,
+      "preview": {
+        "command": "preview-result",
+        "geometry": {
+          "orientationSteps": 0,
+          "flipHorizontal": true,
+          "flipVertical": true,
+          "rotation": 0,
+          "crop": null
+        },
+        "target": 512,
+        "interactive": false,
+        "liveQuality": "performance",
+        "quality": 94,
+        "divisor": 1,
+        "width": 512,
+        "height": 384,
+        "originalWidth": 2048,
+        "originalHeight": 1536,
+        "scaleForGpu": 0.25,
+        "cropOffset": [
+          0,
+          0
+        ],
+        "rgbSha256": "d85540e1b01f9c690a29f8e278522ce10bb8e22bd3a16995135046b41bf1952f",
+        "uploadSha256": "3b2a283717e68615066098ca18d25d76213ce4535252faa74ab2f81e936a4367"
+      }
+    },
+    {
+      "action": "Flip Horiz",
+      "displaySettled": true,
+      "frame": {
+        "adjustmentSha256": "7528054041d105912931d3cc66497b535740e7f03c198e6e9f3915cc44f1520e",
+        "rgbaSha256": "e3e5f91a3d62edecea12db767aac51cc7360d9cd39e20c3b0b839c8b1f584117",
+        "responseSha256": "8db763c31078c578f10539bc48341a3b405c04f4c3d42fcdbc505f1e28e69a40",
+        "jpegSha256": "8db763c31078c578f10539bc48341a3b405c04f4c3d42fcdbc505f1e28e69a40",
+        "command": "render-result",
+        "geometry": {
+          "orientationSteps": 0,
+          "flipHorizontal": false,
+          "flipVertical": true,
+          "rotation": 0,
+          "crop": null
+        },
+        "exposure": 0,
+        "width": 512,
+        "height": 384,
+        "interactive": false,
+        "liveQuality": "performance",
+        "quality": 94,
+        "divisor": 1,
+        "rect": null,
+        "bytes": 61949,
+        "analytics": "unavailable"
+      },
+      "dimensions": [
+        512,
+        384
+      ],
+      "originalSize": {
+        "width": 2048,
+        "height": 1536
+      },
+      "crop": null,
+      "preview": {
+        "command": "preview-result",
+        "geometry": {
+          "orientationSteps": 0,
+          "flipHorizontal": false,
+          "flipVertical": true,
+          "rotation": 0,
+          "crop": null
+        },
+        "target": 512,
+        "interactive": false,
+        "liveQuality": "performance",
+        "quality": 94,
+        "divisor": 1,
+        "width": 512,
+        "height": 384,
+        "originalWidth": 2048,
+        "originalHeight": 1536,
+        "scaleForGpu": 0.25,
+        "cropOffset": [
+          0,
+          0
+        ],
+        "rgbSha256": "4188894b72ec11b3e1c88fdcbcc8664b4cea06c96adf22bbecba1e91d747ddbd",
+        "uploadSha256": "540e626d534bc3d65dd4527b940348defa8151207beb4dc758ecd5dd1ee6eb2c"
+      }
+    },
+    {
+      "action": "Flip Vert",
+      "displaySettled": true,
+      "frame": {
+        "adjustmentSha256": "7528054041d105912931d3cc66497b535740e7f03c198e6e9f3915cc44f1520e",
+        "rgbaSha256": "220a870ec41b3f9a81899d8b33d60fd7bfbbf896c4d844497ff4ddfe5640d28d",
+        "responseSha256": "042350b5c54e9244b8a9f33089efa25b0516ae59f4e188ba0345fcd60a86f869",
+        "jpegSha256": "042350b5c54e9244b8a9f33089efa25b0516ae59f4e188ba0345fcd60a86f869",
+        "command": "render-result",
+        "geometry": {
+          "orientationSteps": 0,
+          "flipHorizontal": false,
+          "flipVertical": false,
+          "rotation": 0,
+          "crop": null
+        },
+        "exposure": 0,
+        "width": 512,
+        "height": 384,
+        "interactive": false,
+        "liveQuality": "performance",
+        "quality": 94,
+        "divisor": 1,
+        "rect": null,
+        "bytes": 61812,
+        "analytics": "unavailable"
+      },
+      "dimensions": [
+        512,
+        384
+      ],
+      "originalSize": {
+        "width": 2048,
+        "height": 1536
+      },
+      "crop": null,
+      "preview": {
+        "command": "preview-result",
+        "geometry": {
+          "orientationSteps": 0,
+          "flipHorizontal": false,
+          "flipVertical": false,
+          "rotation": 0,
+          "crop": null
+        },
+        "target": 512,
+        "interactive": false,
+        "liveQuality": "performance",
+        "quality": 94,
+        "divisor": 1,
+        "width": 512,
+        "height": 384,
+        "originalWidth": 2048,
+        "originalHeight": 1536,
+        "scaleForGpu": 0.25,
+        "cropOffset": [
+          0,
+          0
+        ],
+        "rgbSha256": "c0d07e55c42bd67059613035283567cc83e324ad95f75c9008de854ac5d7ec9f",
+        "uploadSha256": "937216f2d1e1771c7721f2d8ed8c9d62ecf1a9ea3358ebac76a937c87946374e"
+      }
+    },
+    {
+      "action": "1:1",
+      "displaySettled": true,
+      "frame": {
+        "adjustmentSha256": "7528054041d105912931d3cc66497b535740e7f03c198e6e9f3915cc44f1520e",
+        "rgbaSha256": "3554524b3be9210dc7c090986da94b6a1c1841fb688c1b9318f048e23961685a",
+        "responseSha256": "91a108164fd7b486f38b4bbd265290083ee50669e8986c401b3d8959c8f93851",
+        "jpegSha256": "91a108164fd7b486f38b4bbd265290083ee50669e8986c401b3d8959c8f93851",
+        "command": "render-result",
+        "geometry": {
+          "orientationSteps": 0,
+          "flipHorizontal": false,
+          "flipVertical": false,
+          "rotation": 0,
+          "crop": {
+            "x": 256,
+            "y": 0,
+            "width": 1536,
+            "height": 1536
+          }
+        },
+        "exposure": 0,
+        "width": 512,
+        "height": 512,
+        "interactive": false,
+        "liveQuality": "performance",
+        "quality": 94,
+        "divisor": 1,
+        "rect": null,
+        "bytes": 73068,
+        "analytics": "unavailable"
+      },
+      "dimensions": [
+        512,
+        512
+      ],
+      "originalSize": {
+        "width": 2048,
+        "height": 1536
+      },
+      "crop": {
+        "unit": "px",
+        "x": 256,
+        "y": 0,
+        "width": 1536,
+        "height": 1536
+      },
+      "preview": {
+        "command": "preview-result",
+        "geometry": {
+          "orientationSteps": 0,
+          "flipHorizontal": false,
+          "flipVertical": false,
+          "rotation": 0,
+          "crop": {
+            "x": 256,
+            "y": 0,
+            "width": 1536,
+            "height": 1536
+          }
+        },
+        "target": 512,
+        "interactive": false,
+        "liveQuality": "performance",
+        "quality": 94,
+        "divisor": 1,
+        "width": 512,
+        "height": 512,
+        "originalWidth": 2048,
+        "originalHeight": 1536,
+        "scaleForGpu": 0.3333333432674408,
+        "cropOffset": [
+          256,
+          0
+        ],
+        "rgbSha256": "f13b3a8f4b0e67d761a636e17ac0c807c277ff88de2127afc0e1e4e04bfb475f",
+        "uploadSha256": "90c26a43dcfcb3335c28039c7651756ff3b00d8299824a08f98b787fb05d49d5"
+      }
+    },
+    {
+      "action": "Rotate Right",
+      "displaySettled": true,
+      "frame": {
+        "adjustmentSha256": "7528054041d105912931d3cc66497b535740e7f03c198e6e9f3915cc44f1520e",
+        "rgbaSha256": "7256a323c43e59e6b4108db14e8169b6406294ea8a4883af650dfb35d11b92ee",
+        "responseSha256": "8be75a538bed60c17bac84d42e0c1559a42b62290fcd4a11312a267187fb15d8",
+        "jpegSha256": "8be75a538bed60c17bac84d42e0c1559a42b62290fcd4a11312a267187fb15d8",
+        "command": "render-result",
+        "geometry": {
+          "orientationSteps": 1,
+          "flipHorizontal": false,
+          "flipVertical": false,
+          "rotation": 0,
+          "crop": {
+            "x": 0,
+            "y": 256,
+            "width": 1536,
+            "height": 1536
+          }
+        },
+        "exposure": 0,
+        "width": 512,
+        "height": 512,
+        "interactive": false,
+        "liveQuality": "performance",
+        "quality": 94,
+        "divisor": 1,
+        "rect": null,
+        "bytes": 73103,
+        "analytics": "unavailable"
+      },
+      "dimensions": [
+        512,
+        512
+      ],
+      "originalSize": {
+        "width": 2048,
+        "height": 1536
+      },
+      "crop": {
+        "unit": "px",
+        "x": 0,
+        "y": 256,
+        "width": 1536,
+        "height": 1536
+      },
+      "preview": {
+        "command": "preview-result",
+        "geometry": {
+          "orientationSteps": 1,
+          "flipHorizontal": false,
+          "flipVertical": false,
+          "rotation": 0,
+          "crop": {
+            "x": 0,
+            "y": 256,
+            "width": 1536,
+            "height": 1536
+          }
+        },
+        "target": 512,
+        "interactive": false,
+        "liveQuality": "performance",
+        "quality": 94,
+        "divisor": 1,
+        "width": 512,
+        "height": 512,
+        "originalWidth": 2048,
+        "originalHeight": 1536,
+        "scaleForGpu": 0.3333333432674408,
+        "cropOffset": [
+          0,
+          256
+        ],
+        "rgbSha256": "c6e4f35e4f133d4d865e330ebdaa51204a739f3b8e0d7e35071da2f606216780",
+        "uploadSha256": "02b5c373e4f011458833d0841678d8ad5c30712587a2ab11aa1232f34c04b794"
+      }
+    },
+    {
+      "action": "Flip Horiz",
+      "displaySettled": true,
+      "frame": {
+        "adjustmentSha256": "7528054041d105912931d3cc66497b535740e7f03c198e6e9f3915cc44f1520e",
+        "rgbaSha256": "161cf24131322f006dbdf2514bcf33b99b83a1e46f5ee8e49d508388dbd0dc26",
+        "responseSha256": "7363cafcf8fab6c6628d76711158988fbfc04676846f57487f8dd02b22b75e45",
+        "jpegSha256": "7363cafcf8fab6c6628d76711158988fbfc04676846f57487f8dd02b22b75e45",
+        "command": "render-result",
+        "geometry": {
+          "orientationSteps": 1,
+          "flipHorizontal": true,
+          "flipVertical": false,
+          "rotation": 0,
+          "crop": {
+            "x": 0,
+            "y": 256,
+            "width": 1536,
+            "height": 1536
+          }
+        },
+        "exposure": 0,
+        "width": 512,
+        "height": 512,
+        "interactive": false,
+        "liveQuality": "performance",
+        "quality": 94,
+        "divisor": 1,
+        "rect": null,
+        "bytes": 73012,
+        "analytics": "unavailable"
+      },
+      "dimensions": [
+        512,
+        512
+      ],
+      "originalSize": {
+        "width": 2048,
+        "height": 1536
+      },
+      "crop": {
+        "unit": "px",
+        "x": 0,
+        "y": 256,
+        "width": 1536,
+        "height": 1536
+      },
+      "preview": {
+        "command": "preview-result",
+        "geometry": {
+          "orientationSteps": 1,
+          "flipHorizontal": true,
+          "flipVertical": false,
+          "rotation": 0,
+          "crop": {
+            "x": 0,
+            "y": 256,
+            "width": 1536,
+            "height": 1536
+          }
+        },
+        "target": 512,
+        "interactive": false,
+        "liveQuality": "performance",
+        "quality": 94,
+        "divisor": 1,
+        "width": 512,
+        "height": 512,
+        "originalWidth": 2048,
+        "originalHeight": 1536,
+        "scaleForGpu": 0.3333333432674408,
+        "cropOffset": [
+          0,
+          256
+        ],
+        "rgbSha256": "f63af8430cf3b7147d7ad42adc72a27e2fe645e7efac668e4cc5aef208946e68",
+        "uploadSha256": "e5e0ea882dd685bca111893c97e873c25f49903881102803e42d279c9b8d5b1f"
+      }
+    },
+    {
+      "action": "Reset geometry",
+      "displaySettled": true,
+      "frame": {
+        "adjustmentSha256": "7528054041d105912931d3cc66497b535740e7f03c198e6e9f3915cc44f1520e",
+        "rgbaSha256": "220a870ec41b3f9a81899d8b33d60fd7bfbbf896c4d844497ff4ddfe5640d28d",
+        "responseSha256": "042350b5c54e9244b8a9f33089efa25b0516ae59f4e188ba0345fcd60a86f869",
+        "jpegSha256": "042350b5c54e9244b8a9f33089efa25b0516ae59f4e188ba0345fcd60a86f869",
+        "command": "render-result",
+        "geometry": {
+          "orientationSteps": 0,
+          "flipHorizontal": false,
+          "flipVertical": false,
+          "rotation": 0,
+          "crop": null
+        },
+        "exposure": 0,
+        "width": 512,
+        "height": 384,
+        "interactive": false,
+        "liveQuality": "performance",
+        "quality": 94,
+        "divisor": 1,
+        "rect": null,
+        "bytes": 61812,
+        "analytics": "unavailable"
+      },
+      "dimensions": [
+        512,
+        384
+      ],
+      "originalSize": {
+        "width": 2048,
+        "height": 1536
+      },
+      "crop": null,
+      "preview": {
+        "command": "preview-result",
+        "geometry": {
+          "orientationSteps": 0,
+          "flipHorizontal": false,
+          "flipVertical": false,
+          "rotation": 0,
+          "crop": null
+        },
+        "target": 512,
+        "interactive": false,
+        "liveQuality": "performance",
+        "quality": 94,
+        "divisor": 1,
+        "width": 512,
+        "height": 384,
+        "originalWidth": 2048,
+        "originalHeight": 1536,
+        "scaleForGpu": 0.25,
+        "cropOffset": [
+          0,
+          0
+        ],
+        "rgbSha256": "c0d07e55c42bd67059613035283567cc83e324ad95f75c9008de854ac5d7ec9f",
+        "uploadSha256": "937216f2d1e1771c7721f2d8ed8c9d62ecf1a9ea3358ebac76a937c87946374e"
+      }
+    },
+    {
+      "action": "16:9",
+      "displaySettled": true,
+      "frame": {
+        "adjustmentSha256": "7528054041d105912931d3cc66497b535740e7f03c198e6e9f3915cc44f1520e",
+        "rgbaSha256": "990a02b11cb33cfa2d99ab1e8a87bd1c2820d90402fc8b22e87f7c2fd8e6f8ec",
+        "responseSha256": "a16b90d77f8e56011823ac1bcb4e439102e4632ed7e70c26ab12dc03e8a0dc5f",
+        "jpegSha256": "a16b90d77f8e56011823ac1bcb4e439102e4632ed7e70c26ab12dc03e8a0dc5f",
+        "command": "render-result",
+        "geometry": {
+          "orientationSteps": 0,
+          "flipHorizontal": false,
+          "flipVertical": false,
+          "rotation": 0,
+          "crop": {
+            "x": 0,
+            "y": 192,
+            "width": 2048,
+            "height": 1152
+          }
+        },
+        "exposure": 0,
+        "width": 512,
+        "height": 288,
+        "interactive": false,
+        "liveQuality": "performance",
+        "quality": 94,
+        "divisor": 1,
+        "rect": null,
+        "bytes": 48378,
+        "analytics": "unavailable"
+      },
+      "dimensions": [
+        512,
+        288
+      ],
+      "originalSize": {
+        "width": 2048,
+        "height": 1536
+      },
+      "crop": {
+        "unit": "px",
+        "x": 0,
+        "y": 192,
+        "width": 2048,
+        "height": 1152
+      },
+      "preview": {
+        "command": "preview-result",
+        "geometry": {
+          "orientationSteps": 0,
+          "flipHorizontal": false,
+          "flipVertical": false,
+          "rotation": 0,
+          "crop": {
+            "x": 0,
+            "y": 192,
+            "width": 2048,
+            "height": 1152
+          }
+        },
+        "target": 512,
+        "interactive": false,
+        "liveQuality": "performance",
+        "quality": 94,
+        "divisor": 1,
+        "width": 512,
+        "height": 288,
+        "originalWidth": 2048,
+        "originalHeight": 1536,
+        "scaleForGpu": 0.25,
+        "cropOffset": [
+          0,
+          192
+        ],
+        "rgbSha256": "f6d34a9d84c11835b657500a08e29b4a09cc34fb672babea2341ef83e16a298c",
+        "uploadSha256": "1190844ffc7e3bf423e5c4120616f565d7102145fb3b1bd433e3d1f737c45f55"
+      }
+    },
+    {
+      "action": "Reset geometry",
+      "displaySettled": true,
+      "frame": {
+        "adjustmentSha256": "7528054041d105912931d3cc66497b535740e7f03c198e6e9f3915cc44f1520e",
+        "rgbaSha256": "220a870ec41b3f9a81899d8b33d60fd7bfbbf896c4d844497ff4ddfe5640d28d",
+        "responseSha256": "042350b5c54e9244b8a9f33089efa25b0516ae59f4e188ba0345fcd60a86f869",
+        "jpegSha256": "042350b5c54e9244b8a9f33089efa25b0516ae59f4e188ba0345fcd60a86f869",
+        "command": "render-result",
+        "geometry": {
+          "orientationSteps": 0,
+          "flipHorizontal": false,
+          "flipVertical": false,
+          "rotation": 0,
+          "crop": null
+        },
+        "exposure": 0,
+        "width": 512,
+        "height": 384,
+        "interactive": false,
+        "liveQuality": "performance",
+        "quality": 94,
+        "divisor": 1,
+        "rect": null,
+        "bytes": 61812,
+        "analytics": "unavailable"
+      },
+      "dimensions": [
+        512,
+        384
+      ],
+      "originalSize": {
+        "width": 2048,
+        "height": 1536
+      },
+      "crop": null,
+      "preview": {
+        "command": "preview-result",
+        "geometry": {
+          "orientationSteps": 0,
+          "flipHorizontal": false,
+          "flipVertical": false,
+          "rotation": 0,
+          "crop": null
+        },
+        "target": 512,
+        "interactive": false,
+        "liveQuality": "performance",
+        "quality": 94,
+        "divisor": 1,
+        "width": 512,
+        "height": 384,
+        "originalWidth": 2048,
+        "originalHeight": 1536,
+        "scaleForGpu": 0.25,
+        "cropOffset": [
+          0,
+          0
+        ],
+        "rgbSha256": "c0d07e55c42bd67059613035283567cc83e324ad95f75c9008de854ac5d7ec9f",
+        "uploadSha256": "937216f2d1e1771c7721f2d8ed8c9d62ecf1a9ea3358ebac76a937c87946374e"
+      }
+    }
+  ],
+  "cropRefusals": {
+    "wasmRejected": 11,
+    "transportRejected": 4,
+    "restoredHash": "042350b5c54e9244b8a9f33089efa25b0516ae59f4e188ba0345fcd60a86f869"
+  },
+  "cropCanvas": {
+    "actualOriginalTab": true,
+    "actualCorner": "se",
+    "pointerDelta": [
+      -72,
+      -54
+    ],
+    "uncropped": {
+      "frame": {
+        "command": "uncropped-result",
+        "geometry": {
+          "orientationSteps": 0,
+          "flipHorizontal": false,
+          "flipVertical": false,
+          "rotation": 0,
+          "crop": null
+        },
+        "width": 512,
+        "height": 384,
+        "quality": 80,
+        "bytes": 29977,
+        "rgbSha256": "c0d07e55c42bd67059613035283567cc83e324ad95f75c9008de854ac5d7ec9f",
+        "scaleForGpu": 0.25,
+        "cropOffset": [
+          0,
+          0
+        ],
+        "adjustmentSha256": "7528054041d105912931d3cc66497b535740e7f03c198e6e9f3915cc44f1520e",
+        "rgbaSha256": "220a870ec41b3f9a81899d8b33d60fd7bfbbf896c4d844497ff4ddfe5640d28d",
+        "jpegSha256": "d70d81ee817f4648a5dfdbbb0091b5c98e2c68f1b3e902f0e20e9243ef7f3726"
+      },
+      "sha256": "d70d81ee817f4648a5dfdbbb0091b5c98e2c68f1b3e902f0e20e9243ef7f3726",
+      "dataUrl": true,
+      "crop": null
+    },
+    "nativeUncropped": {
+      "adjustmentSha256": "7528054041d105912931d3cc66497b535740e7f03c198e6e9f3915cc44f1520e",
+      "baseRgbSha256": "f052bba0940702e068fb03d6a9f1cc78b9c57e7ff5758f1c460f28d11fb49e30",
+      "bytes": 29977,
+      "cropOffset": [
+        0,
+        0
+      ],
+      "geometry": {
+        "flipHorizontal": false,
+        "flipVertical": false,
+        "orientationSteps": 0
+      },
+      "height": 384,
+      "jpegSha256": "d70d81ee817f4648a5dfdbbb0091b5c98e2c68f1b3e902f0e20e9243ef7f3726",
+      "rgbSha256": "c0d07e55c42bd67059613035283567cc83e324ad95f75c9008de854ac5d7ec9f",
+      "rgbaSha256": "220a870ec41b3f9a81899d8b33d60fd7bfbbf896c4d844497ff4ddfe5640d28d",
+      "scaleForGpu": 0.25,
+      "scope": "Original uncropped square area downscale then orientation/flip; pre-orientation scale, zero offset and q80 encode_rgb",
+      "source": "b39884b38d8f148caef6fd0d52afd264951be329",
+      "width": 512
+    },
+    "drag": {
+      "frame": {
+        "adjustmentSha256": "7528054041d105912931d3cc66497b535740e7f03c198e6e9f3915cc44f1520e",
+        "rgbaSha256": "60aca346e0b5dc570994cfdd5587a00dfa232ee1ee984c943259682859910ca6",
+        "responseSha256": "434e32fe9df20c4000eb73a1ea4a9f936d68a49dcf7ebc0d09b272ede633d0f5",
+        "jpegSha256": "434e32fe9df20c4000eb73a1ea4a9f936d68a49dcf7ebc0d09b272ede633d0f5",
+        "command": "render-result",
+        "geometry": {
+          "orientationSteps": 0,
+          "flipHorizontal": false,
+          "flipVertical": false,
+          "rotation": 0,
+          "crop": {
+            "x": 0,
+            "y": 0,
+            "width": 1891,
+            "height": 1418
+          }
+        },
+        "exposure": 0,
+        "width": 512,
+        "height": 384,
+        "interactive": false,
+        "liveQuality": "performance",
+        "quality": 94,
+        "divisor": 1,
+        "rect": null,
+        "bytes": 60876,
+        "analytics": "unavailable"
+      },
+      "crop": {
+        "unit": "px",
+        "x": 0,
+        "y": 0,
+        "width": 1891,
+        "height": 1418
+      },
+      "preview": {
+        "command": "preview-result",
+        "geometry": {
+          "orientationSteps": 0,
+          "flipHorizontal": false,
+          "flipVertical": false,
+          "rotation": 0,
+          "crop": {
+            "x": 0,
+            "y": 0,
+            "width": 1891,
+            "height": 1418
+          }
+        },
+        "target": 512,
+        "interactive": false,
+        "liveQuality": "performance",
+        "quality": 94,
+        "divisor": 1,
+        "width": 512,
+        "height": 384,
+        "originalWidth": 2048,
+        "originalHeight": 1536,
+        "scaleForGpu": 0.27075621485710144,
+        "cropOffset": [
+          0,
+          0
+        ],
+        "rgbSha256": "f200cc84d196a4d09e43fed802127b0b71d183f0a4d0593f4adad8395357d3d3",
+        "uploadSha256": "7df447ee1c6d6bdb2312622e0a13b004da5dc4e59a0174932d5b2fd0b5b562bc"
+      }
+    },
+    "nativeDrag": {
+      "adjustmentSha256": "7528054041d105912931d3cc66497b535740e7f03c198e6e9f3915cc44f1520e",
+      "baseRgbSha256": "f052bba0940702e068fb03d6a9f1cc78b9c57e7ff5758f1c460f28d11fb49e30",
+      "bytes": 60876,
+      "cropOffset": [
+        0,
+        0
+      ],
+      "geometry": {
+        "crop": {
+          "height": 1418,
+          "unit": "px",
+          "width": 1891,
+          "x": 0,
+          "y": 0
+        },
+        "flipHorizontal": false,
+        "flipVertical": false,
+        "orientationSteps": 0
+      },
+      "height": 384,
+      "jpegSha256": "434e32fe9df20c4000eb73a1ea4a9f936d68a49dcf7ebc0d09b272ede633d0f5",
+      "rgbSha256": "f200cc84d196a4d09e43fed802127b0b71d183f0a4d0593f4adad8395357d3d3",
+      "rgbaSha256": "60aca346e0b5dc570994cfdd5587a00dfa232ee1ee984c943259682859910ca6",
+      "scaleForGpu": 0.27075621485710144,
+      "scope": "Original crop-specific area resize then quarter turn, flips and crop; fine rotation/warp/effects unsupported",
+      "source": "b39884b38d8f148caef6fd0d52afd264951be329",
+      "width": 512
+    },
+    "displaySettled": true,
+    "restored": {
+      "exposure": 0,
+      "bytes": 61812,
+      "adjustmentSha256": "7528054041d105912931d3cc66497b535740e7f03c198e6e9f3915cc44f1520e",
+      "rgbaSha256": "220a870ec41b3f9a81899d8b33d60fd7bfbbf896c4d844497ff4ddfe5640d28d",
+      "jpegSha256": "042350b5c54e9244b8a9f33089efa25b0516ae59f4e188ba0345fcd60a86f869"
+    }
+  },
+  "nativeInteractive": [
+    {
+      "adjustmentSha256": "985219f6d0dad0546f1a4ea1fd8006bcb7123da0b87125a8da06f3b55d15b6c6",
+      "baseRgbSha256": "c0d07e55c42bd67059613035283567cc83e324ad95f75c9008de854ac5d7ec9f",
+      "bytes": 50335,
+      "divisor": 1,
+      "exposure": 0.8,
+      "height": 384,
+      "jpegSha256": "2339c2187cb4a26b974ef486b65e256be423499b221944aed37095b72570ded6",
+      "preset": "full",
+      "quality": 85,
+      "rect": [
+        0,
+        0,
+        512,
+        384,
+        512,
+        384
+      ],
+      "responseSha256": "848c96cd17f95c879c88c90dbbb1a4d5a5167edbe8fa36c13a472a1fb27a86f0",
+      "rgbSha256": "c0d07e55c42bd67059613035283567cc83e324ad95f75c9008de854ac5d7ec9f",
+      "rgbaSha256": "a039edaab4f09f6d21ba71b4f1b9afd420e0d3e0214a5ee0f336c3a3ee43124c",
+      "scope": "Actual source no-ROI interactive second downscale; no geometry/effect preprocessing",
+      "source": "b39884b38d8f148caef6fd0d52afd264951be329",
+      "width": 512
+    },
+    {
+      "adjustmentSha256": "985219f6d0dad0546f1a4ea1fd8006bcb7123da0b87125a8da06f3b55d15b6c6",
+      "baseRgbSha256": "c0d07e55c42bd67059613035283567cc83e324ad95f75c9008de854ac5d7ec9f",
+      "bytes": 36589,
+      "divisor": 1,
+      "exposure": 0.8,
+      "height": 384,
+      "jpegSha256": "4a7543dcad409adc9b7f3f7b8bdc3fe5cdd99963c364a46a3d8ce64e4ee105a3",
+      "preset": "high",
+      "quality": 75,
+      "rect": [
+        0,
+        0,
+        512,
+        384,
+        512,
+        384
+      ],
+      "responseSha256": "d1d8f68b02937d72170979d154280efb790d56d9fbdaf74112e333f14426493f",
+      "rgbSha256": "c0d07e55c42bd67059613035283567cc83e324ad95f75c9008de854ac5d7ec9f",
+      "rgbaSha256": "a039edaab4f09f6d21ba71b4f1b9afd420e0d3e0214a5ee0f336c3a3ee43124c",
+      "scope": "Actual source no-ROI interactive second downscale; no geometry/effect preprocessing",
+      "source": "b39884b38d8f148caef6fd0d52afd264951be329",
+      "width": 512
+    },
+    {
+      "adjustmentSha256": "985219f6d0dad0546f1a4ea1fd8006bcb7123da0b87125a8da06f3b55d15b6c6",
+      "baseRgbSha256": "c0d07e55c42bd67059613035283567cc83e324ad95f75c9008de854ac5d7ec9f",
+      "bytes": 16277,
+      "divisor": 1.5,
+      "exposure": 0.8,
+      "height": 255,
+      "jpegSha256": "1ca011f6f94e42f9b9420ea2f40fe9b661ddd891e0c3dda6d4dfcd9df19c6b1f",
+      "preset": "performance",
+      "quality": 65,
+      "rect": [
+        0,
+        0,
+        340,
+        255,
+        340,
+        255
+      ],
+      "responseSha256": "a564752b25d4297d5a22f4104e1d55ac68b1771b76e3b15c28cf78fa850a90d3",
+      "rgbSha256": "3b63848d0d443b929cc66065fd4d856d8e4bec25db5afe80347bc0c6ebbc8256",
+      "rgbaSha256": "1e041eba65f398ff0c4a8f1f9c4a2a61acabc2d8d4be3759557148e6ee428443",
+      "scope": "Actual source no-ROI interactive second downscale; no geometry/effect preprocessing",
+      "source": "b39884b38d8f148caef6fd0d52afd264951be329",
+      "width": 340
+    }
+  ],
+  "interactiveSamples": [
+    {
+      "preset": "full",
+      "frame": {
+        "adjustmentSha256": "985219f6d0dad0546f1a4ea1fd8006bcb7123da0b87125a8da06f3b55d15b6c6",
+        "rgbaSha256": "a039edaab4f09f6d21ba71b4f1b9afd420e0d3e0214a5ee0f336c3a3ee43124c",
+        "responseSha256": "848c96cd17f95c879c88c90dbbb1a4d5a5167edbe8fa36c13a472a1fb27a86f0",
+        "jpegSha256": "2339c2187cb4a26b974ef486b65e256be423499b221944aed37095b72570ded6",
+        "command": "render-result",
+        "geometry": {
+          "orientationSteps": 0,
+          "flipHorizontal": false,
+          "flipVertical": false,
+          "rotation": 0,
+          "crop": null
+        },
+        "exposure": 0.8,
+        "width": 512,
+        "height": 384,
+        "interactive": true,
+        "liveQuality": "full",
+        "quality": 85,
+        "divisor": 1,
+        "rect": [
+          0,
+          0,
+          512,
+          384,
+          512,
+          384
+        ],
+        "bytes": 50335,
+        "analytics": "unavailable"
+      },
+      "dimensions": [
+        512,
+        384
+      ],
+      "jpegSha256": "2339c2187cb4a26b974ef486b65e256be423499b221944aed37095b72570ded6",
+      "rect": [
+        0,
+        0,
+        1,
+        1
+      ],
+      "dragging": true,
+      "preview": {
+        "command": "preview-result",
+        "geometry": {
+          "orientationSteps": 0,
+          "flipHorizontal": false,
+          "flipVertical": false,
+          "rotation": 0,
+          "crop": null
+        },
+        "target": 512,
+        "interactive": true,
+        "liveQuality": "full",
+        "quality": 85,
+        "divisor": 1,
+        "width": 512,
+        "height": 384,
+        "originalWidth": 2048,
+        "originalHeight": 1536,
+        "scaleForGpu": 0.25,
+        "cropOffset": [
+          0,
+          0
+        ],
+        "rgbSha256": "c0d07e55c42bd67059613035283567cc83e324ad95f75c9008de854ac5d7ec9f",
+        "uploadSha256": "937216f2d1e1771c7721f2d8ed8c9d62ecf1a9ea3358ebac76a937c87946374e"
+      },
+      "finalAfterRelease": {
+        "exposure": 0.8,
+        "bytes": 85035,
+        "adjustmentSha256": "985219f6d0dad0546f1a4ea1fd8006bcb7123da0b87125a8da06f3b55d15b6c6",
+        "rgbaSha256": "a039edaab4f09f6d21ba71b4f1b9afd420e0d3e0214a5ee0f336c3a3ee43124c",
+        "jpegSha256": "4b4b8363d79e6f622ad79923c4049c795887bb4b4b413c66b0d3a0d8d9de569a"
+      }
+    },
+    {
+      "preset": "high",
+      "frame": {
+        "adjustmentSha256": "985219f6d0dad0546f1a4ea1fd8006bcb7123da0b87125a8da06f3b55d15b6c6",
+        "rgbaSha256": "a039edaab4f09f6d21ba71b4f1b9afd420e0d3e0214a5ee0f336c3a3ee43124c",
+        "responseSha256": "d1d8f68b02937d72170979d154280efb790d56d9fbdaf74112e333f14426493f",
+        "jpegSha256": "4a7543dcad409adc9b7f3f7b8bdc3fe5cdd99963c364a46a3d8ce64e4ee105a3",
+        "command": "render-result",
+        "geometry": {
+          "orientationSteps": 0,
+          "flipHorizontal": false,
+          "flipVertical": false,
+          "rotation": 0,
+          "crop": null
+        },
+        "exposure": 0.8,
+        "width": 512,
+        "height": 384,
+        "interactive": true,
+        "liveQuality": "high",
+        "quality": 75,
+        "divisor": 1,
+        "rect": [
+          0,
+          0,
+          512,
+          384,
+          512,
+          384
+        ],
+        "bytes": 36589,
+        "analytics": "unavailable"
+      },
+      "dimensions": [
+        512,
+        384
+      ],
+      "jpegSha256": "4a7543dcad409adc9b7f3f7b8bdc3fe5cdd99963c364a46a3d8ce64e4ee105a3",
+      "rect": [
+        0,
+        0,
+        1,
+        1
+      ],
+      "dragging": true,
+      "preview": {
+        "command": "preview-result",
+        "geometry": {
+          "orientationSteps": 0,
+          "flipHorizontal": false,
+          "flipVertical": false,
+          "rotation": 0,
+          "crop": null
+        },
+        "target": 512,
+        "interactive": true,
+        "liveQuality": "high",
+        "quality": 75,
+        "divisor": 1,
+        "width": 512,
+        "height": 384,
+        "originalWidth": 2048,
+        "originalHeight": 1536,
+        "scaleForGpu": 0.25,
+        "cropOffset": [
+          0,
+          0
+        ],
+        "rgbSha256": "c0d07e55c42bd67059613035283567cc83e324ad95f75c9008de854ac5d7ec9f",
+        "uploadSha256": "937216f2d1e1771c7721f2d8ed8c9d62ecf1a9ea3358ebac76a937c87946374e"
+      },
+      "finalAfterRelease": {
+        "exposure": 0.8,
+        "bytes": 85035,
+        "adjustmentSha256": "985219f6d0dad0546f1a4ea1fd8006bcb7123da0b87125a8da06f3b55d15b6c6",
+        "rgbaSha256": "a039edaab4f09f6d21ba71b4f1b9afd420e0d3e0214a5ee0f336c3a3ee43124c",
+        "jpegSha256": "4b4b8363d79e6f622ad79923c4049c795887bb4b4b413c66b0d3a0d8d9de569a"
+      }
+    },
+    {
+      "preset": "performance",
+      "frame": {
+        "adjustmentSha256": "985219f6d0dad0546f1a4ea1fd8006bcb7123da0b87125a8da06f3b55d15b6c6",
+        "rgbaSha256": "1e041eba65f398ff0c4a8f1f9c4a2a61acabc2d8d4be3759557148e6ee428443",
+        "responseSha256": "a564752b25d4297d5a22f4104e1d55ac68b1771b76e3b15c28cf78fa850a90d3",
+        "jpegSha256": "1ca011f6f94e42f9b9420ea2f40fe9b661ddd891e0c3dda6d4dfcd9df19c6b1f",
+        "command": "render-result",
+        "geometry": {
+          "orientationSteps": 0,
+          "flipHorizontal": false,
+          "flipVertical": false,
+          "rotation": 0,
+          "crop": null
+        },
+        "exposure": 0.8,
+        "width": 340,
+        "height": 255,
+        "interactive": true,
+        "liveQuality": "performance",
+        "quality": 65,
+        "divisor": 1.5,
+        "rect": [
+          0,
+          0,
+          340,
+          255,
+          340,
+          255
+        ],
+        "bytes": 16277,
+        "analytics": "unavailable"
+      },
+      "dimensions": [
+        340,
+        255
+      ],
+      "jpegSha256": "1ca011f6f94e42f9b9420ea2f40fe9b661ddd891e0c3dda6d4dfcd9df19c6b1f",
+      "rect": [
+        0,
+        0,
+        1,
+        1
+      ],
+      "dragging": true,
+      "preview": {
+        "command": "preview-result",
+        "geometry": {
+          "orientationSteps": 0,
+          "flipHorizontal": false,
+          "flipVertical": false,
+          "rotation": 0,
+          "crop": null
+        },
+        "target": 512,
+        "interactive": true,
+        "liveQuality": "performance",
+        "quality": 65,
+        "divisor": 1.5,
+        "width": 340,
+        "height": 255,
+        "originalWidth": 2048,
+        "originalHeight": 1536,
+        "scaleForGpu": 0.166015625,
+        "cropOffset": [
+          0,
+          0
+        ],
+        "rgbSha256": "3b63848d0d443b929cc66065fd4d856d8e4bec25db5afe80347bc0c6ebbc8256",
+        "uploadSha256": "c85d82eeca1083396644f9af5d105e4dd41fd85b2488bff32e4df4fce93b83b3"
+      },
+      "finalAfterRelease": {
+        "exposure": 0.8,
+        "bytes": 85035,
+        "adjustmentSha256": "985219f6d0dad0546f1a4ea1fd8006bcb7123da0b87125a8da06f3b55d15b6c6",
+        "rgbaSha256": "a039edaab4f09f6d21ba71b4f1b9afd420e0d3e0214a5ee0f336c3a3ee43124c",
+        "jpegSha256": "4b4b8363d79e6f622ad79923c4049c795887bb4b4b413c66b0d3a0d8d9de569a"
+      }
+    }
+  ],
+  "afterInteractive": {
+    "gpuErrors": [],
+    "exposure": 0,
+    "originalSize": {
+      "width": 2048,
+      "height": 1536
+    },
+    "patchCleared": true,
+    "dragging": false
+  },
+  "nativeResize": {
+    "height": 384,
+    "originalHeight": 1536,
+    "originalRgbSha256": "f052bba0940702e068fb03d6a9f1cc78b9c57e7ff5758f1c460f28d11fb49e30",
+    "originalWidth": 2048,
+    "rgbSha256": "c0d07e55c42bd67059613035283567cc83e324ad95f75c9008de854ac5d7ec9f",
+    "scaleForGpu": 0.25,
+    "scope": "Original neutral geometry dimensions and exact area downscale; no crop/rotation/patch/effects",
+    "source": "b39884b38d8f148caef6fd0d52afd264951be329",
+    "target": 512,
+    "width": 512
+  },
+  "resizeRecovery": {
+    "smallDimensions": [
+      256,
+      192
+    ],
+    "restoredBytes": 61812,
+    "restoredHash": "042350b5c54e9244b8a9f33089efa25b0516ae59f4e188ba0345fcd60a86f869",
+    "targets": [
+      512,
+      256,
+      512
+    ]
+  },
+  "rejectedResizeInputs": 8,
+  "refusedOversizePreview": true,
+  "workerUsableAfterRefusal": true,
+  "pageErrors": [],
+  "failedRequests": [],
+  "expectedSaveErrors": 30,
+  "expectedUnavailableLensReads": 1
+}

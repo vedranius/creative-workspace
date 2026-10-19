@@ -1,4 +1,4 @@
-//! Source crop-specific preview sizing, guarded before allocations. No fine rotation/warp.
+//! Source crop/rotation preview sizing guarded before allocations. No warp/effects.
 use crate::{
     original_crop::Crop,
     preview_resize::{PreviewPixels, samples},
@@ -18,6 +18,7 @@ pub struct CropPlan {
     pub offset: [f32; 2],
 }
 pub struct CroppedPreview {
+    pub alpha: Option<Vec<f32>>,
     pub pixels: PreviewPixels,
     pub scale: f32,
     pub offset: [f32; 2],
@@ -126,7 +127,28 @@ pub fn crop_preview(
     vertical: bool,
     crop: Option<Crop>,
 ) -> Result<CroppedPreview, String> {
+    fine_preview(
+        width, height, pixels, target, steps, horizontal, vertical, crop, 0.,
+    )
+}
+pub fn fine_preview(
+    width: u32,
+    height: u32,
+    pixels: &[f32],
+    target: u32,
+    steps: u32,
+    horizontal: bool,
+    vertical: bool,
+    crop: Option<Crop>,
+    rotation: f32,
+) -> Result<CroppedPreview, String> {
+    if !rotation.is_finite() || !(-45.0..=45.0).contains(&rotation) {
+        return Err("Expected finite original fine rotation -45..45 degrees".into());
+    }
     let p = plan(width, height, target, steps, crop)?;
+    if rotation != 0. && p.working_width as u64 * p.working_height as u64 * 16 > 64 * 1024 * 1024 {
+        return Err("Fine rotation RGBA intermediate exceeds64MiB".into());
+    }
     if pixels.len() != samples(width, height)?
         || pixels.iter().any(|v| !v.is_finite() || v.abs() > 65504.)
     {
@@ -146,16 +168,30 @@ pub fn crop_preview(
     };
     let a = serde_json::json!({"orientationSteps":steps,"flipHorizontal":horizontal,"flipVertical":vertical});
     let oriented = crate::original_geometry::apply_orientation_and_flip(working, &a);
+    let rotated = crate::original_rotation::apply_rotation(oriented, rotation);
     let result = crate::original_crop::apply_crop(
-        oriented,
+        rotated,
         &serde_json::to_value(p.scaled_crop).map_err(|e| e.to_string())?,
     )
-    .into_owned()
-    .into_rgb32f();
+    .into_owned();
+    let alpha = if rotation != 0. {
+        Some(
+            result
+                .to_rgba32f()
+                .as_raw()
+                .chunks_exact(4)
+                .map(|p| p[3])
+                .collect(),
+        )
+    } else {
+        None
+    };
+    let result = result.into_rgb32f();
     if result.dimensions() != (p.output_width, p.output_height) {
         return Err("Original crop dimensions differ from preflight".into());
     }
     Ok(CroppedPreview {
+        alpha,
         scale: (result.width() as f64 / p.full_width) as f32,
         offset: p.offset,
         pixels: PreviewPixels {

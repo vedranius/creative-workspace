@@ -169,7 +169,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         include!("original_high_precision_pipeline.rs")
     };
     let (width, height, input_image, input_source, input_format) = if args.len() > 1 {
-        if args.len() != 5 || args[1] != "--rgb-f32" {
+        if args.len() != 5 || !matches!(args[1].as_str(), "--rgb-f32" | "--rgba-f32") {
             return Err("Usage: reference [--rgb-f32 FILE WIDTH HEIGHT]".into());
         }
         let width: u32 = args[3].parse()?;
@@ -177,7 +177,10 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         let count = (width as usize)
             .checked_mul(height as usize)
             .ok_or("size overflow")?;
-        let bytes = count.checked_mul(12).ok_or("size overflow")?;
+        let rgba = args[1] == "--rgba-f32";
+        let bytes = count
+            .checked_mul(if rgba { 16 } else { 12 })
+            .ok_or("size overflow")?;
         if width == 0
             || height == 0
             || width > 32768
@@ -201,10 +204,22 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         if rgb.iter().any(|v| !v.is_finite() || v.abs() > 65504.) {
             return Err("invalid f16 input domain".into());
         }
-        let image = image::DynamicImage::ImageRgb32F(
-            image::Rgb32FImage::from_raw(width, height, rgb.clone()).ok_or("RGB shape")?,
-        );
-        (width, height, image, rgb, "RGB32F")
+        let image = if rgba {
+            image::DynamicImage::ImageRgba32F(
+                image::Rgba32FImage::from_raw(width, height, rgb.clone()).ok_or("RGBA shape")?,
+            )
+        } else {
+            image::DynamicImage::ImageRgb32F(
+                image::Rgb32FImage::from_raw(width, height, rgb.clone()).ok_or("RGB shape")?,
+            )
+        };
+        (
+            width,
+            height,
+            image,
+            rgb,
+            if rgba { "RGBA32F" } else { "RGB32F" },
+        )
     } else {
         let input: Vec<f32> = (0..WIDTH * HEIGHT)
             .flat_map(|i| {

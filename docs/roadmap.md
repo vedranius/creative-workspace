@@ -1,3 +1,9 @@
+# RWASM-03 — original fine rotation (2026-10-19)
+
+The original CropPanel numeric Slider edits +5.3°/−7.1° now drive the pinned fixed-canvas bilinear RGBA rotation between orientation/flips and integer crop. Independent native source, GPU upload, rendered pixels and final JPEG comparisons cover both signs and a separate transparent-border backend case. [Evidence, limits and next task](rapidraw-wasm-fine-rotation-handoff.md).
+
+Core63/63 and doctests, host24/24, npm run check and focused source/format/syntax/diff checks pass. Original components/handlers remain unchanged. Nonzero fine rotation with interactive sizing explicitly refuses; actual pointer dragging, fractional crop, warp/effects/ROI/full App/provider/save/export acceptance remain open. The64MiB RGBA intermediate estimate is a per-buffer bound, not complete peak-memory/allocator protection. No product version/release/install/demo change.
+
 # RWASM-03 — original crop tool and corner drag (2026-10-19)
 
 Actual original PanelSwitcher activates Crop; original useImageProcessing receives the source q80 uncropped JPEG data URL. A real original ReactCrop southeast-handle drag creates1891×1418 integer crop, then actual Adjustments tab/reset restores the baseline. Uncropped29,977 bytes and cropped60,876 bytes plus RGB/complete adjustment/pixel hashes match independent native source exactly. [Proof and next task](rapidraw-wasm-crop-canvas-handoff.md).
