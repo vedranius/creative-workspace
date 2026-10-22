@@ -1,3 +1,11 @@
+# PAR-03 alpha.62 — Actions draft assets verified (2026-10-22)
+
+Authenticated as vedranius. Build/release39260718607 and Checks39260718822 succeeded onb18d550; immutable tag and draft417421983 target that exact commit. Fresh downloads verify all24 asset sizes/GitHub SHA-256 digests and12 archive/sidecar pairs. Read-only platform archive checks verify12 engine binaries, three Node24 runtimes, product/target/source/engine manifests, startup evidence, launchers and licenses. [Release evidence](evidence/creative-workspace-alpha62-release.md).
+
+The prototype prerelease remains a draft and DesignCraft planned: actual OS folder permission, full original/provider/all13 acceptance remain open. Alpha.63 release API403 remains separately blocked; no retries or permission changes. The public Pages demo is unchanged. This evidence-only checkpoint adds no product version/tag/release.
+
+Next A: actual original Text Tool frame/caret/typing on the selected second page against owned worker coordinates, fixing only a demonstrated mismatch. Next independent B by alternation: original Exposure plus ExportPanel resize/DPI native/browser/JPEG/ACK parity fromc560c098. MAIN only, no new writer/chat; preserve protected sessions and FilmCraft.
+
 # Alpha.63 release publication blocked — 2026-10-22
 
 [Build/release39817589928](https://github.com/vedranius/creative-workspace/actions/runs/39817589928) completed with24 successful jobs and one failed publish job on source394c5f9fca42bd9e35141a6291a0ed1522427690. Checks39817589944 succeeded. All target-native, original-UI/browser and platform-bundle jobs passed; the runner verified12 archive/checksum pairs. Eleven retained Actions artifacts contain those24 candidate files (the DesignCraft artifact contains two archive pairs).

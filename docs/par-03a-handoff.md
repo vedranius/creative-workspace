@@ -1,3 +1,11 @@
+# PAR-03 alpha.62 — Actions draft assets verified (2026-10-22)
+
+Authenticated as vedranius. Build/release39260718607 and Checks39260718822 succeeded onb18d550; immutable tag and draft417421983 target that exact commit. Fresh downloads verify all24 asset sizes/GitHub SHA-256 digests and12 archive/sidecar pairs. Read-only platform archive checks verify12 engine binaries, three Node24 runtimes, product/target/source/engine manifests, startup evidence, launchers and licenses. [Release evidence](evidence/creative-workspace-alpha62-release.md).
+
+The prototype prerelease remains a draft and DesignCraft planned: actual OS folder permission, full original/provider/all13 acceptance remain open. Alpha.63 release API403 remains separately blocked; no retries or permission changes. The public Pages demo is unchanged. This evidence-only checkpoint adds no product version/tag/release.
+
+Next A: actual original Text Tool frame/caret/typing on the selected second page against owned worker coordinates, fixing only a demonstrated mismatch. Next independent B by alternation: original Exposure plus ExportPanel resize/DPI native/browser/JPEG/ACK parity fromc560c098. MAIN only, no new writer/chat; preserve protected sessions and FilmCraft.
+
 # PAR-03 alpha.62 — CI observer race corrected (2026-10-19)
 
 The alpha62 Build/release run39226350624 failed in the page-selection smoke because it read the previous asynchronously observed ACK after the application had already applied revision7. The smoke now waits for its exact response revision; CI includes a750ms observer-only delay. Real sandboxed browser proof records waiting for ACK7, page0 and byte-identical PNG restored, with no browser/network errors. [Diagnosis and evidence](evidence/designcraft-par03-pages-select-observer.md).
