@@ -1,3 +1,9 @@
+## [0.2.0-alpha.64] - 2026-10-23
+
+- Use one selected-page display mapping for the acknowledged DesignCraft server PNG and original tool pointer coordinates. Map through the original multi-spread layout so Text Tool clicks reach the selected second-page frame.
+- Normalize original spread-local frame rectangles to the existing page-local gateway contract, avoiding a duplicated facing-page X offset; preserve original spread-local caret points and command IDs.
+- Add original Type Tool/geometry tests and an actual browser second-page frame/caret/typing gate. Retain matching server ACK, first-page identity/content, root/auth/provider guards and draft-only Actions-built release requirements. Full original/provider/OS acceptance remains incomplete.
+
 ## [0.2.0-alpha.63] - 2026-10-22
 
 - Import the official stable web releases of all 13 ArtCraft apps (DeckCraft v0.9.0 held for an upstream startup panic; verify v0.7.0 fallback) into the independent browser demo, preserving original interfaces, licenses and archive/source provenance. Keep server engine/UI pins independent.

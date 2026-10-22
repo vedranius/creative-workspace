@@ -1,3 +1,11 @@
+# PAR-03 alpha.64 — selected-page Text Tool mapping fixed locally (2026-10-23)
+
+The original host UI now shares one selected-page display mapping between the server PNG and pointer tools, translating through the original multi-spread CanvasLayout. Frame rectangles normalize once to the page-local gateway contract; original caret points remain spread-local. Native algorithms/worker and command IDs are unchanged.
+
+Exact-source UI158 tests pass (one existing ignored), JavaScript88/check/registry/release metadata pass. Fresh optimized WASM in sandboxed Chromium proves original second-page frame ACK7 with held-ACK mirror stability, actual caret click ACK8 and keyboard “S” ACK9, a changed server PNG and unchanged first spread. Screenshot inspected; zero browser/network errors. [Evidence and source/package hashes](evidence/designcraft-second-page-text-fixed.md).
+
+Alpha.64 remains a draft/prerelease candidate requiring fresh Actions-built assets and immutable tag/draft/downloaded-checksum verification. DesignCraft stays planned; full visible-caret/tool parity, actual facing-page browser coverage, OS permission and all-provider/all13 acceptance remain open. The public demo is unchanged. Alpha.63 release API403 is separate and was not retried or bypassed. Next by alternation B: original Exposure plus ExportPanel resize/DPI parity fromc560c098; next A after CI gate: actual right-hand facing-page Text Tool/caret/typing, including nonzero page X and unchanged sibling page. MAIN only; preserve protected sessions and FilmCraft.
+
 # PAR-03 selected-second-page Text Tool — actual UI defect isolated (2026-10-22)
 
 Original page.select ACK6 and frame.create ACK7 place a new text frame on canonical second spread1 with the first spread unchanged. Clicking inside that drag rectangle produces no text.placeCaret request; the UI remains revision7/pending=false. Independent direct worker caret/insert ACK8/9 correctly update only the second-page story, isolating the original UI hit-test mismatch. The host PNG is fitted to the selected page while pointer/tool CanvasLayout still addresses the first spread. [Failed browser proof, protocol control and exact fix handoff](evidence/designcraft-second-page-text-blocked.md).

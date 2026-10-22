@@ -1,3 +1,9 @@
+# Alpha.64 candidate — selected-page DesignCraft pointer mapping
+
+`0.2.0-alpha.64` aligns original tool input with the same acknowledged selected-page display used for the server PNG. Original Text Tool frame/caret/typing retain their server command IDs, versioned ACK and canonical hydration. Facing-page frame coordinates normalize once to the existing page-local gateway contract. DesignCraft stays planned; real OS permission, full original parity and all-provider acceptance remain open.
+
+Assets/tag/draft for alpha.64 require fresh GitHub Actions verification and independent downloads/checksums. No locally built UI/engine is a distributable release asset. Install a verified Actions package into a new root and keep live installations/unsaved documents intact. Alpha.62 assets were independently verified; alpha.63's separate release API403 remains unresolved without permission changes or retries. The accepted public demo is unchanged. [Handoff](par-03a-handoff.md).
+
 # Alpha.63 — official browser demo release updates
 
 `0.2.0-alpha.63` adds the separate browser demo update workflow; server adapter pins remain independent. Use fresh Actions-built OS packages only after immutable tag/draft/asset checksum verification. No local native binaries are distributed. Keep the prototype release draft-only. See [demo pipeline and credential setup](cloudflare-demo.md).

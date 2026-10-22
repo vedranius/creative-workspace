@@ -2,7 +2,7 @@
 
 # Creative Workspace
 
-**Version: 0.2.0-alpha.63** — prototype/prerelease draft candidate. The independent browser demo imports checksum-verified official ArtCraft web releases for all 13 apps; GitHub Actions checks hourly and tests every app before deployment. Cloudflare publishing requires a Pages Edit secret. Original server adapters retain their reviewed pins and acceptance gates. See [demo deployment](docs/cloudflare-demo.md).
+**Version: 0.2.0-alpha.64** — prototype/prerelease draft candidate. DesignCraft uses the selected server page's display mapping for original pointer tools and caret actions; full original/provider/OS acceptance remains open. The independent all13 ArtCraft browser demo and its hourly verified update pipeline remain separate. Install only new Actions-built packages after tag/draft/checksum verification; preserve live installations. See [PAR-03 handoff](docs/par-03a-handoff.md) and [release limits](docs/releases.md).
 
 Bring your creative tools together in one browser studio. Choose an application, select your files, and access your own server from a lightweight laptop. The goal is **the original application interfaces and tools in the browser, with the server doing the heavy work**: photography, image editing, illustration, PDF, publishing, video, motion graphics, office documents, spreadsheets, presentations, CAD, interface design and audio. Browser controls run locally; document commands, data and previews travel to the server. No VNC or remote desktop is involved.
 

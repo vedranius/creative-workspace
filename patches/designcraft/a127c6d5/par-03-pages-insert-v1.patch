@@ -966,10 +966,64 @@ index c1032bccf395d43e1f5d0be0275ead5a3fe8330d..6702d269f349a9234be80c89f2d3b39e
 +    assert_eq!(s.active().map(|state| state.doc.clone()), Some(std::sync::Arc::new(document)));
 +}
 diff --git a/crates/ui-egui/src/canvas.rs b/crates/ui-egui/src/canvas.rs
-index 34dd6144278a6bac68705fb8012f987b9909a599..7d30e32a4bbff76a9d837c693be2a7e15424598e 100644
+index 34dd6144278a6bac68705fb8012f987b9909a599..00f3a04507a272651ab261dcadce3870012e07fc 100644
 --- a/crates/ui-egui/src/canvas.rs
 +++ b/crates/ui-egui/src/canvas.rs
-@@ -141,6 +141,7 @@ pub fn current_slot(app: &DesignApp, layout: &CanvasLayout) -> Option<usize> {
+@@ -77,6 +77,53 @@ impl Xf {
+     }
+ }
+ 
++/// One acknowledged page display, shared by the server PNG and original tool input.
++/// Tool events still use the original multi-spread CanvasLayout coordinates.
++#[derive(Clone, Copy)]
++struct HostPageView {
++    display: Rect,
++    page_bounds: DRect,
++    spread_to_canvas: Affine,
++}
++
++impl HostPageView {
++    fn new(screen: Rect, pixels: egui::Vec2, page_bounds: DRect, spread_to_canvas: Affine) -> Option<Self> {
++        if pixels.x <= 0.0 || pixels.y <= 0.0 || !pixels.is_finite()
++            || page_bounds.width() <= 0.0 || page_bounds.height() <= 0.0
++        { return None; }
++        let scale = ((screen.width() - 40.0) / pixels.x).min((screen.height() - 40.0) / pixels.y).max(0.01);
++        Some(Self { display: Rect::from_center_size(screen.center(), pixels * scale), page_bounds, spread_to_canvas })
++    }
++
++    fn to_canvas(self, screen: Pos2) -> Point {
++        let point = Point::new(
++            self.page_bounds.x0 + (screen.x - self.display.min.x) as f64 / self.display.width() as f64 * self.page_bounds.width(),
++            self.page_bounds.y0 + (screen.y - self.display.min.y) as f64 / self.display.height() as f64 * self.page_bounds.height(),
++        );
++        self.spread_to_canvas * point
++    }
++
++    /// The gateway frame contract is page-local; original tools emit spread-local rectangles.
++    /// Caret points stay spread-local, as required by the original text.placeCaret command.
++    fn action_params(self, id: &str, mut params: Value) -> Value {
++        if id == "frame.create" && let Some(rect) = params.get_mut("rect").and_then(Value::as_array_mut) {
++            for (index, value) in rect.iter_mut().enumerate() {
++                if let Some(coordinate) = value.as_f64() {
++                    *value = json!(coordinate - if index % 2 == 0 { self.page_bounds.x0 } else { self.page_bounds.y0 });
++                }
++            }
++        }
++        params
++    }
++}
++
++fn host_page_view(app: &DesignApp, screen: Rect) -> Option<HostPageView> {
++    let document = &app.session.active()?.doc;
++    let (spread, page) = document.page_loc(app.host_page())?;
++    let layout = CanvasLayout::new(document, false);
++    HostPageView::new(screen, app.host_texture.as_ref()?.size_vec2(), document.spreads[spread].pages[page].bounds(), layout.xf(SpreadRef::Doc(spread)))
++}
++
+ fn c32(c: [u8; 3]) -> Color32 {
+     Color32::from_rgb(c[0], c[1], c[2])
+ }
+@@ -141,6 +188,7 @@ pub fn current_slot(app: &DesignApp, layout: &CanvasLayout) -> Option<usize> {
  
  /// Absolute page index under the view centre.
  pub fn current_page(app: &DesignApp) -> Option<usize> {
@@ -977,7 +1031,7 @@ index 34dd6144278a6bac68705fb8012f987b9909a599..7d30e32a4bbff76a9d837c693be2a7e1
      let st = app.session.active()?;
      let layout = CanvasLayout::new(&st.doc, st.editing_parents);
      let i = current_slot(app, &layout)?;
-@@ -155,6 +156,10 @@ pub fn current_page(app: &DesignApp) -> Option<usize> {
+@@ -155,6 +203,10 @@ pub fn current_page(app: &DesignApp) -> Option<usize> {
  
  /// Scroll so absolute page `abs` is centred (keeps zoom).
  pub fn go_to_page(app: &mut DesignApp, abs: usize) {
@@ -988,33 +1042,54 @@ index 34dd6144278a6bac68705fb8012f987b9909a599..7d30e32a4bbff76a9d837c693be2a7e1
      let Some(st) = app.session.active() else { return };
      let layout = CanvasLayout::new(&st.doc, false);
      let Some(pr) = layout.page_rect(&st.doc, abs) else { return };
-@@ -243,6 +248,25 @@ pub fn show(app: &mut DesignApp, ui: &mut egui::Ui) {
+@@ -243,7 +295,24 @@ pub fn show(app: &mut DesignApp, ui: &mut egui::Ui) {
      if !app.view().is_some_and(|v| v.fitted) {
          fit(app, rect, "spread");
      }
+-    handle_input(app, ui, &resp, rect);
 +    if app.services.host_action.is_some() {
-+        if !app.host_pending() {
-+            handle_input(app, ui, &resp, rect);
-+        }
-+        let painter = ui.painter_at(screen);
-+        painter.rect_filled(screen, 0.0, t.pasteboard);
 +        if let Some(image) = app.host_preview.take() {
 +            app.host_texture = Some(ui.ctx().load_texture(format!("server-page-{}", app.host_revision), image, egui::TextureOptions::LINEAR));
 +        }
-+        if let Some(texture) = &app.host_texture {
-+            let size = texture.size_vec2();
-+            let scale = ((screen.width()-40.0)/size.x).min((screen.height()-40.0)/size.y).max(0.01);
-+            let page = Rect::from_center_size(screen.center(), size * scale);
-+            painter.image(texture.id(), page, Rect::from_min_max(pos2(0.0,0.0), pos2(1.0,1.0)), Color32::WHITE);
++        let host_view = host_page_view(app, screen);
++        if !app.host_pending() && host_view.is_some() {
++            handle_input(app, ui, &resp, rect, host_view);
++        }
++        let painter = ui.painter_at(screen);
++        painter.rect_filled(screen, 0.0, t.pasteboard);
++        if let (Some(texture), Some(view)) = (&app.host_texture, host_view) {
++            painter.image(texture.id(), view.display, Rect::from_min_max(pos2(0.0,0.0), pos2(1.0,1.0)), Color32::WHITE);
 +        }
 +        // Tool commands are captured by the server mirror; the acknowledged server PNG is the
 +        // only document rendering shown here.
 +        return;
 +    }
-     handle_input(app, ui, &resp, rect);
++    handle_input(app, ui, &resp, rect, None);
      let Some(st) = app.session.active() else { return };
      let Some(&v) = app.view() else { return };
-@@ -1435,9 +1459,15 @@ fn handle_input(app: &mut DesignApp, ui: &mut egui::Ui, resp: &egui::Response, r
+     let xf = Xf::new(rect, &v);
+@@ -1341,7 +1410,7 @@ fn fmt_tick(v: f64) -> String {
+     if (v - r).abs() < 1e-6 { format!("{}", r as i64) } else { format!("{v:.1}") }
+ }
+ 
+-fn handle_input(app: &mut DesignApp, ui: &mut egui::Ui, resp: &egui::Response, rect: Rect) {
++fn handle_input(app: &mut DesignApp, ui: &mut egui::Ui, resp: &egui::Response, rect: Rect, host_view: Option<HostPageView>) {
+     let Some(v) = app.view().copied() else { return };
+     let xf = Xf::new(rect, &v);
+     let wants_text = app.session.wants_text();
+@@ -1378,8 +1447,9 @@ fn handle_input(app: &mut DesignApp, ui: &mut egui::Ui, resp: &egui::Response, r
+         return;
+     }
+     let m = ui.input(|i| mods(i, space));
+-    let vi = app.view_info();
+-    let pos = |p: Pos2| xf.to_canvas(p);
++    let mut vi = app.view_info();
++    if let Some(view) = host_view { vi.zoom = view.display.width() as f64 / view.page_bounds.width(); }
++    let pos = |p: Pos2| host_view.map_or_else(|| xf.to_canvas(p), |view| view.to_canvas(p));
+     let mut events: Vec<PointerEvent> = Vec::new();
+     let down_id = egui::Id::new(("canvas_pointer_down", app.pane));
+     let mut down: bool = ui.data(|d| d.get_temp(down_id)).unwrap_or(false);
+@@ -1435,9 +1505,14 @@ fn handle_input(app: &mut DesignApp, ui: &mut egui::Ui, resp: &egui::Response, r
      }
      ui.data_mut(|d| d.insert_temp(down_id, down));
      for e in events {
@@ -1022,15 +1097,14 @@ index 34dd6144278a6bac68705fb8012f987b9909a599..7d30e32a4bbff76a9d837c693be2a7e1
          if let Err(err) = app.session.pointer(&e, vi) {
              app.status(err.to_string());
          }
-+        if committed && let Some((id, params)) = app.session.take_host_action()
-+            && let Err(err) = app.queue_host_action(&id, params)
-+        {
-+            app.host_action_error(err);
++        if committed && let Some((id, params)) = app.session.take_host_action() {
++            let params = host_view.map_or_else(|| params.clone(), |view| view.action_params(&id, params.clone()));
++            if let Err(err) = app.queue_host_action(&id, params) { app.host_action_error(err); }
 +        }
      }
      app.after_engine();
      if resp.clicked() || resp.drag_started() {
-@@ -1445,6 +1475,19 @@ fn handle_input(app: &mut DesignApp, ui: &mut egui::Ui, resp: &egui::Response, r
+@@ -1445,6 +1520,19 @@ fn handle_input(app: &mut DesignApp, ui: &mut egui::Ui, resp: &egui::Response, r
      }
      // Keyboard for the active tool.
      if ui.ctx().text_edit_focused() && !resp.has_focus() {
@@ -1050,7 +1124,7 @@ index 34dd6144278a6bac68705fb8012f987b9909a599..7d30e32a4bbff76a9d837c693be2a7e1
          return;
      }
      let evs = ui.input(|i| i.events.clone());
-@@ -1486,6 +1529,11 @@ fn handle_input(app: &mut DesignApp, ui: &mut egui::Ui, resp: &egui::Response, r
+@@ -1486,6 +1574,11 @@ fn handle_input(app: &mut DesignApp, ui: &mut egui::Ui, resp: &egui::Response, r
                  if let Some(k) = k {
                      let m = Mods { shift: modifiers.shift, alt: modifiers.alt, cmd: modifiers.command, ctrl: modifiers.ctrl, space: false };
                      let handled = app.session.tool_key(k, m, vi).unwrap_or(false);
@@ -1062,6 +1136,53 @@ index 34dd6144278a6bac68705fb8012f987b9909a599..7d30e32a4bbff76a9d837c693be2a7e1
                      if !handled && k == ToolKey::Escape {
                          let _ = app.run("edit.deselectAll", json!({}));
                      }
+@@ -1745,6 +1838,46 @@ mod tests {
+ 
+     use super::*;
+ 
++    #[test]
++    fn host_page_pointer_and_frame_contract_use_selected_spread_and_page_offset() {
++        let screen = Rect::from_min_max(pos2(100.0, 50.0), pos2(940.0, 1090.0));
++        // A right-hand facing page in the second spread: source page x=600,
++        // original canvas spread is shifted -600 in x and +872 in y.
++        let view = HostPageView::new(screen, vec2(600.0, 800.0), DRect::new(600.0, 0.0, 1200.0, 800.0), Affine::translate((-600.0, 872.0))).unwrap();
++        let point = view.to_canvas(view.display.center());
++        assert!((point.x - 300.0).abs() < 1e-6);
++        assert!((point.y - 1272.0).abs() < 1e-6);
++        let params = view.action_params("frame.create", json!({"rect":[640.0,60.0,780.0,160.0],"spread":{"index":1,"kind":"doc"}}));
++        assert_eq!(params["rect"], json!([40.0,60.0,180.0,160.0]));
++        let caret = json!({"frame":14,"point":[700.0,100.0]});
++        assert_eq!(view.action_params("text.placeCaret", caret.clone()), caret);
++        assert!(HostPageView::new(screen, vec2(0.0,800.0), view.page_bounds, Affine::IDENTITY).is_none());
++    }
++
++    #[test]
++    fn host_page_pointer_hits_original_type_tool_on_second_spread() {
++        use designcraft_engine::{Session, ViewInfo};
++        let mut session = Session::new();
++        session.execute("file.new", &json!({"preset":"A4"})).unwrap();
++        session.execute("layout.pages.insert", &json!({"after":0,"count":1})).unwrap();
++        let created = session.execute("frame.create", &json!({"spread":1,"content":"text","rect":[100,100,220,180]})).unwrap();
++        let frame = created["id"].as_u64().unwrap();
++        let doc = &session.active().unwrap().doc;
++        let layout = CanvasLayout::new(doc, false);
++        let view = HostPageView::new(Rect::from_min_max(pos2(0.0,0.0),pos2(800.0,1000.0)), vec2(596.0,842.0), doc.spreads[1].pages[0].bounds(), layout.xf(SpreadRef::Doc(1))).unwrap();
++        let at = pos2(view.display.min.x + view.display.width() * (150.0 / view.page_bounds.width()) as f32,
++            view.display.min.y + view.display.height() * (140.0 / view.page_bounds.height()) as f32);
++        session.set_tool("type");
++        session.set_server_mirror();
++        session.pointer(&PointerEvent {kind:PointerKind::Down,pos:view.to_canvas(at),mods:Mods::default()}, ViewInfo::at_zoom(1.0)).unwrap();
++        let (id, params) = session.take_host_action().expect("original Type Tool must hit second-page frame");
++        assert_eq!(id, "text.placeCaret");
++        assert_eq!(params["frame"], frame);
++        let point = params["point"].as_array().unwrap();
++        assert!((point[0].as_f64().unwrap() - 150.0).abs() < 0.001);
++        assert!((point[1].as_f64().unwrap() - 140.0).abs() < 0.001);
++    }
++
+     fn harness(app: DesignApp) -> Harness<'static, DesignApp> {
+         let mut h = Harness::builder().with_size(vec2(1440.0, 900.0)).build_ui_state(
+             |ui, app: &mut DesignApp| {
 diff --git a/crates/ui-egui/src/chrome.rs b/crates/ui-egui/src/chrome.rs
 index 2896fcdc40e6ecccac2824fdb1e9bf093c93ffcd..5eda31a00b63a11e30c236d27aa7fe873b4963ff 100644
 --- a/crates/ui-egui/src/chrome.rs

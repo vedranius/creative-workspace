@@ -1,0 +1,99 @@
+{
+  "status": "bounded-original-second-page-text-server-proof",
+  "browser": "Chromium",
+  "sourcePin": "a127c6d5c3576972bbd60445f26d893db071eef3",
+  "sourcePatch": "par-03-pages-insert-v1",
+  "sourcePatchSha256": "4a645538dd578b1d4366547d010e376327b8aab379193564ce5db983d4f09594",
+  "workerSha256": "35aada596b7a9810d32dad58cdc004b7294f04b3404e64f04a973970ff83185d",
+  "uiPackage": "a127c6d5c3576972bbd60445f26d893db071eef3-4a645538dd57",
+  "setup": {
+    "pageCount": 2,
+    "firstPageText": "M",
+    "originalPageSelectRevision": 6,
+    "selectedPage": 1
+  },
+  "frame": {
+    "method": "frame.create",
+    "params": {
+      "caret": true,
+      "content": "text",
+      "rect": [
+        197.00262403990575,
+        235.49361027348493,
+        324.6374753632133,
+        294.36702032799724
+      ],
+      "shape": "rectangle",
+      "spread": {
+        "index": 1,
+        "kind": "doc"
+      },
+      "vertical": false
+    },
+    "ackRevision": 7,
+    "frameId": 14,
+    "storyId": 15,
+    "canonicalItemsPerSpread": [
+      1,
+      1
+    ],
+    "firstSpreadUnchanged": true,
+    "mirrorUnchangedBeforeAck": true
+  },
+  "pointer": {
+    "screen": [
+      550,
+      380
+    ],
+    "dragScreen": [
+      [
+        500,
+        350
+      ],
+      [
+        630,
+        410
+      ]
+    ],
+    "caretObserved": true,
+    "requests": [
+      {
+        "method": "text.placeCaret",
+        "params": {
+          "frame": 14,
+          "point": [
+            246.09295147194712,
+            264.9303153007412
+          ]
+        }
+      }
+    ],
+    "revision": 8,
+    "pending": "false",
+    "deadlineMs": 8000
+  },
+  "typing": {
+    "originalKeyboardText": "S",
+    "caretAck": 8,
+    "insertAck": 9,
+    "storyId": 15,
+    "serverRenderSha256": "3d13a67e2fba0afdbae21eebe9fa4ef971d91417c8f3c9ca5cdd5611ad44ecc6",
+    "serverRenderChanged": true,
+    "firstSpreadUnchanged": true
+  },
+  "acceptance": "bounded original second-page actions only",
+  "permission": "synthetic connected-folder chooser fixture; not real OS permission evidence",
+  "browserErrors": [],
+  "failedResponses": [],
+  "requestFailures": [],
+  "verifiedAtUtc": "2026-10-22T22:31:22.777616+00:00",
+  "productVersion": "0.2.0-alpha.64",
+  "uiWasmSha256": "cf7f0a0ff23cf6c33780ea9103630d45a617ba112e33f4eb4d2527ec5b8b300c",
+  "nativeUiTests": {
+    "passed": 158,
+    "ignored": 1
+  },
+  "javascriptTests": 88,
+  "sourceDiffExactBeforeAndAfterBuild": true,
+  "releaseAssets": false
+}
