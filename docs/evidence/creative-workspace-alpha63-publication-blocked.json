@@ -1,0 +1,262 @@
+{
+  "schemaVersion": 1,
+  "verifiedAt": "2026-10-22T18:18:48.380316+00:00",
+  "version": "0.2.0-alpha.63",
+  "sourceCommit": "394c5f9fca42bd9e35141a6291a0ed1522427690",
+  "run": {
+    "id": 39817589928,
+    "url": "https://github.com/vedranius/creative-workspace/actions/runs/39817589928",
+    "status": "completed",
+    "conclusion": "failure"
+  },
+  "checks": {
+    "id": 39817589944,
+    "status": "completed",
+    "conclusion": "success"
+  },
+  "jobs": [
+    {
+      "id": 119960042500,
+      "name": "contract",
+      "conclusion": "success"
+    },
+    {
+      "id": 119960190943,
+      "name": "original-deckcraft",
+      "conclusion": "success"
+    },
+    {
+      "id": 119960191144,
+      "name": "original-filmcraft",
+      "conclusion": "success"
+    },
+    {
+      "id": 119960191152,
+      "name": "original-cadcraft",
+      "conclusion": "success"
+    },
+    {
+      "id": 119960191156,
+      "name": "original-figcraft",
+      "conclusion": "success"
+    },
+    {
+      "id": 119960191224,
+      "name": "original-soundcraft",
+      "conclusion": "success"
+    },
+    {
+      "id": 119960191300,
+      "name": "original-gridcraft",
+      "conclusion": "success"
+    },
+    {
+      "id": 119960191367,
+      "name": "original-wordcraft",
+      "conclusion": "success"
+    },
+    {
+      "id": 119960191506,
+      "name": "native (ubuntu-22.04, linux-x64, pdfcraft)",
+      "conclusion": "success"
+    },
+    {
+      "id": 119960191577,
+      "name": "native (windows-2022, win32-x64, photocraft)",
+      "conclusion": "success"
+    },
+    {
+      "id": 119960191581,
+      "name": "native (ubuntu-22.04, linux-x64, designcraft)",
+      "conclusion": "success"
+    },
+    {
+      "id": 119960191624,
+      "name": "native (ubuntu-22.04, linux-x64, photocraft)",
+      "conclusion": "success"
+    },
+    {
+      "id": 119960191639,
+      "name": "native (ubuntu-22.04, linux-x64, vectorcraft)",
+      "conclusion": "success"
+    },
+    {
+      "id": 119960191653,
+      "name": "native (windows-2022, win32-x64, pdfcraft)",
+      "conclusion": "success"
+    },
+    {
+      "id": 119960191663,
+      "name": "native (macos-14, darwin-arm64, photocraft)",
+      "conclusion": "success"
+    },
+    {
+      "id": 119960191709,
+      "name": "native (macos-14, darwin-arm64, pdfcraft)",
+      "conclusion": "success"
+    },
+    {
+      "id": 119960191745,
+      "name": "native (windows-2022, win32-x64, designcraft)",
+      "conclusion": "success"
+    },
+    {
+      "id": 119960191765,
+      "name": "native (macos-14, darwin-arm64, vectorcraft)",
+      "conclusion": "success"
+    },
+    {
+      "id": 119960191894,
+      "name": "native (macos-14, darwin-arm64, designcraft)",
+      "conclusion": "success"
+    },
+    {
+      "id": 119960191922,
+      "name": "native (windows-2022, win32-x64, vectorcraft)",
+      "conclusion": "success"
+    },
+    {
+      "id": 119966484669,
+      "name": "original-designcraft",
+      "conclusion": "success"
+    },
+    {
+      "id": 119966484739,
+      "name": "bundle (ubuntu-22.04, linux-x64)",
+      "conclusion": "success"
+    },
+    {
+      "id": 119966484895,
+      "name": "bundle (windows-2022, win32-x64)",
+      "conclusion": "success"
+    },
+    {
+      "id": 119966485092,
+      "name": "bundle (macos-14, darwin-arm64)",
+      "conclusion": "success"
+    },
+    {
+      "id": 119987441350,
+      "name": "publish",
+      "conclusion": "failure"
+    }
+  ],
+  "publication": {
+    "state": "blocked",
+    "jobId": 119987441350,
+    "effectiveTokenPermissions": {
+      "contents": "write",
+      "metadata": "read"
+    },
+    "operation": "POST /repos/vedranius/creative-workspace/releases",
+    "httpStatus": 403,
+    "message": "Resource not accessible by integration",
+    "cause": "Not determined beyond the API authorization refusal; contents: write is already configured and reported effective.",
+    "tagExists": false,
+    "releaseExists": false,
+    "observedAt": "2026-10-22T18:18:48.380316+00:00",
+    "runnerArchiveChecksumPairsPassed": 12,
+    "independentReleaseAssetDownloadVerification": false
+  },
+  "artifacts": [
+    {
+      "id": 12446691268,
+      "name": "release-designcraft-par03-ui",
+      "size": 30708581,
+      "digest": "sha256:d738c781504daf99cf937f330dc61c2d95f72041760697acfef846ffaa274a4e",
+      "expired": false,
+      "expiresAt": "2026-11-21T17:45:19Z"
+    },
+    {
+      "id": 12443976315,
+      "name": "release-win32-x64",
+      "size": 119968777,
+      "digest": "sha256:0db563855ac1045f3245bd0978753e5efabcf17578fa754b0894ee0a03223bf7",
+      "expired": false,
+      "expiresAt": "2026-11-21T17:05:04Z"
+    },
+    {
+      "id": 12443940953,
+      "name": "release-cadcraft-original-ui",
+      "size": 8500994,
+      "digest": "sha256:eaa021d750f8e8488b8b98db1571f2e0d15421803711eb7ace89c1169004cac5",
+      "expired": false,
+      "expiresAt": "2026-11-21T16:59:15Z"
+    },
+    {
+      "id": 12443855338,
+      "name": "release-gridcraft-original-ui",
+      "size": 7120693,
+      "digest": "sha256:c88975dc0bec7349f43aceb5430737bc20cf5b7e0f417209e702a6ff0ca8e8ac",
+      "expired": false,
+      "expiresAt": "2026-11-21T16:56:51Z"
+    },
+    {
+      "id": 12443706930,
+      "name": "release-linux-x64",
+      "size": 132602572,
+      "digest": "sha256:7b47d35047fb1d05130c30122205ad48228062745fb7d334988474451b39aa7c",
+      "expired": false,
+      "expiresAt": "2026-11-21T17:04:59Z"
+    },
+    {
+      "id": 12443687050,
+      "name": "release-deckcraft-original-ui",
+      "size": 9376620,
+      "digest": "sha256:a393fe4f18b5aa7d9189e0371f4b78d5de613a13896fa4779f42a3082bc5cceb",
+      "expired": false,
+      "expiresAt": "2026-11-21T17:03:11Z"
+    },
+    {
+      "id": 12443605870,
+      "name": "release-figcraft-original-ui",
+      "size": 8001522,
+      "digest": "sha256:96d42241f026ddb24fe176f854570c53377e789c56a89c7f26c2b7f1ca2298f3",
+      "expired": false,
+      "expiresAt": "2026-11-21T16:57:05Z"
+    },
+    {
+      "id": 12443401911,
+      "name": "release-wordcraft-original-ui",
+      "size": 14987399,
+      "digest": "sha256:a2f2904be3fc06b816b9cf8f3fe1694ef67ff46b88dc189efb688deebe09c051",
+      "expired": false,
+      "expiresAt": "2026-11-21T16:59:19Z"
+    },
+    {
+      "id": 12443321590,
+      "name": "release-soundcraft-original-ui",
+      "size": 5939752,
+      "digest": "sha256:1b6288264c50607ada797a8f313650cd59a42e5ee04f6640513a561bd1f595ff",
+      "expired": false,
+      "expiresAt": "2026-11-21T16:56:44Z"
+    },
+    {
+      "id": 12443198239,
+      "name": "release-darwin-arm64",
+      "size": 120690190,
+      "digest": "sha256:ae5ae4f62b94b508bffa075d8c40103fcf37e2e4b95a99a33a3b5001695415ac",
+      "expired": false,
+      "expiresAt": "2026-11-21T17:04:59Z"
+    },
+    {
+      "id": 12443033384,
+      "name": "release-filmcraft-original-ui",
+      "size": 12676520,
+      "digest": "sha256:6082ca4dbc6ae1bbaf01469654ab2cbbea3bad59607233a7dea2a0ea7ae0f9c3",
+      "expired": false,
+      "expiresAt": "2026-11-21T16:57:37Z"
+    }
+  ],
+  "continuation": "Do not rerun/cancel the run or broaden token/security permissions. Repository owner must resolve the release API authorization refusal; only then resume this publish job against source394c5f9 and independently verify immutable tag/draft and all24 assets. Preserve existing successful build artifacts. Continue independent original server/UI work and B within existing authorization.",
+  "previousRelease": {
+    "version": "0.2.0-alpha.62",
+    "runId": 39260718607,
+    "runConclusion": "success",
+    "tagCommit": "b18d550ed1ad615dce554e78336775f1b774be5d",
+    "draftReleaseId": 417421983,
+    "draft": true,
+    "assetCount": 24,
+    "independentDownloadedAssetsVerified": false
+  }
+}
