@@ -1,15 +1,20 @@
 // Experimental native React command bridge. AGPL-3.0-only.
 // Only browser-selected File objects enter this session; no filesystem paths,
-// writes, sidecars, fetch-to-server, analytics or unsupported effect claims.
+// sidecars, fetch-to-server, analytics or unsupported effect claims. Optional export
+// uses a separate host with acknowledged destination writes and recovery.
 import {isRawInputSizeAllowed} from './decoder-client.js';
 import {createNeutralRendererResources,packRgb32fRendererInput,packGlobalRendererFixture,
  renderOriginalFrame,encodePreviewResponse} from './webgpu-renderer.js';
 export class UnavailableCommandError extends Error {
  constructor(command){super(`Browser experiment does not support ${command}`);this.name='UnavailableCommandError';this.code='unavailable-command';}
 }
-export function createReactTransport({wasm,device,shaderSource,defaults,getPreviewSettings=()=>({editorPreviewResolution:1920,livePreviewQuality:'high'}),workerUrl=new URL('./react-image-worker.js',import.meta.url)}) {
+export function createReactTransport({wasm,device,shaderSource,defaults,getPreviewSettings=()=>({editorPreviewResolution:1920,livePreviewQuality:'high'}),workerUrl=new URL('./react-image-worker.js',import.meta.url),exportFactory}) {
  let file=null,path=null,current=null,generation=0,imageWorker=null,queue=Promise.resolve(),closed=false;
- const trace=[];
+ const trace=[],listeners=new Map();
+ const emit=(event,payload)=>{trace.push({command:'event',event,payload});for(const callback of [...(listeners.get(event)||[])])callback({event,payload});};
+ const exportHost=exportFactory?.({getDocument:()=>({file,path,generation,ready:!closed&&current?.version===generation}),emit});
+ const nativeError=error=>String(error?.message??error);
+
  const hash=async bytes=>[...new Uint8Array(await crypto.subtle.digest('SHA-256',bytes))].map(v=>v.toString(16).padStart(2,'0')).join('');
  const supported=new Set(['exposure','brightness','contrast','highlights','shadows','whites','blacks','toneMapper']);
  const check=version=>{if(closed||version!==generation)throw Error('Superseded or worker failed');};
@@ -29,7 +34,7 @@ export function createReactTransport({wasm,device,shaderSource,defaults,getPrevi
   }};
  }
  async function clear(){
-  generation++;imageWorker?.close();imageWorker=null;
+  exportHost?.cancel();generation++;imageWorker?.close();imageWorker=null;
   const prior=current;current=null;
   await device.queue.onSubmittedWorkDone();prior?.resources?.ownedTextures.forEach(t=>t.destroy());
  }
@@ -39,6 +44,7 @@ export function createReactTransport({wasm,device,shaderSource,defaults,getPrevi
   trace.push({command});
   if(command==='clear_session_caches'){await clear();return;}
   if(command==='load_settings')return structuredClone(getPreviewSettings());
+  if(command==='get_image_dimensions'){requirePath(args.path);if(!current||current.version!==generation)throw Error('Browser RAW is not ready');return {width:current.width,height:current.height};}
   if(command==='load_metadata'){requirePath(args.path);return {adjustments:null};}
   if(command==='load_image'){
    requirePath(args.path);await clear();const version=generation,selected=file;
@@ -111,8 +117,23 @@ export function createReactTransport({wasm,device,shaderSource,defaults,getPrevi
  }
  return {
   trace,
-  selectFile(selected){if(!(selected instanceof File)||!isRawInputSizeAllowed(selected.size))throw TypeError('Select a bounded RAW File');imageWorker?.close();generation++;file=selected;path=`browser-document:${crypto.randomUUID()}`;return path;},
-  invoke(command,args){const result=queue.then(()=>execute(command,args));queue=result.catch(()=>{});return result;},
-  async close(){closed=true;await clear();file=null;path=null;await queue;},
+  selectFile(selected){if(!(selected instanceof File)||!isRawInputSizeAllowed(selected.size))throw TypeError('Select a bounded RAW File');if(closed)throw Error('Browser session closed');exportHost?.cancel();imageWorker?.close();generation++;file=selected;const name=selected.name.replace(/[\\/\x00-\x1f\x7f]/g,'_').slice(0,180)||'input.raw';path=`browser-document:${crypto.randomUUID()}/${name}`;return path;},
+  listen(event,callback){
+   if(closed||typeof event!=='string'||event.length>128||typeof callback!=='function')return Promise.reject(Error('Invalid event subscription'));
+   if([...listeners.values()].reduce((n,set)=>n+set.size,0)>=128)return Promise.reject(Error('Listener limit'));
+   if(!listeners.has(event))listeners.set(event,new Set());listeners.get(event).add(callback);
+   return Promise.resolve(()=>{listeners.get(event)?.delete(callback);if(!listeners.get(event)?.size)listeners.delete(event);});
+  },
+  async pickExport(options){if(!exportHost||closed)throw nativeError(new UnavailableCommandError('save dialog'));try{return await exportHost.pick(options);}catch(error){throw nativeError(error);}},
+  invoke(command,args){
+   if(command==='export_images'||command==='cancel_export'){
+    trace.push({command});if(!exportHost||closed)return Promise.reject(nativeError(new UnavailableCommandError(command)));
+    // Export and cancellation never wait behind a preview or a pending export.
+    try{return Promise.resolve(command==='cancel_export'?exportHost.cancel():exportHost.execute(args)).catch(error=>{throw nativeError(error);});}catch(error){return Promise.reject(nativeError(error));}
+   }
+   if(command==='clear_session_caches')exportHost?.cancel();
+   const result=queue.then(()=>execute(command,args));queue=result.catch(()=>{});return result;
+  },
+  async close(){closed=true;await clear();await exportHost?.close();file=null;path=null;await queue;listeners.clear();},
  };
 }

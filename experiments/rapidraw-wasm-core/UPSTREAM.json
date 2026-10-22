@@ -324,5 +324,20 @@
     ],
     "replay": "never automatic",
     "evidence": "docs/evidence/rapidraw-wasm/export-destination-browser.json"
+  },
+  "exportUi": {
+    "sourceFiles": {
+      "src/components/panel/right/ExportPanel.tsx": "1d13c90a253049ff62872a7f99d7f694ccb25416c4bacf957b0f5b77a4d94871",
+      "src/hooks/useExportSettings.ts": "a60c75f51f4256f87b1a71770570c936cdd341c114882c2aec0259ce104b0bf2",
+      "src/hooks/useTauriListeners.ts": "55b05c8f37bf4d9ad7ec6b9db4f212d06dcbd77569dcb5d1cb63666d9c10e536",
+      "src/store/useProcessStore.ts": "7a6e0efbc29cfc23fcf6fff7aacbc9f65808d5334456552a9e2408a943ee3976",
+      "src/components/ui/ExportImportProperties.tsx": "35ec717f0f46e37c9dcede2f12b32cca133d366833f49b2343fdd1c3aea845b3",
+      "src/components/ui/AppProperties.tsx": "0466b4bb7f9ea3474a65ef4a4f7ee08c4409d3f85ecd1dd2db7db028c96699f9",
+      "src/components/ui/ExportPresetsList.tsx": "7603df14bae4835b27c135c1d5dbc41de988621c8599291d97c6fe9440c4bf60",
+      "src/hooks/useOsPlatform.ts": "4037e7dc75d3a322f15f00e5536413293f07c262d5e0b0bb03ed7eddedb563a4"
+    },
+    "scope": "Unchanged original single JPEG ExportPanel/settings/listeners/process store in isolated QA composition. OS picker and common providers remain unaccepted; metadata/effects/fine geometry export unavailable.",
+    "evidence": "docs/evidence/rapidraw-wasm/export-panel-browser.json",
+    "transportSha256": "5f6acf1b3f93bb728701a0ce4933e9633b4d991d28848ce808d0778342b8a44d"
   }
 }

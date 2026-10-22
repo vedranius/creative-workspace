@@ -1,3 +1,9 @@
+# RWASM-03 — original ExportPanel JPEG command/event composition (2026-10-22)
+
+Unchanged original ExportPanel/settings/listeners/process store now drive native command IDs and useful errors. Actual source metadata refusal, metadata-off full RAW→655,924-byte native-exact JPEG, gated destination close with no early success, retained close-failure output and original Cancel handler at GPU submission all pass. Existing17 plus8 export source hashes are exact;45 host tests and npm check pass. [Evidence, limits and next task](rapidraw-wasm-export-panel-handoff.md).
+
+This remains an isolated experimental Basic/quarter-turn single-JPEG slice with a synthetic OPFS chooser, not actual OS/common-provider/full App acceptance. No private photo, native/WASM rebuild, product release or public demo change. Next B: full-resolution source fine rotation→integer crop export and independent native/UI parity within current budgets. Alternate with A's exact release/Actions and selected-page editing gates. MAIN only.
+
 # RWASM-03 — export destination host foundation (2026-10-22)
 
 The interrupted host foundation now gates native-shaped success on a real destination close/readback ACK, retains uncertain JPEGs in OPFS and refuses stale/replayed/newer-file output. One actual public RAW export produces655,924 native-exact JPEG bytes; gated-close, keep retention, four real-OPFS injected faults and another actual GPU-cancel job pass. Host41/41 and npm check pass; no native/WASM rebuild, private photo, product release or demo change. [Evidence, limits and next step](rapidraw-wasm-export-destination-handoff.md).
