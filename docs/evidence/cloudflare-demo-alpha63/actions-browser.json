@@ -1,0 +1,298 @@
+{
+  "base": "http://127.0.0.1:44301",
+  "version": "0.2.0-alpha.63",
+  "scope": "Public original-interface launch/render, consent, mode label, original decoded-WASM SHA-256; not editing, file-permission or server-processing acceptance",
+  "apps": [
+    {
+      "id": "photocraft",
+      "release": "v0.12.0",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "failedRequests": [],
+      "badResponses": [],
+      "externalRequests": [],
+      "consentBeforeLoad": true,
+      "wasmSha256": "7cdc019bdaebde1a0e9eb5e3e4eed6143a700c59834dfe42d55891226a7c56be",
+      "originalWasmVerified": true,
+      "verifiedAssets": [
+        {
+          "path": "app/photocraft-web-46e89eeadedc7931.part-aa",
+          "size": 11614932,
+          "sha256": "207f942e9dc505fe5d0245e4e0837709ab3c297e0ff265fa41bea55d22aa5ccc"
+        },
+        {
+          "path": "photocraft-web-boot-35697f51dbdd0a9_bg.wasm",
+          "size": 98880,
+          "sha256": "7cdc019bdaebde1a0e9eb5e3e4eed6143a700c59834dfe42d55891226a7c56be"
+        }
+      ],
+      "title": "PhotoCraft",
+      "crossOriginIsolated": true,
+      "rendered": true
+    },
+    {
+      "id": "vectorcraft",
+      "release": "v0.14.0",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "failedRequests": [],
+      "badResponses": [],
+      "externalRequests": [],
+      "consentBeforeLoad": true,
+      "wasmSha256": "6ff3616ff6cf11723d5b453ec2a64f5410cdd3830503017d761a775c3b24254d",
+      "originalWasmVerified": true,
+      "verifiedAssets": [
+        {
+          "path": "vectorcraft-web-d0094b3b031c2f0c_bg.wasm",
+          "size": 73742886,
+          "sha256": "6ff3616ff6cf11723d5b453ec2a64f5410cdd3830503017d761a775c3b24254d"
+        }
+      ],
+      "title": "VectorCraft",
+      "crossOriginIsolated": true,
+      "rendered": true
+    },
+    {
+      "id": "filmcraft",
+      "release": "v0.10.0",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "failedRequests": [],
+      "badResponses": [],
+      "externalRequests": [],
+      "consentBeforeLoad": true,
+      "wasmSha256": "83487f066c25227e5409601eb777c5284ab09ba5af4110fba9398ae6d020e279",
+      "originalWasmVerified": true,
+      "verifiedAssets": [
+        {
+          "path": "filmcraft_web_bg.wasm",
+          "size": 41482219,
+          "sha256": "83487f066c25227e5409601eb777c5284ab09ba5af4110fba9398ae6d020e279"
+        }
+      ],
+      "title": "FilmCraft",
+      "crossOriginIsolated": true,
+      "rendered": true
+    },
+    {
+      "id": "lightcraft",
+      "release": "v0.11.0",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "failedRequests": [],
+      "badResponses": [],
+      "externalRequests": [],
+      "consentBeforeLoad": true,
+      "wasmSha256": "93c367f43ae7585701042185c0d2ca173048d1fabae1d9af9243ca46af5aac9f",
+      "originalWasmVerified": true,
+      "verifiedAssets": [
+        {
+          "path": "lightcraft_web_bg.wasm",
+          "size": 31072812,
+          "sha256": "93c367f43ae7585701042185c0d2ca173048d1fabae1d9af9243ca46af5aac9f"
+        }
+      ],
+      "title": "LightCraft",
+      "crossOriginIsolated": true,
+      "rendered": true
+    },
+    {
+      "id": "pdfcraft",
+      "release": "v0.11.0",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "failedRequests": [],
+      "badResponses": [],
+      "externalRequests": [],
+      "consentBeforeLoad": true,
+      "wasmSha256": "63caadb98c3decbdd61f1f7cbda5f6d3a6131bc34c1fb329437abd55607c2835",
+      "originalWasmVerified": true,
+      "verifiedAssets": [
+        {
+          "path": "pdfcraft-web-2faa2bc762f98c12_bg.wasm",
+          "size": 39154172,
+          "sha256": "63caadb98c3decbdd61f1f7cbda5f6d3a6131bc34c1fb329437abd55607c2835"
+        }
+      ],
+      "title": "PdfCraft",
+      "crossOriginIsolated": true,
+      "rendered": true
+    },
+    {
+      "id": "effectcraft",
+      "release": "v0.14.0",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "failedRequests": [],
+      "badResponses": [],
+      "externalRequests": [],
+      "consentBeforeLoad": true,
+      "wasmSha256": "867bb71fbfef0d29205956a77288322a199a720f1a9030be3c883936ec1d9ffc",
+      "originalWasmVerified": true,
+      "verifiedAssets": [
+        {
+          "path": "effectcraft_web_bg.wasm",
+          "size": 63411784,
+          "sha256": "867bb71fbfef0d29205956a77288322a199a720f1a9030be3c883936ec1d9ffc"
+        }
+      ],
+      "title": "EffectCraft",
+      "crossOriginIsolated": true,
+      "rendered": true
+    },
+    {
+      "id": "designcraft",
+      "release": "v0.11.0",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "failedRequests": [],
+      "badResponses": [],
+      "externalRequests": [],
+      "consentBeforeLoad": true,
+      "wasmSha256": "4be6d2237fd7b770c476472171be3e14318a763c072c547a94bcfc1d8365e0c9",
+      "originalWasmVerified": true,
+      "verifiedAssets": [
+        {
+          "path": "designcraft-web-a324cde2f15aa5fd_bg.wasm",
+          "size": 49145687,
+          "sha256": "4be6d2237fd7b770c476472171be3e14318a763c072c547a94bcfc1d8365e0c9"
+        }
+      ],
+      "title": "DesignCraft",
+      "crossOriginIsolated": true,
+      "rendered": true
+    },
+    {
+      "id": "figcraft",
+      "release": "v0.9.0",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "failedRequests": [],
+      "badResponses": [],
+      "externalRequests": [],
+      "consentBeforeLoad": true,
+      "wasmSha256": "3833616d3adb48c6db213fe9f2e06345f7540a5db130e89798303c53733ebdc9",
+      "originalWasmVerified": true,
+      "verifiedAssets": [
+        {
+          "path": "figcraft-web-53f0bd6d86512bd9_bg.wasm",
+          "size": 24841550,
+          "sha256": "3833616d3adb48c6db213fe9f2e06345f7540a5db130e89798303c53733ebdc9"
+        }
+      ],
+      "title": "FigCraft",
+      "crossOriginIsolated": true,
+      "rendered": true
+    },
+    {
+      "id": "wordcraft",
+      "release": "v0.9.0",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "failedRequests": [],
+      "badResponses": [],
+      "externalRequests": [],
+      "consentBeforeLoad": true,
+      "wasmSha256": "fe8e18258a33eebd4b32d311e1651ebd817bae18469599a6f16feb3403389ad5",
+      "originalWasmVerified": true,
+      "verifiedAssets": [
+        {
+          "path": "wordcraft-web-5cc86b80984cdfee_bg.wasm",
+          "size": 43967642,
+          "sha256": "fe8e18258a33eebd4b32d311e1651ebd817bae18469599a6f16feb3403389ad5"
+        }
+      ],
+      "title": "WordCraft",
+      "crossOriginIsolated": true,
+      "rendered": true
+    },
+    {
+      "id": "soundcraft",
+      "release": "v0.11.0",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "failedRequests": [],
+      "badResponses": [],
+      "externalRequests": [],
+      "consentBeforeLoad": true,
+      "wasmSha256": "9e324c564f451ae8c96c6d104f83bdbcc54cdd167ed61f28936c50c66835c9d6",
+      "originalWasmVerified": true,
+      "verifiedAssets": [
+        {
+          "path": "soundcraft-web-447143a00ebf14bd_bg.wasm",
+          "size": 15464862,
+          "sha256": "9e324c564f451ae8c96c6d104f83bdbcc54cdd167ed61f28936c50c66835c9d6"
+        }
+      ],
+      "title": "SoundCraft",
+      "crossOriginIsolated": true,
+      "rendered": true
+    },
+    {
+      "id": "deckcraft",
+      "release": "v0.7.0",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "failedRequests": [],
+      "badResponses": [],
+      "externalRequests": [],
+      "consentBeforeLoad": true,
+      "wasmSha256": "457285dc1f14053d51378810c714c12e9e06b27f37d2fd034dd77bc9b9d6475b",
+      "originalWasmVerified": true,
+      "verifiedAssets": [
+        {
+          "path": "deckcraft-web-3d451cd28e31e9b6_bg.wasm",
+          "size": 25537284,
+          "sha256": "457285dc1f14053d51378810c714c12e9e06b27f37d2fd034dd77bc9b9d6475b"
+        }
+      ],
+      "title": "DeckCraft",
+      "crossOriginIsolated": true,
+      "rendered": true
+    },
+    {
+      "id": "cadcraft",
+      "release": "v0.10.0",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "failedRequests": [],
+      "badResponses": [],
+      "externalRequests": [],
+      "consentBeforeLoad": true,
+      "wasmSha256": "471994a85f0bdcec2b02a3f0f32a5956018c9790430e713440d113a70523f154",
+      "originalWasmVerified": true,
+      "verifiedAssets": [
+        {
+          "path": "cadcraft-web-6807ee8a677c2a95_bg.wasm",
+          "size": 23029931,
+          "sha256": "471994a85f0bdcec2b02a3f0f32a5956018c9790430e713440d113a70523f154"
+        }
+      ],
+      "title": "CADCraft",
+      "crossOriginIsolated": true,
+      "rendered": true
+    },
+    {
+      "id": "gridcraft",
+      "release": "v0.10.0",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "failedRequests": [],
+      "badResponses": [],
+      "externalRequests": [],
+      "consentBeforeLoad": true,
+      "wasmSha256": "823bdc868268261b93180d539210069ed8027e3c58487d3fa9a5a4e839db3554",
+      "originalWasmVerified": true,
+      "verifiedAssets": [
+        {
+          "path": "gridcraft-web-a862b19ca88ea5df_bg.wasm",
+          "size": 18932615,
+          "sha256": "823bdc868268261b93180d539210069ed8027e3c58487d3fa9a5a4e839db3554"
+        }
+      ],
+      "title": "GridCraft",
+      "crossOriginIsolated": true,
+      "rendered": true
+    }
+  ]
+}

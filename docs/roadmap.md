@@ -1,4 +1,4 @@
-**CF-DEMO alpha.63 (2026-10-22):** user-prioritized official stable web releases for all13 apps; independent checksum/source lock, bounded static importer, split WASM transport, hourly Actions browser verification and separate Pages publish credentials. This does not change original server adapter pins or establish edit/save/provider parity. [Handoff](cloudflare-demo-handoff.md).
+**CF-DEMO alpha.63 (2026-10-22):** user-prioritized official stable web releases for all13 apps; independent checksum/source lock, bounded static importer, split WASM transport, hourly Actions browser verification and separate Pages publish credentials. Actions39823792484 candidate/deploy now pass, with207 public files matching its actual artifact; [evidence](evidence/cloudflare-demo-alpha63/actions-publication.json). This does not change original server adapter pins or establish edit/save/provider parity. [Handoff](cloudflare-demo-handoff.md).
 
 # PAR-03 alpha.62 — CI observer race corrected (2026-10-19)
 
