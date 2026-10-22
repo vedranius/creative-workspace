@@ -1,3 +1,9 @@
+# PAR-03 selected-second-page Text Tool — actual UI defect isolated (2026-10-22)
+
+Original page.select ACK6 and frame.create ACK7 place a new text frame on canonical second spread1 with the first spread unchanged. Clicking inside that drag rectangle produces no text.placeCaret request; the UI remains revision7/pending=false. Independent direct worker caret/insert ACK8/9 correctly update only the second-page story, isolating the original UI hit-test mismatch. The host PNG is fitted to the selected page while pointer/tool CanvasLayout still addresses the first spread. [Failed browser proof, protocol control and exact fix handoff](evidence/designcraft-second-page-text-blocked.md).
+
+This is a diagnosed failure, not Text Tool acceptance. Existing UI/worker reused; no heavy build duplicated while a separate RapidRAW build was active. npm check and88 tests pass; diagnostic browser exits1 as documented, with zero browser/network errors. Next A implement one shared selected-page display/input transform and prove actual original caret/typing, including page-local/spread-local offsets. MAIN only; preserve protected sessions and FilmCraft. B retains its ready Exposure/ExportPanel resize/DPI task; alpha.63 release403 and the accepted public demo remain unchanged.
+
 # PAR-03 alpha.62 — Actions draft assets verified (2026-10-22)
 
 Authenticated as vedranius. Build/release39260718607 and Checks39260718822 succeeded onb18d550; immutable tag and draft417421983 target that exact commit. Fresh downloads verify all24 asset sizes/GitHub SHA-256 digests and12 archive/sidecar pairs. Read-only platform archive checks verify12 engine binaries, three Node24 runtimes, product/target/source/engine manifests, startup evidence, launchers and licenses. [Release evidence](evidence/creative-workspace-alpha62-release.md).
