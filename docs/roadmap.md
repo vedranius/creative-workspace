@@ -1,3 +1,5 @@
+**CF-DEMO alpha.63 (2026-10-22):** user-prioritized official stable web releases for all13 apps; independent checksum/source lock, bounded static importer, split WASM transport, hourly Actions browser verification and separate Pages publish credentials. This does not change original server adapter pins or establish edit/save/provider parity. [Handoff](cloudflare-demo-handoff.md).
+
 # PAR-03 alpha.62 — CI observer race corrected (2026-10-19)
 
 The alpha62 Build/release run39226350624 failed in the page-selection smoke because it read the previous asynchronously observed ACK after the application had already applied revision7. The smoke now waits for its exact response revision; CI includes a750ms observer-only delay. Real sandboxed browser proof records waiting for ACK7, page0 and byte-identical PNG restored, with no browser/network errors. [Diagnosis and evidence](evidence/designcraft-par03-pages-select-observer.md).

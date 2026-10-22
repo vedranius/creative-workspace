@@ -6,15 +6,18 @@ const {chromium}=await import(process.env.PLAYWRIGHT_MODULE||'playwright');
 const base=process.argv[2],output=process.argv[3];
 if(!base||!output)throw Error('Usage: PLAYWRIGHT_MODULE=... node scripts/smoke-cloudflare-demo.mjs HTTPS_BASE OUTPUT_DIR');
 await mkdir(output,{recursive:true});
-const manifest=await fetch(base+'/demo-manifest.json').then(r=>r.json());assert.equal(manifest.apps.length,12);assert.equal(manifest.documentBackend,false);
+const manifest=await fetch(base+'/demo-manifest.json').then(r=>r.json());assert.equal(manifest.apps.length,manifest.releaseLock?13:12);assert.equal(manifest.documentBackend,false);
 const report={base,version:manifest.version,scope:'Public original-interface launch/render, consent, mode label, original decoded-WASM SHA-256; not editing, file-permission or server-processing acceptance',apps:[]};
 const browser=await chromium.launch({executablePath:process.env.CHROMIUM_PATH,headless:true,chromiumSandbox:true,args:['--enable-webgl','--use-gl=angle','--use-angle=swiftshader','--enable-unsafe-swiftshader','--disable-dev-shm-usage']});
 try{
  const context=await browser.newContext({viewport:{width:1440,height:1000}});
- const home=await context.newPage();await home.goto(base,{waitUntil:'networkidle'});assert.equal(await home.locator('.card').count(),12);await home.screenshot({path:path.join(output,'studio.png'),fullPage:true});await home.close();
+ const home=await context.newPage();await home.goto(base,{waitUntil:'networkidle'});assert.equal(await home.locator('.card').count(),manifest.apps.length);await home.screenshot({path:path.join(output,'studio.png'),fullPage:true});await home.close();
  for(const app of manifest.apps.filter(a=>!process.env.APP_FILTER||a.id===process.env.APP_FILTER)){
-  const page=await context.newPage();const item={id:app.id,pageErrors:[],failedRequests:[]};report.apps.push(item);
+  const page=await context.newPage();const item={id:app.id,release:app.release,pageErrors:[],consoleErrors:[],failedRequests:[],badResponses:[],externalRequests:[]};report.apps.push(item);
+  page.on('console',m=>{if(m.type()==='error')item.consoleErrors.push(m.text().slice(0,2000));});
   page.on('pageerror',e=>item.pageErrors.push(e.message));page.on('requestfailed',r=>item.failedRequests.push({url:r.url(),error:r.failure()?.errorText}));
+  page.on('response',r=>{if(r.status()>=400)item.badResponses.push({url:r.url(),status:r.status()});});
+  page.on('request',r=>{if(/^https?:/.test(r.url())&&new URL(r.url()).origin!==new URL(base).origin)item.externalRequests.push(r.url());});
   try{
    await page.goto(base+'/apps/'+app.id+'/',{waitUntil:'networkidle'});assert.equal(await page.locator('iframe').count(),0);assert.equal(await page.getByRole('button').isDisabled(),true);item.consentBeforeLoad=true;
    await page.getByRole('checkbox').check();const wasmPromise=page.waitForResponse(r=>new URL(r.url()).pathname.endsWith('.wasm'),{timeout:90000});
@@ -25,6 +28,13 @@ try{
    const frame=page.frames().find(f=>f.url().includes('/original/'));await frame.waitForFunction(()=>[...document.querySelectorAll('canvas')].some(c=>c.width>500&&c.height>300),null,{timeout:45000});
    item.wasmSha256=await frame.evaluate(async url=>{const r=await fetch(url);if(!r.ok)throw Error('WASM verification fetch failed');const hash=await crypto.subtle.digest('SHA-256',await r.arrayBuffer());return [...new Uint8Array(hash)].map(v=>v.toString(16).padStart(2,'0')).join('');},response.url());
    assert.equal(item.wasmSha256,entry.sha256);item.originalWasmVerified=true;
+   // PhotoCraft has a boot module and official gzip parts; verify those too.
+   item.verifiedAssets=[];
+   for(const file of metadata.files.filter(f=>f.path.endsWith('.wasm')||/\.part-[a-z]+$/.test(f.path))){
+    const url=base+app.url+file.path;
+    const actual=await frame.evaluate(async url=>{const r=await fetch(url);if(!r.ok)throw Error('Asset verification fetch failed');const b=await r.arrayBuffer();return {size:b.byteLength,sha256:[...new Uint8Array(await crypto.subtle.digest('SHA-256',b))].map(v=>v.toString(16).padStart(2,'0')).join('')};},url);
+    assert.equal(actual.sha256,file.sha256);assert.equal(actual.size,file.size);item.verifiedAssets.push({path:file.path,...actual});
+   }
    await page.waitForTimeout(3500);item.title=await frame.title();item.crossOriginIsolated=await frame.evaluate(()=>crossOriginIsolated);assert.equal(item.crossOriginIsolated,true);
    assert.match(await page.locator('.mode-label').innerText(),/Processing uses your computer/);await page.screenshot({path:path.join(output,app.id+'.png')});item.rendered=true;
   }catch(e){item.error=e.message;await page.screenshot({path:path.join(output,app.id+'-error.png')}).catch(()=>{});}
@@ -32,4 +42,4 @@ try{
  }
  await context.close();
 }finally{await browser.close();await writeFile(path.join(output,'browser.json'),JSON.stringify(report,null,2)+'\n');}
-assert.ok(report.apps.every(a=>a.rendered&&a.originalWasmVerified&&!a.pageErrors.length&&!a.failedRequests.length),'Some public app checks failed; inspect browser.json');
+assert.ok(report.apps.every(a=>a.rendered&&a.originalWasmVerified&&!a.pageErrors.length&&!a.failedRequests.length&&!a.badResponses.length&&!a.externalRequests.length),'Some public app checks failed; inspect browser.json');

@@ -1,0 +1,104 @@
+name: Update ArtCraft browser demo
+on:
+  schedule:
+    - cron: '17 * * * *'
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'cloudflare/**'
+      - 'scripts/*cloudflare-demo.mjs'
+      - 'scripts/artcraft-demo-releases.py'
+      - '.github/workflows/artcraft-demo.yaml'
+permissions:
+  contents: read
+concurrency:
+  group: artcraft-pages-demo
+  cancel-in-progress: false
+jobs:
+  candidate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    outputs:
+      changed: ${{ steps.releases.outputs.changed }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Discover official stable releases (no upstream code execution)
+        id: releases
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python3 scripts/artcraft-demo-releases.py discover release-lock.json --current https://creative-workspace-demo.pages.dev/demo-manifest.json
+      - name: Test bounded ZIP importer and transport
+        run: |
+          python3 test/artcraft-demo-releases.test.py
+          node --test test/cloudflare-demo.test.js
+      - name: Download and verify static release ZIPs
+        if: steps.releases.outputs.changed == 'true' || github.event_name != 'schedule'
+        run: |
+          python3 scripts/artcraft-demo-releases.py stage release-lock.json "$RUNNER_TEMP/downloads" "$RUNNER_TEMP/registry"
+          node scripts/build-cloudflare-demo.mjs "$RUNNER_TEMP/registry" build/cloudflare-demo release-lock.json
+      - name: Install isolated browser test dependencies
+        if: steps.releases.outputs.changed == 'true' || github.event_name != 'schedule'
+        run: |
+          npm ci
+          npm install --prefix "$RUNNER_TEMP/qa" --no-audit --no-fund playwright@1.64.0
+          "$RUNNER_TEMP/qa/node_modules/.bin/playwright" install --with-deps chromium
+      - name: Verify every original application before deployment
+        if: steps.releases.outputs.changed == 'true' || github.event_name != 'schedule'
+        env:
+          PLAYWRIGHT_MODULE: ${{ runner.temp }}/qa/node_modules/playwright/index.mjs
+        run: node scripts/verify-cloudflare-demo.mjs build/cloudflare-demo build/demo-proof
+      - uses: actions/upload-artifact@v4
+        if: steps.releases.outputs.changed == 'true' || github.event_name != 'schedule'
+        with:
+          name: verified-artcraft-demo
+          path: build/cloudflare-demo
+          include-hidden-files: true
+          retention-days: 7
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: artcraft-demo-evidence
+          path: |
+            release-lock.json
+            build/demo-proof
+          retention-days: 14
+  deploy:
+    needs: candidate
+    if: needs.candidate.outputs.changed == 'true' || github.event_name != 'schedule'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment: artcraft-demo
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: verified-artcraft-demo
+          path: site
+      - name: Install pinned uploader without upstream application code
+        run: npm install --prefix "$RUNNER_TEMP/uploader" --no-audit --no-fund wrangler@4.151.2
+      - name: Publish verified static output
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: 37be952dfe8d74601e1af8bad125debb
+        run: |
+          test -n "$CLOUDFLARE_API_TOKEN" || { echo 'Set CLOUDFLARE_API_TOKEN (Cloudflare Pages Edit) for environment artcraft-demo.'; exit 1; }
+          node "$RUNNER_TEMP/uploader/node_modules/wrangler/bin/wrangler.js" pages deploy site --project-name creative-workspace-demo --branch main --commit-hash "$GITHUB_SHA"
+      - name: Verify published release inventory
+        run: |
+          node --input-type=module <<'JS'
+          import {readFile} from 'node:fs/promises';
+          const expected=JSON.parse(await readFile('site/demo-manifest.json','utf8'));
+          let matched=false;
+          for(let attempt=0;attempt<6;attempt++){
+            const response=await fetch('https://creative-workspace-demo.pages.dev/demo-manifest.json',{cache:'no-store',signal:AbortSignal.timeout(15000)});
+            if(response.ok&&JSON.stringify(await response.json())===JSON.stringify(expected)){matched=true;break;}
+            await new Promise(resolve=>setTimeout(resolve,3000));
+          }
+          if(!matched)throw Error('Published manifest differs');
+          JS

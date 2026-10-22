@@ -1,0 +1,152 @@
+{
+  "schemaVersion": 1,
+  "apps": [
+    {
+      "app": "photocraft",
+      "repo": "storytold/photocraft",
+      "tag": "v0.12.0",
+      "releaseId": 419907723,
+      "commit": "6a2d027ee2e7ca12afd248544ed2262b0fa078dd",
+      "asset": "photocraft-web-0.12.0.zip",
+      "sha256": "c2451e19bfd448de780d01a2dfc233924223a0020370af432c58c0c5ee9ec21e",
+      "size": 11714509,
+      "publishedAt": "2026-10-21T18:28:57Z"
+    },
+    {
+      "app": "vectorcraft",
+      "repo": "storytold/vectorcraft",
+      "tag": "v0.14.0",
+      "releaseId": 418674707,
+      "commit": "ad0566943ab9741e6356bbc9b53c3cc09895068d",
+      "asset": "vectorcraft-web-0.14.0.zip",
+      "sha256": "6f28a8bcee1c5ad6c37c6a0c44058793a40ea4443085866d5f78afb16aba075e",
+      "size": 27734185,
+      "publishedAt": "2026-10-21T07:46:25Z"
+    },
+    {
+      "app": "pdfcraft",
+      "repo": "storytold/pdfcraft",
+      "tag": "v0.11.0",
+      "releaseId": 419994803,
+      "commit": "3e3064532f04fd6ec769c6bd7b2c97464757970e",
+      "asset": "pdfcraft-web-0.11.0.zip",
+      "sha256": "2c9d0d83612ed75d9d4825a6f46376c2c02c3406629cacf406df1c3d842142d7",
+      "size": 14509727,
+      "publishedAt": "2026-10-21T19:57:25Z"
+    },
+    {
+      "app": "lightcraft",
+      "repo": "storytold/lightcraft",
+      "tag": "v0.11.0",
+      "releaseId": 419908876,
+      "commit": "ec0cda9a6f320e3b32f659f16718f7bce6c3f12f",
+      "asset": "lightcraft-web-0.11.0.zip",
+      "sha256": "7cc682e1d543510414b0acbecf5c8d5ddfe1495538bf3c3367ce953e8ca246f5",
+      "size": 70146830,
+      "publishedAt": "2026-10-21T18:29:19Z"
+    },
+    {
+      "app": "filmcraft",
+      "repo": "storytold/filmcraft",
+      "tag": "v0.10.0",
+      "releaseId": 418674320,
+      "commit": "cdf43fd366e378da266cb6d3c94549a45244be1f",
+      "asset": "filmcraft-web-0.10.0.zip",
+      "sha256": "47618cc373ff1306be17cfd539a33a5a5af490d3bb6722a6bc1436fcd6bf87a0",
+      "size": 13429216,
+      "publishedAt": "2026-10-21T07:46:20Z"
+    },
+    {
+      "app": "effectcraft",
+      "repo": "storytold/effectcraft",
+      "tag": "v0.14.0",
+      "releaseId": 419942654,
+      "commit": "26b40199b72121aa7f4e55a63718e1b4dd48a859",
+      "asset": "effectcraft-web-0.14.0.zip",
+      "sha256": "1dedb401b47b1689dbade1c7dbccd73af1b84e3e083a16b765d72343fc212f83",
+      "size": 19330061,
+      "publishedAt": "2026-10-21T19:04:46Z"
+    },
+    {
+      "app": "designcraft",
+      "repo": "storytold/designcraft",
+      "tag": "v0.11.0",
+      "releaseId": 419902198,
+      "commit": "4d62a501c18fb3cf453c6e9f19f15cbc9c558e26",
+      "asset": "designcraft-web-0.11.0.zip",
+      "sha256": "bac919e851603e256928bb549565649a09945f91c0a0e6cac95c0b59e9963c24",
+      "size": 19217532,
+      "publishedAt": "2026-10-21T18:26:30Z"
+    },
+    {
+      "app": "wordcraft",
+      "repo": "storytold/wordcraft",
+      "tag": "v0.9.0",
+      "releaseId": 418689294,
+      "commit": "2e6db0bd88795e80375176c01665cff7dbe2b057",
+      "asset": "wordcraft-web-0.9.0.zip",
+      "sha256": "710d2f4dd95ac6234a043d15d8e82232d20330199dbdbc94159324eeb02631c1",
+      "size": 16450184,
+      "publishedAt": "2026-10-21T07:46:28Z"
+    },
+    {
+      "app": "gridcraft",
+      "repo": "storytold/gridcraft",
+      "tag": "v0.10.0",
+      "releaseId": 419888372,
+      "commit": "2ebdf164c2c9c536122e0a2cffe79078b5c818ac",
+      "asset": "gridcraft-web-0.10.0.zip",
+      "sha256": "41169381b006b32a795b22e86ee870eda9c58edbca97db9284c802851fef491d",
+      "size": 7126994,
+      "publishedAt": "2026-10-21T18:12:04Z"
+    },
+    {
+      "app": "deckcraft",
+      "repo": "storytold/deckcraft",
+      "tag": "v0.7.0",
+      "releaseId": 412851769,
+      "commit": "d78e657e4cb1e490ceb5445785c052d9cf5ad963",
+      "asset": "deckcraft-web-0.7.0.zip",
+      "sha256": "4ab91994048c096fa356b7246c31098474d978ecd572e5b252dd825a287d1c40",
+      "size": 9385879,
+      "publishedAt": "2026-10-14T15:04:51Z",
+      "heldLatest": {
+        "tag": "v0.9.0",
+        "reason": "Official v0.9.0 and v0.8.0 web WASM panic during startup: std::process::id, no pids on this platform. Hold v0.9.0; test the next stable tag automatically."
+      }
+    },
+    {
+      "app": "cadcraft",
+      "repo": "storytold/cadcraft",
+      "tag": "v0.10.0",
+      "releaseId": 418674308,
+      "commit": "e86eacf094fefda1cdb6ba5137a336f29deb5d99",
+      "asset": "cadcraft-web-0.10.0.zip",
+      "sha256": "d86268e964ca91402439f4518d25057463db988d0145a48d3c65213957a1ced2",
+      "size": 8670115,
+      "publishedAt": "2026-10-21T07:46:12Z"
+    },
+    {
+      "app": "figcraft",
+      "repo": "storytold/figcraft",
+      "tag": "v0.9.0",
+      "releaseId": 419899489,
+      "commit": "28de91d9ae72fc7fbc2199ac5ee2c8be237980d5",
+      "asset": "figcraft-web-0.9.0.zip",
+      "sha256": "ab8d5027733980ffaf45efeda61c8722d537f66a81a85bef7f54376a34442ba8",
+      "size": 9793483,
+      "publishedAt": "2026-10-21T18:26:33Z"
+    },
+    {
+      "app": "soundcraft",
+      "repo": "storytold/soundcraft",
+      "tag": "v0.11.0",
+      "releaseId": 419889297,
+      "commit": "b74fca0fb0f8b4a8474c447c1b6043a5028a5de2",
+      "asset": "soundcraft-web-0.11.0.zip",
+      "sha256": "ca335c74d51162fde9f06490941ef1395ec675ca8024e631b81399421b89f1bc",
+      "size": 5947484,
+      "publishedAt": "2026-10-21T18:12:00Z"
+    }
+  ]
+}

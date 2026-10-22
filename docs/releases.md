@@ -1,3 +1,7 @@
+# Alpha.63 — official browser demo release updates
+
+`0.2.0-alpha.63` adds the separate browser demo update workflow; server adapter pins remain independent. Use fresh Actions-built OS packages only after immutable tag/draft/asset checksum verification. No local native binaries are distributed. Keep the prototype release draft-only. See [demo pipeline and credential setup](cloudflare-demo.md).
+
 ## Alpha.62 candidate — original Pages selection
 
 `0.2.0-alpha.62` adds the bounded original Pages thumbnail → server `page.select` bridge. Install only its new Actions-built assets into a fresh package root after source/tag/checksum verification; keep existing live installations intact. The release remains draft/prerelease until verified. DesignCraft stays planned: real OS folder permissions, all-provider paths and full original parity are still open. [Local evidence](evidence/designcraft-par03-pages-select.md).

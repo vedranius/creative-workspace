@@ -1,3 +1,10 @@
+## [0.2.0-alpha.63] - 2026-10-22
+
+- Import the official stable web releases of all 13 ArtCraft apps (DeckCraft v0.9.0 held for an upstream startup panic; verify v0.7.0 fallback) into the independent browser demo, preserving original interfaces, licenses and archive/source provenance. Keep server engine/UI pins independent.
+- Verify GitHub SHA-256, published checksums, bounded ZIP paths and every rendered browser app before publishing. Support split gzip WASM above the Pages per-file limit and activate updated transport before launching.
+- Add an hourly/manual GitHub Actions update workflow with isolated verification and a credential-separated Pages deployment. A scoped Cloudflare Pages Edit secret is required; upstream source/build scripts are never executed.
+- Keep prototype OS releases draft-only and Actions-built; this demo update does not establish server adapter, provider or broad edit/save parity.
+
 ## [0.2.0-alpha.62] - 2026-10-19
 
 - Connect original DesignCraft Pages thumbnail clicks to bounded server `page.select`. The selected-page PNG, highlight and revision change together only after matching ACK; failed renders preserve the prior view and revision.

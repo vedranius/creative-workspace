@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "blockedReleases": {
+    "deckcraft": {
+      "tag": "v0.9.0",
+      "fallback": "v0.7.0",
+      "reason": "Official v0.9.0 and v0.8.0 web WASM panic during startup: std::process::id, no pids on this platform. Hold v0.9.0; test the next stable tag automatically."
+    }
+  }
+}

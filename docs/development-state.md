@@ -1,3 +1,7 @@
+# CF-DEMO alpha.63 — official release updater (2026-10-22)
+
+User requested current ArtCraft releases and automated public demo updates before resuming adapter work. All13 official stable web ZIPs are now independently pinned in `cloudflare/artcraft-releases.json`; the server adapter/source contracts remain unchanged. The importer executes no upstream source, checks both GitHub digest and SHA256SUMS, bounds ZIP contents and excludes upstream hosting configuration. Hourly Actions stages all apps, runs browser proof, then publishes with a separate Pages credential. Missing credentials fail explicitly and preserve the old deployment. Validation/publication status and exact continuation: [demo handoff](cloudflare-demo-handoff.md). Preserve FilmCraft, RapidRAW WIP and live studios.
+
 # PAR-03 alpha.62 — CI observer race corrected (2026-10-19)
 
 The alpha62 Build/release run39226350624 failed in the page-selection smoke because it read the previous asynchronously observed ACK after the application had already applied revision7. The smoke now waits for its exact response revision; CI includes a750ms observer-only delay. Real sandboxed browser proof records waiting for ACK7, page0 and byte-identical PNG restored, with no browser/network errors. [Diagnosis and evidence](evidence/designcraft-par03-pages-select-observer.md).
