@@ -23,8 +23,11 @@ fn save(p: &Path, bytes: &[u8]) -> Result<(), Box<dyn std::error::Error>> {
 }
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let args: Vec<String> = std::env::args().collect();
-    if args.len() != 3 {
-        return Err("usage: jpeg_export_reference FULL_NATIVE_RENDER.png NEW_OUTPUT_DIR".into());
+    if args.len() != 3 && args.len() != 4 {
+        return Err(
+            "usage: jpeg_export_reference FULL_NATIVE_RENDER.png NEW_OUTPUT_DIR [SETTINGS_JSON]"
+                .into(),
+        );
     }
     let out = Path::new(&args[2]);
     fs::create_dir(out)?;
@@ -32,25 +35,34 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let rgba = image.to_rgba8();
     let (w, h) = rgba.dimensions();
     save(&out.join("input.rgba8"), rgba.as_raw())?;
-    let settings = vec![
-        json!({"jpegQuality":90,"dpi":300}),
-        json!({"jpegQuality":90}),
-        json!({"jpegQuality":75,"dpi":72,"resize":{"mode":"longEdge","value":1024,"dontEnlarge":true}}),
-        json!({"jpegQuality":100,"dpi":65535,"resize":{"mode":"shortEdge","value":384,"dontEnlarge":false}}),
-        json!({"jpegQuality":1,"resize":{"mode":"width","value":777,"dontEnlarge":false}}),
-        json!({"jpegQuality":90,"dpi":300,"resize":{"mode":"height","value":333,"dontEnlarge":false}}),
-        json!({"jpegQuality":90,"resize":{"mode":"longEdge","value":4096,"dontEnlarge":true}}),
-    ];
+    let settings = if let Some(custom) = args.get(3) {
+        if custom.len() > 4096 {
+            return Err("Settings exceed4KiB".into());
+        }
+        jpeg_export::preflight(w, h, custom)?;
+        vec![serde_json::from_str(custom)?]
+    } else {
+        vec![
+            json!({"jpegQuality":90,"dpi":300}),
+            json!({"jpegQuality":90}),
+            json!({"jpegQuality":75,"dpi":72,"resize":{"mode":"longEdge","value":1024,"dontEnlarge":true}}),
+            json!({"jpegQuality":100,"dpi":65535,"resize":{"mode":"shortEdge","value":384,"dontEnlarge":false}}),
+            json!({"jpegQuality":1,"resize":{"mode":"width","value":777,"dontEnlarge":false}}),
+            json!({"jpegQuality":90,"dpi":300,"resize":{"mode":"height","value":333,"dontEnlarge":false}}),
+            json!({"jpegQuality":90,"resize":{"mode":"longEdge","value":4096,"dontEnlarge":true}}),
+        ]
+    };
     let mut cases = Vec::new();
     for (i, s) in settings.iter().enumerate() {
         let resize = s
             .get("resize")
+            .filter(|r| !r.is_null())
             .map(|r| serde_json::from_value(r.clone()).unwrap());
         let reference = native::encode(
             image.clone(),
             resize.as_ref(),
             s["jpegQuality"].as_u64().unwrap() as u8,
-            s.get("dpi").map(|v| v.as_u64().unwrap() as u16),
+            s.get("dpi").and_then(|v| v.as_u64()).map(|v| v as u16),
         )?;
         assert_eq!(
             reference,

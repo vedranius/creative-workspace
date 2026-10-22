@@ -1,3 +1,9 @@
+# RWASM-03 — original Exposure and export resize/DPI proof (2026-10-23)
+
+Three actual original Exposure/ExportPanel exports now prove non-neutral edits, long-edge resize, Don't Enlarge, 72/144 DPI and real gated destination ACK. All37,748,736 full-frame RGBA8 components and719,812 JPEG bytes match independent native source. Render remains2048×1536 before1024×768 output resizing;4096 with Don't Enlarge stays2048×1536. Original26 source pins and existing WASM/runtime are exact;45 host tests and npm check pass. [Evidence, limits and continuation](rapidraw-wasm-export-settings-handoff.md).
+
+This is decisive verification of the existing experimental runtime, with QA/reference improvements only; no product release, main/demo change or private photograph. Existing3MP/4096 full input,4M sensor,64MiB preview/codec and256MiB estimated GPU limits remain, without aggregate-memory guarantees. Next A: exact alpha64 CI/release gate then original right-hand facing-page TextTool/caret/typing. Next B: original JPEG quality and explicit enlargement after fine crop, native/codec/ACK parity within the same limits. MAIN only.
+
 # RWASM-03 — full source fine rotation/crop JPEG export (2026-10-22)
 
 The unchanged original CropPanel/ExportPanel now exports +5.3°/1:1 and−7.1°/16:9 full-image crops, with real OPFS ACK. Alongside an uncropped quarter-turn/flip/alpha case, all3 actual RAW jobs match28,929,748 native RGBA8 components and1,370,418 JPEG bytes exactly. Original Export tab activation fixes the QA composition's adjustment subscription;17+9 source hashes remain exact. Core71/native1/host45/check and clean-stage browser pass. [Evidence, limits and continuation](rapidraw-wasm-export-fine-handoff.md).
