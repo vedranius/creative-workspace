@@ -304,5 +304,25 @@
     "estimatedGpuPayloadLimitBytes": 268435456,
     "previewPayloadLimitUnchangedBytes": 67108864,
     "scope": "Dedicated worker/device/job lifecycle, no file writes or original full editor export acceptance. Estimates are not aggregate CPU/GPU peak-memory or allocator protection."
+  },
+  "exportDestinationHost": {
+    "status": "experimental foundation; original ExportPanel/transport not yet composed",
+    "hostModules": {
+      "export-destination.js": "912d336d914f2ac9ce5214215068770c0631213ae4be01c26cddf7e0b9a67d81",
+      "export-bridge.js": "6cf6873f7641b30b6915b05e8a320b1639f0d9edecace7072ab2b43b0e0cd3bb",
+      "export-client.js": "647c7538c6ab460d64eb246abc0ac7549ab32f7daf9424749617b61734cf2e34",
+      "export-worker.js": "f990798b4e4607042d58bc22f04f6ad9136e0de0a7608c5306d98e812507c2aa"
+    },
+    "jpegLimitBytes": 67108864,
+    "ioDeadlineMs": 30000,
+    "rawReadDeadlineMs": 30000,
+    "pendingChoices": 16,
+    "capabilityLifetimeMs": 300000,
+    "retentions": [
+      "until-ack",
+      "keep"
+    ],
+    "replay": "never automatic",
+    "evidence": "docs/evidence/rapidraw-wasm/export-destination-browser.json"
   }
 }

@@ -1,3 +1,9 @@
+# RWASM-03 — export destination host foundation (2026-10-22)
+
+The interrupted host foundation now gates native-shaped success on a real destination close/readback ACK, retains uncertain JPEGs in OPFS and refuses stale/replayed/newer-file output. One actual public RAW export produces655,924 native-exact JPEG bytes; gated-close, keep retention, four real-OPFS injected faults and another actual GPU-cancel job pass. Host41/41 and npm check pass; no native/WASM rebuild, private photo, product release or demo change. [Evidence, limits and next step](rapidraw-wasm-export-destination-handoff.md).
+
+This is the command-shaped host foundation, **not** original ExportPanel/transport or OS/common-provider acceptance. Next B: compose unchanged original export panel/settings/listeners/stores and native command IDs, with cancellation outside the preview queue, then prove actual UI ACK/error/cancel behavior. Keep the original server-processing suite and pending A release/Cloudflare-secret work independent. MAIN only.
+
 # RWASM-03 — full image Basic export worker (2026-10-19)
 
 The browser now develops the real public RAW, applies source quarter-turn/flip and renders the full2048×1536 image before JPEG export resize. Two jobs match25,165,824 native RGBA8 components and755,670 JPEG bytes exactly. GPU-submit cancellation, timeout, overlap refusal, seven invalid-input refusals and successful subsequent jobs are verified. [Evidence, resource limits and next task](rapidraw-wasm-full-export-handoff.md).

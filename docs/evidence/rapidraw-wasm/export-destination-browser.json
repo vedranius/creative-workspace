@@ -1,0 +1,89 @@
+{
+  "scope": "Experimental single-file native-argument host + real full RAW/native-exact JPEG + OPFS ACK/recovery. Original ExportPanel/transport composition and common providers remain unaccepted.",
+  "fixture": {
+    "id": "raw.pixls.us 1327",
+    "license": "CC0-1.0",
+    "sha256": "f0d2fe47507fadf50008bddbc6bd2c5e39fddbe90cca6bca72dd360fa0e0eb38"
+  },
+  "wasmSha256": "510003f644af4f22034a5c02e41b5e0e1d790d17fa42253506f1151e6ed5c0ce",
+  "hostModules": {
+    "export-destination.js": "912d336d914f2ac9ce5214215068770c0631213ae4be01c26cddf7e0b9a67d81",
+    "export-bridge.js": "6cf6873f7641b30b6915b05e8a320b1639f0d9edecace7072ab2b43b0e0cd3bb",
+    "export-client.js": "647c7538c6ab460d64eb246abc0ac7549ab32f7daf9424749617b61734cf2e34",
+    "export-worker.js": "f990798b4e4607042d58bc22f04f6ad9136e0de0a7608c5306d98e812507c2aa"
+  },
+  "actualRaw": {
+    "bytes": 655924,
+    "sha256": "9cdca25668bdf162cc052c2cce115e968d16780fee43567971532474067e0462",
+    "dimensions": [
+      2048,
+      1536
+    ],
+    "deviceDestroyed": true,
+    "noSuccessBeforeClose": true,
+    "durableNativeRecoveryBeforeClose": true,
+    "retentionReleasedAfterHostAcceptance": true
+  },
+  "rawJobs": 2,
+  "retainedKeepBytes": 655924,
+  "keptRecordState": "complete",
+  "faults": [
+    {
+      "name": "close",
+      "retainedBytes": 655924,
+      "retainedSha256": "9cdca25668bdf162cc052c2cce115e968d16780fee43567971532474067e0462",
+      "state": "uncertain",
+      "noSuccess": true,
+      "destinationBytes": 0,
+      "events": [
+        "export-error"
+      ]
+    },
+    {
+      "name": "newer",
+      "retainedBytes": 655924,
+      "retainedSha256": "9cdca25668bdf162cc052c2cce115e968d16780fee43567971532474067e0462",
+      "state": "uncertain",
+      "noSuccess": true,
+      "destinationBytes": 22,
+      "newerContentPreserved": true,
+      "events": [
+        "export-error"
+      ]
+    },
+    {
+      "name": "revoke",
+      "retainedBytes": 655924,
+      "retainedSha256": "9cdca25668bdf162cc052c2cce115e968d16780fee43567971532474067e0462",
+      "state": "uncertain",
+      "noSuccess": true,
+      "destinationBytes": 0,
+      "events": [
+        "export-error"
+      ]
+    },
+    {
+      "name": "stale",
+      "retainedBytes": 655924,
+      "retainedSha256": "9cdca25668bdf162cc052c2cce115e968d16780fee43567971532474067e0462",
+      "state": "uncertain",
+      "noSuccess": true,
+      "destinationBytes": 655924,
+      "events": [
+        "export-error"
+      ]
+    }
+  ],
+  "cancel": {
+    "reason": "aborted",
+    "deviceDestroyed": true,
+    "forcedTermination": false,
+    "destinationOpened": false
+  },
+  "picker": "Injected chooser returning real OPFS FileSystemFileHandle; no OS picker permission acceptance",
+  "faultInputs": "After first native-exact RAW export, retention/fault cases reuse that JPEG in memory; cancellation runs another actual RAW worker",
+  "noAutomaticReplay": true,
+  "pageErrors": [],
+  "failedRequests": [],
+  "externalRequests": []
+}
