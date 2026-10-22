@@ -17,7 +17,9 @@ concurrency:
   cancel-in-progress: false
 jobs:
   candidate:
-    runs-on: ubuntu-latest
+    # Ubuntu 24+ AppArmor blocks Playwright's unprivileged sandbox by default.
+    # Keep Chromium sandboxing enabled and use the established browser QA runner.
+    runs-on: ubuntu-22.04
     timeout-minutes: 30
     outputs:
       changed: ${{ steps.releases.outputs.changed }}

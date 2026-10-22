@@ -11,6 +11,7 @@ on:
       - 'CHANGELOG.md'
       - 'release/config.json'
       - '.github/workflows/release.yaml'
+      - '.github/workflows/artcraft-demo.yaml'
   workflow_dispatch:
 permissions:
   contents: read

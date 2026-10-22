@@ -37,9 +37,9 @@ node /absolute/path/to/wrangler/bin/wrangler.js pages deploy build/cloudflare-de
 
 References: [Pages headers](https://developers.cloudflare.com/pages/configuration/headers/), [Pages limits](https://developers.cloudflare.com/pages/platform/limits/).
 
-## Alpha.63 verified candidate
+## Alpha.63 published and verified
 
-All13 original release interfaces pass public sandboxed Chromium at https://b63d9c92.creative-workspace-demo.pages.dev, with exact WASM/PhotoCraft part hashes, consent/isolation and zero failed/external requests or page errors. DeckCraft is held at verified v0.7.0 because official v0.8.0/v0.9.0 panic at startup. [Evidence](evidence/cloudflare-demo-alpha63/browser.json) · [current production/CI handoff](cloudflare-demo-handoff.md). Screenshots of PhotoCraft, DesignCraft and DeckCraft were visually inspected. Broader edit/save acceptance is still open.
+Production https://creative-workspace-demo.pages.dev/ is deployment https://095d5db3.creative-workspace-demo.pages.dev. All207 published files match the verified output. All13 original release interfaces pass public sandboxed Chromium at https://b63d9c92.creative-workspace-demo.pages.dev, with exact WASM/PhotoCraft part hashes, consent/isolation and zero failed/external requests or page errors. DeckCraft is held at verified v0.7.0 because official v0.8.0/v0.9.0 panic at startup. [Evidence](evidence/cloudflare-demo-alpha63/browser.json) · [current production/CI handoff](cloudflare-demo-handoff.md). Screenshots of PhotoCraft, DesignCraft and DeckCraft were visually inspected. Broader edit/save acceptance is still open.
 
 ## Previous deployment (alpha.57, historical)
 
