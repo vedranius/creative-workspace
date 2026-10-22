@@ -1,3 +1,9 @@
+# PAR-03 — original right-hand facing-page Text Tool verified (2026-10-23)
+
+Actual original A4 and two Insert Page actions produce three pages in two spreads. On right page3 with X=595.2755905511812, the original Text Tool creates a page-local frame, native placement adds page X once, the actual caret click keeps spread-local coordinates, and keyboard “R” changes only the target story/server PNG. Held ACK9 keeps the mirror at revision8/page2; caret10/typing11 and source thumbnail restoration14 pass. Left sibling and first-page PNGs remain byte-identical, with the first canonical spread unchanged. [Proof, screenshot and reproducer](evidence/designcraft-facing-page-text.md).
+
+Existing alpha64 UI/package/native worker reused without a build or application change;88 tests/check and the750ms ACK-observer proof pass. This is verification-only, no new SemVer/release/public demo change. Alpha64 Checks39865723958 passed; exact Build39865724015 was still in progress at one snapshot, so immutable tag/draft/24 downloaded asset checks remain pending. Do not duplicate/cancel/rerun or bypass the earlier publication403. Actual OS permission/providers/full original tools/visible caret overlay acceptance remain open. Next independent B: original JPEG quality and bounded explicit enlargement after fine crop from2dcc65f. Next A: exact release gate, then trace and restore the original visible text caret/selection overlay through the same selected-page mapping. MAIN only.
+
 # PAR-03 alpha.64 — selected-page Text Tool mapping fixed locally (2026-10-23)
 
 The original host UI now shares one selected-page display mapping between the server PNG and pointer tools, translating through the original multi-spread CanvasLayout. Frame rectangles normalize once to the page-local gateway contract; original caret points remain spread-local. Native algorithms/worker and command IDs are unchanged.

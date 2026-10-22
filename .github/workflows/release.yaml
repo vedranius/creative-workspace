@@ -267,6 +267,8 @@ jobs:
           CW_PAR03_ACK_OBSERVER_DELAY_MS: '750'
           CW_PAR03_SECOND_PAGE_TEXT_REPORT: ${{ github.workspace }}/build/designcraft-par03-evidence/second-page-text-browser.json
           CW_PAR03_SECOND_PAGE_TEXT_SCREENSHOT: ${{ github.workspace }}/build/designcraft-par03-evidence/second-page-text-browser.png
+          CW_PAR03_FACING_PAGE_TEXT_REPORT: ${{ github.workspace }}/build/designcraft-par03-evidence/facing-page-text-browser.json
+          CW_PAR03_FACING_PAGE_TEXT_SCREENSHOT: ${{ github.workspace }}/build/designcraft-par03-evidence/facing-page-text-browser.png
           CW_PAR03_PAGES_MOVE_REPORT: ${{ github.workspace }}/build/designcraft-par03-evidence/pages-move-browser.json
           CW_PAR03_PAGES_MOVE_SCREENSHOT: ${{ github.workspace }}/build/designcraft-par03-evidence/pages-move-browser.png
           CW_PAR03_DELETE_PAGE_REPORT: ${{ github.workspace }}/build/designcraft-par03-evidence/delete-page-browser.json
@@ -287,6 +289,7 @@ jobs:
           node scripts/smoke-designcraft-pages-move-browser.mjs
           node scripts/smoke-designcraft-pages-select-browser.mjs
           node scripts/smoke-designcraft-second-page-text-browser.mjs
+          node docs/evidence/designcraft-facing-page-text-browser.mjs
       - name: Build and prove the original preset/server-canvas candidate
         env:
           CW_DESIGNCRAFT_BINARY: ${{ github.workspace }}/build/staged/designcraft/cw-designcraft-engine

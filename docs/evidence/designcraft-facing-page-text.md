@@ -1,0 +1,25 @@
+# Original right facing-page Text Tool: browser evidence
+
+This closes the missing nonzero-page-X browser check for the alpha64 selected-page mapping. It changes evidence/QA and the future release QA step only; application source, reviewed patch, native worker, product version and public demo are unchanged. No local package is presented as a release asset.
+
+[Browser report](designcraft-facing-page-text-browser.json), [inspected screenshot](designcraft-facing-page-text-browser.png), [reproducer](designcraft-facing-page-text-browser.mjs).
+
+The original A4 preset and two actual Properties→Quick Actions→Insert Page clicks create three pages in two spreads. Original Type Tool/keyboard actions put “M” on the first page. Original Pages thumbnails select the blank left sibling and right page, preserving a baseline PNG for each. All document creation and editing in this proof uses actual original UI handlers and the owned server worker; there is no direct editing RPC substitute or patched engine fixture.
+
+The right page is index2 in spread1, with native bounds `[595.2755905511812,0,1190.5511811023623,841.8897637795277]`. Original drag `[500,350]→[630,410]` emits `frame.create` with unchanged source spread identity `{index:1,kind:"doc"}` and page-local rectangle `[197.00262403990575,235.49361027348493,324.6374753632133,294.36702032799724]`. Canonical native frame17 bounds are `[792.2782145910869,235.49361027348493,919.9130659143945,294.36702032799724]`: page X added exactly once. The held network ACK9 leaves UI revision8/page2/pending=true/page IDs unchanged until fulfillment; a separate750ms observer-only delay is also handled, without delaying the application response itself.
+
+Actual click `[550,380]` issues original `text.placeCaret` at spread-local `[841.3685420231283,264.9303153007412]`, selecting frame17/story18 at ACK10. Actual keyboard “R” gives ACK11, changes only story18 and the selected server-render PNG to `a8fe1a621abd06579d56c20217f330f49a0d9362cfc1128f71d2361ce2f19511`. The first canonical spread is unchanged. Original thumbnails then prove:
+
+- Left sibling page1, ACK12: exact original blank PNG SHA256 `40402e053fbcda7f6379931420bdbea7192004fd1973c890cafb6cd40efdc273`.
+- First page0, ACK13: exact original “M” PNG SHA256 `6e9dd44880d5ad3a1f57001e0bc4e0cd9854e8ae252d3fa5ababeb75986876b9`.
+- Right page2 restored at ACK14: exact edited PNG, canonical state and page IDs preserved.
+
+Zero browser/console/HTTP/request errors. Own disposable session/browser/server/worker closed; scratch removed and the short disk-backed TMPDIR symlink removed. The connected-folder chooser remains synthetic: no actual OS permission or common-provider claim. Initial QA used the wrong second-button position and then assumed the source spread reference was a scalar; both assertions were corrected to the observed original UI/protocol, without an application change.
+
+Reuse source `a127c6d5c3576972bbd60445f26d893db071eef3`, reviewed patch `4a645538dd578b1d4366547d010e376327b8aab379193564ce5db983d4f09594`, package `a127c6d5c3576972bbd60445f26d893db071eef3-4a645538dd57`, optimized WASM `cf7f0a0ff23cf6c33780ea9103630d45a617ba112e33f4eb4d2527ec5b8b300c` and worker `35aada596b7a9810d32dad58cdc004b7294f04b3404e64f04a973970ff83185d`. All registered package file sizes/hashes and actual WASM were rechecked. No rebuild or protected studio/user-document access was needed.
+
+Run `node docs/evidence/designcraft-facing-page-text-browser.mjs` with `CW_ORIGINAL_UI_DIR` pointing at that registered package root, `CW_DESIGNCRAFT_BINARY`, `CW_PLAYWRIGHT_MODULE`, optional browser executable, disposable work root, `CW_PAR03_ACK_OBSERVER_DELAY_MS=750`, and `CW_PAR03_FACING_PAGE_TEXT_REPORT/SCREENSHOT` outputs. Use one sandboxed context and short disk-backed TMPDIR. The future release QA step now runs this reproducer after the existing second-page proof. Evidence/workflow-only paths are already excluded from release triggering; this checkpoint does not duplicate the running alpha64 build or manufacture another release of the same version.
+
+Fresh npm check and88/88 JavaScript tests, reproducer syntax, JSON/YAML, package hash/privacy/diff checks pass. Alpha64 Checks39865723958 is confirmed successful on sourceb5ce0e25. Build39865724015 was still in progress at one bounded snapshot with original-designcraft compiling; no tag/draft/assets/download verification is claimed here, and no run was cancelled/rerun. Prior alpha63 publication403 remains unchanged without retries or permission/credential workarounds.
+
+Next by alternation: B's actual original JPEG quality and bounded explicit enlargement after fine crop, independent native/codec and real ACK parity from2dcc65f. Next A: inspect exact alpha64 release status once, complete source/tag/draft/all24downloaded-assets checksum verification if successful, then trace/restore the actual original visible text caret/selection overlay with this same selected-page mapping. Visible caret overlay, full tools/zoom/pan, native open/edit/save/reopen/OS/provider/all13 acceptance remain explicitly open. No new writer/chat, implicit WASM main merge, private photograph or demo update.
