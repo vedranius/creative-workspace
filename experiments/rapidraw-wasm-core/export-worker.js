@@ -1,11 +1,11 @@
 // Dedicated original RAW Quality -> full geometry -> EightBit -> export codec.
-// Restricted experimental Basic/quarter-turn slice; no original ExportPanel command.
+// Restricted original Basic + quarter-turn/fine rotation/integer crop slice.
 import init,*as wasm from './cw_rapidraw_wasm_probe.js';
 import {fullExportPlan,createFullExportResources,packRgb32fRendererInput,packGlobalRendererFixture,renderOriginalFrame} from './webgpu-renderer.js';
 let active=null,ready;
 const hash=async bytes=>[...new Uint8Array(await crypto.subtle.digest('SHA-256',bytes))].map(n=>n.toString(16).padStart(2,'0')).join('');
 const tick=()=>new Promise(resolve=>setTimeout(resolve,0));
-const basic=new Set(['exposure','brightness','contrast','highlights','shadows','whites','blacks','toneMapper','orientationSteps','flipHorizontal','flipVertical','showClipping']);
+const basic=new Set(['exposure','brightness','contrast','highlights','shadows','whites','blacks','toneMapper','orientationSteps','flipHorizontal','flipVertical','showClipping','rotation','crop','aspectRatio']);
 self.onmessage=async({data:d})=>{
  if(!Number.isSafeInteger(d?.id))return;
  if(d.command==='cancel'){
@@ -36,6 +36,10 @@ self.onmessage=async({data:d})=>{
   if(!['basic','agx'].includes(adjustments.toneMapper))throw Error('Invalid original tone mapper');
   const steps=adjustments.orientationSteps,h=adjustments.flipHorizontal,v=adjustments.flipVertical;
   if(!Number.isInteger(steps)||steps<0||steps>3||typeof h!=='boolean'||typeof v!=='boolean')throw Error('Invalid original orientation/flip');
+  const rotation=adjustments.rotation,crop=adjustments.crop;
+  if(typeof rotation!=='number'||!Number.isFinite(rotation)||rotation < -45||rotation > 45)throw Error('Invalid full fine rotation');
+  if(crop!==null&&(typeof crop!=='object'||Array.isArray(crop)||Object.keys(crop).some(k=>!['x','y','width','height','unit'].includes(k))||crop.unit!==undefined&&crop.unit!=='px'||!['x','y','width','height'].every(k=>Number.isSafeInteger(crop[k]))||crop.x<0||crop.y<0||crop.width<1||crop.height<1||crop.width>32768||crop.height>32768))throw Error('Expected bounded integer full-image crop');
+  const cropJson=JSON.stringify(crop===null?null:{x:crop.x,y:crop.y,width:crop.width,height:crop.height});
   wasm.preflight_jpeg_export(1,1,JSON.stringify(d.settings));
   const input=new Uint8Array(d.bytes),sensor=JSON.parse(wasm.inspect_sensor(input));
   if(sensor.width>4096||sensor.height>4096||sensor.sampleCount>4*1024*1024)throw Error('Full export sensor exceeds dedicated4M sample preflight');
@@ -46,11 +50,16 @@ self.onmessage=async({data:d})=>{
   fullExportPlan(developed.width,developed.height);
   const developedSha256=await hash(developed.data);
   await stage('developed',{width:developed.width,height:developed.height,rgbSha256:developedSha256});
-  // No preview resampling: source orientation/flip applies directly to full RGB.
-  const image=wasm.orient_preview_rgb32f(developed.width,developed.height,developed.data,steps,h,v);
+  // No preview resampling: exact source orientation -> fine rotation -> crop.
+  const image=wasm.full_export_geometry_rgb32f(developed.width,developed.height,developed.data,steps,h,v,rotation,cropJson);
   wasm.preflight_jpeg_export(image.width,image.height,JSON.stringify(d.settings));
   const plan=fullExportPlan(image.width,image.height),rgbSha256=await hash(image.data);
-  const upload=packRgb32fRendererInput(wasm,image.width,image.height,image.data),uploadSha256=await hash(upload);
+  const upload=packRgb32fRendererInput(wasm,image.width,image.height,image.data);
+  if(image.alphaWords){
+   if(!(image.alphaWords instanceof Uint16Array)||image.alphaWords.length!==image.width*image.height||image.alphaWords.some(a=>a>0x3c00))throw Error('Invalid full rotation alpha');
+   for(let i=0;i<image.alphaWords.length;i++)upload[i*4+3]=image.alphaWords[i];
+  }
+  const uploadSha256=await hash(upload);
   const packed=packGlobalRendererFixture(wasm,JSON.stringify(adjustments),asShot,{baselineExposure:0,compensateHighlightPreservation:true});
   const adjustmentSha256=await hash(packed.bytes);
   await stage('prepared',{...plan,rgbSha256,uploadSha256,adjustmentSha256});

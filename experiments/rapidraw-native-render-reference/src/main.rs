@@ -170,7 +170,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         include!("original_high_precision_pipeline.rs")
     };
     // Independent native-only full public-DNG reference for the post-render codec.
-    // Browser preview budgets stay unchanged. Limit to one2048x1536 frame.
+    // Browser preview budgets stay unchanged. One bounded3MP full-export frame.
     let export_codec_reference = if let Some(i) = args.iter().position(|v| v == "--export-codec-reference") {
         args.remove(i);
         if !eight || args.len() != 5 || camera.as_ref().is_none_or(|c| c.frames.len() != 1) {
@@ -201,7 +201,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                 .checked_mul(76)
                 .and_then(|v| v.checked_add(132))
                 .is_none_or(|v| v > texture_budget)
-            || (export_codec_reference && (width, height) != (2048, 1536))
+            || (export_codec_reference && (width > 4096 || height > 4096 || count > 3 * 1024 * 1024))
         {
             return Err("bounded RGB input required".into());
         }
@@ -455,7 +455,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         });
         device.poll(wgpu::PollType::Wait {
             submission_index: None,
-            timeout: Some(std::time::Duration::from_secs(30)),
+            // Full native software-GPU reference matches the bounded export job deadline.
+            timeout: Some(std::time::Duration::from_secs(if export_codec_reference { 120 } else { 30 })),
         })?;
         rx.recv_timeout(std::time::Duration::from_secs(1))??;
         let mapped = slice.get_mapped_range();

@@ -42,7 +42,7 @@ try{
  await page.goto(origin);await page.waitForFunction(()=>!!globalThis.proof);
  await page.getByLabel('Open RAW fixture').setInputFiles(fixture);
  await page.waitForFunction(()=>proof.store.getState().selectedImage?.isReady&&proof.store.getState().finalPreviewUrl);
- const panel=page.getByLabel('Original Export panel'),button=panel.locator('button').last();
+ const panel=page.getByLabel('Original Export panel'),button=panel.locator('button').last();await page.locator('[data-tab-id="layout-tab-export"]').click();
  await page.evaluate(()=>{proof.processStore.subscribe(state=>exportQa.events.push(structuredClone(state.exportState)));});
  // Source metadata default is intentionally retained, and explicitly refused by the host.
  await button.click();await page.waitForFunction(()=>proof.processStore.getState().exportState.status==='error');

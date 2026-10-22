@@ -60,6 +60,7 @@ function Proof(){
    setAdjustments={(update:any)=>useEditorStore.getState().setEditor(state=>({adjustments:typeof update==='function'?update(state.adjustments):{...state.adjustments,...update}}))}
    onDragStateChange={isSliderDragging=>useEditorStore.getState().setEditor({isSliderDragging})}/>
  <section aria-label="Original geometry panel"><CropPanel/></section></aside><aside aria-label="Original Export panel" style={{width:400,overflow:'auto',padding:12}}>
+ <PanelSwitcher region="leftTop" side="left" placement="top"/>
  <label>Recovery retention <select aria-label="Recovery retention" defaultValue="until-ack" onChange={event=>{retention=event.target.value;}}><option value="until-ack">Until write ACK</option><option value="keep">Keep recovery copy</option></select></label>
  <ExportPanel exportState={exportState} selectedImage={selectedImage} multiSelectedPaths={[]} setExportState={useProcessStore.getState().setExportState} appSettings={appSettings} onSettingsChange={useSettingsStore.getState().setAppSettings} rootPaths={[]} isVisible={true}/></aside>
  </main><ToastContainer position="bottom-left" theme="dark"/></>;

@@ -50,7 +50,7 @@ try{
    ['truncated',raw.slice(0,200),{}, {jpegQuality:90}],
    ['quality',raw.slice(0),{}, {jpegQuality:0}],
    ['unknown-codec',raw.slice(0),{}, {jpegQuality:90,keepMetadata:true}],
-   ['crop-not-supported',raw.slice(0),{crop:{x:1,y:1,width:100,height:100}}, {jpegQuality:90}],
+   ['fractional-crop',raw.slice(0),{crop:{x:0.5,y:1,width:100,height:100}}, {jpegQuality:90}],
    ['nonfinite-basic',raw.slice(0),{exposure:Infinity}, {jpegQuality:90}],
    ['oversize-output',raw.slice(0),{}, {jpegQuality:90,resize:{mode:'width',value:32768,dontEnlarge:false}}]
   ]){

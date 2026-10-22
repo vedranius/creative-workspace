@@ -1,3 +1,9 @@
+# RWASM-03 — full source fine rotation/crop JPEG export (2026-10-22)
+
+The unchanged original CropPanel/ExportPanel now exports +5.3°/1:1 and−7.1°/16:9 full-image crops, with real OPFS ACK. Alongside an uncropped quarter-turn/flip/alpha case, all3 actual RAW jobs match28,929,748 native RGBA8 components and1,370,418 JPEG bytes exactly. Original Export tab activation fixes the QA composition's adjustment subscription;17+9 source hashes remain exact. Core71/native1/host45/check and clean-stage browser pass. [Evidence, limits and continuation](rapidraw-wasm-export-fine-handoff.md).
+
+Full input3MP/4096, sensor4M, preview64MiB and estimated GPU256MiB limits remain; no aggregate-memory guarantee or private-RAF full-export acceptance. Four malformed/unsupported requests refuse before GPU. No private photo, product release, main/demo change or common-provider/OS acceptance. Next A: exact release asset gate then selected-page editing. Next B: original non-neutral Exposure edit and resize/DPI export controls with native/write-ACK proof. MAIN only.
+
 # RWASM-03 — original ExportPanel JPEG command/event composition (2026-10-22)
 
 Unchanged original ExportPanel/settings/listeners/process store now drive native command IDs and useful errors. Actual source metadata refusal, metadata-off full RAW→655,924-byte native-exact JPEG, gated destination close with no early success, retained close-failure output and original Cancel handler at GPU submission all pass. Existing17 plus8 export source hashes are exact;45 host tests and npm check pass. [Evidence, limits and next task](rapidraw-wasm-export-panel-handoff.md).

@@ -1,5 +1,5 @@
 {
-  "status": "experimental-compile-probe-not-browser-editor",
+  "status": "experimental-original-ui-single-jpeg-slice-not-accepted-editor",
   "nativeApplication": {
     "repo": "CyberTimon/RapidRAW",
     "commit": "b39884b38d8f148caef6fd0d52afd264951be329",
@@ -295,7 +295,7 @@
     "source": "src-tauri/src/export_processing.rs",
     "sourceSha256": "1393afa5760c14822344e6a8744b9dfc1591d52716b321916e80b2b3d7d82aa0",
     "pipeline": "process_image_for_export_pipeline: full apply_all_transformations before EightBit GPU; show_clipping=0; then export geometry/JPEG codec",
-    "implementedSlice": "Original Basic controls and quarter-turn/flip on full native Quality-developed RGB; neutral preprocessing only. Fine rotation/crop/warp/effects/masks/metadata/ExportPanel/providers remain unavailable.",
+    "implementedSlice": "Original Basic controls and quarter-turn/flip -> fine rotation -> integer crop on full native Quality RGB, original alpha preserved through f16/EightBit render; neutral preprocessing only. Warp/effects/masks/metadata/common providers and larger full export remain unavailable.",
     "defaultsSha256": "d650db51fe618e3522767832edf911ea8b6da68d61c2db54912193c64d2332bc",
     "nativeGeometryReference": "tests/reference/orientation_flip.rs",
     "nativeGeometryReferenceSha256": "d050ac33be33f3d36859c1466b42c233f985775c6577187860e5cdbe53ad98b1",
@@ -303,15 +303,34 @@
     "maxRenderPixels": 3145728,
     "estimatedGpuPayloadLimitBytes": 268435456,
     "previewPayloadLimitUnchangedBytes": 67108864,
-    "scope": "Dedicated worker/device/job lifecycle, no file writes or original full editor export acceptance. Estimates are not aggregate CPU/GPU peak-memory or allocator protection."
+    "scope": "Dedicated worker/device/job lifecycle and experimental original single-file ExportPanel destination ACK/recovery composition; not full native editor or OS/common-provider acceptance. Estimates are not aggregate CPU/GPU peak-memory or allocator protection.",
+    "fullGeometry": {
+      "module": "src/export_geometry.rs",
+      "sha256": "f9174692eccce3ee853fce674cf587e6f42a9332b1a399415537d75c5c0c7108",
+      "order": [
+        "apply_orientation_and_flip",
+        "apply_rotation",
+        "apply_crop"
+      ],
+      "referenceExample": "examples/export_fine_geometry_reference.rs",
+      "maxInputPixels": 3145728,
+      "maxAxis": 4096,
+      "fineAngleDegrees": [
+        -45,
+        45
+      ],
+      "crop": "nonnegative integer origin, positive integer size<=32768, source edge clipping after orientation",
+      "rgbaIntermediateLimitBytes": 67108864,
+      "scope": "Per-buffer bounds only; no total-live-memory or allocator guarantee."
+    }
   },
   "exportDestinationHost": {
-    "status": "experimental foundation; original ExportPanel/transport not yet composed",
+    "status": "Experimental original single-file ExportPanel composed; OS/common providers and full App acceptance remain open",
     "hostModules": {
       "export-destination.js": "912d336d914f2ac9ce5214215068770c0631213ae4be01c26cddf7e0b9a67d81",
       "export-bridge.js": "6cf6873f7641b30b6915b05e8a320b1639f0d9edecace7072ab2b43b0e0cd3bb",
       "export-client.js": "647c7538c6ab460d64eb246abc0ac7549ab32f7daf9424749617b61734cf2e34",
-      "export-worker.js": "f990798b4e4607042d58bc22f04f6ad9136e0de0a7608c5306d98e812507c2aa"
+      "export-worker.js": "a2c4d938f2b9eaa1b632edd0c435bd2160c68b88cb094f9f68e3b6c8b77fed0a"
     },
     "jpegLimitBytes": 67108864,
     "ioDeadlineMs": 30000,
@@ -334,10 +353,11 @@
       "src/components/ui/ExportImportProperties.tsx": "35ec717f0f46e37c9dcede2f12b32cca133d366833f49b2343fdd1c3aea845b3",
       "src/components/ui/AppProperties.tsx": "0466b4bb7f9ea3474a65ef4a4f7ee08c4409d3f85ecd1dd2db7db028c96699f9",
       "src/components/ui/ExportPresetsList.tsx": "7603df14bae4835b27c135c1d5dbc41de988621c8599291d97c6fe9440c4bf60",
-      "src/hooks/useOsPlatform.ts": "4037e7dc75d3a322f15f00e5536413293f07c262d5e0b0bb03ed7eddedb563a4"
+      "src/hooks/useOsPlatform.ts": "4037e7dc75d3a322f15f00e5536413293f07c262d5e0b0bb03ed7eddedb563a4",
+      "src/store/useUIStore.ts": "5a1d4efa54e4f5e276a1c44d5bf708c3e4c5b1236c2a97712326880575681e01"
     },
-    "scope": "Unchanged original single JPEG ExportPanel/settings/listeners/process store in isolated QA composition. OS picker and common providers remain unaccepted; metadata/effects/fine geometry export unavailable.",
-    "evidence": "docs/evidence/rapidraw-wasm/export-panel-browser.json",
+    "scope": "Unchanged source single JPEG ExportPanel, actual source Export tab subscription, CropPanel fine-angle/aspect-preset edits, original settings/listeners/process store in isolated QA composition. OS/common providers, metadata/effects/warp/multi-file/larger export remain unaccepted.",
+    "evidence": "docs/evidence/rapidraw-wasm/export-fine-browser.json",
     "transportSha256": "5f6acf1b3f93bb728701a0ce4933e9633b4d991d28848ce808d0778342b8a44d"
   }
 }

@@ -1,0 +1,149 @@
+{
+  "scope": "Independent unchanged native source geometry -> original full EightBit GPU shader -> native source JPEG codec. Three actual full RAW browser jobs, including two original UI edits/export/write ACKs. Not complete original preprocessing/providers acceptance.",
+  "fixture": {
+    "id": "raw.pixls.us 1327",
+    "license": "CC0-1.0",
+    "sha256": "f0d2fe47507fadf50008bddbc6bd2c5e39fddbe90cca6bca72dd360fa0e0eb38"
+  },
+  "source": "b39884b38d8f148caef6fd0d52afd264951be329",
+  "cases": [
+    {
+      "name": "uncropped-alpha",
+      "sourceUi": false,
+      "geometry": {
+        "orientationSteps": 1,
+        "flipHorizontal": true,
+        "flipVertical": false,
+        "rotation": 8.7,
+        "crop": null
+      },
+      "alphaZero": 213871,
+      "height": 2048,
+      "rgbF32Sha256": "3ff89030c264273cf40cc975eaa5b537fb103d9a736d4d1dd4e1b4a0285ea067",
+      "rgbaF32Sha256": "8cbf72d8d62ba248f4883b546cadeb5c52590d7797e1fea59a8b085918e2299a",
+      "width": 1536,
+      "inputRgbaF16Sha256": "4d6a7c8d8b2f4b88105ffa5437edec8b387f31775f257248edf1817d0dd080fa",
+      "frame": {
+        "adjustmentSha256": "7528054041d105912931d3cc66497b535740e7f03c198e6e9f3915cc44f1520e",
+        "bytes": 12582912,
+        "exposure": -0.5,
+        "png": {
+          "bitDepth": 8,
+          "bytes": 4387685,
+          "colorType": 6,
+          "dpi": 300,
+          "filename": "frame-0.png",
+          "sha256": "91ff7a228e8669fe65a25ffc842ce1866ec318852de252b277747f172d486b18"
+        },
+        "sha256": "b3b4b6e29fe277441ad55b831c018b602289a9e27c99cabe7d8e5baec39a99a1"
+      },
+      "codec": {
+        "bytes": 573837,
+        "file": "case-0.jpg",
+        "settings": {
+          "dpi": 300,
+          "jpegQuality": 90
+        },
+        "sha256": "acc8d5edd438ad23c2d8f4eff2494cb6abff8864255173d384c221ea4212a367"
+      },
+      "allFullFrameAndJpegHashesExact": true
+    },
+    {
+      "name": "original-panel-5.3",
+      "sourceUi": true,
+      "geometry": {
+        "orientationSteps": 0,
+        "flipHorizontal": false,
+        "flipVertical": false,
+        "rotation": 5.3,
+        "crop": {
+          "unit": "px",
+          "x": 318,
+          "y": 62,
+          "width": 1412,
+          "height": 1412
+        }
+      },
+      "alphaZero": 0,
+      "height": 1412,
+      "rgbF32Sha256": "d157e33e82e4b07aa13b5c99e7bf4fc30bc7f8c722a3a06c7f524a725d2eee17",
+      "rgbaF32Sha256": "32b1426e71788749e3ab7b174828b85e9169d990b8eecffa8e209804f34d6dd4",
+      "width": 1412,
+      "inputRgbaF16Sha256": "69277041ffeefd1d06d7cda01c8fb1d75b5d3dc4e0f6cdb3c05ee638e91cce11",
+      "frame": {
+        "adjustmentSha256": "7528054041d105912931d3cc66497b535740e7f03c198e6e9f3915cc44f1520e",
+        "bytes": 7974976,
+        "exposure": -0.5,
+        "png": {
+          "bitDepth": 8,
+          "bytes": 2953034,
+          "colorType": 6,
+          "dpi": 300,
+          "filename": "frame-0.png",
+          "sha256": "068e40dd6b9e37f71fd7a8e8245844ee76557dcd20030cb129eba6291813502f"
+        },
+        "sha256": "4fa4405c8ffcb3aebda8f2b308a2e86a2c578739101f48bc5cf4fcb975af63e7"
+      },
+      "codec": {
+        "bytes": 385288,
+        "file": "case-0.jpg",
+        "settings": {
+          "dpi": 300,
+          "jpegQuality": 90
+        },
+        "sha256": "27518ccd8ce3ec9334a162658fd6da18e935cf8938fd2e15a864e93bb879bdb0"
+      },
+      "allFullFrameAndJpegHashesExact": true
+    },
+    {
+      "name": "original-panel--7.1",
+      "sourceUi": true,
+      "geometry": {
+        "orientationSteps": 0,
+        "flipHorizontal": false,
+        "flipVertical": false,
+        "rotation": -7.1,
+        "crop": {
+          "unit": "px",
+          "x": 60,
+          "y": 226,
+          "width": 1929,
+          "height": 1085
+        }
+      },
+      "alphaZero": 0,
+      "height": 1085,
+      "rgbF32Sha256": "4164df9d1504e743ea79d5f8cc51803e6257770d8285b05cfe4ff1033db80dc6",
+      "rgbaF32Sha256": "17fb44e5c30a9c3a7deed668d178781fdf106c52296bc6ab237a82c66842343d",
+      "width": 1929,
+      "inputRgbaF16Sha256": "ef5e62f5ff0ae444924fe8a55a3b30f0370c0f1a29143f878849d4ebbf5f0534",
+      "frame": {
+        "adjustmentSha256": "7528054041d105912931d3cc66497b535740e7f03c198e6e9f3915cc44f1520e",
+        "bytes": 8371860,
+        "exposure": -0.5,
+        "png": {
+          "bitDepth": 8,
+          "bytes": 3119152,
+          "colorType": 6,
+          "dpi": 300,
+          "filename": "frame-0.png",
+          "sha256": "def99e704f454755fc85ab4150e926431de00b650222964d4cc83660bb740b5c"
+        },
+        "sha256": "e9513a59e2a2579de19050cb9da5c4e6e6dd77b26bfae8bd0f60c1f6737a662e"
+      },
+      "codec": {
+        "bytes": 411293,
+        "file": "case-0.jpg",
+        "settings": {
+          "dpi": 300,
+          "jpegQuality": 90
+        },
+        "sha256": "c35d16e5a70a23d82c9670887a8b49199a0ed0f525db17fba37298ade5205a69"
+      },
+      "allFullFrameAndJpegHashesExact": true
+    }
+  ],
+  "rgbaComponentsCompared": 28929748,
+  "jpegBytesCompared": 1370418,
+  "nativeReferenceDeadline": "Full export mode120s; ordinary preview reference remains30s. Third geometry exceeded old30s under max2CPU/nice10, then passed at120s. First two completed references reused and all hashes rechecked, without redundant GPU runs."
+}

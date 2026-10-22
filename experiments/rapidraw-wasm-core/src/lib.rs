@@ -27,6 +27,7 @@ pub mod exposure;
 mod multi_exposure;
 pub mod png_export;
 pub mod jpeg_export;
+pub mod export_geometry;
 pub mod preview;
 #[rustfmt::skip]
 pub mod original_rotation;
@@ -702,6 +703,62 @@ mod browser {
             ("divisor", result.divisor as f64),
         ] {
             Reflect::set(&out, &key.into(), &JsValue::from_f64(value))?;
+        }
+        Reflect::set(
+            &out,
+            &"data".into(),
+            Float32Array::from(result.pixels.data.as_slice()).as_ref(),
+        )?;
+        Ok(out.into())
+    }
+
+    #[wasm_bindgen]
+    pub fn full_export_geometry_rgb32f(
+        width: u32,
+        height: u32,
+        pixels: &[f32],
+        steps: u32,
+        horizontal: bool,
+        vertical: bool,
+        rotation: f32,
+        crop_json: &str,
+    ) -> Result<JsValue, JsValue> {
+        if crop_json.len() > 1024 {
+            return Err(JsValue::from_str("Crop JSON limit"));
+        }
+        let value: serde_json::Value =
+            serde_json::from_str(crop_json).map_err(|_| JsValue::from_str("Invalid crop JSON"))?;
+        if !value.is_null()
+            && value.as_object().is_none_or(|o| {
+                o.keys()
+                    .any(|k| !["x", "y", "width", "height"].contains(&k.as_str()))
+            })
+        {
+            return Err(JsValue::from_str("Unexpected full crop fields"));
+        }
+        let crop: Option<super::original_crop::Crop> =
+            serde_json::from_value(value).map_err(|_| JsValue::from_str("Invalid full crop"))?;
+        let result = super::export_geometry::transform(
+            width, height, pixels, steps, horizontal, vertical, rotation, crop,
+        )
+        .map_err(|e| JsValue::from_str(&e))?;
+        let out = Object::new();
+        for (key, value) in [
+            ("width", result.pixels.width),
+            ("height", result.pixels.height),
+        ] {
+            Reflect::set(&out, &key.into(), &JsValue::from_f64(value as f64))?;
+        }
+        if let Some(alpha) = result.alpha {
+            let words: Vec<u16> = alpha
+                .into_iter()
+                .map(|a| half::f16::from_f32(a).to_bits())
+                .collect();
+            Reflect::set(
+                &out,
+                &"alphaWords".into(),
+                Uint16Array::from(words.as_slice()).as_ref(),
+            )?;
         }
         Reflect::set(
             &out,
