@@ -1,0 +1,27 @@
+# RWASM-03 — original JPEG quality and explicit enlargement (2026-10-23)
+
+This is a new decisive original-UI verification of existing experimental processing. Only QA/reference tooling, metadata and evidence change. Original React/runtime/WASM/native processing/product version, main and public demo are unchanged; no build or product release is claimed.
+
+[Browser proof](evidence/rapidraw-wasm/export-quality-browser.json), [independent native proof](evidence/rapidraw-wasm/export-quality-native.json), [inspected screenshot](evidence/rapidraw-wasm/export-quality-browser.png).
+
+Actual original CropPanel numeric+5.3° and1:1 preset produce `{x:318,y:62,width:1412,height:1412}`; original Basic numeric Exposure is+0.8. The original Export tab remains active so its source adjustment subscription observes both edits. Actual original ExportPanel numeric Quality, resize value, Don't Enlarge checkbox and Resolution controls drive three separate exports from the same public hash-pinned CC0 Canon A410 DNG:
+
+| Quality | Long Edge | Don't Enlarge | DPI | JPEG dimensions | Bytes |
+| --- | --- | --- | --- | --- | --- |
+|60|1200|false|144|1200×1200|171,799|
+|95|1800|false|144|1800×1800|1,359,889|
+|95|1800|true|144|1412×1412|953,466|
+
+All23,924,928 rendered RGBA8 components and2,485,154 JPEG bytes match independent native source. RGB/f16 input, complete packed settings, full1412² render and JPEG hashes are exact. Native source geometry and camera/global parser fixtures are independent from the port; one completed native full render is reused for all three post-render codec cases. Native original Lanczos3→RGB8 JPEG branches independently compare to the port, including quality60/95 and144 DPI. All browser full-frame render hashes are identical across output settings; resizing and quality therefore occur after full rendering. The native verifier now reads independent native JPEG SOF dimensions and compares exact codec settings, replacing hard-coded dimensions specific to the previous neutral geometry proof. It does not duplicate the source resize-target formula.
+
+Every output uses a new empty real OPFS file. Each actual stream close is held: source state remains exporting, destination size0, one uncertain journal record. Only after release/close/readback ACK does source Success appear; until-ACK cleanup leaves no recovery record. JFIF unit1 and X/Y density144 are independently checked. The chooser is injected OPFS, **not** an OS permission or common-provider test. No private photographs, EXIF or original Pictures paths were read or published.
+
+Reproduce `smoke-rapidraw-export-quality.mjs BUILT_EXPORT_STAGE PUBLIC_CC0_DNG OUTPUT_JSON`, then `verify-rapidraw-export-settings-native.mjs BROWSER_JSON PUBLIC_NATIVE_QUALITY_RGB NATIVE_RENDER_BINARY CORE_EXAMPLES FIVE_FRAME_NATIVE_CAMERA_JSON NEW_OUTPUT_DIR`. Reuse existing pinned original UI stage, compiled custom-settings JPEG reference, native renderer and WASM, with shared lock/low-impact wrapper for native GPU verification,2CPU/nice10/jobs1, one sandboxed browser context and short disk TMPDIR. No native/WASM/React rebuild was necessary. Existing26 source hashes, runtime/public/dist files and actual WASMb4a794da6b6d9e987dafa810be9484ac6797b12484cf1e97135a105f878c9556 are checked before QA. Initial QA inspected the Quality range before its React update; it now waits for the actual committed value. No application defect or fix is inferred from that observer timing issue.
+
+Fresh45/45 host tests, npm check, focused syntax, JSON/YAML/privacy/diff checks pass. Browser page/failed/external/preview-GPU errors are zero. Screenshot inspected; own QA context/server/workers closed and short TMP symlink removed. Prior2dcc65f pixel-parity run39867323099 was still in progress at one exact snapshot; no polling/rerun/cancel or CI success claim. This complete local original-UI export proof is not currently replayed by CI; path filters/check syntax remain wired for tooling changes.
+
+Budgets remain original developed input3MP/4096 axes, sensor4M samples, preview64MiB, full GPU estimate256MiB and codec per-buffer64MiB. The1800² output is a post-render codec resize under its existing64MiB limit; it does not expand full-resolution sensor/GPU input acceptance. No aggregate/allocator/imageproc/physical GPU memory guarantee. Larger private RAF full export, fractional geometry/warp/effects/masks/metadata/multi-file/full App/common providers/OS acceptance remain open.
+
+Next A in this same MAIN chat: inspect exact alpha64 Build39865724015 once, complete immutable tag/draft/sourceb5ce0e2/all24downloaded-assets checksum acceptance if successful; preserve prior alpha63 publication403 without retries, cancellation or credential/security workarounds. Original right-facing-page proof4c37635 is completed, not a new task. Next actual A behavior is original visible text caret/selection overlay through the same selected-page mapping.
+
+Next B: trace the original settings store/application save/load contract and implement the first bounded browser settings/export-preset persistence slice, with original preset create/apply/delete/reload and write/readback ACK/failure evidence. Keep destination handle grants and opaque one-use paths ephemeral; a preset must not restore file permissions or permit overwrite/replay. Preserve unchanged original React handlers and truthful storage status. This moves into browser storage/save parity; do not repeat quality/crop/settings proofs as new progress. No new writer/chat, implicit main merge or public demo change.

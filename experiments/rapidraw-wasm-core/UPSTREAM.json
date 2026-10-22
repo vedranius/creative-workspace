@@ -356,8 +356,8 @@
       "src/hooks/useOsPlatform.ts": "4037e7dc75d3a322f15f00e5536413293f07c262d5e0b0bb03ed7eddedb563a4",
       "src/store/useUIStore.ts": "5a1d4efa54e4f5e276a1c44d5bf708c3e4c5b1236c2a97712326880575681e01"
     },
-    "scope": "Unchanged source single JPEG ExportPanel with actual Export tab subscription, original Exposure edits, long-edge resize/dontEnlarge and DPI controls, CropPanel fine-angle/aspect presets, settings/listeners/process store in isolated QA composition. OS/common providers, metadata/effects/warp/multi-file/larger export remain unaccepted.",
-    "evidence": "docs/evidence/rapidraw-wasm/export-settings-browser.json",
+    "scope": "Unchanged source single JPEG ExportPanel and active Export tab, Basic Exposure, CropPanel fine-angle/aspect preset, JPEG quality60/95, long-edge resize/dontEnlarge/explicit enlargement and DPI controls, settings/listeners/process store in isolated QA composition. OS/common providers, metadata/effects/warp/multi-file/larger export remain unaccepted.",
+    "evidence": "docs/evidence/rapidraw-wasm/export-quality-browser.json",
     "transportSha256": "5f6acf1b3f93bb728701a0ce4933e9633b4d991d28848ce808d0778342b8a44d"
   },
   "exportSettingsProof": {
@@ -379,5 +379,28 @@
     "fullRenderBeforeResize": true,
     "writeAckBeforeSuccess": true,
     "wasmRebuilt": false
+  },
+  "exportQualityProof": {
+    "evidence": "docs/evidence/rapidraw-wasm/export-quality-browser.json",
+    "nativeEvidence": "docs/evidence/rapidraw-wasm/export-quality-native.json",
+    "sourceUiExposure": 0.8,
+    "sourceUiFineRotation": 5.3,
+    "sourceUiAspectRatio": "1:1",
+    "jpegQuality": [
+      60,
+      95
+    ],
+    "longEdgePixels": [
+      1200,
+      1800
+    ],
+    "dontEnlarge": [
+      false,
+      true
+    ],
+    "dpi": 144,
+    "renderBeforeResize": true,
+    "writeAckBeforeSuccess": true,
+    "runtimeAndWasmChanged": false
   }
 }

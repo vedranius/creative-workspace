@@ -1,3 +1,9 @@
+# RWASM-03 — original JPEG quality and enlargement after fine crop (2026-10-23)
+
+Actual original +5.3°/1:1 crop and Exposure+0.8 now drive source ExportPanel quality60/95, long-edge1200/1800 and Don't Enlarge controls. Three real RAW exports match23,924,928 native full-frame RGBA8 components and2,485,154 JPEG bytes exactly:1200²,1800² and1412². Each real OPFS close is gated before source Success; the same1412² full render precedes all codec resizes. Original26 source pins/runtime/WASM stay exact;45 host tests/check pass. [Proof and next task](rapidraw-wasm-export-quality-handoff.md).
+
+This verifies existing experimental behavior with QA/reference improvements, without a build/product release/main/demo/private-photo change. Full input3MP/4096, sensor4M, codec/preview64MiB and estimated GPU256MiB limits remain; post-render codec output has its separate existing64MiB bound, not an aggregate-memory guarantee. Next A: exact alpha64 release gate then original visible caret/selection overlay. Next B: original settings/export-preset browser persistence, source load/save contract, bounded storage and write/readback ACK; keep opaque destination grants ephemeral and OS/common-provider/full App acceptance open. MAIN only.
+
 # RWASM-03 — original Exposure and export resize/DPI proof (2026-10-23)
 
 Three actual original Exposure/ExportPanel exports now prove non-neutral edits, long-edge resize, Don't Enlarge, 72/144 DPI and real gated destination ACK. All37,748,736 full-frame RGBA8 components and719,812 JPEG bytes match independent native source. Render remains2048×1536 before1024×768 output resizing;4096 with Don't Enlarge stays2048×1536. Original26 source pins and existing WASM/runtime are exact;45 host tests and npm check pass. [Evidence, limits and continuation](rapidraw-wasm-export-settings-handoff.md).

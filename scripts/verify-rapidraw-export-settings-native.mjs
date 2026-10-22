@@ -10,6 +10,17 @@ const report=JSON.parse(await readFile(browserPath)),meta=JSON.parse(await readF
 assert.equal(report.fixture.id,'raw.pixls.us 1327');assert.equal(report.fixture.license,'CC0-1.0');
 const hash=b=>createHash('sha256').update(b).digest('hex');assert.equal(hash(await readFile(qualityRgb)),'f052bba0940702e068fb03d6a9f1cc78b9c57e7ff5758f1c460f28d11fb49e30');
 const camera=JSON.parse(await readFile(cameraPath));assert.equal(camera.source,meta.nativeApplication.commit);assert.ok(camera.fullGlobal&&camera.frames.length===5);
+// Read the independent native encoder output, without mirroring its resize formula.
+function jpegDimensions(bytes){
+ assert.equal(bytes.readUInt16BE(0),0xffd8);
+ for(let i=2;i+9<bytes.length;){
+  assert.equal(bytes[i],255);const marker=bytes[i+1],length=bytes.readUInt16BE(i+2);
+  assert.ok(length>=2&&i+2+length<=bytes.length);
+  if(marker===0xc0||marker===0xc2)return[bytes.readUInt16BE(i+7),bytes.readUInt16BE(i+5)];
+  if(marker===0xda)break;i+=2+length;
+ }
+ throw Error('Native JPEG has no supported SOF dimensions');
+}
 await mkdir(output);const cases=[],renderCache=new Map();
 async function run(command,args,file){const stdout=await open(file,'wx');try{await new Promise((resolve,reject)=>{const child=spawn(command,args,{stdio:['ignore',stdout.fd,'inherit']});child.on('error',reject);child.on('exit',code=>code===0?resolve():reject(Error(path.basename(command)+' failed '+code)));});}finally{await stdout.close();}}
 for(const c of report.cases){
@@ -34,8 +45,13 @@ for(const c of report.cases){
  const codec=JSON.parse(await readFile(path.join(dir,'jpeg/reference.json'))).cases[0];
  const prepared=c.stages.find(s=>s.status==='prepared'),rendered=c.stages.find(s=>s.status==='rendered');assert.ok(prepared&&rendered);
  assert.equal(prepared.rgbSha256,g.rgbF32Sha256,c.name+' RGB');assert.equal(prepared.uploadSha256,native.inputRgbaF16Sha256,c.name+' full f16+alpha');assert.equal(prepared.adjustmentSha256,frame.adjustmentSha256,c.name+' packed settings');assert.equal(rendered.rgbaSha256,frame.sha256,c.name+' complete RGBA8');
- const actual=c.sourceUi?c:c.result;assert.equal(actual.jpegSha256,codec.sha256,c.name+' JPEG');assert.equal(actual.bytes,codec.bytes);assert.deepEqual(c.dimensions,c.settings.resize.value===1024?[1024,768]:[2048,1536]);assert.deepEqual(c.density,{unit:1,x:c.settings.dpi,y:c.settings.dpi});
+ const actual=c.sourceUi?c:c.result;
+ assert.equal(actual.jpegSha256,codec.sha256,c.name+' JPEG');assert.equal(actual.bytes,codec.bytes);
+ assert.deepEqual(codec.settings,c.settings);
+ const jpeg=await readFile(path.join(dir,'jpeg',codec.file));
+ assert.deepEqual(c.dimensions,jpegDimensions(jpeg),'Independent native JPEG SOF dimensions');
+ assert.deepEqual(c.density,{unit:1,x:c.settings.dpi,y:c.settings.dpi});
  const {rgbaU8,...compact}=frame;cases.push({name:c.name,sourceUi:c.sourceUi,exposure:a.exposure,settings:c.settings,dimensions:c.dimensions,density:c.density,geometry,...g,inputRgbaF16Sha256:native.inputRgbaF16Sha256,frame:compact,codec,allFullFrameAndJpegHashesExact:true});
 }
-const result={scope:'Independent original source Exposure parser fixtures -> complete native full-image EightBit shader -> original Lanczos3 resize/JPEG/DPI. Three actual original UI exports and real gated write ACKs.',fixture:report.fixture,source:camera.source,browserWasmSha256:report.source.wasmSha256,cameraSettingsSha256:hash(await readFile(cameraPath)),cases,rgbaComponentsCompared:cases.reduce((n,c)=>n+c.width*c.height*4,0),jpegBytesCompared:cases.reduce((n,c)=>n+c.codec.bytes,0)};
+const result={scope:'Independent original source Exposure parser fixtures and full geometry -> complete native EightBit shader -> original Lanczos3 resize/JPEG quality/DPI. Actual original UI exports and real gated write ACKs.',fixture:report.fixture,source:camera.source,browserWasmSha256:report.source.wasmSha256,cameraSettingsSha256:hash(await readFile(cameraPath)),cases,rgbaComponentsCompared:cases.reduce((n,c)=>n+c.width*c.height*4,0),jpegBytesCompared:cases.reduce((n,c)=>n+c.codec.bytes,0)};
 await writeFile(path.join(output,'reference.json'),JSON.stringify(result,null,2)+'\n');console.log(JSON.stringify({cases:cases.length,rgbaComponents:result.rgbaComponentsCompared,jpegBytes:result.jpegBytesCompared,allExact:true}));

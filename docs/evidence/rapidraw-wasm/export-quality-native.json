@@ -1,0 +1,225 @@
+{
+  "scope": "Independent original source Exposure parser fixtures and full geometry -> complete native EightBit shader -> original Lanczos3 resize/JPEG quality/DPI. Actual original UI exports and real gated write ACKs.",
+  "fixture": {
+    "id": "raw.pixls.us 1327",
+    "license": "CC0-1.0",
+    "sha256": "f0d2fe47507fadf50008bddbc6bd2c5e39fddbe90cca6bca72dd360fa0e0eb38"
+  },
+  "source": "b39884b38d8f148caef6fd0d52afd264951be329",
+  "browserWasmSha256": "b4a794da6b6d9e987dafa810be9484ac6797b12484cf1e97135a105f878c9556",
+  "cameraSettingsSha256": "b36ba79b3cf82394fc3843b4a061af1312a4822712e9f4900f0d6d88fb1c5e2a",
+  "cases": [
+    {
+      "name": "quality-60-edge-1200-dontEnlarge-false",
+      "sourceUi": true,
+      "exposure": 0.8,
+      "settings": {
+        "jpegQuality": 60,
+        "dpi": 144,
+        "resize": {
+          "mode": "longEdge",
+          "value": 1200,
+          "dontEnlarge": false
+        }
+      },
+      "dimensions": [
+        1200,
+        1200
+      ],
+      "density": {
+        "unit": 1,
+        "x": 144,
+        "y": 144
+      },
+      "geometry": {
+        "orientationSteps": 0,
+        "flipHorizontal": false,
+        "flipVertical": false,
+        "rotation": 5.3,
+        "crop": {
+          "x": 318,
+          "y": 62,
+          "width": 1412,
+          "height": 1412
+        }
+      },
+      "alphaZero": 0,
+      "height": 1412,
+      "rgbF32Sha256": "d157e33e82e4b07aa13b5c99e7bf4fc30bc7f8c722a3a06c7f524a725d2eee17",
+      "rgbaF32Sha256": "32b1426e71788749e3ab7b174828b85e9169d990b8eecffa8e209804f34d6dd4",
+      "width": 1412,
+      "inputRgbaF16Sha256": "69277041ffeefd1d06d7cda01c8fb1d75b5d3dc4e0f6cdb3c05ee638e91cce11",
+      "frame": {
+        "adjustmentSha256": "985219f6d0dad0546f1a4ea1fd8006bcb7123da0b87125a8da06f3b55d15b6c6",
+        "bytes": 7974976,
+        "exposure": 0.5,
+        "png": {
+          "bitDepth": 8,
+          "bytes": 3527801,
+          "colorType": 6,
+          "dpi": 300,
+          "filename": "frame-0.png",
+          "sha256": "c91679bca0fcca718ab6204ecc047e14af27b6268812624b894ee1bfa2cf1789"
+        },
+        "sha256": "54183af00065390f923977920e6476eb0a478cd8d1538f6e3e5c547146214025"
+      },
+      "codec": {
+        "bytes": 171799,
+        "file": "case-0.jpg",
+        "settings": {
+          "dpi": 144,
+          "jpegQuality": 60,
+          "resize": {
+            "dontEnlarge": false,
+            "mode": "longEdge",
+            "value": 1200
+          }
+        },
+        "sha256": "053cbbb6111572b0fe3674e4de181601419a1cdd7f60e6cd38c85cb389f17c54"
+      },
+      "allFullFrameAndJpegHashesExact": true
+    },
+    {
+      "name": "quality-95-edge-1800-dontEnlarge-false",
+      "sourceUi": true,
+      "exposure": 0.8,
+      "settings": {
+        "jpegQuality": 95,
+        "dpi": 144,
+        "resize": {
+          "mode": "longEdge",
+          "value": 1800,
+          "dontEnlarge": false
+        }
+      },
+      "dimensions": [
+        1800,
+        1800
+      ],
+      "density": {
+        "unit": 1,
+        "x": 144,
+        "y": 144
+      },
+      "geometry": {
+        "orientationSteps": 0,
+        "flipHorizontal": false,
+        "flipVertical": false,
+        "rotation": 5.3,
+        "crop": {
+          "x": 318,
+          "y": 62,
+          "width": 1412,
+          "height": 1412
+        }
+      },
+      "alphaZero": 0,
+      "height": 1412,
+      "rgbF32Sha256": "d157e33e82e4b07aa13b5c99e7bf4fc30bc7f8c722a3a06c7f524a725d2eee17",
+      "rgbaF32Sha256": "32b1426e71788749e3ab7b174828b85e9169d990b8eecffa8e209804f34d6dd4",
+      "width": 1412,
+      "inputRgbaF16Sha256": "69277041ffeefd1d06d7cda01c8fb1d75b5d3dc4e0f6cdb3c05ee638e91cce11",
+      "frame": {
+        "adjustmentSha256": "985219f6d0dad0546f1a4ea1fd8006bcb7123da0b87125a8da06f3b55d15b6c6",
+        "bytes": 7974976,
+        "exposure": 0.5,
+        "png": {
+          "bitDepth": 8,
+          "bytes": 3527801,
+          "colorType": 6,
+          "dpi": 300,
+          "filename": "frame-0.png",
+          "sha256": "c91679bca0fcca718ab6204ecc047e14af27b6268812624b894ee1bfa2cf1789"
+        },
+        "sha256": "54183af00065390f923977920e6476eb0a478cd8d1538f6e3e5c547146214025"
+      },
+      "codec": {
+        "bytes": 1359889,
+        "file": "case-0.jpg",
+        "settings": {
+          "dpi": 144,
+          "jpegQuality": 95,
+          "resize": {
+            "dontEnlarge": false,
+            "mode": "longEdge",
+            "value": 1800
+          }
+        },
+        "sha256": "bab3c163fed333059b6c63a0bbd2a0c567f9512718f0846cbf28ad23fc1ae1ff"
+      },
+      "allFullFrameAndJpegHashesExact": true
+    },
+    {
+      "name": "quality-95-edge-1800-dontEnlarge-true",
+      "sourceUi": true,
+      "exposure": 0.8,
+      "settings": {
+        "jpegQuality": 95,
+        "dpi": 144,
+        "resize": {
+          "mode": "longEdge",
+          "value": 1800,
+          "dontEnlarge": true
+        }
+      },
+      "dimensions": [
+        1412,
+        1412
+      ],
+      "density": {
+        "unit": 1,
+        "x": 144,
+        "y": 144
+      },
+      "geometry": {
+        "orientationSteps": 0,
+        "flipHorizontal": false,
+        "flipVertical": false,
+        "rotation": 5.3,
+        "crop": {
+          "x": 318,
+          "y": 62,
+          "width": 1412,
+          "height": 1412
+        }
+      },
+      "alphaZero": 0,
+      "height": 1412,
+      "rgbF32Sha256": "d157e33e82e4b07aa13b5c99e7bf4fc30bc7f8c722a3a06c7f524a725d2eee17",
+      "rgbaF32Sha256": "32b1426e71788749e3ab7b174828b85e9169d990b8eecffa8e209804f34d6dd4",
+      "width": 1412,
+      "inputRgbaF16Sha256": "69277041ffeefd1d06d7cda01c8fb1d75b5d3dc4e0f6cdb3c05ee638e91cce11",
+      "frame": {
+        "adjustmentSha256": "985219f6d0dad0546f1a4ea1fd8006bcb7123da0b87125a8da06f3b55d15b6c6",
+        "bytes": 7974976,
+        "exposure": 0.5,
+        "png": {
+          "bitDepth": 8,
+          "bytes": 3527801,
+          "colorType": 6,
+          "dpi": 300,
+          "filename": "frame-0.png",
+          "sha256": "c91679bca0fcca718ab6204ecc047e14af27b6268812624b894ee1bfa2cf1789"
+        },
+        "sha256": "54183af00065390f923977920e6476eb0a478cd8d1538f6e3e5c547146214025"
+      },
+      "codec": {
+        "bytes": 953466,
+        "file": "case-0.jpg",
+        "settings": {
+          "dpi": 144,
+          "jpegQuality": 95,
+          "resize": {
+            "dontEnlarge": true,
+            "mode": "longEdge",
+            "value": 1800
+          }
+        },
+        "sha256": "c68fd5696da203d391353cd978cdbf689684107495ee1d134907c29c7e741614"
+      },
+      "allFullFrameAndJpegHashesExact": true
+    }
+  ],
+  "rgbaComponentsCompared": 23924928,
+  "jpegBytesCompared": 2485154
+}

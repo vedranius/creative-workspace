@@ -1,5 +1,9 @@
 # RapidRAW browser renderer host boundary
 
+## Original JPEG quality and enlargement after fine crop
+
+Actual original fine crop/Exposure and ExportPanel quality60/95, long-edge1200/1800 and Don't Enlarge now have exact native/codec and real gated OPFS ACK proof. Same1412² render precedes1200²/1800²/1412² JPEG output. Existing runtime/WASM/source pins and limits remain unchanged. [Evidence and limits](../../docs/rapidraw-wasm-export-quality-handoff.md). This is experimental verification, not full App/OS/provider or product release acceptance.
+
 ## Original Exposure → export size/DPI verification
 
 The original Basic/ExportPanel controls drive +0.8/−0.8 Exposure, long-edge1024/4096 with Don't Enlarge and72/144 DPI through full native rendering, post-render Lanczos3/JPEG and real gated OPFS ACK. Three outputs match native bytes exactly. Runtime/WASM and26 original source pins are unchanged. QA and the independent native codec example now accept bounded custom settings for this proof. [Evidence and limits](../../docs/rapidraw-wasm-export-settings-handoff.md). No OS/common-provider, full App, aggregate-memory or product-release acceptance.
