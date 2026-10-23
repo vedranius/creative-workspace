@@ -422,6 +422,18 @@
       "src/hooks/useAppInitialization.ts": "418afe949997ae248fb4f10a84ab4c52da27e8bad536c5fec95a2f4210f43e41"
     },
     "scope": "Experimental original JPEG export presets with bounded IndexedDB atomic revision/write/readback ACK. Reviewed patch delays source store/list success until ACK. No full App, OS/provider or destination permission persistence acceptance.",
-    "evidence": "docs/evidence/rapidraw-wasm/settings-persistence-browser.json"
+    "evidence": "docs/evidence/rapidraw-wasm/settings-persistence-browser.json",
+    "lastUsedPatch": {
+      "path": "patches/rapidraw/b39884b3/export-last-used-ack-v1.patch",
+      "sha256": "5fb47ff640f284d81f31b9f9709ae9aef243b4e6d07f0cae98be009c34828ee4",
+      "patchedFiles": {
+        "src/components/panel/right/ExportPanel.tsx": "3ea8fa7d8632e935dd9ece814077993d6a42d663da3c7c12492661a6e2da8bb5"
+      },
+      "nativeContract": {
+        "src-tauri/src/export_processing.rs": "1393afa5760c14822344e6a8744b9dfc1591d52716b321916e80b2b3d7d82aa0",
+        "src/hooks/useTauriListeners.ts": "55b05c8f37bf4d9ad7ec6b9db4f212d06dcbd77569dcb5d1cb63666d9c10e536"
+      },
+      "scope": "Original terminal export event gates last-used preference write; awaited settings callback failure is separate from file success, no destination path persistence."
+    }
   }
 }

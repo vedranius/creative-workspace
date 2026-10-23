@@ -12,7 +12,7 @@ const raw=await readFile(fixture);assert.equal(pin.license,'CC0-1.0');assert.equ
 const source=JSON.parse(await readFile(path.join(stage,'source-proof.json')));assert.ok(source.settingsUi);
 const meta=JSON.parse(await readFile(new URL('../experiments/rapidraw-wasm-core/UPSTREAM.json',import.meta.url)));
 assert.equal(source.nativeSource,meta.nativeApplication.commit);
-for(const [name,expected] of Object.entries({...meta.reactUi.sourceFiles,...meta.exportUi.sourceFiles,...meta.settingsUi.sourceFiles}))assert.equal(hash(await readFile(path.join(stage,name))),meta.settingsUi.sourcePatch.patchedFiles[name]??expected,name);
+for(const [name,expected] of Object.entries({...meta.reactUi.sourceFiles,...meta.exportUi.sourceFiles,...meta.settingsUi.sourceFiles}))assert.equal(hash(await readFile(path.join(stage,name))),meta.settingsUi.lastUsedPatch.patchedFiles[name]??meta.settingsUi.sourcePatch.patchedFiles[name]??expected,name);
 for(const [name,expected]of Object.entries(source.runtimeSha256)){for(const dir of ['public/engine','dist/engine'])assert.equal(hash(await readFile(path.join(stage,dir,name))),expected);assert.equal(hash(await readFile(new URL('../experiments/rapidraw-wasm-core/'+name,import.meta.url))),expected,'Reused stage differs from current runtime');}
 assert.equal(hash(await readFile(path.join(stage,'dist/engine/cw_rapidraw_wasm_probe_bg.wasm'))),source.wasmSha256);
 const assets=new Map(),types={'.html':'text/html','.js':'text/javascript','.css':'text/css','.wasm':'application/wasm','.svg':'image/svg+xml','.png':'image/png'};

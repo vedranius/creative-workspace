@@ -20,11 +20,12 @@ await writeFile(path.join(dest,'index.html'),'<!doctype html><html><head><link r
 await writeFile(path.join(dest,'vite.config.mjs'),`import {defineConfig} from 'vite';import react from '@vitejs/plugin-react';import tailwindcss from '@tailwindcss/vite';export default defineConfig({plugins:[tailwindcss(),react()],resolve:{alias:{'@tauri-apps/api/core':new URL('./core.js',import.meta.url).pathname,${exportVariant?"'@tauri-apps/api/event':new URL('./event.js',import.meta.url).pathname,'@tauri-apps/plugin-dialog':new URL('./dialog.js',import.meta.url).pathname,":''}'tauri-plugin-clerk':new URL('./unavailable-native.js',import.meta.url).pathname}},build:{target:'esnext',minify:false,rollupOptions:{external:id=>id.startsWith('/engine/')}},});`);
 const coreMeta=JSON.parse(await readFile(path.join(root,'experiments/rapidraw-wasm-core/UPSTREAM.json'),'utf8'));
 if(variant==='settings'){
- const patch=coreMeta.settingsUi.sourcePatch;
+ for(const patch of [coreMeta.settingsUi.sourcePatch,coreMeta.settingsUi.lastUsedPatch]){
  if(createHash('sha256').update(await readFile(path.join(root,patch.path))).digest('hex')!==patch.sha256)throw Error('Settings ACK patch differs');
- for(const [name,expected]of Object.entries({...coreMeta.settingsUi.sourceFiles,...coreMeta.settingsUi.nativeContract}))if(createHash('sha256').update(await readFile(path.join(upstream,name))).digest('hex')!==expected)throw Error('Native settings contract differs: '+name);
+ for(const [name,expected]of Object.entries({...coreMeta.settingsUi.sourceFiles,...coreMeta.settingsUi.nativeContract,...coreMeta.settingsUi.lastUsedPatch.nativeContract}))if(createHash('sha256').update(await readFile(path.join(upstream,name))).digest('hex')!==expected)throw Error('Native settings contract differs: '+name);
  run('git',['apply',path.join(root,patch.path)]);
  for(const [name,expected]of Object.entries(patch.patchedFiles))if(createHash('sha256').update(await readFile(path.join(dest,name))).digest('hex')!==expected)throw Error('Applied settings ACK patch differs');
+ }
  await cp(path.join(root,'experiments/rapidraw-react-proof/export-main.tsx'),path.join(dest,'export-main.tsx'));
  await cp(path.join(root,'experiments/rapidraw-react-proof/settings-main.tsx'),path.join(dest,'main.tsx'));
 }

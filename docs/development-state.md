@@ -1,3 +1,9 @@
+# RWASM-03 — last-used export preferences after file ACK (2026-10-23)
+
+The reviewed original ExportPanel now waits for its terminal Success event before saving `__last_used__`, independently awaiting settings commit/readback. Native invoke returns before the background export completes; this contract is source-pinned. Actual browser tests hold file and preference ACKs, restore saved controls after reload, retain file Success when IDB aborts, and preserve recovery/no preference write on output failure or original GPU-stage Cancel. No destination authority persists. [Evidence and continuation](rapidraw-wasm-last-used-settings-handoff.md).
+
+Host54/npm84/check pass; native/WASM/render algorithms unchanged, cached Vite only. Experimental B only: no product release, main/demo/private photo change or actual OS/common-provider/full App acceptance. Next A: exact alpha66CI/draft verification, then cell selection; non-cell highlight is done. Next B: concurrent preset/export writes and captured last-used values, then original preset file contracts. MAIN only.
+
 # RWASM-03 — original export-preset browser persistence (2026-10-23)
 
 The original settings command IDs now support bounded JPEG presets in atomic IndexedDB storage. A reviewed two-file ACK patch keeps the original store/list from updating or displaying Saved before write/readback acknowledgement. Actual source ExportPanel create/overwrite/apply/delete/reload passes, including three held readback ACKs, a real injected IndexedDB transaction abort and a stale independent host refused by compare-and-swap. Paths, chooser leases and grants do not persist. [Evidence, patch and continuation](rapidraw-wasm-settings-persistence-handoff.md).

@@ -1,0 +1,131 @@
+diff --git a/src/components/panel/right/ExportPanel.tsx b/src/components/panel/right/ExportPanel.tsx
+--- a/src/components/panel/right/ExportPanel.tsx
++++ b/src/components/panel/right/ExportPanel.tsx
+@@ -40,7 +40,7 @@
+   selectedImage: SelectedImage | null;
+   setExportState(state: any): void;
+   appSettings: AppSettings | null;
+-  onSettingsChange: (settings: AppSettings) => void;
++  onSettingsChange: (settings: AppSettings) => void | Promise<void>;
+   rootPaths: string[];
+   isVisible?: boolean;
+   onClose?: () => void;
+@@ -342,22 +342,24 @@
+     }
+   }, [appSettings, handleApplyPreset, isVisible]);
+ 
++  const [preferenceStatus, setPreferenceStatus] = useState<'idle' | 'saving' | 'failed'>('idle');
++  const pendingLastUsed = useRef<Omit<ExportPreset, 'id' | 'name'> | null>(null);
++  const preferenceWritePending = useRef(false);
++  const latestSettings = useRef(appSettings);
++  latestSettings.current = appSettings;
++
+   const saveLastUsedPreset = useCallback(
+-    (exportPath: string) => {
+-      if (!appSettings) return;
+-      const lastUsedPreset: ExportPreset = {
+-        ...currentSettingsObject,
+-        id: '__last_used__',
+-        name: '__last_used__',
+-        lastExportPath: exportPath,
+-      };
++    async (snapshot: Omit<ExportPreset, 'id' | 'name'>) => {
++      const settings = latestSettings.current;
++      if (!settings) return;
++      const lastUsedPreset: ExportPreset = { ...snapshot, id: '__last_used__', name: '__last_used__' };
+       const updatedPresets = [
+-        ...(appSettings.exportPresets ?? []).filter((p) => p.id !== '__last_used__'),
++        ...(settings.exportPresets ?? []).filter((p) => p.id !== '__last_used__'),
+         lastUsedPreset,
+       ];
+-      onSettingsChange({ ...appSettings, exportPresets: updatedPresets });
++      await onSettingsChange({ ...settings, exportPresets: updatedPresets });
+     },
+-    [appSettings, currentSettingsObject, onSettingsChange],
++    [onSettingsChange],
+   );
+ 
+   const padRatioWidthField = useParsedTextField(padRatioWidth, setPadRatioWidth, parseRatio);
+@@ -404,6 +406,25 @@
+   const { status, progress, errorMessage } = exportState;
+   const isExporting = [Status.Exporting, Status.Cancelling].includes(status);
+   const isCancelling = status === Status.Cancelling;
++
++  // The native invoke starts a background job. Only the original terminal event
++  // (reflected in status) confirms completion; browser success also requires file readback ACK.
++  useEffect(() => {
++    if (status === Status.Error || status === Status.Cancelled) {
++      pendingLastUsed.current = null;
++      return;
++    }
++    if (status !== Status.Success || !pendingLastUsed.current) return;
++    const snapshot = pendingLastUsed.current;
++    pendingLastUsed.current = null;
++    preferenceWritePending.current = true;
++    setPreferenceStatus('saving');
++    void saveLastUsedPreset(snapshot).then(
++      () => { preferenceWritePending.current = false; setPreferenceStatus('idle'); },
++      () => { preferenceWritePending.current = false; setPreferenceStatus('failed'); },
++    );
++  }, [status, saveLastUsedPreset]);
++
+   const isLibraryContext = !!onClose;
+ 
+   const pathsToExport = useMemo(() => {
+@@ -592,7 +613,7 @@
+   };
+ 
+   const handleExport = async () => {
+-    if (numImages === 0 || isExporting) return;
++    if (numImages === 0 || isExporting || preferenceWritePending.current) return;
+ 
+     const exportSettings: ExportSettings = {
+       filenameTemplate,
+@@ -662,19 +683,8 @@
+       }
+ 
+       if (isAndroid || outputFolderOrFile) {
+-        if (!isAndroid) {
+-          if (isOriginalFolder) {
+-            saveLastUsedPreset(lastExportPath || '');
+-          } else {
+-            const dir = shouldChooseOutputFile
+-              ? outputFolderOrFile.substring(
+-                  0,
+-                  Math.max(outputFolderOrFile.lastIndexOf('/'), outputFolderOrFile.lastIndexOf('\\')),
+-                )
+-              : outputFolderOrFile;
+-            if (dir) saveLastUsedPreset(dir);
+-          }
+-        }
++        // Capture the exported settings; paths and destination authority stay ephemeral.
++        pendingLastUsed.current = { ...currentSettingsObject };
+ 
+         setExportState({ status: Status.Exporting, progress: { current: 0, total: numImages }, errorMessage: '' });
+         await invoke(Invokes.ExportImages, {
+@@ -689,6 +699,7 @@
+         });
+       }
+     } catch (error) {
++      pendingLastUsed.current = null;
+       setExportState({
+         errorMessage: typeof error === 'string' ? error : t('export.status.failed'),
+         progress,
+@@ -721,6 +732,8 @@
+       <div className="p-3 flex justify-between items-center shrink-0 border-b border-surface">
+         <Text variant={TextVariants.title}>{t('export.title')}</Text>
+       </div>
++      {preferenceStatus === 'saving' && <div role="status">Saving last-used settings…</div>}
++      {preferenceStatus === 'failed' && <div role="alert">File saved. Last-used settings were not saved. Reload settings before trying again.</div>}
+       <div className="grow overflow-y-auto p-3 space-y-8">
+         {canExport ? (
+           <>
+@@ -1198,7 +1211,7 @@
+                         ? 'bg-yellow-500/20 text-yellow-400 shadow-none'
+                         : ''
+             }`}
+-            disabled={isCancelling || (status !== Status.Exporting && !canExport)}
++            disabled={preferenceStatus === 'saving' || isCancelling || (status !== Status.Exporting && !canExport)}
+             onClick={status === Status.Exporting ? handleCancel : handleExport}
+             size="lg"
+           >

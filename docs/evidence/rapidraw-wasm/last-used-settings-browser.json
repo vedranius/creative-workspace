@@ -1,0 +1,270 @@
+{
+  "scope": "Experimental original ExportPanel terminal-event last-used callback, separate file and settings write/readback ACK. Real public RAW exports and OPFS/IDB faults; synthetic chooser, no actual OS/common-provider or new native rendering claim.",
+  "fixture": {
+    "id": "raw.pixls.us 1327",
+    "license": "CC0-1.0",
+    "sha256": "f0d2fe47507fadf50008bddbc6bd2c5e39fddbe90cca6bca72dd360fa0e0eb38"
+  },
+  "source": {
+    "nativeSource": "b39884b38d8f148caef6fd0d52afd264951be329",
+    "settingsUi": {
+      "sourceFiles": {
+        "src/store/useSettingsStore.ts": "9e5b295cfea558565bc9b55be918c5f71ef4469d8a9de2b8d7fac80fc37468e2",
+        "src/components/ui/ExportPresetsList.tsx": "7603df14bae4835b27c135c1d5dbc41de988621c8599291d97c6fe9440c4bf60"
+      },
+      "sourcePatch": {
+        "path": "patches/rapidraw/b39884b3/settings-ack-v1.patch",
+        "sha256": "2c660a2d5fb8ce98579a0abb8d35b5612734771628a390a48b1c18ee3381a43e",
+        "patchedFiles": {
+          "src/store/useSettingsStore.ts": "b3a0586ff034ae827e1317817b4852a28247991bbf87375b9ce4cc68af0ebd9e",
+          "src/components/ui/ExportPresetsList.tsx": "5bf0d16e24eff2ad5c4d2a1cd969ceb9be5d73e311a2c358337b289effdf5147"
+        }
+      },
+      "nativeContract": {
+        "src-tauri/src/app_settings.rs": "3aa6b50e35500c484f1f360859947c7fbb38af98bc8498c0a979e234fd15c617",
+        "src/components/ui/AppProperties.tsx": "0466b4bb7f9ea3474a65ef4a4f7ee08c4409d3f85ecd1dd2db7db028c96699f9",
+        "src/hooks/useAppInitialization.ts": "418afe949997ae248fb4f10a84ab4c52da27e8bad536c5fec95a2f4210f43e41"
+      },
+      "scope": "Experimental original JPEG export presets with bounded IndexedDB atomic revision/write/readback ACK. Reviewed patch delays source store/list success until ACK. No full App, OS/provider or destination permission persistence acceptance.",
+      "evidence": "docs/evidence/rapidraw-wasm/settings-persistence-browser.json",
+      "lastUsedPatch": {
+        "path": "patches/rapidraw/b39884b3/export-last-used-ack-v1.patch",
+        "sha256": "5fb47ff640f284d81f31b9f9709ae9aef243b4e6d07f0cae98be009c34828ee4",
+        "patchedFiles": {
+          "src/components/panel/right/ExportPanel.tsx": "3ea8fa7d8632e935dd9ece814077993d6a42d663da3c7c12492661a6e2da8bb5"
+        },
+        "nativeContract": {
+          "src-tauri/src/export_processing.rs": "1393afa5760c14822344e6a8744b9dfc1591d52716b321916e80b2b3d7d82aa0",
+          "src/hooks/useTauriListeners.ts": "55b05c8f37bf4d9ad7ec6b9db4f212d06dcbd77569dcb5d1cb63666d9c10e536"
+        },
+        "scope": "Original terminal export event gates last-used preference write; awaited settings callback failure is separate from file success, no destination path persistence."
+      }
+    },
+    "exportUi": {
+      "sourceFiles": {
+        "src/components/panel/right/ExportPanel.tsx": "1d13c90a253049ff62872a7f99d7f694ccb25416c4bacf957b0f5b77a4d94871",
+        "src/hooks/useExportSettings.ts": "a60c75f51f4256f87b1a71770570c936cdd341c114882c2aec0259ce104b0bf2",
+        "src/hooks/useTauriListeners.ts": "55b05c8f37bf4d9ad7ec6b9db4f212d06dcbd77569dcb5d1cb63666d9c10e536",
+        "src/store/useProcessStore.ts": "7a6e0efbc29cfc23fcf6fff7aacbc9f65808d5334456552a9e2408a943ee3976",
+        "src/components/ui/ExportImportProperties.tsx": "35ec717f0f46e37c9dcede2f12b32cca133d366833f49b2343fdd1c3aea845b3",
+        "src/components/ui/AppProperties.tsx": "0466b4bb7f9ea3474a65ef4a4f7ee08c4409d3f85ecd1dd2db7db028c96699f9",
+        "src/components/ui/ExportPresetsList.tsx": "7603df14bae4835b27c135c1d5dbc41de988621c8599291d97c6fe9440c4bf60",
+        "src/hooks/useOsPlatform.ts": "4037e7dc75d3a322f15f00e5536413293f07c262d5e0b0bb03ed7eddedb563a4",
+        "src/store/useUIStore.ts": "5a1d4efa54e4f5e276a1c44d5bf708c3e4c5b1236c2a97712326880575681e01"
+      },
+      "scope": "Unchanged source single JPEG ExportPanel and active Export tab, Basic Exposure, CropPanel fine-angle/aspect preset, JPEG quality60/95, long-edge resize/dontEnlarge/explicit enlargement and DPI controls, settings/listeners/process store in isolated QA composition. OS/common providers, metadata/effects/warp/multi-file/larger export remain unaccepted.",
+      "evidence": "docs/evidence/rapidraw-wasm/export-quality-browser.json",
+      "transportSha256": "fb08f85a279ffe2809da2e17d591045e9976870bc51008e6535f1bbf30b1b1fa"
+    },
+    "license": "AGPL-3.0-only",
+    "sourceFiles": {
+      "src/hooks/useImageLoader.ts": "6e8cbf9c08b8b09438193e345d22bc000a086a1fd6424a2dfe928ad8f21bed30",
+      "src/hooks/useImageProcessing.ts": "f0070afca39a04690ded76badd78f069c7ee046a7f3cdc8c3d4b7bad40d9b2bb",
+      "src/hooks/useEditorActions.ts": "8de8bfb9f0dcb0a485cb9dd4476ed1ae56c21803a82c4b62023f29c5d6da422d",
+      "src/components/panel/Editor.tsx": "291466d31de13e1507b77116ef3cda219c89eb3f58039b534f1ef9a5414c8298",
+      "src/components/panel/editor/ImageCanvas.tsx": "51d1da343826f5dc957369ee4448c2f3a72423894640bd5dd6a2c14ee5c29381",
+      "src/components/adjustments/Basic.tsx": "a7d524dd383eccd483923f2d3678e3387494ce481191363967b94fa4c5ef37a6",
+      "src/components/ui/Slider.tsx": "13752203a8631fb6080b0092248f2c01e1f8e2624a81a927dc7e12376ea586b8",
+      "src/store/useEditorStore.ts": "86fdf855fab86fe2f6ef1fe8aa06b7484fb6e540cea09267208e776ee11c6742",
+      "src/utils/defaultAdjustments.json": "d650db51fe618e3522767832edf911ea8b6da68d61c2db54912193c64d2332bc",
+      "package-lock.json": "4e612a5639e68871d9fc6f8e92286eaa61d6c100d3e91154cfeef2d23f569811",
+      "src/utils/themes.ts": "e05a091ad0c7a2b05f7bb29232de026d38bd6af4e5d113dedaaa01cc12f87884",
+      "src/hooks/useAppInitialization.ts": "418afe949997ae248fb4f10a84ab4c52da27e8bad536c5fec95a2f4210f43e41",
+      "src/components/panel/right/CropPanel.tsx": "7543bd1a89fbb0fc27c98e31939f33f2781ca534fbfec9a1a3670d42f584376a",
+      "src/context/ContextMenuContext.tsx": "0aba3ced9cfe5daebf7d5683fa0e6b1b784f7f8fef7092629548a80b31ba31a6",
+      "src/utils/cropUtils.ts": "f8db8c6fcf86a6d44c25b5f72233d40f4d5df2a0733d346b76ea6836c6fd24d1",
+      "src/components/panel/PanelSwitcher.tsx": "37e260cbb8bda71c8f3e960cdde887a5a349510e444220fe19e95c45c5978413",
+      "src/App.tsx": "a68247133c1796b6b29b7772f2a3efe2dab4ca3ea4faef860cd9d1877f9abdf2"
+    },
+    "runtimeSha256": {
+      "react-image-worker.js": "27a965244e01385c8c34d7baeba0aee7e1864ef069e250f5c7f90be2d7d9570b",
+      "react-transport.js": "fb08f85a279ffe2809da2e17d591045e9976870bc51008e6535f1bbf30b1b1fa",
+      "settings-storage.js": "ddd2d9751885ec4a7cc5f6ab7b694863f8b584a4bb78cf88a34115b3c544931c",
+      "export-destination.js": "912d336d914f2ac9ce5214215068770c0631213ae4be01c26cddf7e0b9a67d81",
+      "export-bridge.js": "6cf6873f7641b30b6915b05e8a320b1639f0d9edecace7072ab2b43b0e0cd3bb",
+      "export-client.js": "647c7538c6ab460d64eb246abc0ac7549ab32f7daf9424749617b61734cf2e34",
+      "export-worker.js": "a2c4d938f2b9eaa1b632edd0c435bd2160c68b88cb094f9f68e3b6c8b77fed0a"
+    },
+    "wasmSha256": "b4a794da6b6d9e987dafa810be9484ac6797b12484cf1e97135a105f878c9556",
+    "qualityTimerCompatibility": {
+      "schemaVersion": 1,
+      "decoderSource": "a32bc1ff1f4f3c56d4d3226082f6eb17414f9159",
+      "patch": {
+        "path": "patches/rapidraw-rawler/a32bc1ff/ppg-wasm-profiling.patch",
+        "sha256": "d80f45df13380ea0dfa0554565c633116e8ad726b2096b8c0b9a602259497f95",
+        "file": "rawler/src/imgop/sensor/bayer/ppg.rs",
+        "beforeSha256": "9320de465bbef900e00fe794627e7c5e652f2415205c0b39f89837934e031f6c",
+        "afterSha256": "02fc66b032a6bb98f8ed5c03a261e119de17739cb8a72fffcc5c395334d91e4d",
+        "scope": "Only wasm32 profiling timer/debug log cfgs; all PPG pixel arithmetic unchanged; native timing retained",
+        "license": "LGPL-2.1"
+      },
+      "scope": "Isolated timer-patched rawler plus source-equivalent probe; only wasm32 profiling is removed, native behavior and interpolation preserved"
+    },
+    "previewResize": {
+      "source": "src-tauri/src/image_processing.rs::downscale_f32_image",
+      "sourceFileSha256": "5e16c6d88c30e5728534bb67be47e79c44b96d524f90973a611c2c2e8adb3a19",
+      "functionSha256": "79028a5f33e259fb7bdcae97ae7bece8b8f2c55c100bbac930b7243c1f944e3f",
+      "referenceSha256": "bbefb75cfb347af08232b4a99c6f7456e33d582a5927222e9e50bc9509e589a1",
+      "dimensionSource": "src-tauri/src/lib.rs::compute_transformed_preview",
+      "dimensionFileSha256": "ce69ae5e06b5c5f0eb7b6592d981c727c1be07e7787000a41e50ed77618b2606",
+      "adaptation": "Only non-wasm32 cfg on profiling Instant/log; area weights/order/math unchanged. Neutral geometry only; orientation already applied by development; no crop/rotation/patch/effects support."
+    },
+    "interactivePreview": {
+      "source": "src-tauri/src/lib.rs::process_preview_job",
+      "selectionSha256": "98499fbe2c273dd17190165354b5f44d853764da25541fdababcb3d0de215805",
+      "smallSizeSha256": "b85c25252f83e473e00cec10b6b9926194e79296600ff12768f34275104bf682",
+      "referenceSha256": "e859fdab34c2d3fe9c3496846a96b975bfbae89afcb8d1092d270382792b465c",
+      "scope": "Original no-ROI live quality/divisor, two-stage original area filter and interactive envelope. ROI selector values retained as reference only; ROI rendering unsupported."
+    },
+    "orientationFlip": {
+      "source": [
+        "src-tauri/src/image_processing.rs::IntoCowImage/apply_coarse_rotation/apply_flip",
+        "src-tauri/src/adjustment_utils.rs::apply_orientation_and_flip"
+      ],
+      "referenceSha256": "d050ac33be33f3d36859c1466b42c233f985775c6577187860e5cdbe53ad98b1",
+      "sourceFileSha256": "5e16c6d88c30e5728534bb67be47e79c44b96d524f90973a611c2c2e8adb3a19",
+      "adjustmentUtilsSha256": "1638c4239f50c3dec6701e2837d70152d134e351dfa9b3077fe4099e31998674",
+      "scope": "Original rotation then flips after original area preview; only orientationSteps0..3 and bool flips. Crop/fine rotation/warp unsupported."
+    },
+    "cropPreview": {
+      "source": "CyberTimon/RapidRAW",
+      "commit": "b39884b38d8f148caef6fd0d52afd264951be329",
+      "imageProcessingSha256": "5e16c6d88c30e5728534bb67be47e79c44b96d524f90973a611c2c2e8adb3a19",
+      "libSha256": "ce69ae5e06b5c5f0eb7b6592d981c727c1be07e7787000a41e50ed77618b2606",
+      "applyCropSha256": "3b90c83f5438cac692beaf46e5410231f4614439b10f47da43ddb18238482913",
+      "referenceSha256": "64c1db8195b7054e7204d694ef1083bc4867689b1b27b8ba8d7434d4b715d255",
+      "scope": "Integer full-image crop, source crop-specific area working size then orientation/flip/crop. Fine rotation/warp/effects/ROI remain unsupported.",
+      "pipelineReferenceSha256": "95d47d2beb1f23663096eba0afcfaba3ec57c2e7828f437ce215b812fa8211ce"
+    },
+    "uncroppedPreview": {
+      "source": "CyberTimon/RapidRAW",
+      "commit": "b39884b38d8f148caef6fd0d52afd264951be329",
+      "libSha256": "ce69ae5e06b5c5f0eb7b6592d981c727c1be07e7787000a41e50ed77618b2606",
+      "codecReferenceSha256": "25d4484d315941852ec84b1b09f7d62ed2d10eaa6e75f6701957f4c75f1eb0af",
+      "scope": "Direct square area resize before orientation/flips, pre-orientation f32 scale, crop offset0/show_clipping0, source q80 encode_rgb with default color conversion and JPEG data URL.",
+      "layoutSensorSource": "App.tsx layoutSensors: PointerSensor activationConstraint distance5"
+    },
+    "fineRotation": {
+      "source": "src-tauri/src/image_processing.rs",
+      "sourceSha256": "5e16c6d88c30e5728534bb67be47e79c44b96d524f90973a611c2c2e8adb3a19",
+      "function": "apply_rotation",
+      "functionSha256": "b075c699203eba78b2121229e4a7809911797709620ef5ca024a6e70998b7a88",
+      "referenceCopy": "tests/reference/rotation.rs",
+      "referenceSha256": "f705015bf638b7d77a21ef0fcf9b73285a33a2a1092f375b66a5e1b8d05d65c3",
+      "imageproc": "0.27.0",
+      "scope": "Original fixed-canvas RGBA32f bilinear center rotation, transparent black border; bounded -45..45 angle and per-buffer64MiB estimate. Source orientation/flip→rotation→crop after working resize; uncropped source intentionally omits fine rotation. Not whole allocator/peak-memory/warp/effects/export acceptance. Alpha is preserved through source f16 GPU upload and original shader output. Nonzero fine rotation with interactive sizing remains explicitly unavailable until independently verified."
+    },
+    "fineInteractive": {
+      "sourcePath": "src-tauri/src/lib.rs",
+      "sourceSha256": "ce69ae5e06b5c5f0eb7b6592d981c727c1be07e7787000a41e50ed77618b2606",
+      "referenceCopy": "tests/reference/fine-interactive-assembly.txt",
+      "excerptSha256": "b10aec3e38ca4e859af2f9956cc1fec87c864a4c2a104bae8722fdc418adeedd",
+      "scope": "Pinned no-ROI processing-image selection/effective scale after fine rotation; original downscale converts resized RGBA to RGB, no-op preserves RGBA. Full/high/performance only, no allocator/peak-memory claim."
+    },
+    "scope": "Experimental original JPEG export presets with bounded IndexedDB atomic revision/write/readback ACK. Reviewed patch delays source store/list success until ACK. No full App, OS/provider or destination permission persistence acceptance."
+  },
+  "fileAckGate": {
+    "noEarlySuccess": true,
+    "noEarlyPreferenceCommit": true
+  },
+  "preferenceAckGate": {
+    "fileAlreadySucceeded": true,
+    "noEarlyStoreUpdate": true,
+    "storedRevision": 1,
+    "uiRevision": 0
+  },
+  "firstOutput": {
+    "bytes": 27610,
+    "sha256": "9c9d3e159032939751177f4fa8d267a08485c453382cef452d9d0848663e6fae",
+    "dimensions": [
+      512,
+      384
+    ]
+  },
+  "firstPreset": {
+    "fileFormat": "jpeg",
+    "jpegQuality": 60,
+    "tiffBitDepth": 16,
+    "dpi": 144,
+    "enableResize": true,
+    "resizeMode": "longEdge",
+    "resizeValue": 512,
+    "dontEnlarge": true,
+    "enablePad": false,
+    "padRatioWidth": 1,
+    "padRatioHeight": 1,
+    "padColor": "#ffffff",
+    "enableBorder": false,
+    "borderBasis": "longEdge",
+    "borderHorizontalPercent": 2,
+    "borderVerticalPercent": 2,
+    "borderColor": "#ffffff",
+    "keepMetadata": false,
+    "preserveTimestamps": false,
+    "stripGps": true,
+    "exportMasks": false,
+    "preserveFolders": false,
+    "filenameTemplate": "{original_filename}_edited",
+    "enableWatermark": false,
+    "watermarkPath": null,
+    "watermarkAnchor": "bottomRight",
+    "watermarkScale": 10,
+    "watermarkSpacing": 5,
+    "watermarkOpacity": 75,
+    "destinationType": "customFolder",
+    "subfolder": "",
+    "id": "__last_used__",
+    "name": "__last_used__"
+  },
+  "reload": {
+    "settingsApplied": true,
+    "documentRestored": false,
+    "freshChoiceRequired": true
+  },
+  "failedPreference": {
+    "fileStatus": "success",
+    "filePreserved": true,
+    "priorQuality": 60,
+    "revision": 1,
+    "uncertain": true,
+    "noUnhandledRejection": true,
+    "noAutomaticRetry": true
+  },
+  "secondOutput": {
+    "bytes": 94222,
+    "sha256": "fbb978fc988eee41398eda62daeed55cd09be432de32c856a1d7bcf2f006170f",
+    "dimensions": [
+      512,
+      384
+    ]
+  },
+  "failedFile": {
+    "fileStatus": "error",
+    "emptyTarget": true,
+    "noPreferenceWrite": true,
+    "recoveryPreserved": true
+  },
+  "cancelledChoice": {
+    "noPreferenceWrite": true,
+    "noNewFile": true
+  },
+  "cancelledJob": {
+    "originalCancelButton": true,
+    "afterGpuSubmission": true,
+    "noPreferenceWrite": true,
+    "emptyTarget": true,
+    "priorRecoveryPreserved": true
+  },
+  "noDestinationAuthorityPersisted": true,
+  "pageErrors": [],
+  "failedRequests": [],
+  "externalRequests": [],
+  "expectedConsoleErrors": [
+    "Failed to save settings: Browser settings write was not acknowledged"
+  ],
+  "knownUnavailable": [
+    "get_lensfun_makers",
+    "get_lensfun_makers",
+    "get_lensfun_makers"
+  ]
+}
