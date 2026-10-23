@@ -1,3 +1,11 @@
+# PAR-03 alpha.66 — original native text range verified (2026-10-23)
+
+The owned engine now renders original non-cell range highlights into its selected-page PNG: black compose quads and inverted glyph colors. Gateway validation binds bounded metadata to the exact canonical range/story/frame/page before ACK. Actual original Ctrl+A holds prior revision/caret until ACK12; right-facing-page screenshot/native pixels, sibling clipping and byte-identical unselected PNG restoration ACK15 pass. Canonical document/printing data remain unchanged. Native6/JS90/check and native open/edit/save/reopen pass. [Evidence, screenshot and reproducer](evidence/designcraft-native-text-selection.md).
+
+The original frontend is unchanged; local QA reused the alpha.65 WASM after proving only the owned native package/lock dependency list changed in the reviewed patch. The native worker was rebuilt with the shared low-impact lock. Alpha.66 is a prototype draft candidate pending Actions and downloadable asset verification, with no local release assets. Earlier publication403 is not bypassed. DesignCraft remains planned; cells, remaining tools, real folder permissions, provider/OS/all13 acceptance remain open.
+
+Next independent B in this SAME MAIN chat from9797251: original ExportPanel `__last_used__` preference callback/error handling after actual JPEG file-write ACK. Keep preference ACK separate from file-write ACK and paths/grants ephemeral. Existing preset persistence is already proved. Next A: check exact alpha.66 CI once; verify immutable draft assets only if published, then original cell-selection behavior. No new writer/chat; preserve live studios, FilmCraft, private photographs and public demo.
+
 # PAR-03 alpha.65 — original visible native caret verified (2026-10-23)
 
 The owned engine now composes non-cell caret endpoints using original typography and text/ancestor transforms. The original UI validates canonical story/frame/page and hydrates the geometry with matching PNG/selection ACK, drawing its original blinking black line through the selected-page display. Ranges/cells remain open. [Evidence and screenshot](evidence/designcraft-native-caret.md).

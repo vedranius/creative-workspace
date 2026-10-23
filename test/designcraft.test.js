@@ -135,6 +135,17 @@ test('Server caret geometry is bounded, selection-bound and rejected before page
   await design.close(session.id,{discard:true});
 });
 
+test('Native inverse-selection metadata binds page/range/frames and bounds before view ACK',async t=>{
+  const {project,design,engines,call}=await fixture(t),session=await design.create(project);await call(session.id,'file.new',{preset:'A4'});await call(session.id,'layout.pages.insert',{after:0,count:1},{expectedVersion:1});
+  const worker=engines.find(engine=>!engine.closed),original=worker.call.bind(worker);worker.doc.selection.text={story:9,anchor:0,focus:6};worker.doc.spreads[0].items=[{id:6,children:[{id:7,story:9}]}];
+  const valid={page:1,story:9,anchor:0,focus:6,quadCount:2,glyphCount:6,frames:[7],bounds:[40,80,140,112]};let selection=valid;
+  worker.call=async(method,p)=>{const result=await original(method,p);return method==='render'?{...result,textSelection:selection}:result;};
+  for(const bad of [{...valid,page:0},{...valid,anchor:1},{...valid,story:10},{...valid,frames:[8]},{...valid,frames:[7,7]},{...valid,bounds:[0,0,801,100]},{...valid,bounds:[0,0,1.1,10]},{...valid,quadCount:4097},{...valid,glyphCount:32769},{...valid,path:'/private'}]){selection=bad;await assert.rejects(call(session.id,'page.select',{index:1},{expectedVersion:2}),/text selection geometry/);}
+  selection=null;const before=await call(session.id,'state');assert.equal(before.stateVersion,2);assert.equal(before.page,0);
+  selection=valid;const selected=await call(session.id,'page.select',{index:1},{expectedVersion:2});assert.deepEqual(selected.textSelection,valid);assert.equal(selected.stateVersion,3);assert.equal(selected.caret,null);
+  await design.close(session.id,{discard:true});
+});
+
 test('Original Delete Page command preserves its engine ID and rejects invalid or final-page deletions before worker mutation',async t=>{
   const {project,design,engines,call}=await fixture(t),session=await design.create(project);await call(session.id,'file.new',{preset:'A4'});await call(session.id,'layout.pages.duplicateSpread',{spread:0},{expectedVersion:1});
   const worker=engines.find(engine=>!engine.closed),deleted=await call(session.id,'layout.pages.delete',{pages:[1]},{expectedVersion:2});

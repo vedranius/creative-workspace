@@ -1,8 +1,8 @@
 diff --git a/Cargo.lock b/Cargo.lock
-index 9473c974a1ffbded2d1db4455b7e44f2a1841034..1d46ef670b6654fa5d3655f525d8c11160bc1b3b 100644
+index 9473c974a1ffbded2d1db4455b7e44f2a1841034..b3ee33c3af049d6d67c1ecb054bdd9685e8a3f25 100644
 --- a/Cargo.lock
 +++ b/Cargo.lock
-@@ -851,6 +851,21 @@ version = "1.2.0"
+@@ -851,6 +851,23 @@ version = "1.2.0"
  source = "registry+https://github.com/rust-lang/crates.io-index"
  checksum = "f27ae1dd37df86211c42e150270f82743308803d90a6f6e6651cd730d5e1732f"
  
@@ -13,9 +13,11 @@ index 9473c974a1ffbded2d1db4455b7e44f2a1841034..1d46ef670b6654fa5d3655f525d8c111
 + "designcraft-compose",
 + "designcraft-doc",
 + "designcraft-engine",
++ "designcraft-fonts",
 + "designcraft-format",
 + "designcraft-geom",
 + "designcraft-mcp",
++ "designcraft-render",
 + "image",
 + "serde_json",
 + "zip",
@@ -24,7 +26,7 @@ index 9473c974a1ffbded2d1db4455b7e44f2a1841034..1d46ef670b6654fa5d3655f525d8c111
  [[package]]
  name = "data-url"
  version = "0.3.2"
-@@ -1153,6 +1168,7 @@ dependencies = [
+@@ -1153,6 +1170,7 @@ dependencies = [
   "eframe",
   "egui",
   "form_urlencoded",
@@ -34,10 +36,10 @@ index 9473c974a1ffbded2d1db4455b7e44f2a1841034..1d46ef670b6654fa5d3655f525d8c111
   "rfd",
 diff --git a/apps/cw-designcraft-engine/Cargo.toml b/apps/cw-designcraft-engine/Cargo.toml
 new file mode 100644
-index 0000000000000000000000000000000000000000..c144040b6d290a7e467585ab137cf7e161b99ccd
+index 0000000000000000000000000000000000000000..781269bea303466ec799dde860f3e18d984551c5
 --- /dev/null
 +++ b/apps/cw-designcraft-engine/Cargo.toml
-@@ -0,0 +1,19 @@
+@@ -0,0 +1,21 @@
 +[package]
 +name = "cw-designcraft-engine"
 +version = "0.1.0"
@@ -53,19 +55,22 @@ index 0000000000000000000000000000000000000000..c144040b6d290a7e467585ab137cf7e1
 +designcraft-compose = { workspace = true }
 +designcraft-geom = { workspace = true }
 +designcraft-doc = { workspace = true }
++designcraft-fonts = { workspace = true }
++designcraft-render = { workspace = true }
 +designcraft-format = { workspace = true }
 +serde_json = { workspace = true }
 +zip = { workspace = true }
 +image = { workspace = true }
 diff --git a/apps/cw-designcraft-engine/src/main.rs b/apps/cw-designcraft-engine/src/main.rs
 new file mode 100644
-index 0000000000000000000000000000000000000000..6229feb3dd2afd139264213e2eb66a5f13920588
+index 0000000000000000000000000000000000000000..ae06660c316108f7a58bfe77e01ec06ef1877e56
 --- /dev/null
 +++ b/apps/cw-designcraft-engine/src/main.rs
-@@ -0,0 +1,400 @@
+@@ -0,0 +1,425 @@
 +// Contributor-original MIT OR Apache-2.0 adapter. No desktop/MCP server.
 +#![forbid(unsafe_code)]
 +#![deny(clippy::unwrap_used, clippy::expect_used, clippy::panic, clippy::todo)]
++mod text_selection;
 +use designcraft_doc::{Content, Document, Item};
 +use designcraft_engine::DocState;
 +use designcraft_mcp::{Backend, Headless};
@@ -133,6 +138,29 @@ index 0000000000000000000000000000000000000000..6229feb3dd2afd139264213e2eb66a5f
 +#[cfg(test)]
 +mod tests {
 +    use super::*;
++    #[test]
++    fn original_range_inversion_is_transient_and_clipped_to_facing_page() -> Result<(), Box<dyn std::error::Error>> {
++        let mut h = Headless::new();let mut saved = None;let root = std::env::temp_dir();
++        h.call("engine.execute",json!({"command":"file.new","params":{"pages":3,"facingPages":true}}))?;
++        let page_x=h.session.active().and_then(|st|st.doc.page(2)).ok_or("Missing page")?.bounds().x0;
++        let created=h.call("engine.execute",json!({"command":"frame.create","params":{"spread":1,"rect":[page_x+40.0,80.0,page_x+300.0,180.0],"content":"text","text":"RAW selection\nSecond line","caret":false}}))?;
++        let before=h.call("ui.render",json!({"page":2,"scale":1.0}))?;
++        let doc=h.session.active().ok_or("No document")?.doc.clone();
++        h.call("engine.execute",json!({"command":"text.select","params":{"story":created["story"],"anchor":0,"focus":25}}))?;
++        let selected=answer(&mut h,&mut saved,&root,&root,&json!({"method":"render","params":{"page":2}}))?;
++        assert_eq!(selected["textSelection"]["page"],2);
++        assert!(selected["textSelection"]["quadCount"].as_u64().ok_or("Missing quads")? >= 2);
++        assert!(selected["textSelection"]["bounds"][0].as_u64().ok_or("Missing bounds")? < 100);
++        assert_ne!(selected["pngBase64"],before["pngBase64"]);
++        assert_eq!(h.call("ui.render",json!({"page":2,"scale":1.0}))?["pngBase64"],before["pngBase64"]);
++        assert!(Arc::ptr_eq(&doc,&h.session.active().ok_or("No document")?.doc));
++        let sibling=answer(&mut h,&mut saved,&root,&root,&json!({"method":"render","params":{"page":1}}))?;
++        assert!(sibling["textSelection"].is_null());
++        h.call("engine.execute",json!({"command":"text.select","params":{"story":created["story"],"anchor":0,"focus":0}}))?;
++        let restored=answer(&mut h,&mut saved,&root,&root,&json!({"method":"render","params":{"page":2}}))?;
++        assert!(restored["textSelection"].is_null());assert_eq!(restored["pngBase64"],before["pngBase64"]);
++        Ok(())
++    }
 +    #[test]
 +    fn caret_is_composed_on_its_selected_facing_page() -> Result<(), Box<dyn std::error::Error>> {
 +        let mut h = Headless::new();
@@ -377,6 +405,7 @@ index 0000000000000000000000000000000000000000..6229feb3dd2afd139264213e2eb66a5f
 +            let caret = caret_geometry(h, index);
 +            let mut frame = h.call("ui.render", json!({"page":index,"scale":scale}))?;
 +            frame["caret"] = caret.unwrap_or(Value::Null);
++            text_selection::apply(h,index,scale,&mut frame)?;
 +            Ok(frame)
 +        }
 +        "export" => {
@@ -461,6 +490,121 @@ index 0000000000000000000000000000000000000000..6229feb3dd2afd139264213e2eb66a5f
 +        output.write_all(b"\n")?;
 +        output.flush()?;
 +    }
++    Ok(())
++}
+diff --git a/apps/cw-designcraft-engine/src/text_selection.rs b/apps/cw-designcraft-engine/src/text_selection.rs
+new file mode 100644
+index 0000000000000000000000000000000000000000..46f341a7b6fb78fd6c362cdd8f8ac6047831ed7c
+--- /dev/null
++++ b/apps/cw-designcraft-engine/src/text_selection.rs
+@@ -0,0 +1,109 @@
++// Pinned original inverse-selection algorithm from crates/ui-egui/src/canvas.rs
++// a127c6d5c3576972bbd60445f26d893db071eef3 (MIT OR Apache-2.0).
++// Compose/rasterize only in the owned engine; this transient preview never enters exports.
++use designcraft_geom::{Affine, Point, Rect};
++use designcraft_mcp::Headless;
++use designcraft_render::vello_cpu::{self, kurbo, peniko};
++use serde_json::{Value, json};
++
++pub fn apply(h: &Headless, page: usize, scale: f64, frame: &mut Value) -> Result<(), Box<dyn std::error::Error>> {
++    frame["textSelection"] = Value::Null;
++    let Some(st) = h.session.active() else { return Ok(()) };
++    let Some(ts) = st.selection.text.filter(|ts| !ts.is_caret() && ts.cell.is_none()) else { return Ok(()) };
++    let Some((spread, _)) = st.doc.page_loc(page) else { return Err("Unknown selection page".into()) };
++    let bounds = st.doc.page(page).ok_or("Missing selection page")?.bounds();
++    let cs = h.session.cache.get(&st.doc, ts.story, None);
++    let range = ts.range();
++    let mut runs = Vec::new();
++    let mut bbox = Rect::ZERO;
++    let mut first = true;
++    let mut quad_count = 0usize;
++    let mut glyph_count = 0usize;
++    for (fi, ft) in cs.frames.iter().enumerate() {
++        let Some(loc) = st.doc.find(ft.frame) else { continue };
++        if loc.spread != designcraft_doc::SpreadRef::Doc(spread) { continue; }
++        let Some(it) = st.doc.item(ft.frame) else { continue };
++        let m = st.doc.parent_xf(&loc) * st.doc.text_xf(it);
++        let mut quads = Vec::new();
++        let mut glyphs = Vec::new();
++        for (li, line) in ft.lines.iter().enumerate() {
++            let s = range.start.max(line.range.start);
++            let e = range.end.min(line.range.end);
++            if s > e || (s == e && !(line.range.end < range.end && e == line.range.end)) { continue; }
++            let past = e == line.range.end && range.end > line.range.end;
++            for (gi, g) in line.glyphs.iter().enumerate() {
++                if g.visible && g.len > 0 && g.byte >= s && g.byte < e {
++                    glyph_count += 1;
++                    if glyph_count > 32768 { return Err("Selection exceeds 32,768 glyph preview limit".into()); }
++                    glyphs.push((li, gi));
++                }
++            }
++            for q in designcraft_compose::highlight_quads(line, s, e, past) {
++                let mut qb = Rect::ZERO;
++                for (i, p) in q.iter().enumerate() {
++                    let p = m * *p;
++                    if !p.x.is_finite() || !p.y.is_finite() || p.x.abs() > 100000.0 || p.y.abs() > 100000.0 { return Err("Invalid selection geometry".into()); }
++                    qb = if i == 0 { Rect::from_points(p, p) } else { qb.union_pt(p) };
++                }
++                let clipped = qb.intersect(bounds);
++                if clipped.width() <= 0.0 || clipped.height() <= 0.0 { continue; }
++                bbox = if first { qb } else { bbox.union(qb) }; first = false;
++                quad_count += 1;
++                if quad_count > 4096 { return Err("Selection exceeds 4,096 quad preview limit".into()); }
++                quads.push(q);
++            }
++        }
++        if !quads.is_empty() { runs.push((fi, m, quads, glyphs)); }
++    }
++    if runs.is_empty() { return Ok(()); }
++    let width = frame["width"].as_u64().ok_or("Missing preview width")?;
++    let height = frame["height"].as_u64().ok_or("Missing preview height")?;
++    if width == 0 || height == 0 || width > 1280 || height > 1280 { return Err("Selection preview exceeds render dimensions".into()); }
++    let view = Affine::scale(scale) * Affine::translate((-bounds.x0, -bounds.y0));
++    let bbox = bbox.intersect(bounds);
++    let a = view * Point::new(bbox.x0, bbox.y0);
++    let b = view * Point::new(bbox.x1, bbox.y1);
++    let x0 = a.x.floor().max(0.0) as u32;
++    let y0 = a.y.floor().max(0.0) as u32;
++    let x1 = b.x.ceil().min(width as f64) as u32;
++    let y1 = b.y.ceil().min(height as f64) as u32;
++    if x1 <= x0 || y1 <= y0 { return Ok(()); }
++    let (w, hh) = ((x1 - x0) as u16, (y1 - y0) as u16);
++    let view = Affine::translate((-(x0 as f64), -(y0 as f64))) * view;
++    let mut rc = vello_cpu::RenderContext::new_with(w, hh, vello_cpu::RenderSettings { num_threads: 0, ..Default::default() });
++    rc.set_paint(peniko::Color::from_rgba8(0, 0, 0, 255));
++    for (_, m, quads, _) in &runs {
++        rc.set_transform(view * *m);
++        for q in quads {
++            let mut path = kurbo::BezPath::new();path.move_to(q[0]);
++            for p in &q[1..] { path.line_to(*p); }path.close_path();rc.fill_path(&path);
++        }
++    }
++    let db = designcraft_fonts::FontDb::global();
++    for (fi, m, _, glyphs) in &runs {
++        let ft = &cs.frames[*fi];
++        for &(li, gi) in glyphs {
++            let line = &ft.lines[li];let g = &line.glyphs[gi];
++            let Some(style) = cs.styles.get(g.style as usize) else { continue };
++            let Some(color) = st.doc.resolve_color(&style.fill, style.fill_tint) else { continue };
++            let [r, gg, b, _] = color.to_rgba8(1.0);
++            rc.set_paint(peniko::Color::from_rgba8(255-r,255-gg,255-b,255));
++            let skew = if style.skew != 0.0 { Affine::new([1.0,0.0,-style.skew.to_radians().tan(),1.0,0.0,0.0]) } else { Affine::IDENTITY };
++            let ga = Affine::translate((g.x,line.baseline+g.y))*skew*Affine::scale_non_uniform(g.sx,g.sy);
++            rc.set_transform(view * *m * ga);rc.fill_path(&db.outline(&g.face,g.gid));
++        }
++    }
++    rc.flush();let mut pm = vello_cpu::Pixmap::new(w,hh);rc.render(&mut pm,&mut vello_cpu::Resources::new());
++    let mut rgba = pm.data_as_u8_slice().to_vec();
++    // vello/egui use premultiplied RGBA; image's compositing API uses straight RGBA.
++    for p in rgba.chunks_exact_mut(4) { if p[3] > 0 && p[3] < 255 { for i in 0..3 { p[i] = ((p[i] as u32*255+p[3] as u32/2)/p[3] as u32).min(255) as u8; } } }
++    let overlay = image::RgbaImage::from_raw(w as u32,hh as u32,rgba).ok_or("Invalid selection raster")?;
++    let encoded = frame["pngBase64"].as_str().filter(|s|s.len()<=16*1024*1024).ok_or("Missing bounded selection preview")?;
++    let mut base = image::load_from_memory_with_format(&designcraft_engine::cmd::base64_decode(encoded),image::ImageFormat::Png)?.to_rgba8();
++    if base.dimensions() != (width as u32,height as u32) { return Err("Selection preview dimensions mismatch".into()); }
++    image::imageops::overlay(&mut base,&overlay,x0 as i64,y0 as i64);
++    let mut output = std::io::Cursor::new(Vec::new());image::DynamicImage::ImageRgba8(base).write_to(&mut output,image::ImageFormat::Png)?;
++    frame["pngBase64"] = json!(designcraft_engine::cmd::base64_encode(output.get_ref()));
++    frame["textSelection"] = json!({"page":page,"story":ts.story,"anchor":ts.anchor,"focus":ts.focus,"quadCount":quad_count,"glyphCount":glyph_count,"frames":runs.iter().map(|(fi,_,_,_)|cs.frames[*fi].frame).collect::<Vec<_>>(),"bounds":[x0,y0,x1,y1]});
 +    Ok(())
 +}
 diff --git a/apps/designcraft-web/Cargo.toml b/apps/designcraft-web/Cargo.toml

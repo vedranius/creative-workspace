@@ -1,6 +1,7 @@
 // Contributor-original MIT OR Apache-2.0 adapter. No desktop/MCP server.
 #![forbid(unsafe_code)]
 #![deny(clippy::unwrap_used, clippy::expect_used, clippy::panic, clippy::todo)]
+mod text_selection;
 use designcraft_doc::{Content, Document, Item};
 use designcraft_engine::DocState;
 use designcraft_mcp::{Backend, Headless};
@@ -68,6 +69,29 @@ fn zip_budget(bytes: &[u8]) -> Result<(), Box<dyn std::error::Error>> {
 #[cfg(test)]
 mod tests {
     use super::*;
+    #[test]
+    fn original_range_inversion_is_transient_and_clipped_to_facing_page() -> Result<(), Box<dyn std::error::Error>> {
+        let mut h = Headless::new();let mut saved = None;let root = std::env::temp_dir();
+        h.call("engine.execute",json!({"command":"file.new","params":{"pages":3,"facingPages":true}}))?;
+        let page_x=h.session.active().and_then(|st|st.doc.page(2)).ok_or("Missing page")?.bounds().x0;
+        let created=h.call("engine.execute",json!({"command":"frame.create","params":{"spread":1,"rect":[page_x+40.0,80.0,page_x+300.0,180.0],"content":"text","text":"RAW selection\nSecond line","caret":false}}))?;
+        let before=h.call("ui.render",json!({"page":2,"scale":1.0}))?;
+        let doc=h.session.active().ok_or("No document")?.doc.clone();
+        h.call("engine.execute",json!({"command":"text.select","params":{"story":created["story"],"anchor":0,"focus":25}}))?;
+        let selected=answer(&mut h,&mut saved,&root,&root,&json!({"method":"render","params":{"page":2}}))?;
+        assert_eq!(selected["textSelection"]["page"],2);
+        assert!(selected["textSelection"]["quadCount"].as_u64().ok_or("Missing quads")? >= 2);
+        assert!(selected["textSelection"]["bounds"][0].as_u64().ok_or("Missing bounds")? < 100);
+        assert_ne!(selected["pngBase64"],before["pngBase64"]);
+        assert_eq!(h.call("ui.render",json!({"page":2,"scale":1.0}))?["pngBase64"],before["pngBase64"]);
+        assert!(Arc::ptr_eq(&doc,&h.session.active().ok_or("No document")?.doc));
+        let sibling=answer(&mut h,&mut saved,&root,&root,&json!({"method":"render","params":{"page":1}}))?;
+        assert!(sibling["textSelection"].is_null());
+        h.call("engine.execute",json!({"command":"text.select","params":{"story":created["story"],"anchor":0,"focus":0}}))?;
+        let restored=answer(&mut h,&mut saved,&root,&root,&json!({"method":"render","params":{"page":2}}))?;
+        assert!(restored["textSelection"].is_null());assert_eq!(restored["pngBase64"],before["pngBase64"]);
+        Ok(())
+    }
     #[test]
     fn caret_is_composed_on_its_selected_facing_page() -> Result<(), Box<dyn std::error::Error>> {
         let mut h = Headless::new();
@@ -312,6 +336,7 @@ fn answer(h: &mut Headless, saved: &mut Option<Arc<Document>>, read: &Path, writ
             let caret = caret_geometry(h, index);
             let mut frame = h.call("ui.render", json!({"page":index,"scale":scale}))?;
             frame["caret"] = caret.unwrap_or(Value::Null);
+            text_selection::apply(h,index,scale,&mut frame)?;
             Ok(frame)
         }
         "export" => {

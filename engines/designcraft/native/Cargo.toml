@@ -13,6 +13,8 @@ designcraft-engine = { workspace = true }
 designcraft-compose = { workspace = true }
 designcraft-geom = { workspace = true }
 designcraft-doc = { workspace = true }
+designcraft-fonts = { workspace = true }
+designcraft-render = { workspace = true }
 designcraft-format = { workspace = true }
 serde_json = { workspace = true }
 zip = { workspace = true }

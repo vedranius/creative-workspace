@@ -1,0 +1,13 @@
+{
+  "previousPatchSha256": "40c29680b88ee613ba92ac990aeb567462c3d86afed52635bab7bbdb7ecf06a8",
+  "sourcePatchSha256": "5f0def9e2804c51f75aa1e970a4976e6709b0a7b388d51d875942c93a66194d1",
+  "changedPatchSections": [
+    "diff --git a/Cargo.lock b/Cargo.lock",
+    "diff --git a/apps/cw-designcraft-engine/Cargo.toml b/apps/cw-designcraft-engine/Cargo.toml",
+    "diff --git a/apps/cw-designcraft-engine/src/main.rs b/apps/cw-designcraft-engine/src/main.rs",
+    "diff --git a/apps/cw-designcraft-engine/src/text_selection.rs b/apps/cw-designcraft-engine/src/text_selection.rs"
+  ],
+  "frontendUnchanged": true,
+  "onlyOwnedNativePackageChanged": true,
+  "reusedWasmSha256": "90a7765049291f76ba02785732fb60013863438b57573678363039cbd544d71e"
+}

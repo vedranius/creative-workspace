@@ -1,3 +1,9 @@
+# Alpha.66 candidate — original server-rendered text selection
+
+`0.2.0-alpha.66` composes original non-cell range highlights in the owned native PNG with bounded page/story/frame/range validation before ACK. Original Ctrl+A, held ACK, right-facing-page inverse pixels, sibling clipping and exact plain-PNG restoration are evidenced. Canonical document and printing/export content remain unchanged. Table cells, full tools/provider/OS acceptance remain open; DesignCraft stays planned. [Evidence](evidence/designcraft-native-text-selection.md).
+
+Install only verified Actions-built assets in a NEW root, preserving live installations. Alpha.66 requires immutable tag/draft/source and independent download/checksum verification; local reused UI/new native QA artifacts are not release assets. Earlier publication403 remains a separate limitation without retries, permission or credential workarounds. The public demo is unchanged.
+
 # Alpha.65 candidate — original server-composed DesignCraft caret
 
 `0.2.0-alpha.65` returns non-cell text caret endpoints from the owned native composition engine with its selected-page render. The original UI validates the canonical story/frame/page, retains prior geometry until matching ACK and draws its original blinking black line through the same page mapping. Selection ranges/table cells and full tool/provider/OS acceptance remain open; DesignCraft stays planned.

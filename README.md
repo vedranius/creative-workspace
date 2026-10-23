@@ -2,7 +2,7 @@
 
 # Creative Workspace
 
-**Version: 0.2.0-alpha.65** — prototype/prerelease draft candidate. The owned DesignCraft engine computes the text caret and the original UI paints its blinking line only with matching server ACK and page geometry. Non-cell caret coverage is bounded; selection ranges, full original/provider/OS acceptance remain open. The independent all13 ArtCraft browser demo and its hourly verified update pipeline remain separate. Install only new Actions-built packages after tag/draft/checksum verification; preserve live installations. See [PAR-03 handoff](docs/par-03a-handoff.md) and [release limits](docs/releases.md).
+**Version: 0.2.0-alpha.66** — prototype/prerelease draft candidate. The owned DesignCraft engine now renders original non-cell text range highlighting into its acknowledged page preview, using black selection quads and inverted glyph colors. Caret/range coverage is bounded; table cells and full original/provider/OS acceptance remain open. The independent all13 ArtCraft browser demo and its hourly verified update pipeline remain separate. Install only new Actions-built packages after tag/draft/checksum verification; preserve live installations. See [PAR-03 handoff](docs/par-03a-handoff.md) and [release limits](docs/releases.md).
 
 Bring your creative tools together in one browser studio. Choose an application, select your files, and access your own server from a lightweight laptop. The goal is **the original application interfaces and tools in the browser, with the server doing the heavy work**: photography, image editing, illustration, PDF, publishing, video, motion graphics, office documents, spreadsheets, presentations, CAD, interface design and audio. Browser controls run locally; document commands, data and previews travel to the server. No VNC or remote desktop is involved.
 
@@ -14,7 +14,7 @@ Alpha.24 adds an original Open-dialog candidate for a selected laptop `.designcr
 
 ## What is new
 
-- **DesignCraft native caret (alpha.65 candidate):** the owned engine composes non-cell caret endpoints; the original UI draws its blinking line only with matching page/selection ACK. Selection ranges/cells and broad acceptance remain open. [Evidence](docs/evidence/designcraft-native-caret.md).
+- **DesignCraft native text selection (alpha.66 candidate):** the owned engine composes original non-cell range highlighting into the server PNG. Actual Ctrl+A, held ACK, facing-page clipping and exact unselected PNG restoration are verified. Table cells and broad acceptance remain open. [Evidence](docs/evidence/designcraft-native-text-selection.md).
 
 - **Browser playground (alpha.63):** thirteen official release interfaces with explicit consent that processing uses the visitor's computer. The independent Cloudflare Pages export preserves licenses and source provenance while excluding private workspaces/backends. The main product continues toward server processing. [Demo and deployment](docs/cloudflare-demo.md).
 

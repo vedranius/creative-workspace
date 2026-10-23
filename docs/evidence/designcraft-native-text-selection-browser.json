@@ -1,0 +1,130 @@
+{
+  "status": "original-native-text-range-inverse-highlight-ack-proof",
+  "browser": "Chromium",
+  "sourcePin": "a127c6d5c3576972bbd60445f26d893db071eef3",
+  "sourcePatchSha256": "5f0def9e2804c51f75aa1e970a4976e6709b0a7b388d51d875942c93a66194d1",
+  "workerSha256": "07f232d8b2a77e3bd5e07999b16823e53f64a14eb65066f315ffd349ce997698",
+  "uiPackage": "a127c6d5c3576972bbd60445f26d893db071eef3-5f0def9e2804",
+  "setup": {
+    "originalA4": true,
+    "originalInsertPageClicks": 2,
+    "pageCount": 3,
+    "pagesPerSpread": [
+      1,
+      2
+    ],
+    "selectedPage": 2,
+    "rightPage": {
+      "bounds": [
+        595.2755905511812,
+        0,
+        1190.5511811023623,
+        841.8897637795277
+      ],
+      "columns": 1,
+      "index": 2,
+      "margins": {
+        "bottom": 36,
+        "inside": 36,
+        "outside": 36,
+        "top": 36
+      },
+      "name": "3",
+      "parent": "A-Parent",
+      "side": "right"
+    },
+    "leftPage": {
+      "bounds": [
+        0,
+        0,
+        595.2755905511812,
+        841.8897637795277
+      ],
+      "columns": 1,
+      "index": 1,
+      "margins": {
+        "bottom": 36,
+        "inside": 36,
+        "outside": 36,
+        "top": 36
+      },
+      "name": "2",
+      "parent": "A-Parent",
+      "side": "left"
+    },
+    "firstPageText": "M"
+  },
+  "frame": {
+    "frameId": 17,
+    "storyId": 18,
+    "canonicalBounds": [
+      792.2782145910869,
+      235.49361027348493,
+      919.9130659143945,
+      294.36702032799724
+    ]
+  },
+  "selection": {
+    "actualOriginalCtrlA": true,
+    "commandId": "edit.selectAll",
+    "heldAckPreservesPreviousRevisionAndCaret": true,
+    "ackRevision": 12,
+    "geometry": {
+      "page": 2,
+      "story": 18,
+      "anchor": 0,
+      "focus": 1,
+      "quadCount": 1,
+      "glyphCount": 1,
+      "frames": [
+        17
+      ],
+      "bounds": [
+        197,
+        235,
+        205,
+        252
+      ]
+    },
+    "clip": {
+      "x": 500,
+      "y": 352,
+      "width": 7,
+      "height": 12
+    },
+    "beforePixels": {
+      "dark": 0,
+      "light": 76,
+      "pixels": 84,
+      "sha256": "663259dedad9e456863441eec49cec608d4edda09b4b0871ff783fc364fb13aa"
+    },
+    "selectedPixels": {
+      "dark": 57,
+      "light": 8,
+      "pixels": 84,
+      "sha256": "e4f8b7d0f958fb0f7a17ccc5af1b5656c9a7b38fcbf9c3d64fa4f2b4b2f433cf"
+    },
+    "nativeCrop": {
+      "x": 197,
+      "y": 235,
+      "width": 8,
+      "height": 17
+    },
+    "invertedNativePixels": 14,
+    "serverPngSha256": "52fc41ae87e79a596cd0d41b5a2603025bfde9d35461bff540d1845aa12f0080",
+    "plainPngSha256": "a8fe1a621abd06579d56c20217f330f49a0d9362cfc1128f71d2361ce2f19511",
+    "canonicalDocumentUnchanged": true,
+    "printingPngRestoredExactlyOnCollapse": true,
+    "collapseRevision": 15
+  },
+  "siblings": {
+    "leftPageRenderSha256": "40402e053fbcda7f6379931420bdbea7192004fd1973c890cafb6cd40efdc273",
+    "leftPagePngUnchanged": true,
+    "selectedPageRestoredAtRevision": 14
+  },
+  "permission": "synthetic connected-folder chooser fixture; not real OS permission evidence",
+  "acceptance": "bounded original non-cell text range; table cells/full tools/providers/OS remain open",
+  "browserErrors": [],
+  "failedResponses": [],
+  "requestFailures": []
+}

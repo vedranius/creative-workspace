@@ -1,3 +1,9 @@
+## [0.2.0-alpha.66] - 2026-10-23
+
+- Render original DesignCraft non-cell text range highlighting in the owned native engine: black compose quads and original inverted glyph colors, clipped to the selected page. Keep document content and printing/export rendering unchanged.
+- Validate bounded range/page/story/frame metadata before caching the matching preview or acknowledging a page change. The original UI displays only the confirmed server PNG.
+- Add native multiline/transient-render, malformed protocol and actual original Ctrl+A/facing-page browser pixel checks. Table cells, full tools/providers/OS remain open; keep prototype releases draft-only and assets Actions-built.
+
 ## [0.2.0-alpha.65] - 2026-10-23
 
 - Compose the original DesignCraft non-cell text caret in the owned native engine. Return bounded spread-coordinate endpoints with the same selected-page render and canonical selection.
