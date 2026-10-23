@@ -8,7 +8,7 @@ import {createNeutralRendererResources,packRgb32fRendererInput,packGlobalRendere
 export class UnavailableCommandError extends Error {
  constructor(command){super(`Browser experiment does not support ${command}`);this.name='UnavailableCommandError';this.code='unavailable-command';}
 }
-export function createReactTransport({wasm,device,shaderSource,defaults,getPreviewSettings=()=>({editorPreviewResolution:1920,livePreviewQuality:'high'}),workerUrl=new URL('./react-image-worker.js',import.meta.url),exportFactory}) {
+export function createReactTransport({wasm,device,shaderSource,defaults,getPreviewSettings=()=>({editorPreviewResolution:1920,livePreviewQuality:'high'}),workerUrl=new URL('./react-image-worker.js',import.meta.url),exportFactory,settingsHost}) {
  let file=null,path=null,current=null,generation=0,imageWorker=null,queue=Promise.resolve(),closed=false;
  const trace=[],listeners=new Map();
  const emit=(event,payload)=>{trace.push({command:'event',event,payload});for(const callback of [...(listeners.get(event)||[])])callback({event,payload});};
@@ -126,6 +126,11 @@ export function createReactTransport({wasm,device,shaderSource,defaults,getPrevi
   },
   async pickExport(options){if(!exportHost||closed)throw nativeError(new UnavailableCommandError('save dialog'));try{return await exportHost.pick(options);}catch(error){throw nativeError(error);}},
   invoke(command,args){
+   if(settingsHost&&(command==='load_settings'||command==='save_settings')){
+    trace.push({command});if(!settingsHost||closed)return Promise.reject(nativeError(new UnavailableCommandError(command)));
+    if(args&&Object.keys(args).some(k=>command!=='save_settings'||k!=='settings'))return Promise.reject('Unsupported settings arguments');
+    try{return Promise.resolve(command==='load_settings'?settingsHost.load():settingsHost.save(args?.settings)).catch(error=>{throw nativeError(error);});}catch(error){return Promise.reject(nativeError(error));}
+   }
    if(command==='export_images'||command==='cancel_export'){
     trace.push({command});if(!exportHost||closed)return Promise.reject(nativeError(new UnavailableCommandError(command)));
     // Export and cancellation never wait behind a preview or a pending export.
@@ -134,6 +139,6 @@ export function createReactTransport({wasm,device,shaderSource,defaults,getPrevi
    if(command==='clear_session_caches')exportHost?.cancel();
    const result=queue.then(()=>execute(command,args));queue=result.catch(()=>{});return result;
   },
-  async close(){closed=true;await clear();await exportHost?.close();file=null;path=null;await queue;listeners.clear();},
+  async close(){closed=true;await clear();await exportHost?.close();await settingsHost?.close();file=null;path=null;await queue;listeners.clear();},
  };
 }

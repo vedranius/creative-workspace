@@ -1,3 +1,9 @@
+# RWASM-03 — original export-preset browser persistence (2026-10-23)
+
+The original settings command IDs now support bounded JPEG presets in atomic IndexedDB storage. A reviewed two-file ACK patch keeps the original store/list from updating or displaying Saved before write/readback acknowledgement. Actual source ExportPanel create/overwrite/apply/delete/reload passes, including three held readback ACKs, a real injected IndexedDB transaction abort and a stale independent host refused by compare-and-swap. Paths, chooser leases and grants do not persist. [Evidence, patch and continuation](rapidraw-wasm-settings-persistence-handoff.md).
+
+Host54/npm84/check pass; one cached Vite build, unchanged native/WASM/render algorithms. Only public CC0 DNG, no private photo/main/demo or product release. This is an isolated experimental settings slice, not full App/settings/OS/common-provider acceptance. Native ABI/source pins are traced; no new native filesystem-settings or renderer-parity proof is claimed. Next A: exact alpha65 CI/release gate, then original text-range highlight geometry. Next B: original ExportPanel `__last_used__` persistence/error handling after a real file export, keeping file ACK separate from preference ACK and all destination authority ephemeral. MAIN only.
+
 # RWASM-03 — original JPEG quality and enlargement after fine crop (2026-10-23)
 
 Actual original +5.3°/1:1 crop and Exposure+0.8 now drive source ExportPanel quality60/95, long-edge1200/1800 and Don't Enlarge controls. Three real RAW exports match23,924,928 native full-frame RGBA8 components and2,485,154 JPEG bytes exactly:1200²,1800² and1412². Each real OPFS close is gated before source Success; the same1412² full render precedes all codec resizes. Original26 source pins/runtime/WASM stay exact;45 host tests/check pass. [Proof and next task](rapidraw-wasm-export-quality-handoff.md).

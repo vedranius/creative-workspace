@@ -1,5 +1,9 @@
 # RapidRAW browser renderer host boundary
 
+## Original preset settings persistence
+
+The optional original settings ABI uses a64KiB/32-preset IndexedDB store with atomic revision compare-and-swap and readback ACK. A pinned two-file React ACK patch delays store/list success until acknowledgement. Real source UI create/overwrite/apply/delete/reload, three held ACKs, transaction abort and stale-host refusal pass. No file paths/handles/grants persist. Renderer/WASM unchanged; this is an isolated experiment, not full App/provider/OS or product release acceptance. [Proof and limits](../../docs/rapidraw-wasm-settings-persistence-handoff.md).
+
 ## Original JPEG quality and enlargement after fine crop
 
 Actual original fine crop/Exposure and ExportPanel quality60/95, long-edge1200/1800 and Don't Enlarge now have exact native/codec and real gated OPFS ACK proof. Same1412² render precedes1200²/1800²/1412² JPEG output. Existing runtime/WASM/source pins and limits remain unchanged. [Evidence and limits](../../docs/rapidraw-wasm-export-quality-handoff.md). This is experimental verification, not full App/OS/provider or product release acceptance.

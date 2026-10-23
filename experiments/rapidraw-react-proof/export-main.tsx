@@ -32,14 +32,15 @@ document.documentElement.style.setProperty('--font-family','-apple-system, Blink
 await init();
 const adapter=await navigator.gpu?.requestAdapter();if(!adapter)throw Error('WebGPU unavailable');
 const device=await adapter.requestDevice();const gpuErrors:string[]=[];device.addEventListener('uncapturederror',e=>gpuErrors.push(e.error.message));
+const settingsHost=(globalThis as any).rapidRawSettingsHost;
 let retention='until-ack';const workerStates:any[]=[];
 // QA may inject a real OPFS chooser; normal operation requires the OS picker.
 const destination=createExportDestination({pickFile:options=>(globalThis as any).exportQa?.pickFile?.(options)??globalThis.showSaveFilePicker(options),getRetention:()=>retention});
-const transport=createReactTransport({wasm,device,shaderSource:await(await fetch('/engine/shader.wgsl')).text(),defaults:INITIAL_ADJUSTMENTS,getPreviewSettings:()=>useSettingsStore.getState().appSettings,workerUrl:'/engine/react-image-worker.js',exportFactory:host=>createExportBridge({...host,destination,runExport:(bytes,options)=>exportRawInWorker(bytes,{...options,onStatus:state=>{workerStates.push(state);(globalThis as any).exportQa?.onWorkerStatus?.(state);}})})});
+const transport=createReactTransport({settingsHost,wasm,device,shaderSource:await(await fetch('/engine/shader.wgsl')).text(),defaults:INITIAL_ADJUSTMENTS,getPreviewSettings:()=>useSettingsStore.getState().appSettings,workerUrl:'/engine/react-image-worker.js',exportFactory:host=>createExportBridge({...host,destination,runExport:(bytes,options)=>exportRawInWorker(bytes,{...options,onStatus:state=>{workerStates.push(state);(globalThis as any).exportQa?.onWorkerStatus?.(state);}})})});
 (globalThis as any).rapidRawTransport=transport;
 const settings={editorPreviewResolution:512,useWgpuRenderer:false,enableZoomHifi:false,enableLivePreviews:true,
  livePreviewQuality:'high',baselineExposure:0,compensateHighlightPreservation:true,copyPasteSettings:{autoSync:false}};
-useSettingsStore.getState().setAppSettings(settings as any);
+useSettingsStore.getState().setAppSettings(settingsHost?await transport.invoke('load_settings'):settings as any);
 useUIStore.getState().setUI({activeView:'editor',activePanel:Panel.Adjustments} as any);
 function Proof(){
  const transform=useRef(null),cached=useRef(null),prev=useRef(null),job=useRef(0),rendered=useRef(0),resolution=useRef(512);
@@ -62,9 +63,9 @@ function Proof(){
  <section aria-label="Original geometry panel"><CropPanel/></section></aside><aside aria-label="Original Export panel" style={{width:400,overflow:'auto',padding:12}}>
  <PanelSwitcher region="leftTop" side="left" placement="top"/>
  <label>Recovery retention <select aria-label="Recovery retention" defaultValue="until-ack" onChange={event=>{retention=event.target.value;}}><option value="until-ack">Until write ACK</option><option value="keep">Keep recovery copy</option></select></label>
- <ExportPanel exportState={exportState} selectedImage={selectedImage} multiSelectedPaths={[]} setExportState={useProcessStore.getState().setExportState} appSettings={appSettings} onSettingsChange={useSettingsStore.getState().setAppSettings} rootPaths={[]} isVisible={true}/></aside>
+ <ExportPanel exportState={exportState} selectedImage={selectedImage} multiSelectedPaths={[]} setExportState={useProcessStore.getState().setExportState} appSettings={appSettings} onSettingsChange={settingsHost?useSettingsStore.getState().handleSettingsChange:useSettingsStore.getState().setAppSettings} rootPaths={[]} isVisible={true}/></aside>
  </main><ToastContainer position="bottom-left" theme="dark"/></>;
 }
 function Layout(){const layoutSensors=useSensors(useSensor(PointerSensor,{activationConstraint:{distance:5}}));return <DndContext sensors={layoutSensors}><ContextMenuProvider><Proof/></ContextMenuProvider></DndContext>;}
 const root=createRoot(document.getElementById('root')!);root.render(<Layout/>);
-(globalThis as any).proof={gpuErrors,adapter:{vendor:adapter.info.vendor,architecture:adapter.info.architecture},store:useEditorStore,processStore:useProcessStore,destination,workerStates,trace:transport.trace,uiStore:useUIStore,setLiveQuality(livePreviewQuality:string){useSettingsStore.getState().setAppSettings({...useSettingsStore.getState().appSettings,livePreviewQuality} as any);},async close(){root.unmount();await transport.close();device.destroy();},settings};
+(globalThis as any).proof={settingsHost,settingsStore:useSettingsStore,gpuErrors,adapter:{vendor:adapter.info.vendor,architecture:adapter.info.architecture},store:useEditorStore,processStore:useProcessStore,destination,workerStates,trace:transport.trace,uiStore:useUIStore,setLiveQuality(livePreviewQuality:string){useSettingsStore.getState().setAppSettings({...useSettingsStore.getState().appSettings,livePreviewQuality} as any);},async close(){root.unmount();await transport.close();device.destroy();},settings};

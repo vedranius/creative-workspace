@@ -1,0 +1,125 @@
+diff --git a/src/store/useSettingsStore.ts b/src/store/useSettingsStore.ts
+--- a/src/store/useSettingsStore.ts
++++ b/src/store/useSettingsStore.ts
+@@ -44,17 +44,18 @@
+       return;
+     }
+ 
++    const { searchCriteria: _searchCriteria, ...settingsToSave } = newSettings as any;
++
++    try {
++      await invoke(Invokes.SaveSettings, { settings: settingsToSave });
+     if (newSettings.theme && newSettings.theme !== get().theme) {
+       set({ theme: newSettings.theme });
+     }
+ 
+-    const { searchCriteria: _searchCriteria, ...settingsToSave } = newSettings as any;
+-    set({ appSettings: newSettings });
+-
+-    try {
+-      await invoke(Invokes.SaveSettings, { settings: settingsToSave });
++      set({ appSettings: newSettings });
+     } catch (err) {
+       console.error('Failed to save settings:', err);
++      throw err;
+     }
+   },
+ }));
+diff --git a/src/components/ui/ExportPresetsList.tsx b/src/components/ui/ExportPresetsList.tsx
+--- a/src/components/ui/ExportPresetsList.tsx
++++ b/src/components/ui/ExportPresetsList.tsx
+@@ -12,7 +12,7 @@
+   appSettings: AppSettings | null;
+   currentSettings: Omit<ExportPreset, 'id' | 'name'>;
+   onApplyPreset: (preset: ExportPreset) => void;
+-  onSettingsChange: (settings: AppSettings) => void;
++  onSettingsChange: (settings: AppSettings) => void | Promise<void>;
+ }
+ 
+ export default function ExportPresetsList({
+@@ -26,6 +26,15 @@
+   const [newPresetName, setNewPresetName] = useState('');
+   const [selectedPresetId, setSelectedPresetId] = useState<string>('');
+   const [isSaved, setIsSaved] = useState(false);
++  const [isPending, setIsPending] = useState(false);
++  const [saveError, setSaveError] = useState<string | null>(null);
++  const saveSettings = async (settings: AppSettings) => {
++    if (isPending) return false;
++    setIsPending(true); setSaveError(null);
++    try { await onSettingsChange(settings); return true; }
++    catch { setSaveError('Preset was not saved. Reload settings before trying again.'); return false; }
++    finally { setIsPending(false); }
++  };
+   const presets = appSettings?.exportPresets || [];
+ 
+   const handleSelect = (id: string) => {
+@@ -36,7 +45,8 @@
+     }
+   };
+ 
+-  const handleSavePreset = () => {
++  const handleSavePreset = async () => {
++    if (isPending) return;
+     if (!newPresetName.trim() || !appSettings) return;
+ 
+     const newPreset: ExportPreset = {
+@@ -48,7 +58,7 @@
+     const updatedPresets = [...presets, newPreset];
+     const updatedSettings = { ...appSettings, exportPresets: updatedPresets };
+ 
+-    onSettingsChange(updatedSettings);
++    if (!await saveSettings(updatedSettings)) return;
+ 
+     setSelectedPresetId(newPreset.id);
+     setIsCreating(false);
+@@ -57,7 +67,8 @@
+ 
+   const isDefault = selectedPresetId.startsWith('default-');
+ 
+-  const handleOverwritePreset = () => {
++  const handleOverwritePreset = async () => {
++    if (isPending) return;
+     if (!selectedPresetId || isDefault || !appSettings) return;
+ 
+     const updatedPresets = presets.map((p) => {
+@@ -71,7 +82,7 @@
+     });
+ 
+     const updatedSettings = { ...appSettings, exportPresets: updatedPresets };
+-    onSettingsChange(updatedSettings);
++    if (!await saveSettings(updatedSettings)) return;
+ 
+     setIsSaved(true);
+     setTimeout(() => {
+@@ -79,13 +90,14 @@
+     }, 1500);
+   };
+ 
+-  const handleDeletePreset = () => {
++  const handleDeletePreset = async () => {
++    if (isPending) return;
+     if (!selectedPresetId || !appSettings) return;
+ 
+     const updatedPresets = presets.filter((p) => p.id !== selectedPresetId);
+     const updatedSettings = { ...appSettings, exportPresets: updatedPresets };
+ 
+-    onSettingsChange(updatedSettings);
++    if (!await saveSettings(updatedSettings)) return;
+     setSelectedPresetId('');
+   };
+ 
+@@ -97,11 +109,13 @@
+     }));
+ 
+   return (
+-    <div className="mb-8">
++    <div className={`mb-8 ${isPending ? 'pointer-events-none opacity-60' : ''}`} aria-busy={isPending}>
+       <Text variant={TextVariants.heading} className="mb-2">
+         {t('ui.exportPresets.heading')}
+       </Text>
+ 
++      {isPending && <div role="status">Saving preset…</div>}
++      {saveError && <div role="alert">{saveError}</div>}
+       {!isCreating ? (
+         <div className="flex gap-2">
+           <Dropdown

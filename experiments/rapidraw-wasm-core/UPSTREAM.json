@@ -358,7 +358,7 @@
     },
     "scope": "Unchanged source single JPEG ExportPanel and active Export tab, Basic Exposure, CropPanel fine-angle/aspect preset, JPEG quality60/95, long-edge resize/dontEnlarge/explicit enlargement and DPI controls, settings/listeners/process store in isolated QA composition. OS/common providers, metadata/effects/warp/multi-file/larger export remain unaccepted.",
     "evidence": "docs/evidence/rapidraw-wasm/export-quality-browser.json",
-    "transportSha256": "5f6acf1b3f93bb728701a0ce4933e9633b4d991d28848ce808d0778342b8a44d"
+    "transportSha256": "fb08f85a279ffe2809da2e17d591045e9976870bc51008e6535f1bbf30b1b1fa"
   },
   "exportSettingsProof": {
     "evidence": "docs/evidence/rapidraw-wasm/export-settings-browser.json",
@@ -402,5 +402,26 @@
     "renderBeforeResize": true,
     "writeAckBeforeSuccess": true,
     "runtimeAndWasmChanged": false
+  },
+  "settingsUi": {
+    "sourceFiles": {
+      "src/store/useSettingsStore.ts": "9e5b295cfea558565bc9b55be918c5f71ef4469d8a9de2b8d7fac80fc37468e2",
+      "src/components/ui/ExportPresetsList.tsx": "7603df14bae4835b27c135c1d5dbc41de988621c8599291d97c6fe9440c4bf60"
+    },
+    "sourcePatch": {
+      "path": "patches/rapidraw/b39884b3/settings-ack-v1.patch",
+      "sha256": "2c660a2d5fb8ce98579a0abb8d35b5612734771628a390a48b1c18ee3381a43e",
+      "patchedFiles": {
+        "src/store/useSettingsStore.ts": "b3a0586ff034ae827e1317817b4852a28247991bbf87375b9ce4cc68af0ebd9e",
+        "src/components/ui/ExportPresetsList.tsx": "5bf0d16e24eff2ad5c4d2a1cd969ceb9be5d73e311a2c358337b289effdf5147"
+      }
+    },
+    "nativeContract": {
+      "src-tauri/src/app_settings.rs": "3aa6b50e35500c484f1f360859947c7fbb38af98bc8498c0a979e234fd15c617",
+      "src/components/ui/AppProperties.tsx": "0466b4bb7f9ea3474a65ef4a4f7ee08c4409d3f85ecd1dd2db7db028c96699f9",
+      "src/hooks/useAppInitialization.ts": "418afe949997ae248fb4f10a84ab4c52da27e8bad536c5fec95a2f4210f43e41"
+    },
+    "scope": "Experimental original JPEG export presets with bounded IndexedDB atomic revision/write/readback ACK. Reviewed patch delays source store/list success until ACK. No full App, OS/provider or destination permission persistence acceptance.",
+    "evidence": "docs/evidence/rapidraw-wasm/settings-persistence-browser.json"
   }
 }
