@@ -1,3 +1,9 @@
+# Alpha.65 candidate — original server-composed DesignCraft caret
+
+`0.2.0-alpha.65` returns non-cell text caret endpoints from the owned native composition engine with its selected-page render. The original UI validates the canonical story/frame/page, retains prior geometry until matching ACK and draws its original blinking black line through the same page mapping. Selection ranges/table cells and full tool/provider/OS acceptance remain open; DesignCraft stays planned.
+
+Install only verified Actions-built assets in a new root, preserving live installations and unsaved work. Alpha.65 tag/draft/target/assets require fresh Actions and independent download/checksum verification; local QA builds are not release assets. Earlier publication403 must not be retried or bypassed through credentials/security changes. The accepted public demo is unchanged. [Handoff](par-03a-handoff.md).
+
 # Alpha.64 candidate — selected-page DesignCraft pointer mapping
 
 `0.2.0-alpha.64` aligns original tool input with the same acknowledged selected-page display used for the server PNG. Original Text Tool frame/caret/typing retain their server command IDs, versioned ACK and canonical hydration. Facing-page frame coordinates normalize once to the existing page-local gateway contract. DesignCraft stays planned; real OS permission, full original parity and all-provider acceptance remain open.

@@ -290,6 +290,7 @@ jobs:
           node scripts/smoke-designcraft-pages-select-browser.mjs
           node scripts/smoke-designcraft-second-page-text-browser.mjs
           node docs/evidence/designcraft-facing-page-text-browser.mjs
+          CW_PAR03_CARET_REPORT=build/designcraft-par03-evidence/caret-browser.json CW_PAR03_CARET_SCREENSHOT=build/designcraft-par03-evidence/caret-browser.png node scripts/smoke-designcraft-caret-browser.mjs
       - name: Build and prove the original preset/server-canvas candidate
         env:
           CW_DESIGNCRAFT_BINARY: ${{ github.workspace }}/build/staged/designcraft/cw-designcraft-engine

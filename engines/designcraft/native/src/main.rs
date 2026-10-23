@@ -69,6 +69,25 @@ fn zip_budget(bytes: &[u8]) -> Result<(), Box<dyn std::error::Error>> {
 mod tests {
     use super::*;
     #[test]
+    fn caret_is_composed_on_its_selected_facing_page() -> Result<(), Box<dyn std::error::Error>> {
+        let mut h = Headless::new();
+        h.call("engine.execute", json!({"command":"file.new","params":{"pages":3,"facingPages":true}}))?;
+        let page_x = h.session.active().and_then(|st|st.doc.page(2)).ok_or("Missing page")?.bounds().x0;
+        let frame = h.call("engine.execute", json!({"command":"frame.create","params":{"spread":1,"rect":[page_x+40.0,80.0,page_x+300.0,180.0],"content":"text","text":"Caret","caret":true}}))?;
+        let story = frame.get("story").ok_or("Missing story")?;
+        h.call("engine.execute", json!({"command":"text.select","params":{"story":story,"anchor":2,"focus":2}}))?;
+        let caret = caret_geometry(&h,2).ok_or("Missing composed caret")?;
+        assert_eq!(caret["page"],2);
+        let page_x = h.session.active().and_then(|st|st.doc.page(2)).ok_or("Missing page")?.bounds().x0;
+        assert!(page_x > 0.0);
+        assert!(caret["points"][0][0].as_f64().ok_or("Missing x")? >= page_x+40.0);
+        assert!(caret_geometry(&h,0).is_none());
+        assert!(caret_geometry(&h,1).is_none());
+        h.call("engine.execute",json!({"command":"text.select","params":{"story":story,"anchor":0,"focus":3}}))?;
+        assert!(caret_geometry(&h,2).is_none());
+        Ok(())
+    }
+    #[test]
     fn owned_page_move_preserves_identity_and_recovers_after_bad_index() -> Result<(), Box<dyn std::error::Error>> {
         let mut h = Headless::new();
         let mut saved = None;
@@ -194,6 +213,27 @@ fn output_path(root: &Path, p: &str) -> Result<PathBuf, Box<dyn std::error::Erro
     }
     Ok(file)
 }
+// Original compose::caret and text transform, in spread coordinates (no UI layout).
+// Cell selections and ranges need their own original selection geometry contract.
+fn caret_geometry(h: &Headless, index: usize) -> Option<Value> {
+    let st = h.session.active()?;
+    let ts = st.selection.text.filter(|ts| ts.is_caret() && ts.cell.is_none())?;
+    let cs = h.session.cache.get(&st.doc, ts.story, None);
+    let (fi, x, bl, asc, desc) = designcraft_compose::caret(&cs, ts.focus)?;
+    let ft = cs.frames.get(fi)?;
+    let loc = st.doc.find(ft.frame)?;
+    let (spread, _) = st.doc.page_loc(index)?;
+    if loc.spread != designcraft_doc::SpreadRef::Doc(spread) { return None; }
+    let it = st.doc.item(ft.frame)?;
+    let m = st.doc.parent_xf(&loc) * st.doc.text_xf(it);
+    let a = m * designcraft_geom::Point::new(x, bl - asc);
+    let b = m * designcraft_geom::Point::new(x, bl + desc);
+    let bounds = st.doc.page(index)?.bounds();
+    if ![a.x,a.y,b.x,b.y].iter().all(|v| v.is_finite() && v.abs() <= 100000.0)
+        || !bounds.contains(designcraft_geom::Point::new((a.x+b.x)/2.0,(a.y+b.y)/2.0)) { return None; }
+    Some(json!({"page":index,"frame":ft.frame,"story":ts.story,"points":[[a.x,a.y],[b.x,b.y]]}))
+}
+
 fn answer(h: &mut Headless, saved: &mut Option<Arc<Document>>, read: &Path, write: &Path, r: &Value) -> Result<Value, Box<dyn std::error::Error>> {
     let method = r.get("method").and_then(Value::as_str).unwrap_or("");
     let p = r.get("params").cloned().unwrap_or(json!({}));
@@ -268,7 +308,11 @@ fn answer(h: &mut Headless, saved: &mut Option<Arc<Document>>, read: &Path, writ
             let st = h.session.active().ok_or("No document")?;
             let index = p.get("page").and_then(Value::as_u64).unwrap_or(0) as usize;
             let page = st.doc.page(index).ok_or("Unknown page")?;
-            Ok(h.call("ui.render", json!({"page":index,"scale":(1280.0/page.width.max(page.height)).min(1.0)}))?)
+            let scale = (1280.0/page.width.max(page.height)).min(1.0);
+            let caret = caret_geometry(h, index);
+            let mut frame = h.call("ui.render", json!({"page":index,"scale":scale}))?;
+            frame["caret"] = caret.unwrap_or(Value::Null);
+            Ok(frame)
         }
         "export" => {
             let file = output_path(write, p.get("path").and_then(Value::as_str).ok_or("Missing export filename")?)?;

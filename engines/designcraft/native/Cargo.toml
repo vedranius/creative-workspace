@@ -10,6 +10,8 @@ workspace = true
 [dependencies]
 designcraft-mcp = { workspace = true }
 designcraft-engine = { workspace = true }
+designcraft-compose = { workspace = true }
+designcraft-geom = { workspace = true }
 designcraft-doc = { workspace = true }
 designcraft-format = { workspace = true }
 serde_json = { workspace = true }

@@ -1,3 +1,9 @@
+## [0.2.0-alpha.65] - 2026-10-23
+
+- Compose the original DesignCraft non-cell text caret in the owned native engine. Return bounded spread-coordinate endpoints with the same selected-page render and canonical selection.
+- Validate the caret against the acknowledged story/frame/page before changing the UI mirror. Paint the original black caret with its existing blink timing over the server PNG, clipped through the selected-page mapping; retain old geometry until the matching ACK.
+- Add native, original UI, malformed protocol and actual facing-page browser/pixel checks. Selection ranges/table cells, full tool/provider/OS acceptance remain open; keep prototype releases draft-only with Actions-built assets.
+
 ## [0.2.0-alpha.64] - 2026-10-23
 
 - Use one selected-page display mapping for the acknowledged DesignCraft server PNG and original tool pointer coordinates. Map through the original multi-spread layout so Text Tool clicks reach the selected second-page frame.

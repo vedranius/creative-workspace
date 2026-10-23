@@ -116,6 +116,25 @@ test('Pages selection commits its view revision only after a bounded render, wit
   await design.close(session.id,{discard:true});
 });
 
+test('Server caret geometry is bounded, selection-bound and rejected before page ACK mutation',async t=>{
+  const {project,design,engines,call}=await fixture(t),session=await design.create(project);
+  await call(session.id,'file.new',{preset:'A4'});
+  await call(session.id,'layout.pages.insert',{after:0,count:1},{expectedVersion:1});
+  const worker=engines.find(engine=>!engine.closed),original=worker.call.bind(worker);
+  worker.doc.selection.text={story:9,anchor:2,focus:2};worker.doc.spreads[0].items=[{id:6,children:[{id:7,story:9}]}];
+  const valid={page:1,frame:7,story:9,points:[[50,60],[50,72]]};let overlay=valid;
+  worker.call=async(method,p)=>{const result=await original(method,p);return method==='render'?{...result,caret:overlay}:result;};
+  for(const bad of [{...valid,page:0},{...valid,story:10},{...valid,frame:8},{...valid,points:[[Infinity,60],[50,72]]},{...valid,points:[[801,60],[801,72]]},{...valid,points:[[50,60,1],[50,72]]},{...valid,path:'/private'}]){
+    overlay=bad;await assert.rejects(call(session.id,'page.select',{index:1},{expectedVersion:2}),/caret geometry/);
+  }
+  overlay=valid;worker.doc.spreads[0].items[0].children[0].story=10;await assert.rejects(call(session.id,'page.select',{index:1},{expectedVersion:2}),/caret geometry/);worker.doc.spreads[0].items[0].children[0].story=9;
+  overlay=null;let previous=await call(session.id,'state');assert.equal(previous.page,0);assert.equal(previous.stateVersion,2);
+  overlay=valid;const ack=await call(session.id,'page.select',{index:1},{expectedVersion:2});assert.deepEqual(ack.caret,valid);assert.equal(ack.stateVersion,3);
+  worker.doc.selection.text.focus=3;await assert.rejects(call(session.id,'page.select',{index:0},{expectedVersion:3}),/caret geometry/);
+  overlay=null;previous=await call(session.id,'state');assert.equal(previous.page,1);assert.equal(previous.stateVersion,3);assert.equal(previous.caret,null);
+  await design.close(session.id,{discard:true});
+});
+
 test('Original Delete Page command preserves its engine ID and rejects invalid or final-page deletions before worker mutation',async t=>{
   const {project,design,engines,call}=await fixture(t),session=await design.create(project);await call(session.id,'file.new',{preset:'A4'});await call(session.id,'layout.pages.duplicateSpread',{spread:0},{expectedVersion:1});
   const worker=engines.find(engine=>!engine.closed),deleted=await call(session.id,'layout.pages.delete',{pages:[1]},{expectedVersion:2});

@@ -1,8 +1,8 @@
 diff --git a/Cargo.lock b/Cargo.lock
-index 9473c974a1ffbded2d1db4455b7e44f2a1841034..134af1919b26229ef1082e557ed40e7863012a68 100644
+index 9473c974a1ffbded2d1db4455b7e44f2a1841034..1d46ef670b6654fa5d3655f525d8c11160bc1b3b 100644
 --- a/Cargo.lock
 +++ b/Cargo.lock
-@@ -851,6 +851,19 @@ version = "1.2.0"
+@@ -851,6 +851,21 @@ version = "1.2.0"
  source = "registry+https://github.com/rust-lang/crates.io-index"
  checksum = "f27ae1dd37df86211c42e150270f82743308803d90a6f6e6651cd730d5e1732f"
  
@@ -10,9 +10,11 @@ index 9473c974a1ffbded2d1db4455b7e44f2a1841034..134af1919b26229ef1082e557ed40e78
 +name = "cw-designcraft-engine"
 +version = "0.1.0"
 +dependencies = [
++ "designcraft-compose",
 + "designcraft-doc",
 + "designcraft-engine",
 + "designcraft-format",
++ "designcraft-geom",
 + "designcraft-mcp",
 + "image",
 + "serde_json",
@@ -22,7 +24,7 @@ index 9473c974a1ffbded2d1db4455b7e44f2a1841034..134af1919b26229ef1082e557ed40e78
  [[package]]
  name = "data-url"
  version = "0.3.2"
-@@ -1153,6 +1166,7 @@ dependencies = [
+@@ -1153,6 +1168,7 @@ dependencies = [
   "eframe",
   "egui",
   "form_urlencoded",
@@ -32,10 +34,10 @@ index 9473c974a1ffbded2d1db4455b7e44f2a1841034..134af1919b26229ef1082e557ed40e78
   "rfd",
 diff --git a/apps/cw-designcraft-engine/Cargo.toml b/apps/cw-designcraft-engine/Cargo.toml
 new file mode 100644
-index 0000000000000000000000000000000000000000..3297c5ced17e4aafbe68d4b248743141d84fe308
+index 0000000000000000000000000000000000000000..c144040b6d290a7e467585ab137cf7e161b99ccd
 --- /dev/null
 +++ b/apps/cw-designcraft-engine/Cargo.toml
-@@ -0,0 +1,17 @@
+@@ -0,0 +1,19 @@
 +[package]
 +name = "cw-designcraft-engine"
 +version = "0.1.0"
@@ -48,6 +50,8 @@ index 0000000000000000000000000000000000000000..3297c5ced17e4aafbe68d4b248743141
 +[dependencies]
 +designcraft-mcp = { workspace = true }
 +designcraft-engine = { workspace = true }
++designcraft-compose = { workspace = true }
++designcraft-geom = { workspace = true }
 +designcraft-doc = { workspace = true }
 +designcraft-format = { workspace = true }
 +serde_json = { workspace = true }
@@ -55,10 +59,10 @@ index 0000000000000000000000000000000000000000..3297c5ced17e4aafbe68d4b248743141
 +image = { workspace = true }
 diff --git a/apps/cw-designcraft-engine/src/main.rs b/apps/cw-designcraft-engine/src/main.rs
 new file mode 100644
-index 0000000000000000000000000000000000000000..61a96b85aebb2ecf8dcead694c620dfefccdffd6
+index 0000000000000000000000000000000000000000..6229feb3dd2afd139264213e2eb66a5f13920588
 --- /dev/null
 +++ b/apps/cw-designcraft-engine/src/main.rs
-@@ -0,0 +1,356 @@
+@@ -0,0 +1,400 @@
 +// Contributor-original MIT OR Apache-2.0 adapter. No desktop/MCP server.
 +#![forbid(unsafe_code)]
 +#![deny(clippy::unwrap_used, clippy::expect_used, clippy::panic, clippy::todo)]
@@ -129,6 +133,25 @@ index 0000000000000000000000000000000000000000..61a96b85aebb2ecf8dcead694c620dfe
 +#[cfg(test)]
 +mod tests {
 +    use super::*;
++    #[test]
++    fn caret_is_composed_on_its_selected_facing_page() -> Result<(), Box<dyn std::error::Error>> {
++        let mut h = Headless::new();
++        h.call("engine.execute", json!({"command":"file.new","params":{"pages":3,"facingPages":true}}))?;
++        let page_x = h.session.active().and_then(|st|st.doc.page(2)).ok_or("Missing page")?.bounds().x0;
++        let frame = h.call("engine.execute", json!({"command":"frame.create","params":{"spread":1,"rect":[page_x+40.0,80.0,page_x+300.0,180.0],"content":"text","text":"Caret","caret":true}}))?;
++        let story = frame.get("story").ok_or("Missing story")?;
++        h.call("engine.execute", json!({"command":"text.select","params":{"story":story,"anchor":2,"focus":2}}))?;
++        let caret = caret_geometry(&h,2).ok_or("Missing composed caret")?;
++        assert_eq!(caret["page"],2);
++        let page_x = h.session.active().and_then(|st|st.doc.page(2)).ok_or("Missing page")?.bounds().x0;
++        assert!(page_x > 0.0);
++        assert!(caret["points"][0][0].as_f64().ok_or("Missing x")? >= page_x+40.0);
++        assert!(caret_geometry(&h,0).is_none());
++        assert!(caret_geometry(&h,1).is_none());
++        h.call("engine.execute",json!({"command":"text.select","params":{"story":story,"anchor":0,"focus":3}}))?;
++        assert!(caret_geometry(&h,2).is_none());
++        Ok(())
++    }
 +    #[test]
 +    fn owned_page_move_preserves_identity_and_recovers_after_bad_index() -> Result<(), Box<dyn std::error::Error>> {
 +        let mut h = Headless::new();
@@ -255,6 +278,27 @@ index 0000000000000000000000000000000000000000..61a96b85aebb2ecf8dcead694c620dfe
 +    }
 +    Ok(file)
 +}
++// Original compose::caret and text transform, in spread coordinates (no UI layout).
++// Cell selections and ranges need their own original selection geometry contract.
++fn caret_geometry(h: &Headless, index: usize) -> Option<Value> {
++    let st = h.session.active()?;
++    let ts = st.selection.text.filter(|ts| ts.is_caret() && ts.cell.is_none())?;
++    let cs = h.session.cache.get(&st.doc, ts.story, None);
++    let (fi, x, bl, asc, desc) = designcraft_compose::caret(&cs, ts.focus)?;
++    let ft = cs.frames.get(fi)?;
++    let loc = st.doc.find(ft.frame)?;
++    let (spread, _) = st.doc.page_loc(index)?;
++    if loc.spread != designcraft_doc::SpreadRef::Doc(spread) { return None; }
++    let it = st.doc.item(ft.frame)?;
++    let m = st.doc.parent_xf(&loc) * st.doc.text_xf(it);
++    let a = m * designcraft_geom::Point::new(x, bl - asc);
++    let b = m * designcraft_geom::Point::new(x, bl + desc);
++    let bounds = st.doc.page(index)?.bounds();
++    if ![a.x,a.y,b.x,b.y].iter().all(|v| v.is_finite() && v.abs() <= 100000.0)
++        || !bounds.contains(designcraft_geom::Point::new((a.x+b.x)/2.0,(a.y+b.y)/2.0)) { return None; }
++    Some(json!({"page":index,"frame":ft.frame,"story":ts.story,"points":[[a.x,a.y],[b.x,b.y]]}))
++}
++
 +fn answer(h: &mut Headless, saved: &mut Option<Arc<Document>>, read: &Path, write: &Path, r: &Value) -> Result<Value, Box<dyn std::error::Error>> {
 +    let method = r.get("method").and_then(Value::as_str).unwrap_or("");
 +    let p = r.get("params").cloned().unwrap_or(json!({}));
@@ -329,7 +373,11 @@ index 0000000000000000000000000000000000000000..61a96b85aebb2ecf8dcead694c620dfe
 +            let st = h.session.active().ok_or("No document")?;
 +            let index = p.get("page").and_then(Value::as_u64).unwrap_or(0) as usize;
 +            let page = st.doc.page(index).ok_or("Unknown page")?;
-+            Ok(h.call("ui.render", json!({"page":index,"scale":(1280.0/page.width.max(page.height)).min(1.0)}))?)
++            let scale = (1280.0/page.width.max(page.height)).min(1.0);
++            let caret = caret_geometry(h, index);
++            let mut frame = h.call("ui.render", json!({"page":index,"scale":scale}))?;
++            frame["caret"] = caret.unwrap_or(Value::Null);
++            Ok(frame)
 +        }
 +        "export" => {
 +            let file = output_path(write, p.get("path").and_then(Value::as_str).ok_or("Missing export filename")?)?;
@@ -516,7 +564,7 @@ index 0000000000000000000000000000000000000000..bb2e0fb37de326f98eae7fac7d3afe74
 +  document.body.append(button);
 +}
 diff --git a/apps/designcraft-web/src/web.rs b/apps/designcraft-web/src/web.rs
-index fe7cca4ae5e51ab3101b9d0b73a543fde8beae16..732c561ec73e58bc24db7a86b9a5fcb9721fb928 100644
+index fe7cca4ae5e51ab3101b9d0b73a543fde8beae16..c635e6b499110865b7df3636c37159fcdf887751 100644
 --- a/apps/designcraft-web/src/web.rs
 +++ b/apps/designcraft-web/src/web.rs
 @@ -2,31 +2,19 @@
@@ -598,7 +646,7 @@ index fe7cca4ae5e51ab3101b9d0b73a543fde8beae16..732c561ec73e58bc24db7a86b9a5fcb9
                  }),
              )
              .await;
-@@ -81,60 +81,113 @@ fn query() -> String {
+@@ -81,60 +81,115 @@ fn query() -> String {
  /// and feed them through the inbox.
  struct WebShell {
      app: DesignApp,
@@ -659,7 +707,8 @@ index fe7cca4ae5e51ab3101b9d0b73a543fde8beae16..732c561ec73e58bc24db7a86b9a5fcb9
 +                        let dirty = reply.get("document").and_then(|d|d.get("dirty")).and_then(serde_json::Value::as_bool).ok_or("Missing acknowledged dirty state")?;
 +                        let selection = reply.get("document").and_then(|d|d.get("selection")).cloned().ok_or("Missing acknowledged selection")?;
 +                        let display_name = reply.get("document").and_then(|d|d.get("name")).and_then(serde_json::Value::as_str).filter(|n|n.len()<=1024).map(str::to_owned);
-+                        Ok(HostActionAck { command_id:command, revision, page, snapshot, preview, dirty, display_name, selection })
++                        let caret = serde_json::from_value(reply.get("caret").cloned().unwrap_or(serde_json::Value::Null)).map_err(|_| "Invalid server caret geometry")?;
++                        Ok(HostActionAck { caret, command_id:command, revision, page, snapshot, preview, dirty, display_name, selection })
 +                    }.await;
 +                    replies.lock().unwrap_or_else(|e| e.into_inner()).push(result); ctx.request_repaint();
 +                });
@@ -705,6 +754,7 @@ index fe7cca4ae5e51ab3101b9d0b73a543fde8beae16..732c561ec73e58bc24db7a86b9a5fcb9
 +                let ids: Vec<_> = st.doc.pages().map(|(_, _, p)| p.id).collect();
 +                let _ = canvas.set_attribute("data-server-page-ids", &serde_json::json!(ids).to_string());
 +            }
++            let _ = canvas.set_attribute("data-server-caret-screen", &serde_json::json!(self.app.host_caret_screen).to_string());
 +            let _ = canvas.set_attribute("data-server-page", &self.app.host_page().to_string());
 +            let _ = canvas.set_attribute("data-server-revision", &self.app.host_revision().to_string());
 +            let _ = canvas.set_attribute("data-server-render", if self.app.has_host_preview() { "true" } else { "false" });
@@ -744,7 +794,7 @@ index fe7cca4ae5e51ab3101b9d0b73a543fde8beae16..732c561ec73e58bc24db7a86b9a5fcb9
              });
          })),
          // Exports ask for a name; the browser decides where the download goes.
-@@ -146,10 +199,39 @@ fn services(inbox: Inbox, ctx: egui::Context) -> Services {
+@@ -146,10 +201,39 @@ fn services(inbox: Inbox, ctx: egui::Context) -> Services {
              }
          })),
          inbox: Some(inbox),
@@ -966,10 +1016,10 @@ index c1032bccf395d43e1f5d0be0275ead5a3fe8330d..6702d269f349a9234be80c89f2d3b39e
 +    assert_eq!(s.active().map(|state| state.doc.clone()), Some(std::sync::Arc::new(document)));
 +}
 diff --git a/crates/ui-egui/src/canvas.rs b/crates/ui-egui/src/canvas.rs
-index 34dd6144278a6bac68705fb8012f987b9909a599..00f3a04507a272651ab261dcadce3870012e07fc 100644
+index 34dd6144278a6bac68705fb8012f987b9909a599..ccadf83c3e15eea8c5dd343c868bb823b73d236e 100644
 --- a/crates/ui-egui/src/canvas.rs
 +++ b/crates/ui-egui/src/canvas.rs
-@@ -77,6 +77,53 @@ impl Xf {
+@@ -77,6 +77,58 @@ impl Xf {
      }
  }
  
@@ -999,6 +1049,11 @@ index 34dd6144278a6bac68705fb8012f987b9909a599..00f3a04507a272651ab261dcadce3870
 +        self.spread_to_canvas * point
 +    }
 +
++    fn spread_to_screen(self, point: [f64; 2]) -> Pos2 {
++        pos2(self.display.min.x + ((point[0] - self.page_bounds.x0) / self.page_bounds.width()) as f32 * self.display.width(),
++             self.display.min.y + ((point[1] - self.page_bounds.y0) / self.page_bounds.height()) as f32 * self.display.height())
++    }
++
 +    /// The gateway frame contract is page-local; original tools emit spread-local rectangles.
 +    /// Caret points stay spread-local, as required by the original text.placeCaret command.
 +    fn action_params(self, id: &str, mut params: Value) -> Value {
@@ -1023,7 +1078,7 @@ index 34dd6144278a6bac68705fb8012f987b9909a599..00f3a04507a272651ab261dcadce3870
  fn c32(c: [u8; 3]) -> Color32 {
      Color32::from_rgb(c[0], c[1], c[2])
  }
-@@ -141,6 +188,7 @@ pub fn current_slot(app: &DesignApp, layout: &CanvasLayout) -> Option<usize> {
+@@ -141,6 +193,7 @@ pub fn current_slot(app: &DesignApp, layout: &CanvasLayout) -> Option<usize> {
  
  /// Absolute page index under the view centre.
  pub fn current_page(app: &DesignApp) -> Option<usize> {
@@ -1031,7 +1086,7 @@ index 34dd6144278a6bac68705fb8012f987b9909a599..00f3a04507a272651ab261dcadce3870
      let st = app.session.active()?;
      let layout = CanvasLayout::new(&st.doc, st.editing_parents);
      let i = current_slot(app, &layout)?;
-@@ -155,6 +203,10 @@ pub fn current_page(app: &DesignApp) -> Option<usize> {
+@@ -155,6 +208,10 @@ pub fn current_page(app: &DesignApp) -> Option<usize> {
  
  /// Scroll so absolute page `abs` is centred (keeps zoom).
  pub fn go_to_page(app: &mut DesignApp, abs: usize) {
@@ -1042,7 +1097,7 @@ index 34dd6144278a6bac68705fb8012f987b9909a599..00f3a04507a272651ab261dcadce3870
      let Some(st) = app.session.active() else { return };
      let layout = CanvasLayout::new(&st.doc, false);
      let Some(pr) = layout.page_rect(&st.doc, abs) else { return };
-@@ -243,7 +295,24 @@ pub fn show(app: &mut DesignApp, ui: &mut egui::Ui) {
+@@ -243,7 +300,30 @@ pub fn show(app: &mut DesignApp, ui: &mut egui::Ui) {
      if !app.view().is_some_and(|v| v.fitted) {
          fit(app, rect, "spread");
      }
@@ -1051,6 +1106,7 @@ index 34dd6144278a6bac68705fb8012f987b9909a599..00f3a04507a272651ab261dcadce3870
 +        if let Some(image) = app.host_preview.take() {
 +            app.host_texture = Some(ui.ctx().load_texture(format!("server-page-{}", app.host_revision), image, egui::TextureOptions::LINEAR));
 +        }
++        app.host_caret_screen = None;
 +        let host_view = host_page_view(app, screen);
 +        if !app.host_pending() && host_view.is_some() {
 +            handle_input(app, ui, &resp, rect, host_view);
@@ -1059,6 +1115,11 @@ index 34dd6144278a6bac68705fb8012f987b9909a599..00f3a04507a272651ab261dcadce3870
 +        painter.rect_filled(screen, 0.0, t.pasteboard);
 +        if let (Some(texture), Some(view)) = (&app.host_texture, host_view) {
 +            painter.image(texture.id(), view.display, Rect::from_min_max(pos2(0.0,0.0), pos2(1.0,1.0)), Color32::WHITE);
++            if let Some(caret) = &app.host_caret {
++                let p0 = view.spread_to_screen(caret.points[0]); let p1 = view.spread_to_screen(caret.points[1]);
++                app.host_caret_screen = Some([[p0.x,p0.y],[p1.x,p1.y]]);
++                draw_caret_segment(&painter.with_clip_rect(view.display), p0, p1);
++            }
 +        }
 +        // Tool commands are captured by the server mirror; the acknowledged server PNG is the
 +        // only document rendering shown here.
@@ -1068,7 +1129,33 @@ index 34dd6144278a6bac68705fb8012f987b9909a599..00f3a04507a272651ab261dcadce3870
      let Some(st) = app.session.active() else { return };
      let Some(&v) = app.view() else { return };
      let xf = Xf::new(rect, &v);
-@@ -1341,7 +1410,7 @@ fn fmt_tick(v: f64) -> String {
+@@ -1007,16 +1087,18 @@ fn draw_text_selection(
+         && let (Some((a, _)), Some(it)) = (item_canvas_xf(doc, layout, ft.frame), doc.item(ft.frame))
+     {
+         let m = a * doc.text_xf(it);
+-        let blink = (painter.ctx().input(|i| i.time) * 1.6) as i64 % 2 == 0;
+-        if blink {
+-            let p0 = xf.to_screen(m * Point::new(x, bl - asc));
+-            let p1 = xf.to_screen(m * Point::new(x, bl + desc));
+-            painter.line_segment([p0, p1], Stroke::new(1.0, Color32::BLACK));
+-        }
+-        painter.ctx().request_repaint_after(std::time::Duration::from_millis(330));
++        draw_caret_segment(painter, xf.to_screen(m * Point::new(x, bl - asc)), xf.to_screen(m * Point::new(x, bl + desc)));
+     }
+ }
+ 
++// Shared original caret styling/timing; host coordinates are composed by the server.
++fn draw_caret_segment(painter: &egui::Painter, p0: Pos2, p1: Pos2) {
++    if (painter.ctx().input(|i| i.time) * 1.6) as i64 % 2 == 0 {
++        painter.line_segment([p0, p1], Stroke::new(1.0, Color32::BLACK));
++    }
++    painter.ctx().request_repaint_after(std::time::Duration::from_millis(330));
++}
++
+ /// Caret / text highlight inside a table cell (the cell's lines are offset by the cell origin).
+ #[allow(clippy::too_many_arguments)]
+ fn draw_cell_selection(
+@@ -1341,7 +1423,7 @@ fn fmt_tick(v: f64) -> String {
      if (v - r).abs() < 1e-6 { format!("{}", r as i64) } else { format!("{v:.1}") }
  }
  
@@ -1077,7 +1164,7 @@ index 34dd6144278a6bac68705fb8012f987b9909a599..00f3a04507a272651ab261dcadce3870
      let Some(v) = app.view().copied() else { return };
      let xf = Xf::new(rect, &v);
      let wants_text = app.session.wants_text();
-@@ -1378,8 +1447,9 @@ fn handle_input(app: &mut DesignApp, ui: &mut egui::Ui, resp: &egui::Response, r
+@@ -1378,8 +1460,9 @@ fn handle_input(app: &mut DesignApp, ui: &mut egui::Ui, resp: &egui::Response, r
          return;
      }
      let m = ui.input(|i| mods(i, space));
@@ -1089,7 +1176,7 @@ index 34dd6144278a6bac68705fb8012f987b9909a599..00f3a04507a272651ab261dcadce3870
      let mut events: Vec<PointerEvent> = Vec::new();
      let down_id = egui::Id::new(("canvas_pointer_down", app.pane));
      let mut down: bool = ui.data(|d| d.get_temp(down_id)).unwrap_or(false);
-@@ -1435,9 +1505,14 @@ fn handle_input(app: &mut DesignApp, ui: &mut egui::Ui, resp: &egui::Response, r
+@@ -1435,9 +1518,14 @@ fn handle_input(app: &mut DesignApp, ui: &mut egui::Ui, resp: &egui::Response, r
      }
      ui.data_mut(|d| d.insert_temp(down_id, down));
      for e in events {
@@ -1104,7 +1191,7 @@ index 34dd6144278a6bac68705fb8012f987b9909a599..00f3a04507a272651ab261dcadce3870
      }
      app.after_engine();
      if resp.clicked() || resp.drag_started() {
-@@ -1445,6 +1520,19 @@ fn handle_input(app: &mut DesignApp, ui: &mut egui::Ui, resp: &egui::Response, r
+@@ -1445,6 +1533,19 @@ fn handle_input(app: &mut DesignApp, ui: &mut egui::Ui, resp: &egui::Response, r
      }
      // Keyboard for the active tool.
      if ui.ctx().text_edit_focused() && !resp.has_focus() {
@@ -1124,7 +1211,7 @@ index 34dd6144278a6bac68705fb8012f987b9909a599..00f3a04507a272651ab261dcadce3870
          return;
      }
      let evs = ui.input(|i| i.events.clone());
-@@ -1486,6 +1574,11 @@ fn handle_input(app: &mut DesignApp, ui: &mut egui::Ui, resp: &egui::Response, r
+@@ -1486,6 +1587,11 @@ fn handle_input(app: &mut DesignApp, ui: &mut egui::Ui, resp: &egui::Response, r
                  if let Some(k) = k {
                      let m = Mods { shift: modifiers.shift, alt: modifiers.alt, cmd: modifiers.command, ctrl: modifiers.ctrl, space: false };
                      let handled = app.session.tool_key(k, m, vi).unwrap_or(false);
@@ -1136,7 +1223,7 @@ index 34dd6144278a6bac68705fb8012f987b9909a599..00f3a04507a272651ab261dcadce3870
                      if !handled && k == ToolKey::Escape {
                          let _ = app.run("edit.deselectAll", json!({}));
                      }
-@@ -1745,6 +1838,46 @@ mod tests {
+@@ -1745,6 +1851,47 @@ mod tests {
  
      use super::*;
  
@@ -1151,6 +1238,7 @@ index 34dd6144278a6bac68705fb8012f987b9909a599..00f3a04507a272651ab261dcadce3870
 +        assert!((point.y - 1272.0).abs() < 1e-6);
 +        let params = view.action_params("frame.create", json!({"rect":[640.0,60.0,780.0,160.0],"spread":{"index":1,"kind":"doc"}}));
 +        assert_eq!(params["rect"], json!([40.0,60.0,180.0,160.0]));
++        assert_eq!(view.spread_to_screen([900.0,400.0]),view.display.center());
 +        let caret = json!({"frame":14,"point":[700.0,100.0]});
 +        assert_eq!(view.action_params("text.placeCaret", caret.clone()), caret);
 +        assert!(HostPageView::new(screen, vec2(0.0,800.0), view.page_bounds, Affine::IDENTITY).is_none());
@@ -1294,7 +1382,7 @@ index fdf20e6c455a0c89e86ee54b25a209db177aa794..f0e439910964389724616e882e250683
                          ui.painter().rect_filled(r, 0.0, t.panel);
                      }
 diff --git a/crates/ui-egui/src/lib.rs b/crates/ui-egui/src/lib.rs
-index fb81e9c344d4390d2e3ff8a4d0d016ad563376fc..f3b8200570c9f316d58244add3a627f7ffb1903b 100644
+index fb81e9c344d4390d2e3ff8a4d0d016ad563376fc..12389711ad7b1ab98f12e68de582801c5a6ce51d 100644
 --- a/crates/ui-egui/src/lib.rs
 +++ b/crates/ui-egui/src/lib.rs
 @@ -25,7 +25,7 @@ pub mod theme;
@@ -1306,13 +1394,36 @@ index fb81e9c344d4390d2e3ff8a4d0d016ad563376fc..f3b8200570c9f316d58244add3a627f7
  use std::sync::mpsc::{Receiver, Sender};
  
  use designcraft_engine::{Session, SnapView, UiRequest, ViewInfo};
-@@ -54,6 +54,20 @@ pub type DownloadFn = Box<dyn FnMut(&str, &[u8])>;
+@@ -54,6 +54,43 @@ pub type DownloadFn = Box<dyn FnMut(&str, &[u8])>;
  /// Files delivered asynchronously with their original operation and document identity.
  pub type Inbox = std::sync::Arc<std::sync::Mutex<Vec<ImportedFile>>>;
  
 +/// A server-owned document action waiting for its worker acknowledgement.
++#[derive(Clone, Debug, serde::Deserialize)]
++#[serde(deny_unknown_fields)]
++pub struct HostCaret {
++    pub page: usize,
++    pub frame: designcraft_doc::ItemId,
++    pub story: designcraft_doc::StoryId,
++    pub points: [[f64; 2]; 2],
++}
++impl HostCaret {
++    fn valid(&self, doc: &designcraft_doc::Document, selection: &designcraft_doc::Selection, page: usize) -> bool {
++        let Some(ts) = selection.text else { return false };
++        let Some((spread, _)) = doc.page_loc(page) else { return false };
++        let Some(loc) = doc.find(self.frame) else { return false };
++        let same_story = doc.item(self.frame).is_some_and(|it| it.text_frame().is_some_and(|t| t.story == self.story));
++        let midpoint = designcraft_geom::Point::new((self.points[0][0]+self.points[1][0])/2.0,(self.points[0][1]+self.points[1][1])/2.0);
++        self.page == page && ts.is_caret() && ts.cell.is_none() && ts.story == self.story && same_story
++            && loc.spread == designcraft_doc::SpreadRef::Doc(spread)
++            && self.points.iter().flatten().all(|v| v.is_finite() && v.abs() <= 100000.0)
++            && doc.page(page).is_some_and(|p| p.bounds().contains(midpoint))
++    }
++}
++
 +#[derive(Clone, Debug)]
 +pub struct HostActionAck {
++    pub caret: Option<HostCaret>,
 +    pub command_id: String,
 +    pub revision: u64,
 +    pub page: usize,
@@ -1327,7 +1438,7 @@ index fb81e9c344d4390d2e3ff8a4d0d016ad563376fc..f3b8200570c9f316d58244add3a627f7
  /// Platform services injected by the host (desktop or web).
  #[derive(Default)]
  pub struct Services {
-@@ -71,6 +85,8 @@ pub struct Services {
+@@ -71,6 +108,8 @@ pub struct Services {
      pub download: Option<DownloadFn>,
      /// Files delivered asynchronously, drained every frame with their captured request context.
      pub inbox: Option<Inbox>,
@@ -1336,12 +1447,14 @@ index fb81e9c344d4390d2e3ff8a4d0d016ad563376fc..f3b8200570c9f316d58244add3a627f7
  }
  
  #[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
-@@ -484,6 +500,20 @@ pub struct DesignApp {
+@@ -484,6 +523,22 @@ pub struct DesignApp {
      last_time: f64,
      /// When recovery data was last written (seconds, egui time).
      pub last_recovery: f64,
 +    host_revision: u64,
 +    host_page: usize,
++    host_caret: Option<HostCaret>,
++    pub host_caret_screen: Option<[[f32; 2]; 2]>,
 +    pub host_pages_tab_rect: Option<egui::Rect>,
 +    pub host_page_rects: Vec<(usize, egui::Rect)>,
 +    pub host_preset_rect: Option<egui::Rect>,
@@ -1357,15 +1470,15 @@ index fb81e9c344d4390d2e3ff8a4d0d016ad563376fc..f3b8200570c9f316d58244add3a627f7
  }
  
  impl DesignApp {
-@@ -521,6 +551,7 @@ impl DesignApp {
+@@ -521,6 +576,7 @@ impl DesignApp {
              native_shortcuts: Default::default(),
              last_time: 0.0,
              last_recovery: 0.0,
-+            host_pages_tab_rect: None, host_page_rects: Vec::new(), host_preset_rect: None, host_open_rect: None, host_revision: 0, host_page: 0, host_pending: false, host_open_pending: false, host_pending_command: None, host_text_queue: VecDeque::new(), host_text_queue_bytes: 0, host_draining_text: false, host_preview: None, host_texture: None,
++            host_caret_screen: None, host_pages_tab_rect: None, host_page_rects: Vec::new(), host_preset_rect: None, host_open_rect: None, host_revision: 0, host_page: 0, host_caret: None, host_pending: false, host_open_pending: false, host_pending_command: None, host_text_queue: VecDeque::new(), host_text_queue_bytes: 0, host_draining_text: false, host_preview: None, host_texture: None,
          }
      }
  
-@@ -561,6 +592,44 @@ impl DesignApp {
+@@ -561,6 +617,44 @@ impl DesignApp {
  
      /// THE entry point for every action (menus, shortcuts, palette, panels, control channel).
      pub fn run(&mut self, id: &str, params: Value) -> Result<Value, String> {
@@ -1410,7 +1523,7 @@ index fb81e9c344d4390d2e3ff8a4d0d016ad563376fc..f3b8200570c9f316d58244add3a627f7
          if let Some(r) = menus::run_ui(self, id, &params) {
              return r;
          }
-@@ -572,6 +641,95 @@ impl DesignApp {
+@@ -572,6 +666,98 @@ impl DesignApp {
          r
      }
  
@@ -1457,15 +1570,18 @@ index fb81e9c344d4390d2e3ff8a4d0d016ad563376fc..f3b8200570c9f316d58244add3a627f7
 +            return Err("Server document exceeds the 32-spread / 64-page hydration limit".into());
 +        }
 +        if ack.page >= page_count { return Err("Acknowledged page is outside the document".into()); }
++        let selection: designcraft_doc::Selection = serde_json::from_value(ack.selection).map_err(|e| format!("Invalid acknowledged selection: {e}"))?;
++        if ack.caret.as_ref().is_some_and(|c| !c.valid(&document, &selection, ack.page)) { return Err("Invalid acknowledged caret geometry".into()); }
 +        if self.session.active().is_some() {
-+            let selection: designcraft_doc::Selection = serde_json::from_value(ack.selection).map_err(|e| format!("Invalid acknowledged selection: {e}"))?;
 +            self.session.replace_server_mirror_selection(document, ack.dirty, selection).map_err(|e| e.to_string())?;
 +        } else {
 +            let mut mirror = designcraft_engine::DocState::new(document, None);
 +            mirror.mirror_dirty = Some(ack.dirty);
++            mirror.selection = selection;
 +            if ack.command_id == "file.open" { mirror.path = ack.display_name; }
 +            self.session.add_document(mirror);
 +        }
++        self.host_caret = ack.caret;
 +        self.host_page = ack.page; self.host_revision = ack.revision; self.host_pending = false; self.host_pending_command = None; self.host_preview = Some(ack.preview); self.host_texture = None;
 +        self.after_engine();
 +        if let Some((command_id, params)) = self.host_text_queue.pop_front() {
@@ -1506,7 +1622,7 @@ index fb81e9c344d4390d2e3ff8a4d0d016ad563376fc..f3b8200570c9f316d58244add3a627f7
      /// Handle requests produced by tools/commands (dialogs, view changes, file pickers).
      pub fn after_engine(&mut self) {
          let reqs = std::mem::take(&mut self.session.ui_requests);
-@@ -757,8 +915,8 @@ impl DesignApp {
+@@ -757,8 +943,8 @@ impl DesignApp {
              self.perf.fps = self.perf.fps * 0.9 + (1.0 / dt).min(240.0) * 0.1;
          }
          self.last_time = now;
@@ -1517,7 +1633,7 @@ index fb81e9c344d4390d2e3ff8a4d0d016ad563376fc..f3b8200570c9f316d58244add3a627f7
              self.drain_inbox();
          }
          if !self.synthetic.is_empty() {
-@@ -816,6 +974,7 @@ impl DesignApp {
+@@ -816,6 +1002,7 @@ impl DesignApp {
  
      /// Lay out the whole window.
      pub fn ui(&mut self, ui: &mut egui::Ui) {
@@ -1525,7 +1641,7 @@ index fb81e9c344d4390d2e3ff8a4d0d016ad563376fc..f3b8200570c9f316d58244add3a627f7
          let ctx = ui.ctx().clone();
          if !self.fonts_ready {
              ctx.request_repaint();
-@@ -1047,6 +1206,275 @@ pub fn drop_key_name_text(raw: &mut egui::RawInput, text_field_focused: bool) {
+@@ -1047,6 +1234,299 @@ pub fn drop_key_name_text(raw: &mut egui::RawInput, text_field_focused: bool) {
  mod tests {
      use super::*;
  
@@ -1541,9 +1657,33 @@ index fb81e9c344d4390d2e3ff8a4d0d016ad563376fc..f3b8200570c9f316d58244add3a627f7
 +
 +    fn server_ack(command_id: &str, revision: u64) -> HostActionAck {
 +        let document = designcraft_doc::Document::new(&designcraft_doc::build::NewDocument::default());
-+        HostActionAck { command_id: command_id.into(), revision, page: 0, snapshot: serde_json::to_value(document).unwrap(),
++        HostActionAck { caret: None, command_id: command_id.into(), revision, page: 0, snapshot: serde_json::to_value(document).unwrap(),
 +            preview: egui::ColorImage::filled([1, 1], egui::Color32::WHITE), dirty: false, display_name: None,
 +            selection: json!({"items":[],"text":null}) }
++    }
++
++    #[test]
++    fn host_caret_is_bound_to_canonical_story_page_and_matching_ack() {
++        let actions = std::sync::Arc::new(std::sync::Mutex::new(Vec::new()));
++        let mut app = host_mirror_app(actions);
++        app.run("file.new",json!({"preset":"A4"})).unwrap();
++        let mut server = Session::new();
++        server.execute("file.new",&json!({"pages":3,"facingPages":true})).unwrap();
++        let page_x = server.active().unwrap().doc.page(2).unwrap().bounds().x0;
++        let frame = server.execute("frame.create",&json!({"spread":1,"rect":[page_x+40.0,80.0,page_x+300.0,180.0],"content":"text","text":"Caret","caret":true})).unwrap();
++        server.execute("text.select",&json!({"story":frame["story"],"anchor":2})).unwrap();
++        let mut ack = server_ack("file.new",1); ack.page = 2;
++        let doc = &server.active().unwrap().doc;
++        ack.snapshot = serde_json::to_value(doc).unwrap(); ack.selection = serde_json::to_value(&server.active().unwrap().selection).unwrap();
++        let x = doc.page(2).unwrap().bounds().x0 + 50.0;
++        let caret = HostCaret { page:2,frame:serde_json::from_value(frame["id"].clone()).unwrap(),story:serde_json::from_value(frame["story"].clone()).unwrap(),points:[[x,80.0],[x,92.0]] };
++        ack.caret = Some(caret.clone());
++        let mut bad = ack.clone(); bad.caret.as_mut().unwrap().story = designcraft_doc::StoryId(999);
++        assert!(app.apply_host_action_ack(bad).is_err()); assert_eq!(app.host_revision(),0); assert!(app.host_pending()); assert!(app.host_caret.is_none());
++        app.apply_host_action_ack(ack).unwrap(); assert_eq!(app.host_page(),2); assert!(app.host_caret.is_some());
++        assert!(!caret.valid(doc,&server.active().unwrap().selection,1));
++        let mut bad = caret.clone(); bad.points[0][0] = f64::NAN; assert!(!bad.valid(doc,&server.active().unwrap().selection,2));
++        let mut range = server.active().unwrap().selection.clone(); range.text.as_mut().unwrap().focus=3; assert!(!caret.valid(doc,&range,2));
 +    }
 +
 +    #[test]

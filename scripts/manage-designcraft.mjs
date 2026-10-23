@@ -16,7 +16,7 @@ if(process.argv[2]==='install'){
   // Extend the upstream lock with only our workspace package. Native library
   // versions and vendored patches remain pinned by the upstream Cargo.lock.
   const lockFile=path.join(source,'Cargo.lock');let lock=(await readFile(lockFile,'utf8')).replace(/\r\n/g,'\n');
-  const entry='[[package]]\nname = "cw-designcraft-engine"\nversion = "0.1.0"\ndependencies = [\n "designcraft-doc",\n "designcraft-engine",\n "designcraft-format",\n "designcraft-mcp",\n "image",\n "serde_json",\n "zip",\n]\n';
+  const entry='[[package]]\nname = "cw-designcraft-engine"\nversion = "0.1.0"\ndependencies = [\n "designcraft-compose",\n "designcraft-doc",\n "designcraft-engine",\n "designcraft-format",\n "designcraft-geom",\n "designcraft-mcp",\n "image",\n "serde_json",\n "zip",\n]\n';
   const existing=/\[\[package\]\]\nname = "cw-designcraft-engine"\n[\s\S]*?(?=\n\[\[package\]\]|$)/;
   lock=existing.test(lock)?lock.replace(existing,entry):lock.replace(/version = 4\n/,`version = 4\n\n${entry}`);await writeFile(lockFile,lock);
   await run('cargo',['build','--locked','--release','-p','cw-designcraft-engine'],{env:{...process.env,CARGO_TARGET_DIR:path.join(runtime,'build'),CARGO_BUILD_JOBS:process.env.CARGO_BUILD_JOBS||'4'}});

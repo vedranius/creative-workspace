@@ -17,6 +17,29 @@ const ids=value=>{if(!Array.isArray(value)||value.length>200||value.some(id=>!Nu
 const boundedPng=value=>{if(typeof value!=='string'||value.length>16*1024*1024||!/^iVBORw0KGgo/.test(value))throw fail('Server preview is missing or exceeds the 12 MB render limit',502);const bytes=Buffer.from(value,'base64');if(bytes.length<24||bytes.length>12*1024*1024||bytes.readUInt32BE(0)!==0x89504e47)throw fail('Server preview is not a bounded PNG',502);const width=bytes.readUInt32BE(16),height=bytes.readUInt32BE(20);if(!width||!height||width>1280||height>1280||width*height>1280*1280)throw fail('Server preview dimensions exceed 1280 × 1280',502);return bytes;};
 const boundedCanonicalDocument=value=>{if(!value||typeof value!=='object'||Array.isArray(value))throw fail('Canonical DesignCraft document snapshot is missing',502);if(Buffer.byteLength(JSON.stringify(value),'utf8')>16*1024*1024)throw fail('Canonical DesignCraft document snapshot exceeds 16 MB',502);return value;};
 
+// Server-composed caret only; no browser text layout. Validate before caching a render
+// or committing page.select, so a rejected overlay preserves the acknowledged view.
+function boundedCaret(value,document,page){
+  if(value==null)return null;
+  const bad=()=>{throw fail('Invalid server caret geometry',502);};
+  if(typeof value!=='object'||Array.isArray(value)||Object.keys(value).sort().join(',')!=='frame,page,points,story')bad();
+  const text=document.selection?.text;
+  if(value.page!==page||![value.frame,value.story].every(id=>Number.isSafeInteger(id)&&id>=0)||!text||text.anchor!==text.focus||text.cell!=null||text.story!==value.story)bad();
+  if(!Array.isArray(value.points)||value.points.length!==2||value.points.some(point=>!Array.isArray(point)||point.length!==2||point.some(v=>typeof v!=='number'||!Number.isFinite(v)||Math.abs(v)>100000)))bad();
+  const spread=document.spreads?.find(sp=>sp.pages?.some(p=>p.index===page)),bounds=spread?.pages.find(p=>p.index===page)?.bounds;
+  const items=[...(spread?.items||[])];let found=null,count=0;
+  if(items.length>5000)bad();
+  while(items.length){
+    const item=items.pop();if(++count>5000)bad();
+    if(item.id===value.frame){found=item;break;}
+    if(item.children){if(!Array.isArray(item.children)||item.children.length+items.length>5000)bad();items.push(...item.children);}
+  }
+  if(found?.story!==value.story||!Array.isArray(bounds)||bounds.length!==4)bad();
+  const x=(value.points[0][0]+value.points[1][0])/2,y=(value.points[0][1]+value.points[1][1])/2;
+  if(x<bounds[0]||x>=bounds[2]||y<bounds[1]||y>=bounds[3])bad();
+  return {page,frame:value.frame,story:value.story,points:value.points.map(p=>[...p])};
+}
+
 // Do not forward arbitrary engine parameters: some native commands accept filesystem paths.
 function commandParams(method,p){
   if(method==='edit.selectAll'&&Object.keys(p).length)throw fail('edit.selectAll takes no parameters');
@@ -59,10 +82,10 @@ export function createDesignCraft({binary=process.env.CW_DESIGNCRAFT_BINARY||pat
   }
   const get=id=>{const s=sessions.get(id);if(!s||s.engine.closed)throw fail('DesignCraft session is not available',404);if(s.closing)throw fail('DesignCraft session is closing',409);s.lastUsed=Date.now();return s;};
   async function snapshot(s,selectedPage=s.page){
-    const document=await s.engine.call('state');let preview=null,documentSnapshot=null;
-    if(document){documentSnapshot=boundedCanonicalDocument(document.documentSnapshot);delete document.documentSnapshot;document.name=s.name||document.title;selectedPage=Math.max(0,Math.min(selectedPage,(document.pageCount||1)-1));const frame=await s.engine.call('render',{page:selectedPage});const png=boundedPng(frame.pngBase64);s.frames.set(++s.previewVersion,png);while(s.frames.size>3)s.frames.delete(s.frames.keys().next().value);preview=`/api/designcraft/sessions/${s.id}/preview.png?v=${s.previewVersion}`;}
+    const document=await s.engine.call('state');let preview=null,documentSnapshot=null,caret=null;
+    if(document){documentSnapshot=boundedCanonicalDocument(document.documentSnapshot);delete document.documentSnapshot;document.name=s.name||document.title;selectedPage=Math.max(0,Math.min(selectedPage,(document.pageCount||1)-1));const frame=await s.engine.call('render',{page:selectedPage});const png=boundedPng(frame.pngBase64);caret=boundedCaret(frame.caret,document,selectedPage);s.frames.set(++s.previewVersion,png);while(s.frames.size>3)s.frames.delete(s.frames.keys().next().value);preview=`/api/designcraft/sessions/${s.id}/preview.png?v=${s.previewVersion}`;}
     s.page=selectedPage;s.dirty=document?.dirty||false;
-    return {document,documentSnapshot,page:s.page,stateVersion:s.version,preview};
+    return {document,documentSnapshot,caret,page:s.page,stateVersion:s.version,preview};
   }
   async function importInput(id,stream,target,destinationChoice){
     const s=get(id),input=relative(target);

@@ -2,7 +2,7 @@
 
 # Creative Workspace
 
-**Version: 0.2.0-alpha.64** — prototype/prerelease draft candidate. DesignCraft uses the selected server page's display mapping for original pointer tools and caret actions; full original/provider/OS acceptance remains open. The independent all13 ArtCraft browser demo and its hourly verified update pipeline remain separate. Install only new Actions-built packages after tag/draft/checksum verification; preserve live installations. See [PAR-03 handoff](docs/par-03a-handoff.md) and [release limits](docs/releases.md).
+**Version: 0.2.0-alpha.65** — prototype/prerelease draft candidate. The owned DesignCraft engine computes the text caret and the original UI paints its blinking line only with matching server ACK and page geometry. Non-cell caret coverage is bounded; selection ranges, full original/provider/OS acceptance remain open. The independent all13 ArtCraft browser demo and its hourly verified update pipeline remain separate. Install only new Actions-built packages after tag/draft/checksum verification; preserve live installations. See [PAR-03 handoff](docs/par-03a-handoff.md) and [release limits](docs/releases.md).
 
 Bring your creative tools together in one browser studio. Choose an application, select your files, and access your own server from a lightweight laptop. The goal is **the original application interfaces and tools in the browser, with the server doing the heavy work**: photography, image editing, illustration, PDF, publishing, video, motion graphics, office documents, spreadsheets, presentations, CAD, interface design and audio. Browser controls run locally; document commands, data and previews travel to the server. No VNC or remote desktop is involved.
 
@@ -13,6 +13,8 @@ Bring your creative tools together in one browser studio. Choose an application,
 Alpha.24 adds an original Open-dialog candidate for a selected laptop `.designcraft` file: streaming copy-first upload is acknowledged in the same isolated session before the native server opens it and returns original UI state/server preview. Alpha.26 adds the original File → Save a Copy… candidate for an explicit new server-workspace path with workspace retention; native and atomic write ACKs precede success, the source stays dirty under its original name, and an existing path is never overwritten. Laptop output is refused until browser write ACK exists. This remains an isolated review candidate; catalog and full parity stay planned. [Open and Save Copy scope](docs/designcraft-host-canvas.md).
 
 ## What is new
+
+- **DesignCraft native caret (alpha.65 candidate):** the owned engine composes non-cell caret endpoints; the original UI draws its blinking line only with matching page/selection ACK. Selection ranges/cells and broad acceptance remain open. [Evidence](docs/evidence/designcraft-native-caret.md).
 
 - **Browser playground (alpha.63):** thirteen official release interfaces with explicit consent that processing uses the visitor's computer. The independent Cloudflare Pages export preserves licenses and source provenance while excluding private workspaces/backends. The main product continues toward server processing. [Demo and deployment](docs/cloudflare-demo.md).
 

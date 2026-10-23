@@ -1,0 +1,180 @@
+{
+  "status": "original-native-caret-ack-and-visible-blink-proof",
+  "browser": "Chromium",
+  "sourcePin": "a127c6d5c3576972bbd60445f26d893db071eef3",
+  "sourcePatchSha256": "40c29680b88ee613ba92ac990aeb567462c3d86afed52635bab7bbdb7ecf06a8",
+  "workerSha256": "5c2eef2206ee870d5c3cd297908901beda03cff47faa66086f64448c6b6af7da",
+  "uiPackage": "a127c6d5c3576972bbd60445f26d893db071eef3-40c29680b88e",
+  "setup": {
+    "originalA4": true,
+    "originalInsertPageClicks": 2,
+    "pageCount": 3,
+    "pagesPerSpread": [
+      1,
+      2
+    ],
+    "selectedPage": 2,
+    "rightPage": {
+      "bounds": [
+        595.2755905511812,
+        0,
+        1190.5511811023623,
+        841.8897637795277
+      ],
+      "columns": 1,
+      "index": 2,
+      "margins": {
+        "bottom": 36,
+        "inside": 36,
+        "outside": 36,
+        "top": 36
+      },
+      "name": "3",
+      "parent": "A-Parent",
+      "side": "right"
+    },
+    "leftPage": {
+      "bounds": [
+        0,
+        0,
+        595.2755905511812,
+        841.8897637795277
+      ],
+      "columns": 1,
+      "index": 1,
+      "margins": {
+        "bottom": 36,
+        "inside": 36,
+        "outside": 36,
+        "top": 36
+      },
+      "name": "2",
+      "parent": "A-Parent",
+      "side": "left"
+    },
+    "firstPageText": "M"
+  },
+  "frame": {
+    "request": {
+      "expectedVersion": 8,
+      "method": "frame.create",
+      "params": {
+        "caret": true,
+        "content": "text",
+        "rect": [
+          197.00262403990575,
+          235.49361027348493,
+          324.6374753632133,
+          294.36702032799724
+        ],
+        "shape": "rectangle",
+        "spread": {
+          "index": 1,
+          "kind": "doc"
+        },
+        "vertical": false
+      },
+      "requestId": "original-frame.create-1792726969186"
+    },
+    "ackRevision": 9,
+    "frameId": 17,
+    "storyId": 18,
+    "canonicalBounds": [
+      792.2782145910869,
+      235.49361027348493,
+      919.9130659143945,
+      294.36702032799724
+    ],
+    "pageXAddedExactlyOnce": true,
+    "mirrorUnchangedBeforeAck": true
+  },
+  "caret": {
+    "geometry": {
+      "page": 2,
+      "frame": 17,
+      "story": 18,
+      "points": [
+        [
+          800.0902145910869,
+          235.49361027348493
+        ],
+        [
+          800.0902145910869,
+          251.94561027348493
+        ]
+      ]
+    },
+    "blinkProof": {
+      "screenPoints": [
+        [
+          507.9567565917969,
+          350
+        ],
+        [
+          507.9567565917969,
+          366.7668151855469
+        ]
+      ],
+      "clip": {
+        "x": 505,
+        "y": 352,
+        "width": 5,
+        "height": 13
+      },
+      "samples": [
+        {
+          "dark": 25,
+          "sha256": "cbe379043881126f0589bbe48504979847b08fdda85ecf4ae24787558a7e0482"
+        },
+        {
+          "dark": 25,
+          "sha256": "cbe379043881126f0589bbe48504979847b08fdda85ecf4ae24787558a7e0482"
+        },
+        {
+          "dark": 12,
+          "sha256": "3b18dce6bfc07c7a496c3501b2ba4a6909a7adb5340a01f64e3967fbcca0d145"
+        }
+      ],
+      "serverPngUnchanged": true,
+      "previousGeometryHeldUntilAck": true
+    },
+    "request": {
+      "expectedVersion": 9,
+      "method": "text.placeCaret",
+      "params": {
+        "frame": 17,
+        "point": [
+          841.3685420231283,
+          264.9303153007412
+        ]
+      },
+      "requestId": "original-text.placeCaret-1792726969338"
+    },
+    "ackRevision": 10,
+    "spreadLocalPoint": true,
+    "actualOriginalClick": true,
+    "geometryAckRevision": 11
+  },
+  "typing": {
+    "text": "R",
+    "ackRevision": 11,
+    "storyId": 18,
+    "serverRenderSha256": "a8fe1a621abd06579d56c20217f330f49a0d9362cfc1128f71d2361ce2f19511",
+    "serverRenderChanged": true
+  },
+  "siblings": {
+    "leftPageRenderSha256": "40402e053fbcda7f6379931420bdbea7192004fd1973c890cafb6cd40efdc273",
+    "leftPagePngUnchanged": true,
+    "firstPageRenderSha256": "6e9dd44880d5ad3a1f57001e0bc4e0cd9854e8ae252d3fa5ababeb75986876b9",
+    "firstPagePngUnchanged": true,
+    "firstSpreadCanonicalUnchanged": true,
+    "selectedPageRestoredAtRevision": 14
+  },
+  "ackObserverDelayMs": 0,
+  "waitedForObserverRevisions": [],
+  "permission": "synthetic connected-folder chooser fixture; not real OS permission evidence",
+  "acceptance": "bounded original right facing-page Text Tool only; bounded non-cell caret verified; ranges/cells/full tools/providers/OS remain open",
+  "browserErrors": [],
+  "failedResponses": [],
+  "requestFailures": []
+}

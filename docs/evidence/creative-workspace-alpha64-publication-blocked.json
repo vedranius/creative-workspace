@@ -1,0 +1,18 @@
+{
+  "sourceCommit": "b5ce0e25beb0d58c31896649e2980f65c5edb56e",
+  "run": 39865724015,
+  "url": "https://github.com/vedranius/creative-workspace/actions/runs/39865724015",
+  "conclusion": "failure",
+  "successfulJobs": 24,
+  "failedJob": {
+    "name": "publish",
+    "id": 120150344582,
+    "command": "gh release create (draft/prerelease)",
+    "error": "HTTP 403: Resource not accessible by integration",
+    "endpoint": "POST /repos/vedranius/creative-workspace/releases",
+    "timeUtc": "2026-10-22T23:33:54Z"
+  },
+  "releaseExists": false,
+  "releaseAssetsVerified": false,
+  "response": "No rerun/cancellation/credential or security changes; retain source-bound Actions artifacts. Publication authorization requires repository-owner resolution."
+}
