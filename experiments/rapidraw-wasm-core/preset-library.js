@@ -23,6 +23,28 @@ export function createPresetLibrary({backend=createPresetLibraryDatabase(),pickF
  const io=async fn=>{if(pending)fail('Previous library IO still pending');const p=Promise.resolve().then(fn);pending=p;p.then(()=>{if(pending===p)pending=null;},()=>{if(pending===p)pending=null;});let timer;try{return await Promise.race([p,new Promise((_,reject)=>{timer=setTimeout(()=>reject(Error('Preset library IO timed out; reload after IO settles')),timeoutMs);})]);}finally{clearTimeout(timer);}};
  const ready=()=>{if(closed||busy||!current||uncertain)fail('Reload preset library before writing');};
  const check=()=>{if(closed)fail('Preset library session closed');};
+ const persist=async presets=>{
+   const next={schema:1,revision:current.revision+1,presets};if(!Number.isSafeInteger(next.revision))fail('Preset revision limit reached');
+   busy=true;let committing=false;
+   try{
+    committing=true;await io(()=>backend.commit(current.revision,next));check();const actual=record(await io(()=>backend.read()));check();
+    if(JSON.stringify(actual)!==JSON.stringify(next))fail('Preset library readback did not acknowledge this write');current=next;return null;
+   }catch(error){if(committing||pending)uncertain=true;throw error;}finally{busy=false;}
+ };
+ const saveCreated=async items=>{
+   ready();const presets=boundedLibrary(items),prior=current.presets,created=presets.at(-1)?.preset;
+   if(presets.length!==prior.length+1||JSON.stringify(presets.slice(0,-1))!==JSON.stringify(prior)||!created||created.presetType!=='tool'||!(/^[a-f0-9]{8}-(?:[a-f0-9]{4}-){3}[a-f0-9]{12}$/).test(created.id))fail('Only one new Exposure tool preset can be saved; existing presets must be unchanged');
+   return persist(presets);
+ };
+ const saveRenamed=async items=>{
+  ready();const presets=boundedLibrary(items),prior=current.presets;
+  if(presets.length!==prior.length)fail('Only an existing Exposure tool preset name can change');
+  const changed=presets.flatMap((item,i)=>JSON.stringify(item)!==JSON.stringify(prior[i])?[i]:[]);
+  if(changed.length!==1)fail('Change one existing Exposure tool preset name');
+  const index=changed[0],before=prior[index]?.preset,after=presets[index]?.preset;
+  if(!before||!after||before.presetType!=='tool'||after.presetType!=='tool'||JSON.stringify({...after,name:before.name})!==JSON.stringify(before))fail('Only the name may change; preset IDs, values and other fields must be preserved');
+  return persist(presets);
+ };
  return {
   async load(){if(closed||busy)fail('Preset library busy or closed');uncertain=true;current=record(await io(()=>backend.read()));check();uncertain=false;return structuredClone(current.presets);},
   async choose(){
@@ -35,15 +57,10 @@ export function createPresetLibrary({backend=createPresetLibraryDatabase(),pickF
    }
    return selected.map(l=>{const token='browser-preset-input:'+crypto.randomUUID();leases.set(token,l);return token;});
   },
-  async saveCreated(items){
-   ready();const presets=boundedLibrary(items),prior=current.presets,created=presets.at(-1)?.preset;
-   if(presets.length!==prior.length+1||JSON.stringify(presets.slice(0,-1))!==JSON.stringify(prior)||!created||created.presetType!=='tool'||!(/^[a-f0-9]{8}-(?:[a-f0-9]{4}-){3}[a-f0-9]{12}$/).test(created.id))fail('Only one new Exposure tool preset can be saved; existing presets must be unchanged');
-   const next={schema:1,revision:current.revision+1,presets};if(!Number.isSafeInteger(next.revision))fail('Preset revision limit reached');
-   busy=true;let committing=false;
-   try{
-    committing=true;await io(()=>backend.commit(current.revision,next));check();const actual=record(await io(()=>backend.read()));check();
-    if(JSON.stringify(actual)!==JSON.stringify(next))fail('Preset library readback did not acknowledge this write');current=next;return null;
-   }catch(error){if(committing||pending)uncertain=true;throw error;}finally{busy=false;}
+  saveCreated,
+  async savePresets(items,{allowRename=false}={}){
+   ready();const presets=boundedLibrary(items);
+   return allowRename&&presets.length===current.presets.length?saveRenamed(presets):saveCreated(presets);
   },
   async importFiles(tokens){
    ready();if(!Array.isArray(tokens)||tokens.length<1||tokens.length>8||new Set(tokens).size!==tokens.length)fail('Invalid preset input choices');

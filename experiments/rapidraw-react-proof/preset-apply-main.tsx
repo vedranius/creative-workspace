@@ -8,7 +8,7 @@ const qa=(globalThis as any).presetQa,rawBackend=createPresetLibraryDatabase(),b
 const library=createPresetLibrary({backend,pickFiles:o=>qa?.pickInputs?.(o)??globalThis.showOpenFilePicker(o)});
 const destination=createExportDestination({format:'rrpreset',pickFile:o=>qa?.pickPresetFile?.(o)??globalThis.showSaveFilePicker(o)});
 let trace:any[]=[];
-const host=createPresetFileHost({libraryHost:library,destination,onTrace:e=>trace.push(e)});
+const host=createPresetFileHost({libraryHost:library,destination,allowRename:(globalThis as any).rapidRawPresetRename===true,onTrace:e=>trace.push(e)});
 (globalThis as any).rapidRawPresetProof={presetLibrary:library,presetHost:host};
 (globalThis as any).rapidRawPresetPanel=()=> <PresetsPanel onNavigateToCommunity={()=>{throw Error('Community unavailable in this experiment');}}/>;
 (globalThis as any).wrapRapidRawTransport=(renderer:any)=>{

@@ -1,0 +1,18 @@
+{
+  "scope": "Exact hash-pinned original Rust Preset types and save_presets serialization/fs::write body. AppHandle/path resolver is a generated-file stub; no full native app/library-path/OS acceptance. Only generated browser Exposure tool presets.",
+  "operation": "configure-existing-tool-name",
+  "nativeSource": "b39884b38d8f148caef6fd0d52afd264951be329",
+  "sourceSha256": "3f639e11c2f8a74baa31285b2aa9456516e5c71b6c8e4d78a42dbe61f5c4a219",
+  "extractedTypesSha256": "d79af0fe56706ff2b806331b708fee05d3fcf82e4a0099693cf733dc841034bb",
+  "extractedFunctionSha256": "cf38d1cf0925c2b251e0f0c2416ceaa047138adf0f9466c3272dc3e19d0c33d9",
+  "lockSha256": "f50e0b970932c893bb184a2b30d56a3a7b0e0b6a77d98c1879e134c376ebc9fa",
+  "presets": 3,
+  "exposures": [
+    0.8,
+    -0.5,
+    0.8
+  ],
+  "bytes": 801,
+  "sha256": "c3709a94b8c4b72c22eafcceb0f043c4fb108223e8a0f32d560bc605ca448a3f",
+  "exactNativeBytes": true
+}

@@ -1,0 +1,45 @@
+diff --git a/src/hooks/usePresets.ts b/src/hooks/usePresets.ts
+--- a/src/hooks/usePresets.ts
++++ b/src/hooks/usePresets.ts
+@@ -196,7 +196,7 @@
+     savePresetsToBackend(updatedPresets);
+   };
+ 
+-  const configurePreset = (
++  const configurePreset = async (
+     id: string | null,
+     name: string,
+     includeMasks: boolean,
+@@ -289,9 +289,17 @@
+       return item;
+     });
+ 
+-    setPresets(updatedPresets);
+-    savePresetsToBackend(updatedPresets);
+-    return updatedPreset;
++    if (isLoading || createPending.current) throw new Error('Preset library is busy');
++    createPending.current = true;
++    setIsLoading(true);
++    try {
++      await invoke(Invokes.SavePresets, { presets: updatedPresets });
++      setPresets(updatedPresets);
++      return updatedPreset;
++    } finally {
++      createPending.current = false;
++      setIsLoading(false);
++    }
+   };
+ 
+   const overwritePreset = (id: string | null) => {
+diff --git a/src/components/panel/right/PresetsPanel.tsx b/src/components/panel/right/PresetsPanel.tsx
+--- a/src/components/panel/right/PresetsPanel.tsx
++++ b/src/components/panel/right/PresetsPanel.tsx
+@@ -924,7 +924,7 @@
+     presetType: 'tool' | 'style',
+   ) => {
+     if (configureModalState.preset) {
+-      const updated = configurePreset(
++      const updated = await configurePreset(
+         configureModalState.preset.id,
+         name,
+         includeMasks,

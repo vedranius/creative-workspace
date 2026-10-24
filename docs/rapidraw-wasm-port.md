@@ -1,3 +1,9 @@
+# RWASM-03 — original existing-tool Configure Preset name ACK (2026-10-24)
+
+The original card context menu/Configure Preset dialog now renames one Exposure tool preset only after atomic library write/readback. Old name, ID, values and unrelated items survive held ACK, abort, stale-tab conflict and uncertain readback; reload reconciles without replay and the renamed card remains native-exact.74 host tests/check and extracted native save bytes pass. [Evidence and continuation](rapidraw-wasm-preset-configure-handoff.md).
+
+Experimental B: reviewed source ACK patch stacked on create/modal patch; same original controls/algorithm/commands, shader/native/WASM unchanged. Only top-level tool names, not general CRUD/type/effect/metadata/OS/provider/full App acceptance; no product release/main/demo/private-photo change. Next A: exact b441e00 alpha68 CI/assets gate. Next B: original Exposure metadata auto-save/read with content identity and ACK before saved/clean. MAIN only.
+
 # RWASM-03 — original create-tool-preset write ACK (2026-10-24)
 
 The original Save New Preset/Tool dialog now waits for atomic library write/readback before adding its card or closing. Held ACK, double click, real transaction abort, stale-tab CAS and durable-but-unacknowledged reload reconciliation pass in Chromium; the created card reproduces the native+0.8 JPEG. A reviewed three-file source ACK patch preserves original controls/algorithms/command IDs.70 host tests/check and800-byte extracted native save reference pass. [Evidence and continuation](rapidraw-wasm-preset-create-handoff.md).

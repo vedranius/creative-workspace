@@ -4,7 +4,7 @@ import {createHash} from 'node:crypto';
 import {spawnSync} from 'node:child_process';
 import path from 'node:path';
 const [upstream,destination,wasmDir,variant]=process.argv.slice(2);
-const createVariant=variant==='preset-create',applyVariant=variant==='preset-apply'||createVariant;
+const configureVariant=variant==='preset-configure',createVariant=variant==='preset-create'||configureVariant,applyVariant=variant==='preset-apply'||createVariant;
 const presetVariant=variant==='presets'||variant==='preset-import'||applyVariant;
 const exportVariant=variant==='export'||variant==='settings'||applyVariant;
 if(variant&&!exportVariant&&!presetVariant)throw Error('Unknown proof variant');
@@ -39,7 +39,7 @@ if(presetVariant){
 if(applyVariant)for(const [name,expected]of Object.entries(coreMeta.presetApply.sourceFiles))if(createHash('sha256').update(await readFile(path.join(upstream,name))).digest('hex')!==expected)throw Error('Native preset preview contract differs: '+name);
 if(variant==='preset-import'||applyVariant){
  await cp(path.join(root,'experiments/rapidraw-react-proof/presets-main.tsx'),path.join(dest,'presets-main.tsx'));
- await cp(path.join(root,'experiments/rapidraw-react-proof/'+(createVariant?'preset-create-main.tsx':applyVariant?'preset-apply-main.tsx':'preset-import-main.tsx')),path.join(dest,'main.tsx'));
+ await cp(path.join(root,'experiments/rapidraw-react-proof/'+(configureVariant?'preset-configure-main.tsx':createVariant?'preset-create-main.tsx':applyVariant?'preset-apply-main.tsx':'preset-import-main.tsx')),path.join(dest,'main.tsx'));
  if(applyVariant)await cp(path.join(root,'experiments/rapidraw-react-proof/export-main.tsx'),path.join(dest,'export-main.tsx'));
  await writeFile(path.join(dest,'dialog.js'),`export function save(o){return globalThis.rapidRawTransport.pickExport(o);}
 export function open(o){return globalThis.rapidRawTransport.pickPresets(o);}
@@ -52,6 +52,13 @@ if(createVariant){
  run('git',['apply',path.join(root,patch.path)]);
  for(const [name,sha]of Object.entries(patch.patchedFiles))if(createHash('sha256').update(await readFile(path.join(dest,name))).digest('hex')!==sha)throw Error('Applied preset ACK source differs: '+name);
  await cp(path.join(root,'experiments/rapidraw-react-proof/preset-apply-main.tsx'),path.join(dest,'preset-apply-main.tsx'));
+}
+if(configureVariant){
+ const contract=coreMeta.presetConfigure,patch=contract.sourcePatch;
+ if(JSON.stringify(contract.basePatch)!==JSON.stringify(coreMeta.presetCreate.sourcePatch))throw Error('Preset configuration base ACK patch differs');
+ if(createHash('sha256').update(await readFile(path.join(root,patch.path))).digest('hex')!==patch.sha256)throw Error('Preset configure ACK patch differs');
+ run('git',['apply',path.join(root,patch.path)]);
+ for(const [name,sha]of Object.entries(patch.patchedFiles))if(createHash('sha256').update(await readFile(path.join(dest,name))).digest('hex')!==sha)throw Error('Applied preset configure source differs: '+name);
 }
 const qualityTimer=JSON.parse(await readFile(path.join(wasmDir,'quality-timer-compat.json'),'utf8'));
 if(qualityTimer.decoderSource!==coreMeta.decoder.commit||JSON.stringify(qualityTimer.patch)!==JSON.stringify(coreMeta.qualityTimerPatch))throw Error('Quality timer provenance mismatch');
@@ -71,7 +78,7 @@ const sources={};for(const name of ['src/hooks/useImageLoader.ts','src/hooks/use
 const expected=coreMeta.reactUi.sourceFiles;
 if(JSON.stringify(sources)!==JSON.stringify(expected))throw Error('Pinned original React source hashes differ');
 const runtimeSha256={};for(const name of ['react-image-worker.js','react-transport.js',...((variant==='preset-import'||applyVariant)?['preset-library.js']:[]),...(presetVariant?['preset-file.js','export-destination.js']:[]),...(variant==='settings'?['settings-storage.js']:[]),...(exportVariant?['export-destination.js','export-bridge.js','export-client.js','export-worker.js']:[])])runtimeSha256[name]=createHash('sha256').update(await readFile(path.join(engine,name))).digest('hex');
-await writeFile(path.join(dest,'source-proof.json'),JSON.stringify({nativeSource:pin,presetFiles:presetVariant?coreMeta.presetFiles:undefined,presetApply:applyVariant?coreMeta.presetApply:undefined,presetCreate:createVariant?coreMeta.presetCreate:undefined,presetLibrary:(variant==='preset-import'||applyVariant)?coreMeta.presetLibrary:undefined,settingsUi:variant==='settings'?coreMeta.settingsUi:undefined,exportUi:exportVariant?coreMeta.exportUi:undefined,license:'AGPL-3.0-only',sourceFiles:sources,runtimeSha256,wasmSha256,qualityTimerCompatibility:qualityTimer,previewResize:coreMeta.previewResize,interactivePreview:coreMeta.interactivePreview,orientationFlip:coreMeta.orientationFlip,cropPreview:coreMeta.cropPreview,uncroppedPreview:coreMeta.uncroppedPreview,fineRotation:coreMeta.fineRotation,fineInteractive:coreMeta.fineInteractive,scope:createVariant?coreMeta.presetCreate.scope:applyVariant?coreMeta.presetApply.scope:variant==='preset-import'?coreMeta.presetLibrary.scope:presetVariant?coreMeta.presetFiles.scope:variant==='settings'?coreMeta.settingsUi.scope:exportVariant?coreMeta.exportUi.scope:'Unchanged original hooks/stores/Editor/Basic/Slider in QA composition. Core invoke aliased; native Clerk explicitly unavailable; no full App/menu/provider acceptance.'},null,2)+'\n');
+await writeFile(path.join(dest,'source-proof.json'),JSON.stringify({nativeSource:pin,presetFiles:presetVariant?coreMeta.presetFiles:undefined,presetApply:applyVariant?coreMeta.presetApply:undefined,presetCreate:createVariant?coreMeta.presetCreate:undefined,presetConfigure:configureVariant?coreMeta.presetConfigure:undefined,presetLibrary:(variant==='preset-import'||applyVariant)?coreMeta.presetLibrary:undefined,settingsUi:variant==='settings'?coreMeta.settingsUi:undefined,exportUi:exportVariant?coreMeta.exportUi:undefined,license:'AGPL-3.0-only',sourceFiles:sources,runtimeSha256,wasmSha256,qualityTimerCompatibility:qualityTimer,previewResize:coreMeta.previewResize,interactivePreview:coreMeta.interactivePreview,orientationFlip:coreMeta.orientationFlip,cropPreview:coreMeta.cropPreview,uncroppedPreview:coreMeta.uncroppedPreview,fineRotation:coreMeta.fineRotation,fineInteractive:coreMeta.fineInteractive,scope:configureVariant?coreMeta.presetConfigure.scope:createVariant?coreMeta.presetCreate.scope:applyVariant?coreMeta.presetApply.scope:variant==='preset-import'?coreMeta.presetLibrary.scope:presetVariant?coreMeta.presetFiles.scope:variant==='settings'?coreMeta.settingsUi.scope:exportVariant?coreMeta.exportUi.scope:'Unchanged original hooks/stores/Editor/Basic/Slider in QA composition. Core invoke aliased; native Clerk explicitly unavailable; no full App/menu/provider acceptance.'},null,2)+'\n');
 if(process.env.RAPIDRAW_REACT_DEPENDENCY_STAGE){
  const cached=path.resolve(process.env.RAPIDRAW_REACT_DEPENDENCY_STAGE);
  if(!Buffer.from(await readFile(path.join(cached,'package-lock.json'))).equals(await readFile(path.join(dest,'package-lock.json'))))throw Error('Cached dependency lock differs');

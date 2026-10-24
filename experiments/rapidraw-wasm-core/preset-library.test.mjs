@@ -60,3 +60,20 @@ test('create abort/readback mismatch/other-tab conflict preserve acknowledged re
 test('create timeout keeps unacknowledged durable result and blocks writes until reconciliation',async()=>{
  const f=fixture({timeoutMs:50});await f.host.load();f.state.readGate=gate();const job=f.host.saveCreated([created()]);await until(()=>f.state.reading);await assert.rejects(job,/timed out/);assert.equal(f.host.status().revision,0);assert.equal(f.host.status().pendingIO,true);await assert.rejects(f.host.saveCreated([created()]),/Reload/);f.state.readGate.release();await until(()=>!f.host.status().pendingIO);await f.host.load();assert.equal(f.host.status().revision,1);assert.equal(f.state.commits,1);
 });
+test('configure rename waits for ACK, keeps ID/Exposure/other records, and is opt-in',async()=>{
+ const f=fixture();await f.host.load();await f.host.saveCreated([created()]);const before=await f.host.load(),next=structuredClone(before);next[0].preset.name='Renamed';await assert.rejects(f.host.savePresets(next),/Only one new/);
+ f.state.readGate=gate();let resolved=false;const job=f.host.savePresets(next,{allowRename:true}).then(v=>{resolved=true;return v;});await until(()=>f.state.reading);assert.equal(f.state.record.revision,2);assert.equal(f.host.status().revision,1);assert.equal(resolved,false);await assert.rejects(f.host.savePresets(next,{allowRename:true}),/Reload/);f.state.readGate.release();assert.equal(await job,null);const saved=await f.host.load();assert.equal(saved[0].preset.id,before[0].preset.id);assert.deepEqual(saved[0].preset.adjustments,before[0].preset.adjustments);assert.equal(saved[0].preset.name,'Renamed');
+});
+test('configure refuses value/ID/type/flags/order/multiple/no-op changes before writes',async()=>{
+ const f=fixture();await f.host.load();await f.host.saveCreated([created('First')]);const one=await f.host.load();await f.host.saveCreated([...one,created('Second')]);const before=await f.host.load(),writes=f.state.commits;
+ const variants=[before,[...before].reverse(),before.slice(0,1)];
+ for(const fields of [{id:crypto.randomUUID(),name:'Renamed'},{adjustments:{exposure:0.9},name:'Renamed'},{presetType:'style',name:'Renamed'},{includeMasks:true,name:'Renamed'}]){const v=structuredClone(before);Object.assign(v[0].preset,fields);variants.push(v);}
+ const both=structuredClone(before);both.forEach(i=>i.preset.name+=' changed');variants.push(both);
+ for(const v of variants)await assert.rejects(f.host.savePresets(v,{allowRename:true}));assert.equal(f.state.commits,writes);assert.equal(f.host.status().uncertain,false);assert.deepEqual(await f.host.load(),before);
+});
+test('stale configure rename preserves newer peer names and requires reload',async()=>{
+ const f=fixture();await f.host.load();await f.host.saveCreated([created()]);const before=await f.host.load(),next=structuredClone(before);next[0].preset.name='Local rename';f.state.record={...f.state.record,revision:2,presets:structuredClone(before)};f.state.record.presets[0].preset.name='Peer name';const peer=structuredClone(f.state.record);await assert.rejects(f.host.savePresets(next,{allowRename:true}),/another tab/);assert.deepEqual(f.state.record,peer);assert.equal(f.host.status().revision,1);assert.equal(f.host.status().uncertain,true);await f.host.load();assert.equal(f.host.status().revision,2);
+});
+test('successful rename invalidates earlier import choices without replay or extra commits',async()=>{
+ const f=fixture();await f.host.load();await f.host.saveCreated([created()]);const before=await f.host.load(),tokens=await f.host.choose(),next=structuredClone(before);next[0].preset.name='Renamed';await f.host.savePresets(next,{allowRename:true});await assert.rejects(f.host.importFiles(tokens),/expired|changed/);assert.equal(f.state.commits,2);assert.equal(f.host.status().revision,2);
+});
