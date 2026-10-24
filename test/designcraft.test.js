@@ -427,3 +427,18 @@ test('Tagged footnote geometry binds exact canonical note/story/range and reject
   range={...range,note:{kind:'footnote',id:'2'}};await assert.rejects(call(session.id,'page.select',{index:0},{expectedVersion:3}),/text selection geometry/);
   await design.close(session.id,{discard:true});
 });
+
+test('Original Insert Footnote keeps its command ID and only advances after the worker ACK',async t=>{
+  const {project,design,engines,call}=await fixture(t),session=await design.create(project);
+  await call(session.id,'file.new',{preset:'A4'});const worker=engines.find(e=>!e.closed),command=worker.call.bind(worker);
+  for(const p of [{text:7},{text:'é'.repeat(2049)},{text:'x',path:'/private'},{raw:true}])await assert.rejects(call(session.id,'footnote.insert',p,{expectedVersion:1}),/optional text|4 KiB/);
+  assert.deepEqual(worker.commands,[]);
+  worker.call=async(method,p)=>{if(method==='command'&&p.command==='footnote.insert')throw Error('native insertion refused');return command(method,p);};
+  await assert.rejects(call(session.id,'footnote.insert',{}, {expectedVersion:1}),/native insertion refused/);assert.equal((await call(session.id,'state')).stateVersion,1);
+  let release,entered;const gate=new Promise(r=>release=r),started=new Promise(r=>entered=r);
+  worker.call=async(method,p)=>{if(method==='command'&&p.command==='footnote.insert'){entered();await gate;}return command(method,p);};
+  const insertion=call(session.id,'footnote.insert',{}, {expectedVersion:1});await started;assert.deepEqual(worker.commands,[]);release();
+  const ack=await insertion;assert.equal(ack.stateVersion,2);assert.equal(ack.result.commandId,'footnote.insert');assert.equal(ack.document.dirty,true);assert.deepEqual(worker.commands,['footnote.insert']);assert.deepEqual(worker.commandParams,[{}]);
+  await assert.rejects(call(session.id,'footnote.insert',{}, {expectedVersion:1}),e=>e.code==='STATE_VERSION_CONFLICT');
+  await design.close(session.id,{discard:true});
+});

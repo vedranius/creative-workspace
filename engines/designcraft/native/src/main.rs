@@ -30,6 +30,7 @@ const COMMANDS: &[&str] = &[
     "text.placeCaret",
     "text.select",
     "text.insert",
+    "footnote.insert",
     "text.delete",
     "type.char",
     "edit.clear",
@@ -224,6 +225,33 @@ fn items_budget(items: &[Arc<Item>], depth: usize, count: &mut usize) -> Result<
     }
     Ok(())
 }
+// Bound the new original command before its Session edit can mutate the document.
+fn footnote_insert_budget(h: &Headless, p: &Value) -> Result<(), Box<dyn std::error::Error>> {
+    let params=p.as_object().ok_or("footnote.insert requires an object")?;
+    if params.keys().any(|k| k!="text") || params.get("text").is_some_and(|v| !v.is_string() || v.as_str().is_some_and(|t| t.len()>4096)) {
+        return Err("footnote.insert accepts only optional text up to 4 KiB".into());
+    }
+    let st=h.session.active().ok_or("No document")?;
+    let ts=st.selection.text.ok_or("footnote.insert requires a body insertion point")?;
+    if ts.cell.is_some() { return Err("Footnotes cannot be inserted in cells or notes".into()); }
+    let story=st.doc.story(ts.story).ok_or("Unknown story")?;
+    if story.notes.len()>=1024 || story.notes.iter().any(|n| n.id>=u32::MAX as u64) {
+        return Err("Footnote insertion exceeds the note count or wasm32 ID budget".into());
+    }
+    let r=ts.range();
+    if story.len().saturating_sub(r.end.min(story.len()).saturating_sub(r.start.min(story.len())))+3>1024*1024 {
+        return Err("Footnote reference would exceed the 1 MiB story limit".into());
+    }
+    budget(&st.doc)?;
+    // This pure source command can duplicate document styles into note text. Run
+    // the original command on an isolated COW document, then validate its exact
+    // result before changing the real Session or its undo history.
+    let mut candidate=designcraft_engine::Session::new();
+    let mut state=DocState::new((*st.doc).clone(),None);state.selection=st.selection.clone();candidate.add_document(state);
+    candidate.execute("footnote.insert",p)?;
+    let doc=&candidate.active().ok_or("No candidate document")?.doc;
+    budget(doc)?;canonical_snapshot(doc)?;Ok(())
+}
 fn budget(d: &Document) -> Result<(), Box<dyn std::error::Error>> {
     if d.stories.values().any(|s| s.notes.iter().any(|n| n.id == 0 || n.id > u32::MAX as u64)) {
         return Err("Footnote ID exceeds the canonical JSON / wasm32 address budget".into());
@@ -399,7 +427,18 @@ fn answer(h: &mut Headless, saved: &mut Option<Arc<Document>>, read: &Path, writ
             if !COMMANDS.contains(&c) {
                 return Err("Unsupported workspace layout command".into());
             }
+            if c=="footnote.insert" { footnote_insert_budget(h,p.get("params").unwrap_or(&Value::Null))?; }
+            // Upstream records the old document with the post-edit selection.
+            // For admitted note edits, pair that exact history entry with its
+            // pre-edit selection, so Undo cannot point beyond an empty/deleted note.
+            let note_history = h.session.active().filter(|st| c=="footnote.insert"
+                || (matches!(c,"text.insert" | "text.delete" | "edit.clear")
+                    && st.selection.text.and_then(|t|t.cell).and_then(|cell|cell.footnote_id()).is_some()))
+                .map(|st|(st.doc.clone(),st.selection.clone()));
             let mut result = h.call("engine.execute", p)?;
+            if let Some((doc,selection))=note_history
+                && let Some(entry)=h.session.active_mut().and_then(|st|st.history.undo.last_mut())
+                && Arc::ptr_eq(&entry.doc,&doc) { entry.selection=selection; }
             if let Some(cell) = result.get("cell").filter(|c| !c.is_null()) {
                 let cell: designcraft_doc::CellAddr = serde_json::from_value(cell.clone())?;
                 wire_address(&mut result, cell)?;
@@ -543,5 +582,58 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
   assert!(canonical_snapshot(&reopened)?.to_string().contains("Body text"));if let Some(output)=&output {std::fs::write(output.join("saved.designcraft"),bytes)?;}
   if let Some(output)=&output { std::fs::write(output.join("fixture.designcraft.json"),serde_json::to_vec_pretty(&json!({"page":2,"frame":frame,"story":ts.story,"noteId":id,"point":[point.x,point.y],"nativeSentinel":u64::MAX.to_string(),"range":[0,13],"originalNoteCaret":[x,bl,asc],"currentAdapterCaret":plain["caret"],"currentAdapterSelection":selected["textSelection"],"canonicalUnchangedBySelection":true,"nativeTextHitAndEdit":true,"nativeSaveReopenCanonicalExact":true}))?)?; }
   Ok(())
+ }
+}
+
+#[cfg(test)] mod footnote_insert_contract {
+ use super::*;
+ fn body() -> Result<(Headless,Option<Arc<Document>>,Value),Box<dyn std::error::Error>> {
+  let mut h=Headless::new();h.call("engine.execute",json!({"command":"file.new","params":{"pages":3,"facingPages":true}}))?;
+  let px=h.session.active().and_then(|s|s.doc.page(2)).ok_or("No page")?.bounds().x0;
+  let frame=h.call("engine.execute",json!({"command":"frame.create","params":{"spread":1,"rect":[px+60.0,80.0,px+360.0,320.0],"content":"text","caret":true}}))?;
+  h.call("engine.execute",json!({"command":"text.insert","params":{"text":"Body text"}}))?;Ok((h,None,frame))
+ }
+ #[test] fn original_insert_command_enters_empty_note_and_saves_reopens() -> Result<(),Box<dyn std::error::Error>> {
+  let (mut h,mut saved,frame)=body()?;let output=std::env::var("CW_FOOTNOTE_OUTPUT").ok().map(PathBuf::from);
+  let old=h.session.active().ok_or("No doc")?.doc.clone();let original=canonical_snapshot(&old)?;
+  let caret=caret_geometry(&h,2).ok_or("No body caret")?;
+  if let Some(o)=&output { std::fs::write(o.join("insert-body.designcraft"),designcraft_format::save(&old)?)?;std::fs::write(o.join("insert-body.designcraft.json"),serde_json::to_vec_pretty(&json!({"page":2,"story":frame["story"],"frame":frame["id"],"point":[caret["points"][0][0],(caret["points"][0][1].as_f64().ok_or("No y")?+caret["points"][1][1].as_f64().ok_or("No y")?)/2.0]}))?)?; }
+  let result=answer(&mut h,&mut saved,Path::new("."),Path::new("."),&json!({"method":"command","params":{"command":"footnote.insert","params":{}}}))?;
+  assert_eq!(result,json!({"story":frame["story"],"id":1}));let selected=wire_selection(&h.session.active().ok_or("No inserted doc")?.selection)?;
+  assert_eq!(selected["text"]["note"],json!({"kind":"footnote","id":"1"}));assert_eq!(selected["text"]["focus"],0);
+  let story=h.session.active().ok_or("No doc")?.doc.story(serde_json::from_value(frame["story"].clone())?).ok_or("No story")?;assert_eq!(story.text,format!("Body text{}",designcraft_doc::FOOTNOTE_REF));assert!(story.notes[0].text.text.is_empty());
+  assert!(answer(&mut h,&mut saved,Path::new("."),Path::new("."),&json!({"method":"command","params":{"command":"footnote.insert","params":{}}})).is_err());
+  answer(&mut h,&mut saved,Path::new("."),Path::new("."),&json!({"method":"command","params":{"command":"text.insert","params":{"text":"N"}}}))?;let edited=h.session.active().ok_or("No doc")?.doc.clone();let bytes=designcraft_format::save(&edited)?;let reopened=designcraft_format::load(&bytes)?;assert_eq!(canonical_snapshot(&reopened)?,canonical_snapshot(&edited)?);
+  h.call("engine.execute",json!({"command":"edit.undo","params":{}}))?;
+  let undo_selection=wire_selection(&h.session.active().ok_or("No undo note")?.selection)?;
+  assert_eq!(undo_selection["text"]["focus"],0);assert_eq!(undo_selection["text"]["note"],json!({"kind":"footnote","id":"1"}));
+  assert!(caret_geometry(&h,2).is_some());
+  h.call("engine.execute",json!({"command":"edit.undo","params":{}}))?;assert_eq!(canonical_snapshot(&h.session.active().ok_or("No undo doc")?.doc)?,original);
+  let body_selection=wire_selection(&h.session.active().ok_or("No body")?.selection)?;assert!(body_selection["text"].get("note").is_none());assert_eq!(body_selection["text"]["focus"],9);
+  h.call("engine.execute",json!({"command":"edit.redo","params":{}}))?;h.call("engine.execute",json!({"command":"edit.redo","params":{}}))?;assert_eq!(canonical_snapshot(&h.session.active().ok_or("No redo doc")?.doc)?,canonical_snapshot(&edited)?);
+  assert_eq!(wire_selection(&h.session.active().ok_or("No redo note")?.selection)?["text"]["focus"],1);
+  if let Some(o)=&output { std::fs::write(o.join("insert-contract.json"),serde_json::to_vec_pretty(&json!({"emptyOriginalCommand":result,"selectedNote":selected,"bodyReferenceOnly":true,"nestedRefused":true,"typingInNote":true,"undoBodyRestored":true,"undoNoteAndBodySelectionRestored":true,"redoCanonicalAndSelectionExact":true,"nativeSaveReopenCanonicalExact":true}))?)?; }Ok(())
+ }
+ #[test] fn insertion_preflight_rejects_bad_params_and_exhausted_id_without_edit() -> Result<(),Box<dyn std::error::Error>> {
+  let (mut h,mut saved,frame)=body()?;let prior=h.session.active().ok_or("No doc")?.doc.clone();
+  for p in [json!({"text":7}),json!({"text":"x","path":"outside"}),json!({"text":"é".repeat(2049)}),Value::Null] {
+   assert!(answer(&mut h,&mut saved,Path::new("."),Path::new("."),&json!({"method":"command","params":{"command":"footnote.insert","params":p}})).is_err());assert!(Arc::ptr_eq(&prior,&h.session.active().ok_or("No doc")?.doc));
+  }
+  h.call("engine.execute",json!({"command":"footnote.insert","params":{"text":"prior"}}))?;h.call("engine.execute",json!({"command":"text.select","params":{"story":frame["story"],"anchor":0,"focus":0}}))?;
+  {let st=h.session.active_mut().ok_or("No mutable doc")?;let doc=Arc::make_mut(&mut st.doc);let story=doc.story_mut(serde_json::from_value(frame["story"].clone())?).ok_or("No story")?;Arc::make_mut(&mut story.notes[0]).id=u32::MAX as u64;}
+  let prior=h.session.active().ok_or("No doc")?.doc.clone();assert!(answer(&mut h,&mut saved,Path::new("."),Path::new("."),&json!({"method":"command","params":{"command":"footnote.insert","params":{}}})).is_err());assert!(Arc::ptr_eq(&prior,&h.session.active().ok_or("No doc")?.doc));Ok(())
+ }
+}
+
+#[cfg(test)] mod footnote_candidate_budget {
+ use super::*;
+ #[test] fn exact_original_candidate_bounds_duplicated_note_style_before_edit() -> Result<(),Box<dyn std::error::Error>> {
+  let mut h=Headless::new();let mut saved=None;
+  h.call("engine.execute",json!({"command":"file.new","params":{}}))?;
+  h.call("engine.execute",json!({"command":"frame.create","params":{"rect":[40.0,40.0,300.0,300.0],"content":"text","caret":true}}))?;
+  {let st=h.session.active_mut().ok_or("No doc")?;Arc::make_mut(&mut st.doc).footnote_options.para_style="x".repeat(8*1024*1024);}
+  let prior=h.session.active().ok_or("No doc")?.doc.clone();canonical_snapshot(&prior)?;
+  assert!(answer(&mut h,&mut saved,Path::new("."),Path::new("."),&json!({"method":"command","params":{"command":"footnote.insert","params":{}}})).is_err());
+  assert!(Arc::ptr_eq(&prior,&h.session.active().ok_or("No doc")?.doc));Ok(())
  }
 }

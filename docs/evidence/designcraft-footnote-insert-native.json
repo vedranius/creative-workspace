@@ -1,0 +1,53 @@
+{
+  "bodyReferenceOnly": true,
+  "emptyOriginalCommand": {
+    "id": 1,
+    "story": 12
+  },
+  "nativeSaveReopenCanonicalExact": true,
+  "nestedRefused": true,
+  "redoCanonicalAndSelectionExact": true,
+  "selectedNote": {
+    "content": false,
+    "items": [],
+    "text": {
+      "anchor": 0,
+      "focus": 0,
+      "frame": 11,
+      "note": {
+        "id": "1",
+        "kind": "footnote"
+      },
+      "story": 12
+    }
+  },
+  "typingInNote": true,
+  "undoBodyRestored": true,
+  "undoNoteAndBodySelectionRestored": true,
+  "sourcePin": "a127c6d5c3576972bbd60445f26d893db071eef3",
+  "sourcePatchSha256": "6c873683d47acebd61155ce86238d8c0abd0ca4c758599a5967d45059e0c6d4b",
+  "nativeWorkerSha256": "69d2c65712ed785605eb0923d5209c378640d6dcec2eb9f2beee71c80d0a2245",
+  "nativeTests": {
+    "passed": 11,
+    "failed": 0
+  },
+  "sourceUiTests": {
+    "passed": 163,
+    "ignoredExisting": 1,
+    "failed": 0
+  },
+  "gatewayTests": {
+    "passed": 34,
+    "failed": 0
+  },
+  "repositoryTests": {
+    "passed": 92,
+    "failed": 0
+  },
+  "npmCheck": "passed",
+  "releaseValidation": "0.2.0-alpha.70",
+  "browserUiBuildInputsUnchangedFrom": "40545150a530edb1eaa2558f26cc40fae5487ecf11b8ab6e7c1410eadf39a904",
+  "nativeOnlyHistoryFix": true,
+  "inputs": "Generated native document only; no user files",
+  "releaseAssets": "Local QA only; Actions assets require independent verification"
+}

@@ -1,3 +1,11 @@
+## [0.2.0-alpha.70] - 2026-10-25
+
+- Connect the original Type > Insert Footnote action and unchanged `footnote.insert` command to the owned server. Default empty insertion enters the note only after matching ACK; original queued typing follows that ACK.
+- Preserve actual raw typing during the pending ACK through the existing bounded FIFO, and restore each admitted note edit’s pre-edit selection with its original Undo document. Keep focused field and pointer guards intact.
+- Bound optional text to4KiB and preflight body selection, note count/wasm32 ID, body-text and canonical JSON budgets before native mutation. Preserve the original reference/numbering/composition algorithms and existing tagged note selection.
+- Cover original menu insertion, held ACK, queued typing, Undo/Redo and native Save a Copy/fresh reopen. Options, whole-cell tools, full providers/real OS/all13 acceptance remain open; DesignCraft stays planned.
+- New prototype draft candidate; fresh Actions checks/build, immutable tag/draft/source and independently downloaded assets/checksums are required. Older tags/assets stay immutable.
+
 ## [0.2.0-alpha.69] - 2026-10-24
 
 - Preserve original footnote selection through JavaScript with an explicit decimal-string note address; reconstruct native CellAddr only after canonical validation in the original Rust UI.

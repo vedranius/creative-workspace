@@ -1,3 +1,9 @@
+# PAR-03 alpha.70 — original Type > Insert Footnote candidate (2026-10-25)
+
+Original `footnote.insert` is connected to the owned worker and original Type menu. Matching ACK precedes mirror mutation and queued note typing. Optional text and exact original candidate/ID/count/story/JSON budgets are checked before the real edit; existing lossless note/caret/range behavior stays. [Contract, validation and limits](evidence/designcraft-footnote-insert.md).
+
+Local native11/UI163+1ignored/gateway34/repository92/check/release/YAML and actual browser held-ACK/FIFO/UndoRedo/native save-reopen pass. Pending raw typing and note Undo selection defects discovered by that browser were corrected. Alpha70 requires its own Actions checks/build, immutable tag/draft/source and downloaded assets/checksums. Alpha69's gate is complete and immutable. DesignCraft stays planned; Footnote Options/full tools/providers/real OS/all13 acceptance remain open. Next B: original ordinary library single-click/clear metadata ACK fromb7f126489; double-click/cache/load proof complete. MAIN only, preserve FilmCraft, live studios, original files, private photos and public demo.
+
 # PAR-03 alpha.69 — immutable Actions draft assets verified (2026-10-24)
 
 Checks40117793523 and all 25 Build/release40117793506 jobs passed for `8b7f5488`. Tag v0.2.0-alpha.69 and draft prerelease 422929719 resolve to the exact source. All 24 downloaded assets/12 SHA256 pairs, three Node runtimes, 12 engine binaries, startup/licenses/source manifests and eight UI manifests/167 files verify. DesignCraft patch `61043195` matches source and packaged provenance. [Release evidence and limits](evidence/creative-workspace-alpha69-release.md) · [Footnote implementation/browser proof](evidence/designcraft-footnote-wire.md).

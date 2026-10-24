@@ -1,0 +1,68 @@
+{
+  "status": "original-Type-Insert-Footnote-ack-fifo-undo-save-reopen-passed",
+  "workerSha256": "69d2c65712ed785605eb0923d5209c378640d6dcec2eb9f2beee71c80d0a2245",
+  "uiWasm": {
+    "path": "designcraft-web-508db1cba83b5a46_bg.wasm",
+    "size": 40320896,
+    "sha256": "466bcd257d331699c49f7ff1cc9af5bc51e79dccdbb2d84200821bd8d4966ae5"
+  },
+  "sourcePin": "a127c6d5c3576972bbd60445f26d893db071eef3",
+  "sourcePatchSha256": "6c873683d47acebd61155ce86238d8c0abd0ca4c758599a5967d45059e0c6d4b",
+  "fixture": {
+    "generatedNative": true,
+    "sha256": "a1afe413a6684db4d910ca944bb388751507e926ac464ae30a0e67d9bd01a190"
+  },
+  "originalMenu": {
+    "typeMenu": [
+      188.390625,
+      17.5
+    ],
+    "insertItem": [
+      295,
+      726.5
+    ],
+    "commandId": "footnote.insert",
+    "params": {}
+  },
+  "heldInsertAck": {
+    "priorRevision": 4,
+    "acceptedRevision": 5,
+    "bodyCaretHeld": true,
+    "typingQueuedUntilAck": true
+  },
+  "typedNote": {
+    "note": {
+      "kind": "footnote",
+      "id": "1"
+    },
+    "text": "N",
+    "revision": 6,
+    "caret": {
+      "page": 2,
+      "frame": 11,
+      "story": 12,
+      "points": [
+        [
+          716.82,
+          303.54799999999994
+        ],
+        [
+          716.82,
+          319.99999999999994
+        ]
+      ],
+      "note": {
+        "kind": "footnote",
+        "id": "1"
+      }
+    }
+  },
+  "bodyReferenceOnly": true,
+  "canonicalAndPngUndoRedoExact": true,
+  "nativeSaveFreshReopenCanonicalExact": true,
+  "originalInputUnchanged": true,
+  "errors": [],
+  "failedResponses": [],
+  "requestFailures": [],
+  "permission": "Synthetic browser folder plus owned on-demand helper; actual original Open/Type menu/Insert Footnote and typing/Undo/Redo. Real OS permission and full provider/tools parity remain unaccepted."
+}

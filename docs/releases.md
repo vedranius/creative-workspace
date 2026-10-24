@@ -1,3 +1,9 @@
+# Alpha.70 original Insert Footnote candidate — 2026-10-25
+
+`0.2.0-alpha.70` connects the original Type > Insert Footnote command to the owned server, with matching ACK before mirror mutation or queued note typing. Exact original candidate validation bounds the resulting document before the actual edit; original composition/numbering and tagged note/caret/range remain. [Implementation and acceptance evidence](evidence/designcraft-footnote-insert.md). Footnote Options, full original/provider/OS/all13 acceptance remain open; keep draft-only.
+
+Build/checks, immutable tag/draft/source and independently downloaded Actions assets/checksums remain required for this new version. Preserve older tags/assets and running installations. Use a fresh install root; local QA binaries/WASM are not release assets. Alpha69 below remains the prior verified draft. The public demo is unchanged.
+
 # Alpha.69 Actions assets verified (2026-10-24)
 
 Immutable `v0.2.0-alpha.69` and draft prerelease 422929719 resolve to `8b7f54885ae950487fbe72276ab0b58054877121`. Checks and all 25 Build/release jobs passed. All 24 downloaded assets/12 SHA256 pairs, three Node runtimes, 12 engine binaries, source/license/startup manifests and eight UI manifests/167 files verify. Both DesignCraft packaged patch provenances match the release source. [Full verification](evidence/creative-workspace-alpha69-release.md) · [Lossless footnote wire/caret/range proof](evidence/designcraft-footnote-wire.md).

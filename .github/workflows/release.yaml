@@ -239,7 +239,7 @@ jobs:
           CARGO_BUILD_JOBS: '1'
         run: |
           cargo test --manifest-path build/original-ui/source-designcraft/Cargo.toml -p designcraft-ui-egui original_page_move_waits_for_matching_ack_and_preserves_page_identity
-          cargo test --manifest-path build/original-ui/source-designcraft/Cargo.toml -p designcraft-ui-egui tagged_footnote_hydrates_exact_native_address
+          cargo test --manifest-path build/original-ui/source-designcraft/Cargo.toml -p designcraft-ui-egui footnote
           mkdir -p build/designcraft-par03-evidence
           CW_FOOTNOTE_OUTPUT="$PWD/build/designcraft-par03-evidence" CW_DESIGNCRAFT_CELL_FIXTURE="$PWD/build/designcraft-par03-evidence/cell-fixture.designcraft" cargo test --manifest-path build/original-ui/source-designcraft/Cargo.toml -p cw-designcraft-engine
       - name: Verify the original UI against the owned server worker
@@ -298,6 +298,7 @@ jobs:
           CW_PAR03_SELECTION_REPORT=build/designcraft-par03-evidence/text-selection-browser.json CW_PAR03_SELECTION_SCREENSHOT=build/designcraft-par03-evidence/text-selection-browser.png node scripts/smoke-designcraft-text-selection-browser.mjs
           CW_PAR03_WORK_ROOT=build/host-tmp/designcraft-cell-selection CW_DESIGNCRAFT_CELL_FIXTURE=build/designcraft-par03-evidence/cell-fixture.designcraft CW_PAR03_CELL_REPORT=build/designcraft-par03-evidence/cell-browser.json CW_PAR03_CELL_SCREENSHOT=build/designcraft-par03-evidence/cell-browser.png node scripts/smoke-designcraft-cell-selection-browser.mjs
           CW_PAR03_WORK_ROOT=build/host-tmp/designcraft-footnote CW_DESIGNCRAFT_FOOTNOTE_FIXTURE=build/designcraft-par03-evidence/fixture.designcraft CW_PAR03_FOOTNOTE_REPORT=build/designcraft-par03-evidence/footnote-browser.json CW_PAR03_FOOTNOTE_SCREENSHOT=build/designcraft-par03-evidence/footnote-browser.png node scripts/smoke-designcraft-footnote-browser.mjs
+          CW_PAR03_WORK_ROOT=build/host-tmp/designcraft-footnote-insert CW_DESIGNCRAFT_FOOTNOTE_FIXTURE=build/designcraft-par03-evidence/insert-body.designcraft CW_PAR03_FOOTNOTE_REPORT=build/designcraft-par03-evidence/footnote-insert-browser.json CW_PAR03_FOOTNOTE_SCREENSHOT=build/designcraft-par03-evidence/footnote-insert-browser.png node scripts/smoke-designcraft-footnote-insert-browser.mjs
       - name: Build and prove the original preset/server-canvas candidate
         env:
           CW_DESIGNCRAFT_BINARY: ${{ github.workspace }}/build/staged/designcraft/cw-designcraft-engine
