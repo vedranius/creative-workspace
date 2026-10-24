@@ -1,3 +1,9 @@
+# PAR-03 alpha.68 — immutable draft assets verified (2026-10-24)
+
+Checks40091269520 and all 25 Build/release40091269526 jobs passed for b441e007. Immutable tag and draft prerelease point to that exact source. All 24 downloaded assets/12 checksum pairs, three Node runtimes, 12 embedded engine binaries and source/license/startup manifests verify; eight UI manifests match 167 files and both DesignCraft patch provenances match. [Evidence and support limits](evidence/creative-workspace-alpha68-release.md).
+
+Evidence-only: no new version, builds, tag/release/asset edits, main/B merge, private-photo, live-studio or demo changes. Alpha68 remains a draft prototype; real OS folder permission, full original/provider parity and all 13 server adapters are unaccepted. Next B: original Exposure metadata auto-save/read with ACK before saved/clean from 1916ddd. Next A: original footnote caret/range contract and generated-document workflow. MAIN only.
+
 # Plan portanja originalnih aplikacija
 
 Current bounded checkpoint: alpha.68 adds original table-cell caret geometry/ACK validation, alongside the preceding blue cell text range. Full DesignCraft tools/providers/OS and all13 acceptance remain open. [Current evidence and continuation](evidence/designcraft-cell-caret.md).

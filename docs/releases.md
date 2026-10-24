@@ -1,3 +1,9 @@
+# Alpha.68 Actions assets verified (2026-10-24)
+
+Immutable `v0.2.0-alpha.68` and draft prerelease 422738419 resolve to `b441e007ce4bb5a6469b5bb7234e31a1f7a51552`. Checks and all 25 Build/release jobs passed. All 24 freshly downloaded assets/12 SHA256 pairs, three bundled Node runtimes,12 engine binaries, target/source/license/startup manifests and eight original UI file manifests are independently verified. [Complete verification](evidence/creative-workspace-alpha68-release.md).
+
+This remains a **draft prototype/prerelease** with the documented original-app/provider/OS/all 13 gaps. Install only these Actions-built packages into a new root, verify the adjacent checksum and keep live installations/unsaved documents intact. Downloaded binaries were not executed locally; native smoke evidence comes from each target Actions runner. No existing tag/release/asset or public demo was changed by this evidence-only task.
+
 # Alpha.68 candidate — original server-composed table-cell caret
 
 `0.2.0-alpha.68` connects original cell-caret composition to the acknowledged page/selection and existing original blink. Cell addresses are strictly bounded and matched before ACK; no browser text layout is introduced. Original range replacement, sibling clipping, save and reopen are evidenced. Footnotes, whole-cell/multiple-cell tools and full original/provider/OS acceptance remain open; DesignCraft stays planned. [Evidence](evidence/designcraft-cell-caret.md).

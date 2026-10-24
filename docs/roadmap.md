@@ -1,3 +1,9 @@
+# PAR-03 alpha.68 — immutable draft assets verified (2026-10-24)
+
+Checks40091269520 and all 25 Build/release40091269526 jobs passed for b441e007. Immutable tag and draft prerelease point to that exact source. All 24 downloaded assets/12 checksum pairs, three Node runtimes, 12 embedded engine binaries and source/license/startup manifests verify; eight UI manifests match 167 files and both DesignCraft patch provenances match. [Evidence and support limits](evidence/creative-workspace-alpha68-release.md).
+
+Evidence-only: no new version, builds, tag/release/asset edits, main/B merge, private-photo, live-studio or demo changes. Alpha68 remains a draft prototype; real OS folder permission, full original/provider parity and all 13 server adapters are unaccepted. Next B: original Exposure metadata auto-save/read with ACK before saved/clean from 1916ddd. Next A: original footnote caret/range contract and generated-document workflow. MAIN only.
+
 # PAR-03 alpha.68 QA — correlate Clear ACK observations (2026-10-24)
 
 The release failure was reproduced as a Playwright observer race: original UI revision9 can precede the Node response JSON listener. The corrected smoke correlates Request/Response objects, waits for parsed IDs/revisions and pending=false, and types each character after ACK. Original Clear/Undo/Redo canonical/text/PNG assertions remain intact. A750ms observer-only delay passes; zero browser errors and npm check pass. [Negative reproduction and proof](evidence/designcraft-clear-ci-observer.md).
