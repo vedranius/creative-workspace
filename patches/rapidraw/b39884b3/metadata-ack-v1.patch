@@ -1,0 +1,23 @@
+diff --git a/src/hooks/useEditorActions.ts b/src/hooks/useEditorActions.ts
+--- a/src/hooks/useEditorActions.ts
++++ b/src/hooks/useEditorActions.ts
+@@ -27,11 +27,16 @@
+   useEditorStore.getState().pushHistory(newAdj);
+ }, 500);
+ 
+-export const debouncedSave = debounce((path: string, adjustmentsToSave: Adjustments) => {
+-  invoke(Invokes.SaveMetadataAndUpdateThumbnail, { path, adjustments: adjustmentsToSave }).catch((err) => {
++export const debouncedSave = debounce(async (path: string, adjustmentsToSave: Adjustments): Promise<boolean> => {
++  if (useEditorStore.getState().selectedImage?.path !== path) return false;
++  try {
++    await invoke(Invokes.SaveMetadataAndUpdateThumbnail, { path, adjustments: adjustmentsToSave });
++    return true;
++  } catch (err) {
+     console.error('Auto-save failed:', err);
+     toast.error(`Failed to save changes: ${err}`);
+-  });
++    return false;
++  }
+ }, 300);
+ 
+ const waitForImageReady = (path: string) =>

@@ -551,5 +551,22 @@
     ],
     "deadlineMs": 10000,
     "identity": "SHA256 of complete selected File bytes plus byte length; no filename/lastModified/path/authority persisted"
+  },
+  "metadataLifecycle": {
+    "scope": "Experimental original Exposure ControlsPanel Reset/Undo/Redo and acknowledged selected-File transition. Original full App/library navigation remains unaccepted.",
+    "sourceFiles": {
+      "src/hooks/useEditorActions.ts": "8de8bfb9f0dcb0a485cb9dd4476ed1ae56c21803a82c4b62023f29c5d6da422d",
+      "src/hooks/useAppNavigation.ts": "dc87d9a014d2fd88c9b3422bd9a051977082a3e02422c90b91e9c1a13803c484",
+      "src/components/panel/right/ControlsPanel.tsx": "c2af946b1aef4967aae1bd9e92d26cdfea95b35960dba55938befd78e998a920",
+      "src/components/panel/editor/EditorToolbar.tsx": "91cc4966f81e354ea164e9b74be39728f8da80cdf14af647d85f0713262762ca",
+      "src/store/useEditorStore.ts": "86fdf855fab86fe2f6ef1fe8aa06b7484fb6e540cea09267208e776ee11c6742"
+    },
+    "sourcePatch": {
+      "path": "patches/rapidraw/b39884b3/metadata-ack-v1.patch",
+      "sha256": "53318763c820a30fa949cfc82091506fb19f3ebd48a590ce1937b7757f1b073c",
+      "patchedFiles": {
+        "src/hooks/useEditorActions.ts": "a255dd16bea56f3cfe431e1d037736a1365ad7872d09a59aad4ce950a927ebf5"
+      }
+    }
   }
 }

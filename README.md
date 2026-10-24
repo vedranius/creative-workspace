@@ -14,6 +14,8 @@ Alpha.24 adds an original Open-dialog candidate for a selected laptop `.designcr
 
 ## What is new
 
+- **RapidRAW experimental document transitions:** original Exposure Reset/Undo/Redo and selected-File switching now wait for metadata ACK, preserve uncertain/newer drafts, and isolate files by content. Full App/library navigation remains open. [Proof and limits](docs/rapidraw-wasm-metadata-lifecycle-handoff.md).
+
 - **RapidRAW experimental Exposure metadata:** original auto-save/load now uses private content-bound storage with atomic write/readback and thumbnail ACK. Reload/reopen, transaction failure, stale-tab CAS and uncertain reconciliation are evidenced; this remains the separate WASM experiment. [Proof and limits](docs/rapidraw-wasm-metadata-handoff.md).
 
 - **RapidRAW experimental export presets:** original controls now persist bounded JPEG presets with real IndexedDB write/readback ACK, failure preservation and stale-writer refusal. A reviewed ACK-only React patch is explicit; this stays on the independent WASM branch, with full App/OS/provider and last-used auto-save acceptance open. [Proof](docs/rapidraw-wasm-settings-persistence-handoff.md).

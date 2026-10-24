@@ -1,3 +1,9 @@
+# RWASM-03 — original metadata history and acknowledged document selection (2026-10-24)
+
+Original ControlsPanel Reset and EditorToolbar Undo/Redo now round-trip Exposure metadata, and the isolated selected-File transition waits for the latest draft ACK. Held writes retain the old image; same-name/different-content inputs stay isolated; uncertain writes/newer drafts veto selection and reload reconciles without replay.85 host tests/check and native-exact original browser frames pass. [Evidence and continuation](rapidraw-wasm-metadata-lifecycle-handoff.md).
+
+Experimental B: one reviewed source autosave-completion patch, original controls/algorithms/commands and unchanged native/WASM. This proves selected-File navigation, not full App/library/OS/provider or bulk reset. No product release/main/demo/private input change. Next A: lossless footnote wire/geometry fix from9ab2d36; diagnostic and alpha68 assets are already complete. Next B: original library/editor navigation flush/cache/clear boundary. MAIN only.
+
 # RWASM-03 — original Exposure metadata auto-save/read ACK (2026-10-24)
 
 Original Exposure now persists content-bound private browser metadata and a native-exact400px JPEG thumbnail only after atomic IndexedDB commit/readback. Held ACK stays dirty, real abort and stale-tab CAS preserve records, and uncertain readback reconciles through reload/reopen without replay; editor pixels remain native-exact.81 host tests/check and original sandboxed browser proof pass. [Evidence and continuation](rapidraw-wasm-metadata-handoff.md).

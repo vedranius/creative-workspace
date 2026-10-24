@@ -1,5 +1,5 @@
 // QA composition of unchanged original React components, not a public app shell.
-import React,{useRef} from 'react';
+import React,{useRef,useState} from 'react';
 import {createRoot} from 'react-dom/client';
 import {ToastContainer} from 'react-toastify';
 import Editor from './src/components/panel/Editor';
@@ -41,6 +41,8 @@ const metadataHost=(globalThis as any).rapidRawMetadataFactory?.(metadataDefault
 const rendererTransport=createReactTransport({metadataHost,settingsHost,wasm,device,shaderSource:await(await fetch('/engine/shader.wgsl')).text(),defaults:metadataDefaults,getPreviewSettings:()=>useSettingsStore.getState().appSettings,workerUrl:'/engine/react-image-worker.js',exportFactory:host=>createExportBridge({...host,destination,runExport:(bytes,options)=>exportRawInWorker(bytes,{...options,onStatus:state=>{workerStates.push(state);(globalThis as any).exportQa?.onWorkerStatus?.(state);}})})});
 const transport=(globalThis as any).wrapRapidRawTransport?.(rendererTransport)??rendererTransport;
 const metadataUnsubscribe=metadataHost?useEditorStore.subscribe((state)=>{if(state.selectedImage?.isReady)metadataHost.observe((globalThis as any).rapidRawMetadataFile,state.adjustments);}):()=>{};
+const MetadataControls=(globalThis as any).rapidRawMetadataControls;
+const metadataTransition=(globalThis as any).rapidRawMetadataTransition;
 const PresetPanel=(globalThis as any).rapidRawPresetPanel;
 (globalThis as any).rapidRawTransport=transport;
 const settings={editorPreviewResolution:512,useWgpuRenderer:false,enableZoomHifi:false,enableLivePreviews:true,
@@ -48,6 +50,7 @@ const settings={editorPreviewResolution:512,useWgpuRenderer:false,enableZoomHifi
 useSettingsStore.getState().setAppSettings(settingsHost?await transport.invoke('load_settings'):settings as any);
 useUIStore.getState().setUI({activeView:'editor',activePanel:Panel.Adjustments} as any);
 function Proof(){
+ const [openError,setOpenError]=useState('');
  const transform=useRef(null),cached=useRef(null),prev=useRef(null),job=useRef(0),rendered=useRef(0),resolution=useRef(512);
  useImageLoader(cached);
  useImageProcessing(transform,prev,{previewJobIdRef:job,latestRenderedJobIdRef:rendered,currentResRef:resolution});
@@ -55,17 +58,20 @@ function Proof(){
  const adjustments=useEditorStore(s=>s.adjustments),selectedImage=useEditorStore(s=>s.selectedImage);
  const exportState=useProcessStore(s=>s.exportState),appSettings=useSettingsStore(s=>s.appSettings);
  return <><header style={{padding:8}}>Isolated original React ExportPanel — bounded single JPEG / acknowledged output only
-  <input aria-label="Open RAW fixture" type="file" accept=".dng,.raf" onChange={event=>{
+  <input aria-label="Open RAW fixture" type="file" accept=".dng,.raf" onChange={async event=>{
    const file=event.target.files?.[0];if(!file)return;
+   try{
+   const path=metadataTransition?await transport.selectFileAcknowledged(file,{getState:useEditorStore.getState,flushMetadata:metadataTransition.flush,cancelDebounce:metadataTransition.cancel}):transport.selectFile(file);
    (globalThis as any).rapidRawMetadataFile=file;
-   const path=transport.selectFile(file);
+   setOpenError('');
    useLibraryStore.getState().setLibrary({isViewLoading:true});
    useEditorStore.getState().setEditor({selectedImage:{path,width:0,height:0,exif:{},isRaw:false,thumbnailUrl:'',isReady:false} as any,finalPreviewUrl:null,interactivePatch:null});
-  }}/></header><main style={{display:'flex',height:'calc(100vh - 70px)',background:'#171717',color:'white'}}>
+   }catch(error){setOpenError(String((error as any).message??error));}
+  }}/>{openError&&<span role="alert">{openError}</span>}</header><main style={{display:'flex',height:'calc(100vh - 70px)',background:'#171717',color:'white'}}>
   <section style={{flex:1,minWidth:0,display:'flex'}}><Editor transformWrapperRef={transform} onBackToLibrary={()=>{}} onContextMenu={e=>e.preventDefault()}/></section>
-  <aside aria-label="Original Basic panel" style={{width:300,padding:16,overflow:'auto'}}><PanelSwitcher region="rightTop" side="right" placement="top"/><Basic adjustments={adjustments} appSettings={settings}
+  <aside aria-label="Original Basic panel" style={{width:300,padding:16,overflow:'auto'}}><PanelSwitcher region="rightTop" side="right" placement="top"/>{MetadataControls?<MetadataControls/>:<Basic adjustments={adjustments} appSettings={settings}
    setAdjustments={(update:any)=>useEditorStore.getState().setEditor(state=>({adjustments:typeof update==='function'?update(state.adjustments):{...state.adjustments,...update}}))}
-   onDragStateChange={isSliderDragging=>useEditorStore.getState().setEditor({isSliderDragging})}/>
+   onDragStateChange={isSliderDragging=>useEditorStore.getState().setEditor({isSliderDragging})}/>}
  <section aria-label="Original geometry panel"><CropPanel/></section></aside><aside aria-label="Original Export panel" style={{width:400,overflow:'auto',padding:12}}>
  <PanelSwitcher region="leftTop" side="left" placement="top"/>
  <label>Recovery retention <select aria-label="Recovery retention" defaultValue="until-ack" onChange={event=>{retention=event.target.value;}}><option value="until-ack">Until write ACK</option><option value="keep">Keep recovery copy</option></select></label>

@@ -68,3 +68,43 @@ test('original preset preview requires a loaded RAW and refuses target/ROI/inter
  for(const extra of [{targetResolution:999999},{roi:{}},{isInteractive:true}])await assert.rejects(bridge.invoke('generate_preset_preview',{jsAdjustments:{},...extra}),/adjustments only/);
  await bridge.close();await assert.rejects(bridge.invoke('generate_preset_preview',{jsAdjustments:{}}),/closed/);
 });
+
+function metadataSelectionFixture(){
+ const status={dirty:true,busy:false,uncertain:false,pendingIO:false},state={selectedImage:null,adjustments:{exposure:0.8}};
+ let cancelCount=0;
+ const metadataHost={status:()=>({...status}),load:async()=>({adjustments:null}),snapshot:()=>({adjustments:null}),close:async()=>{}};
+ const bridge=createReactTransport({metadataHost,wasm:{},device:{queue:{onSubmittedWorkDone:async()=>{}}},defaults:{}});
+ const path=bridge.selectFile(new File(['a'],'same.dng'));
+ state.selectedImage={path,isReady:true};
+ return {bridge,state,status,path,getState:()=>state,cancelDebounce:()=>cancelCount++,cancelled:()=>cancelCount};
+}
+async function withMetadataDocument(fn){
+ const prior=globalThis.Worker;
+ globalThis.Worker=class{terminate(){}postMessage(d){queueMicrotask(()=>this.onmessage({data:{id:d.id,ok:true,width:2,height:2,asShot:{}}}));}};
+ const f=metadataSelectionFixture();try{await f.bridge.invoke('load_image',{path:f.path});await fn(f);}finally{await f.bridge.close();globalThis.Worker=prior;}
+}
+test('metadata selection waits for ACK, refuses overlap/synchronous bypass and retires old path only afterwards',async()=>{
+ await withMetadataDocument(async f=>{let release;const ack=new Promise(r=>release=r);let selected=false;
+ const job=f.bridge.selectFileAcknowledged(new File(['b'],'same.dng'),{...f,flushMetadata:()=>ack}).then(p=>{selected=true;return p;});
+ await new Promise(r=>setTimeout(r,1));assert.equal(selected,false);assert.deepEqual(await f.bridge.invoke('get_image_dimensions',{path:f.path}),{width:2,height:2});
+ assert.throws(()=>f.bridge.selectFile(new File(['b'],'same.dng')),/acknowledged/);await assert.rejects(f.bridge.selectFileAcknowledged(new File(['b'],'same.dng'),f),/pending/);
+ f.status.dirty=false;release(true);const next=await job;assert.notEqual(next,f.path);assert.equal(f.cancelled(),1);await assert.rejects(f.bridge.invoke('load_metadata',{path:f.path}),/Unknown/);
+ });
+});
+test('failed ACK and a newer source draft both keep the old metadata document and debounce intact',async()=>{
+ for(const mode of ['failure','newer'])await withMetadataDocument(async f=>{
+  await assert.rejects(f.bridge.selectFileAcknowledged(new File(['b'],'same.dng'),{...f,flushMetadata:async()=>{if(mode==='newer'){f.state.adjustments={exposure:0};f.status.dirty=false;return true;}f.status.uncertain=true;return false;}}),mode==='failure'?/not acknowledged/:/draft changed/);
+  assert.deepEqual(await f.bridge.invoke('get_image_dimensions',{path:f.path}),{width:2,height:2});assert.equal(f.cancelled(),0);
+ });
+});
+test('closing during metadata flush prevents selecting a late result',async()=>{
+ await withMetadataDocument(async f=>{let release;const ack=new Promise(r=>release=r),job=f.bridge.selectFileAcknowledged(new File(['b'],'same.dng'),{...f,flushMetadata:()=>ack});await f.bridge.close();f.status.dirty=false;release(true);await assert.rejects(job,/Superseded/);assert.equal(f.cancelled(),0);});
+});
+
+test('a failed clean RAW decode permits another explicit File selection without discarding a dirty or uncertain draft',async()=>{
+ const prior=globalThis.Worker;globalThis.Worker=class{terminate(){}postMessage(d){queueMicrotask(()=>this.onmessage({data:{id:d.id,ok:false,error:'Unsupported RAW'}}));}};
+ const f=metadataSelectionFixture();try{await assert.rejects(f.bridge.invoke('load_image',{path:f.path}),/Unsupported/);f.state.selectedImage=null;
+ await assert.rejects(f.bridge.selectFileAcknowledged(new File(['b'],'same.dng'),f),/Wait/);f.status.dirty=false;f.status.uncertain=true;await assert.rejects(f.bridge.selectFileAcknowledged(new File(['b'],'same.dng'),f),/Wait/);
+ f.status.uncertain=false;assert.notEqual(await f.bridge.selectFileAcknowledged(new File(['b'],'same.dng'),f),f.path);
+ }finally{await f.bridge.close();globalThis.Worker=prior;}
+});

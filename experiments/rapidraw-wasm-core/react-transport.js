@@ -9,7 +9,7 @@ export class UnavailableCommandError extends Error {
  constructor(command){super(`Browser experiment does not support ${command}`);this.name='UnavailableCommandError';this.code='unavailable-command';}
 }
 export function createReactTransport({wasm,device,shaderSource,defaults,getPreviewSettings=()=>({editorPreviewResolution:1920,livePreviewQuality:'high'}),workerUrl=new URL('./react-image-worker.js',import.meta.url),exportFactory,settingsHost,metadataHost}) {
- let file=null,path=null,current=null,generation=0,imageWorker=null,queue=Promise.resolve(),closed=false;
+ let file=null,path=null,current=null,generation=0,imageWorker=null,queue=Promise.resolve(),closed=false,selecting=false;
  const trace=[],listeners=new Map();
  const emit=(event,payload)=>{trace.push({command:'event',event,payload});for(const callback of [...(listeners.get(event)||[])])callback({event,payload});};
  const exportHost=exportFactory?.({getDocument:()=>({file,path,generation,ready:!closed&&current?.version===generation}),emit});
@@ -136,9 +136,32 @@ export function createReactTransport({wasm,device,shaderSource,defaults,getPrevi
   }
   throw new UnavailableCommandError(command);
  }
+ function select(selected){if(!(selected instanceof File)||!isRawInputSizeAllowed(selected.size))throw TypeError('Select a bounded RAW File');if(closed)throw Error('Browser session closed');exportHost?.cancel();imageWorker?.close();generation++;file=selected;const name=selected.name.replace(/[\\/\x00-\x1f\x7f]/g,'_').slice(0,180)||'input.raw';path=`browser-document:${crypto.randomUUID()}/${name}`;return path;}
  return {
   trace,
-  selectFile(selected){if(!(selected instanceof File)||!isRawInputSizeAllowed(selected.size))throw TypeError('Select a bounded RAW File');if(closed)throw Error('Browser session closed');exportHost?.cancel();imageWorker?.close();generation++;file=selected;const name=selected.name.replace(/[\\/\x00-\x1f\x7f]/g,'_').slice(0,180)||'input.raw';path=`browser-document:${crypto.randomUUID()}/${name}`;return path;},
+  selectFile(selected){if(metadataHost&&file)throw Error("Use acknowledged metadata selection");return select(selected);},
+  async selectFileAcknowledged(selected,{getState,flushMetadata,cancelDebounce}={}){
+   if(selecting||closed)throw Error("Document selection already pending or closed");
+   if(!(selected instanceof File)||!isRawInputSizeAllowed(selected.size))throw TypeError("Select a bounded RAW File");
+   selecting=true;try{
+    if(metadataHost&&file){
+     const state=getState(),version=generation,priorPath=path;
+     if(!state.selectedImage?.isReady||state.selectedImage.path!==path||!current||current.version!==generation){
+      const failed=metadataHost.status();
+      if(state.selectedImage==null&&!failed.dirty&&!failed.busy&&!failed.uncertain&&!failed.pendingIO){cancelDebounce();return select(selected);}
+      throw Error("Wait for current document metadata and image");
+     }
+     const captured=JSON.stringify(state.adjustments),status=metadataHost.status();
+     if(status.dirty||status.busy||status.uncertain||status.pendingIO){
+      if(await flushMetadata(path,structuredClone(state.adjustments))!==true)throw Error("Metadata not acknowledged; current image retained");
+     }
+     check(version);const latest=getState(),after=metadataHost.status();
+     if(latest.selectedImage?.path!==priorPath||JSON.stringify(latest.adjustments)!==captured||after.dirty||after.busy||after.uncertain||after.pendingIO)throw Error("Current draft changed or metadata uncertain; image retained");
+     cancelDebounce();
+    }
+    return select(selected);
+   }finally{selecting=false;}
+  },
   listen(event,callback){
    if(closed||typeof event!=='string'||event.length>128||typeof callback!=='function')return Promise.reject(Error('Invalid event subscription'));
    if([...listeners.values()].reduce((n,set)=>n+set.size,0)>=128)return Promise.reject(Error('Listener limit'));
