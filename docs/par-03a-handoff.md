@@ -1,3 +1,9 @@
+# PAR-03 alpha.68 QA — correlate Clear ACK observations (2026-10-24)
+
+The release failure was reproduced as a Playwright observer race: original UI revision9 can precede the Node response JSON listener. The corrected smoke correlates Request/Response objects, waits for parsed IDs/revisions and pending=false, and types each character after ACK. Original Clear/Undo/Redo canonical/text/PNG assertions remain intact. A750ms observer-only delay passes; zero browser errors and npm check pass. [Negative reproduction and proof](evidence/designcraft-clear-ci-observer.md).
+
+QA-only, same alpha68 candidate/native/worker/WASM; no new product release. Previous Build40076253349 failed this test and skipped publish; Checks40076253413 passed. New CI/tag/draft/downloaded asset verification is still required. Next B: original bounded .rrpreset import/library ACK fromf59983b. Next A: exact new QA commit CI gate, then footnote caret/range. MAIN only; no new writer/chat.
+
 # PAR-03 alpha.68 — original table-cell caret (2026-10-24)
 
 The owned engine now returns the original cell-caret endpoints, adding the placed cell origin exactly once. Gateway and original UI validators match the bounded table/row/col to canonical selection/frame/story/page before ACK; the original black caret/blink uses the same selected-page mapping. Ranges/sibling pages clear it. [Evidence and reproducer](evidence/designcraft-cell-caret.md).

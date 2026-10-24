@@ -2,6 +2,8 @@
 
 `0.2.0-alpha.68` connects original cell-caret composition to the acknowledged page/selection and existing original blink. Cell addresses are strictly bounded and matched before ACK; no browser text layout is introduced. Original range replacement, sibling clipping, save and reopen are evidenced. Footnotes, whole-cell/multiple-cell tools and full original/provider/OS acceptance remain open; DesignCraft stays planned. [Evidence](evidence/designcraft-cell-caret.md).
 
+The alpha68 release smoke now correlates parsed RPC observations with the actual request and applied revision, including a750ms observer-only regression delay. This QA correction leaves the alpha68 product version/runtime unchanged. The previous run failed before publish; see [the reproduction](evidence/designcraft-clear-ci-observer.md).
+
 Install only independently verified Actions-built assets into a NEW root, preserving live installations and unsaved documents. Alpha.68 requires successful Actions, immutable tag/draft/source and downloaded checksum verification; local QA assets are not release assets. Alpha.67 was still in progress at this task's single entry snapshot. Preserve older runs/releases; no rerun/cancel/security or credential workaround. The public demo is unchanged.
 
 # Alpha.67 candidate — original server-rendered table-cell text range

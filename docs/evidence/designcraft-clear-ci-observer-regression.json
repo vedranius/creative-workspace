@@ -1,0 +1,40 @@
+{
+  "sourceCommitBeforeQaFix": "88bbb5123e6a2f3b07121c19a71093708f2f210e",
+  "ci": {
+    "run": 40076253349,
+    "job": 120822178353,
+    "script": "scripts/smoke-designcraft-edit-clear-candidate.mjs:84",
+    "actual": "undefined",
+    "expected": "edit.clear",
+    "artifactId": 12553989252,
+    "checks": {
+      "run": 40076253413,
+      "conclusion": "success"
+    },
+    "publish": "skipped"
+  },
+  "negative": {
+    "scope": "Old Clear sampling path with500ms observer-only delay; prior revisions drained to isolate the CI failure. No server/UI delay.",
+    "exitCode": 1,
+    "actual": "undefined",
+    "expected": "edit.clear",
+    "logSha256": "f2f4df32cbca7f7ac15e4610d284652f62ec32999b82cfe1be63627a86c0116a",
+    "initialUnchangedObserverFailure": "text.placeCaret undefined after UI revision4"
+  },
+  "positive": {
+    "observerDelayMs": 750,
+    "allRequestsCorrelatedByIdentity": true,
+    "allIdsAndRevisionsMatched": true,
+    "revision9ObserverPendingAfterUiAck": true,
+    "clearUndoRedoContentAndPngChecksRetained": true,
+    "inputPerCharacterAck": true,
+    "reportSha256": "363549c66630fd98ffb646a7de3d1f7fcf0034a946a2308eb0c22989b02a1399",
+    "screenshotSha256": "99fd84380c8139eb2f0508417270cbeafac9f9d16c42201c5e99b19de95e3b41"
+  },
+  "workerSha256": "5cd40226b577113d31d869d392b6d7ab9e39ec72fe028653b968ef5b974df78f",
+  "wasmSha256": "33342c2847464c7e70428d0c6540fab735dda69763c6a94bbf2723f5fd911662",
+  "sourcePatchChanged": false,
+  "runtimeChanged": false,
+  "nativeWasmRebuilt": false,
+  "scope": "QA observer correction only. Synthetic provider fixture, no OS permission or new native adapter acceptance."
+}
