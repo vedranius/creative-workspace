@@ -2,7 +2,9 @@
 // Never replay: each empty-file lease is single-use and tied to its document generation.
 const MAX_BYTES=64*1024*1024;
 const hash=async bytes=>Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',bytes)),n=>n.toString(16).padStart(2,'0')).join('');
-export function createExportDestination({pickFile=o=>globalThis.showSaveFilePicker(o),getRetention=()=> 'until-ack',getRoot=()=>navigator.storage.getDirectory(),ioTimeoutMs=30000}={}){
+export function createExportDestination({pickFile=o=>globalThis.showSaveFilePicker(o),getRetention=()=> 'until-ack',getRoot=()=>navigator.storage.getDirectory(),ioTimeoutMs=30000,format='jpeg'}={}){
+ const preset=format==='rrpreset';if(!preset&&format!=='jpeg')throw Error('Unsupported output format');
+ const maxBytes=preset?64*1024:MAX_BYTES,recoveryName=preset?'output.rrpreset':'output.jpg';
  if(!Number.isSafeInteger(ioTimeoutMs)||ioTimeoutMs<1||ioTimeoutMs>30000)throw Error('Invalid output deadline');
  const leases=new Map(),taken=new WeakSet(),receipts=new WeakMap(),pending=new Set();let busy=false;
  const track=promise=>{pending.add(promise);promise.then(()=>pending.delete(promise),()=>pending.delete(promise));return promise;};
@@ -16,7 +18,7 @@ export function createExportDestination({pickFile=o=>globalThis.showSaveFilePick
    try{return await Promise.race([promise,new Promise((_,reject)=>{timer=setTimeout(()=>{expired=true;reject(Error(label+' timed out'));},remaining);})]);}finally{clearTimeout(timer);}
   };
  };
- const journal=async run=>(await run(getRoot,'Open recovery storage')).getDirectoryHandle('cw-rapidraw-export-recovery',{create:true});
+ const journal=async run=>(await run(getRoot,'Open recovery storage')).getDirectoryHandle(preset?'cw-rapidraw-preset-recovery':'cw-rapidraw-export-recovery',{create:true});
  async function metadata(run,dir,value){
   const handle=await run(()=>dir.getFileHandle('record.json',{create:true}),'Open recovery record');
   const writer=await run(()=>handle.createWritable(),'Open recovery record stream',w=>abort(w));
@@ -33,15 +35,15 @@ export function createExportDestination({pickFile=o=>globalThis.showSaveFilePick
  }
  return {
   async choose(options,document){
-   if(!document?.file||!document.ready)throw Error('Load a browser RAW first');
+   if(!document?.file||!document.ready)throw Error('Load an export source first');
    for(const [token,lease]of leases)if(lease.expires<Date.now())leases.delete(token);
    if(leases.size>=16)throw Error('Too many pending output choices');
    const binding={path:document.path,generation:document.generation,sourceName:document.file.name};
    const retention=getRetention();if(!['until-ack','keep'].includes(retention))throw Error('Choose output retention separately');
-   const suggestedName=String(options?.defaultPath??'edited.jpg').split(/[\\/]/).at(-1);
-   if(!suggestedName||suggestedName.length>240||/[\x00-\x1f]/.test(suggestedName))throw Error('Invalid JPEG name');
-   let handle;try{handle=await pickFile({suggestedName,types:[{description:'JPEG',accept:{'image/jpeg':['.jpg','.jpeg']}}]});}catch(e){if(e.name==='AbortError')return null;throw e;}
-   if(handle?.kind!=='file'||typeof handle.createWritable!=='function'||!(/\.jpe?g$/i).test(handle.name)||handle.name===binding.sourceName)throw Error('Choose a new JPEG output file');
+   const suggestedName=String(options?.defaultPath??(preset?'all_presets.rrpreset':'edited.jpg')).split(/[\\/]/).at(-1);
+   if(!suggestedName||suggestedName.length>240||/[\x00-\x1f]/.test(suggestedName))throw Error('Invalid output name');
+   let handle;try{handle=await pickFile({suggestedName,types:preset?[{description:'RapidRAW preset',accept:{'application/json':['.rrpreset']}}]:[{description:'JPEG',accept:{'image/jpeg':['.jpg','.jpeg']}}]});}catch(e){if(e.name==='AbortError')return null;throw e;}
+   if(handle?.kind!=='file'||typeof handle.createWritable!=='function'||!(preset?/\.rrpreset$/i:/\.jpe?g$/i).test(handle.name)||handle.name===binding.sourceName)throw Error(preset?'Choose a new preset output file':'Choose a new JPEG output file');
    const run=budget();
    if(await run(()=>handle.queryPermission({mode:'readwrite'}),'Check output permission')!=='granted')throw Error('Output write permission not granted');
    const before=await run(()=>handle.getFile(),'Inspect output');if(before.size!==0)throw Error('Output already exists; choose a new empty file');
@@ -56,7 +58,7 @@ export function createExportDestination({pickFile=o=>globalThis.showSaveFilePick
   async write(lease,bytes,check){
    if(!taken.delete(lease))throw Error('Invalid or consumed output capability');
    if(busy||pending.size)throw Error('Previous output I/O still active');
-   if(!(bytes instanceof Uint8Array)||bytes.length<1||bytes.length>MAX_BYTES)throw Error('Invalid bounded JPEG output');
+   if(!(bytes instanceof Uint8Array)||bytes.length<1||bytes.length>maxBytes)throw Error('Invalid bounded output');
    busy=true;const run=budget();let writer,dir,root,record,durable=false;
    try{
     check();const inventory=await records(run);root=inventory.root;
@@ -64,7 +66,7 @@ export function createExportDestination({pickFile=o=>globalThis.showSaveFilePick
     const id=crypto.randomUUID();dir=await run(()=>root.getDirectoryHandle(id,{create:true}),'Create recovery entry');
     record={schema:1,id,state:'preparing',name:lease.handle.name,sha256:await run(()=>hash(bytes),'Hash JPEG'),bytes:bytes.length,destination:'laptop',retention:lease.retention,createdAt:Date.now()};
     await metadata(run,dir,record);
-    const copy=await run(()=>dir.getFileHandle('output.jpg',{create:true}),'Open recovery JPEG');
+    const copy=await run(()=>dir.getFileHandle(recoveryName,{create:true}),'Open recovery JPEG');
     const copyWriter=await run(()=>copy.createWritable(),'Open recovery stream',w=>abort(w));
     try{await run(()=>copyWriter.write(bytes),'Write recovery JPEG');await run(()=>copyWriter.close(),'Close recovery JPEG');}
     catch(e){abort(copyWriter);throw e;}
@@ -110,8 +112,8 @@ export function createExportDestination({pickFile=o=>globalThis.showSaveFilePick
    if(!/^[a-f0-9]{8}-(?:[a-f0-9]{4}-){3}[a-f0-9]{12}$/.test(id))throw Error('Invalid recovery id');
    const run=budget(),root=await run(()=>journal(run),'Open recovery journal');
    const dir=await run(()=>root.getDirectoryHandle(id),'Find recovery entry');
-   const file=await run(async()=>(await dir.getFileHandle('output.jpg')).getFile(),'Read recovery output');
-   if(file.size<1||file.size>MAX_BYTES)throw Error('Invalid recovery output size');
+   const file=await run(async()=>(await dir.getFileHandle(recoveryName)).getFile(),'Read recovery output');
+   if(file.size<1||file.size>maxBytes)throw Error('Invalid recovery output size');
    const meta=await run(async()=>(await dir.getFileHandle('record.json')).getFile(),'Read recovery record');
    if(meta.size>4096)throw Error('Oversize recovery metadata');
    const record=JSON.parse(await run(()=>meta.text(),'Decode recovery record'));

@@ -1,3 +1,9 @@
+# RWASM-03 — original development-preset file export (2026-10-24)
+
+The unchanged original PresetsPanel Export All and usePresets command now export a bounded Exposure preset/folder file through explicit selection and real close/readback ACK. All601 bytes match the pinned original Rust serializer. Cancel, held ACK, newer-file refusal, three uncertain recoveries and separate Keep retention pass in Chromium;58 host tests/check pass. [Proof and continuation](rapidraw-wasm-preset-file-handoff.md).
+
+Experimental B only: read-only generated in-memory library, synthetic chooser over real OPFS, no RAW/render/WASM rebuild, full App/OS/provider acceptance or product release. Next A: investigate alpha68's existing EditClear browser assertion before release. Next B: original `.rrpreset` import with atomic library/write/readback ACK, fresh IDs and collision handling. JPEG export preferences are separate. MAIN only.
+
 # RWASM-03 — concurrent presets, export snapshots and stale-tab CAS (2026-10-24)
 
 Three real RAW/JPEG exports verify that last-used settings retain captured export values and the latest preset edit, refuse a concurrent pending settings write, and preserve newer presets written by a real second browser tab. File Success survives both preference rejections. Original preset controls remain blocked during export; cross-component changes use the actual source-store callback programmatically. Reload reconciliation waits for settings load ACK. [Evidence, limits and continuation](rapidraw-wasm-settings-concurrency-handoff.md).

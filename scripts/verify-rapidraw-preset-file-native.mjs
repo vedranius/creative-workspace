@@ -1,0 +1,25 @@
+// Runs extracted, hash-pinned original Rust types and export function, not a JS oracle.
+import {readFile,writeFile,mkdir} from 'node:fs/promises';
+import {createHash} from 'node:crypto';
+import {spawnSync} from 'node:child_process';
+import path from 'node:path';
+import assert from 'node:assert/strict';
+import {serializePresetFile} from '../experiments/rapidraw-wasm-core/preset-file.js';
+const [source,work]=process.argv.slice(2);if(!work)throw Error('NATIVE_SOURCE EMPTY_PRIVATE_WORK');
+const meta=JSON.parse(await readFile(new URL('../experiments/rapidraw-wasm-core/UPSTREAM.json',import.meta.url)));
+const hash=b=>createHash('sha256').update(b).digest('hex');
+const file=await readFile(path.join(source,'src-tauri/src/file_management.rs'),'utf8');
+assert.equal(hash(file),meta.presetFiles.sourceFiles['src-tauri/src/file_management.rs']);
+const start=file.indexOf('#[derive(Serialize, Deserialize, Debug, Clone)]\npub struct Preset {'),end=file.indexOf('#[derive(Serialize, Debug, Clone)]\n#[serde(rename_all = "camelCase")]\npub struct PresetImportFailure');
+const fnStart=file.indexOf('pub fn handle_export_presets_to_file('),fnEnd=file.indexOf('\n#[tauri::command]',fnStart);
+assert.ok(start>0&&end>start&&fnStart>end&&fnEnd>fnStart);
+const types=file.slice(start,end),fn=file.slice(fnStart,fnEnd);
+await mkdir(path.join(work,'src'),{recursive:true});
+await writeFile(path.join(work,'Cargo.toml'),'[package]\nname="cw-preset-file-reference"\nversion="0.0.0"\nedition="2021"\n[dependencies]\nserde={version="=1.0.229",features=["derive"]}\nserde_json="=1.0.151"\n');
+await writeFile(path.join(work,'src/main.rs'),'use serde::{Serialize,Deserialize};\nuse serde_json::Value;\nuse std::fs;\n'+types+fn+'\nfn main(){let a:Vec<String>=std::env::args().collect();let items:Vec<PresetItem>=serde_json::from_str(&fs::read_to_string(&a[1]).unwrap()).unwrap();handle_export_presets_to_file(items,a[2].clone()).unwrap();}\n');
+const items=[{preset:{id:'exposure',name:'Exposure +0.8',adjustments:{exposure:0.8},includeMasks:false,includeCropTransform:false,presetType:'user'}},{folder:{id:'folder',name:'Exposure folder',children:[{id:'negative',name:'Exposure -0.5',adjustments:{exposure:-0.5}}]}}];
+await writeFile(path.join(work,'items.json'),JSON.stringify(items));
+const result=spawnSync('cargo',['run','--offline','--manifest-path',path.join(work,'Cargo.toml'),'--',path.join(work,'items.json'),path.join(work,'native.rrpreset')],{stdio:'inherit',env:process.env});if(result.status!==0)throw Error('Original serializer reference failed');
+const native=await readFile(path.join(work,'native.rrpreset')),browser=serializePresetFile(items);assert.deepEqual(Buffer.from(browser),native);
+await writeFile(path.join(work,'reference.json'),JSON.stringify({nativeSource:meta.nativeApplication.commit,sourceSha256:hash(file),extractedTypesSha256:hash(types),extractedFunctionSha256:hash(fn),lockSha256:hash(await readFile(path.join(work,'Cargo.lock'))),bytes:native.length,sha256:hash(native),exactNativeBytes:true,scope:'Pinned original Rust serializer/types only, generated Exposure fixtures; no native filesystem application, import, RAW or renderer acceptance.'},null,2)+'\n');
+console.log(JSON.stringify({exactNativeBytes:true,bytes:native.length,sha256:hash(native)}));

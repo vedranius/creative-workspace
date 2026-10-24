@@ -435,5 +435,18 @@
       },
       "scope": "Original terminal export event gates last-used preference write; awaited settings callback failure is separate from file success, no destination path persistence."
     }
+  },
+  "presetFiles": {
+    "scope": "Experimental original development PresetsPanel export-only ABI; 64KiB/32 Exposure-only presets, optional one-level folder, explicit fresh chooser/close/readback ACK and separate recovery retention. In-memory read-only library fixture; no import/library mutation/full App/OS/common-provider acceptance. JPEG preferences remain separate.",
+    "sourceFiles": {
+      "src/components/panel/right/PresetsPanel.tsx": "f91a154e80a92c8692c625a9a43e1be06534024b78d79ce0052176d25ecf2949",
+      "src/hooks/usePresets.ts": "0b545710738a886df5a6946723e0e4e580027d98cc7a92f9bacd777bc7cf6258",
+      "src/components/ui/AppProperties.tsx": "0466b4bb7f9ea3474a65ef4a4f7ee08c4409d3f85ecd1dd2db7db028c96699f9",
+      "src-tauri/src/file_management.rs": "3f639e11c2f8a74baa31285b2aa9456516e5c71b6c8e4d78a42dbe61f5c4a219"
+    },
+    "commands": [
+      "load_presets",
+      "handle_export_presets_to_file"
+    ]
   }
 }

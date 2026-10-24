@@ -1,0 +1,11 @@
+{
+  "nativeSource": "b39884b38d8f148caef6fd0d52afd264951be329",
+  "sourceSha256": "3f639e11c2f8a74baa31285b2aa9456516e5c71b6c8e4d78a42dbe61f5c4a219",
+  "extractedTypesSha256": "d79af0fe56706ff2b806331b708fee05d3fcf82e4a0099693cf733dc841034bb",
+  "extractedFunctionSha256": "7711eeed8b64f23be1d17acc48c0db0860f4ef4f30d56d80991b2a624e1d49bd",
+  "lockSha256": "8e25c54fb3def0fb4a28651b23c46d4dde0bf1ba367ea78a24d9844319ac02b7",
+  "bytes": 601,
+  "sha256": "9078883ba0185b3f81b3e54c612490ad64e4234d69fa78c8c87b65fd5a39af16",
+  "exactNativeBytes": true,
+  "scope": "Pinned original Rust serializer/types only, generated Exposure fixtures; no native filesystem application, import, RAW or renderer acceptance."
+}
