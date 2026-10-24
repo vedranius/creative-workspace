@@ -1,5 +1,7 @@
 # Plan portanja originalnih aplikacija
 
+Current bounded checkpoint: alpha.68 adds original table-cell caret geometry/ACK validation, alongside the preceding blue cell text range. Full DesignCraft tools/providers/OS and all13 acceptance remain open. [Current evidence and continuation](evidence/designcraft-cell-caret.md).
+
 Datum: 11. listopada 2026. Prošireno 15. listopada 2026. Ovaj plan provodi [obvezni zahtjev za originalne aplikacije](original-app-requirements.md) i određuje novi redoslijed u [roadmapu](roadmap.md). Stanje i sljedeći zadatak zapisujemo u [primopredaju](development-state.md).
 
 ## Proširenje na svih 13 ArtCraft aplikacija — 2026-10-15

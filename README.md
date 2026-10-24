@@ -2,7 +2,7 @@
 
 # Creative Workspace
 
-**Version: 0.2.0-alpha.67** — prototype/prerelease draft candidate. The owned DesignCraft engine now renders original text range highlights inside table cells into its acknowledged page preview. Original click, Ctrl+A, typing, save and reopen are verified for a bounded cell workflow; cell caret, whole-cell tools and full original/provider/OS acceptance remain open. The independent all13 ArtCraft browser demo and its hourly verified update pipeline remain separate. Install only new Actions-built packages after tag/draft/checksum verification; preserve live installations. See [PAR-03 handoff](docs/par-03a-handoff.md) and [release limits](docs/releases.md).
+**Version: 0.2.0-alpha.68** — prototype/prerelease draft candidate. The owned DesignCraft engine now composes the original text caret inside a table cell, acknowledged with the exact cell/selection/page and drawn by the original blinking UI. Bounded original cell click, range replacement, save and reopen are verified; footnotes, whole-cell tools and full original/provider/OS acceptance remain open. The independent all13 ArtCraft browser demo stays separate. Install only new Actions-built packages after tag/draft/checksum verification; preserve live installations. See [PAR-03 handoff](docs/par-03a-handoff.md) and [release limits](docs/releases.md).
 
 Bring your creative tools together in one browser studio. Choose an application, select your files, and access your own server from a lightweight laptop. The goal is **the original application interfaces and tools in the browser, with the server doing the heavy work**: photography, image editing, illustration, PDF, publishing, video, motion graphics, office documents, spreadsheets, presentations, CAD, interface design and audio. Browser controls run locally; document commands, data and previews travel to the server. No VNC or remote desktop is involved.
 
@@ -14,7 +14,8 @@ Alpha.24 adds an original Open-dialog candidate for a selected laptop `.designcr
 
 ## What is new
 
-- **DesignCraft cell text range (alpha.67 candidate):** original translucent blue highlights are composed on the server. Actual original chooser/cell click/Ctrl+A/typing and native save/reopen pass; cell caret, footnotes and whole-cell selection remain open. [Evidence](docs/evidence/designcraft-cell-text-selection.md).
+- **DesignCraft cell caret (alpha.68 candidate):** original server-composed cell endpoints and black UI blink use the matching canonical ACK; range/sibling transitions clear the caret. [Evidence](docs/evidence/designcraft-cell-caret.md).
+- **DesignCraft cell text range (alpha.67 candidate):** original translucent blue highlights are composed on the server. Actual original chooser/cell click/Ctrl+A/typing and native save/reopen pass. Cell caret is added inalpha.68; footnotes and whole-cell selection remain open. [Evidence](docs/evidence/designcraft-cell-text-selection.md).
 
 - **Browser playground (alpha.63):** thirteen official release interfaces with explicit consent that processing uses the visitor's computer. The independent Cloudflare Pages export preserves licenses and source provenance while excluding private workspaces/backends. The main product continues toward server processing. [Demo and deployment](docs/cloudflare-demo.md).
 

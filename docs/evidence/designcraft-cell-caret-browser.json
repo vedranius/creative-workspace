@@ -1,0 +1,113 @@
+{
+  "status": "original-table-cell-caret-ack-and-visible-blink",
+  "sourcePin": "a127c6d5c3576972bbd60445f26d893db071eef3",
+  "sourcePatchSha256": "be3a5117dafe43b9212e2e3771541c444284a5d9e0a0b221162d199d15253b22",
+  "fixture": {
+    "generatedNative": true,
+    "originalSha256": "8cc3399ec61f762ef3680568f4ef40a011777a51e77395f73fa0e9c8961096a9"
+  },
+  "page": 2,
+  "originalCaretClick": [
+    348.53633333333335,
+    207.734
+  ],
+  "cell": {
+    "col": 0,
+    "row": 0,
+    "table": 13
+  },
+  "caret": {
+    "page": 2,
+    "frame": 11,
+    "story": 12,
+    "points": [
+      [
+        682.612,
+        84
+      ],
+      [
+        682.612,
+        100.452
+      ]
+    ],
+    "cell": {
+      "table": 13,
+      "row": 0,
+      "col": 0
+    }
+  },
+  "blinkProof": {
+    "screenPoints": [
+      [
+        347.496337890625,
+        200.99996948242188
+      ],
+      [
+        347.496337890625,
+        218.82296752929688
+      ]
+    ],
+    "clip": {
+      "x": 345,
+      "y": 202,
+      "width": 5,
+      "height": 15
+    },
+    "samples": [
+      {
+        "dark": 8,
+        "sha256": "0a15f9317e92adf6178420883bcc62cc63dc66fe7c12d804674e277b45987803"
+      },
+      {
+        "dark": 23,
+        "sha256": "d43e2a092f2dc4ab9bd6c72d2f81ac2e41be982efaa9db5f69ee9677fb3aa3e8"
+      }
+    ],
+    "sampleSource": "bounded crop decoded from the same full screenshot bytes",
+    "serverPngUnchanged": true
+  },
+  "caretRestoredExactly": true,
+  "typingHeldAck": {
+    "revision": 6,
+    "priorRangeAndNullCaretPreserved": true
+  },
+  "range": {
+    "page": 2,
+    "story": 12,
+    "anchor": 0,
+    "focus": 9,
+    "quadCount": 1,
+    "glyphCount": 0,
+    "frames": [
+      11
+    ],
+    "bounds": [
+      64,
+      84,
+      108,
+      101
+    ],
+    "cell": {
+      "table": 13,
+      "row": 0,
+      "col": 0
+    }
+  },
+  "heldAck": {
+    "revision": 3,
+    "priorPngPreserved": true
+  },
+  "plainPngSha256": "43f1e9653a657c5071a25171be81dfa306da7011c1ec754bccc40512abbef816",
+  "selectedPngSha256": "59505bdf84a11ac47dc5fb980e76aa1970f59ca2b439639b835ea7860bf0ea7b",
+  "canonicalUnchangedBySelection": true,
+  "siblingClipped": true,
+  "restoredExactly": true,
+  "actualTyping": "Z",
+  "savedAndReopenedCanonicalExact": true,
+  "originalInputUnchanged": true,
+  "errors": [],
+  "failedResponses": [],
+  "requestFailures": [],
+  "permission": "Synthetic browser folder and owned on-demand helper; actual original chooser/selected-file transfer, not real OS permission acceptance.",
+  "limits": "Bounded cell text range and caret. Footnotes, whole-cell/multiple-cell selection and full table tools/providers/OS remain open."
+}

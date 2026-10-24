@@ -42,15 +42,18 @@ function boundedTextSelection(value,document,page,png){
 function boundedCaret(value,document,page){
   if(value==null)return null;
   const bad=()=>{throw fail('Invalid server caret geometry',502);};
-  if(typeof value!=='object'||Array.isArray(value)||Object.keys(value).sort().join(',')!=='frame,page,points,story')bad();
+  if(typeof value!=='object'||Array.isArray(value)||Object.keys(value).filter(k=>k!=='cell').sort().join(',')!=='frame,page,points,story')bad();
   const text=document.selection?.text;
-  if(value.page!==page||![value.frame,value.story].every(id=>Number.isSafeInteger(id)&&id>=0)||!text||text.anchor!==text.focus||text.cell!=null||text.story!==value.story)bad();
+  if(value.page!==page||![value.frame,value.story].every(id=>Number.isSafeInteger(id)&&id>=0)||!text||text.anchor!==text.focus||text.story!==value.story)bad();
+  const cell=value.cell;
+  if(cell!==undefined){if(!cell||typeof cell!=='object'||Array.isArray(cell)||Object.keys(cell).sort().join(',')!=='col,row,table'||!Number.isSafeInteger(cell.table)||cell.table<1||![cell.row,cell.col].every(n=>Number.isSafeInteger(n)&&n>=0&&n<4096)||!text.cell||['table','row','col'].some(k=>cell[k]!==text.cell[k]))bad();}
+  else if(text.cell!=null)bad();
   if(!Array.isArray(value.points)||value.points.length!==2||value.points.some(point=>!Array.isArray(point)||point.length!==2||point.some(v=>typeof v!=='number'||!Number.isFinite(v)||Math.abs(v)>100000)))bad();
   const spread=document.spreads?.find(sp=>sp.pages?.some(p=>p.index===page)),bounds=spread?.pages.find(p=>p.index===page)?.bounds;
   if(frameStories(spread).get(value.frame)!==value.story||!Array.isArray(bounds)||bounds.length!==4)bad();
   const x=(value.points[0][0]+value.points[1][0])/2,y=(value.points[0][1]+value.points[1][1])/2;
   if(x<bounds[0]||x>=bounds[2]||y<bounds[1]||y>=bounds[3])bad();
-  return {page,frame:value.frame,story:value.story,points:value.points.map(p=>[...p])};
+  return {page,frame:value.frame,story:value.story,points:value.points.map(p=>[...p]),...(cell===undefined?{}:{cell:{table:cell.table,row:cell.row,col:cell.col}})};
 }
 
 // Do not forward arbitrary engine parameters: some native commands accept filesystem paths.

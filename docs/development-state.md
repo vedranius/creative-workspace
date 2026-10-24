@@ -1,3 +1,11 @@
+# PAR-03 alpha.68 — original table-cell caret (2026-10-24)
+
+The owned engine now returns the original cell-caret endpoints, adding the placed cell origin exactly once. Gateway and original UI validators match the bounded table/row/col to canonical selection/frame/story/page before ACK; the original black caret/blink uses the same selected-page mapping. Ranges/sibling pages clear it. [Evidence and reproducer](evidence/designcraft-cell-caret.md).
+
+Native7, original UI160 (one existing ignored), gateway90, exact source patch and release validation pass. Fresh WASM in sandboxed Chromium proves original cell click/typing, held ACK,15px independent blink, exact sibling restoration and native save/reopen; zero page/network errors. Alpha.68 remains a prototype draft candidate requiring successful Actions, immutable tag/draft/source and independently downloaded assets/checksums. Footnotes, whole-cell/multiple-cell tools, broader original/provider/OS/all13 acceptance remain open; DesignCraft stays planned.
+
+Next B in this SAME MAIN chat from4ba6454: one exact Checks40071896888/pixel40071896926 snapshot, then original preset file import/export contract and one bounded explicit chooser/write-ACK slice. Concurrent export/preset/captured-values/CAS proof is already complete. Next A: exact alpha68CI/release gate, then original footnote caret/range contract and a generated document path. Preserve alpha67/older runs, live studios, FilmCraft, private photographs and the public demo; no new writer/chat or permission/credential workaround.
+
 # PAR-03 alpha.67 — original table-cell text range verified (2026-10-24)
 
 The owned engine composes the original translucent blue highlight inside a table cell; bounded metadata binds its exact table/row/col to canonical selection/frame/story/page before ACK. Actual original Open/thumbnail/Text Tool/Ctrl+A/typing, held ACK, sibling clipping and native Save a Copy/reopen pass with unchanged original input. Native7/JS90/check pass. [Evidence and screenshot](evidence/designcraft-cell-text-selection.md).

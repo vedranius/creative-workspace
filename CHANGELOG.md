@@ -1,3 +1,9 @@
+## [0.2.0-alpha.68] - 2026-10-24
+
+- Compose original table-cell caret endpoints on the owned server with `cell_caret`, retaining original frame/ancestor transforms and adding the cell origin exactly once.
+- Validate the exact bounded table/row/col against canonical selection before gateway or original UI ACK. Keep the existing black caret/blink over the matching selected-page PNG; ranges and sibling pages clear it.
+- Extend native, original UI, protocol and original cell click/typing/save/reopen browser evidence. Footnotes, whole-cell/multiple-cell tools and full provider/OS acceptance remain open; keep prototype releases draft-only with Actions-built assets.
+
 ## [0.2.0-alpha.67] - 2026-10-24
 
 - Render original translucent blue text range highlights inside a table cell in the owned native preview. Bind the bounded cell address to canonical selection/frame/story/page before ACK; preserve printing/export content.

@@ -88,9 +88,16 @@ mod tests {
             let mut output=std::fs::OpenOptions::new().write(true).create_new(true).open(&file)?;output.write_all(&bytes)?;
             std::fs::write(format!("{file}.json"),serde_json::to_vec(&json!({"page":2,"point":[point.x,point.y],"frame":frame,"story":ts.story,"cell":cell}))?)?;
         }
+        let caret=caret_geometry(&h,2).ok_or("Missing original cell caret")?;
+        assert_eq!(caret["cell"],serde_json::to_value(cell)?);assert_eq!(caret["frame"],serde_json::to_value(frame)?);
+        let (_,cx,cbl,casc,cdesc)=designcraft_compose::cell_caret(&cs,cell.table,cell.row,cell.col,ts.focus).ok_or("No expected cell caret")?;
+        let expected=[m*designcraft_geom::Point::new(cx,cbl-casc),m*designcraft_geom::Point::new(cx,cbl+cdesc)];
+        for (i,p) in expected.iter().enumerate(){assert!((caret["points"][i][0].as_f64().ok_or("Missing caret x")?-p.x).abs()<1e-8);assert!((caret["points"][i][1].as_f64().ok_or("Missing caret y")?-p.y).abs()<1e-8);}
+        assert!(caret_geometry(&h,0).is_none());assert!(caret_geometry(&h,1).is_none());
         let plain=answer(&mut h,&mut saved,&root,&root,&json!({"method":"render","params":{"page":2}}))?;
         h.call("engine.execute",json!({"command":"edit.selectAll","params":{}}))?;
         let selected=answer(&mut h,&mut saved,&root,&root,&json!({"method":"render","params":{"page":2}}))?;
+        assert!(caret_geometry(&h,2).is_none());
         assert_eq!(selected["textSelection"]["cell"],serde_json::to_value(cell)?);assert_eq!(selected["textSelection"]["focus"],9);
         let png=image::load_from_memory_with_format(&designcraft_engine::cmd::base64_decode(selected["pngBase64"].as_str().ok_or("No PNG")?),image::ImageFormat::Png)?.to_rgba8();
         assert!(png.pixels().any(|p|p[0]>=178&&p[0]<=182&&p[1]>=203&&p[1]<=207&&p[2]==255));
@@ -272,12 +279,17 @@ fn output_path(root: &Path, p: &str) -> Result<PathBuf, Box<dyn std::error::Erro
     Ok(file)
 }
 // Original compose::caret and text transform, in spread coordinates (no UI layout).
-// Cell selections and ranges need their own original selection geometry contract.
+// Original cell_caret already includes the placed cell origin; do not add it twice.
 fn caret_geometry(h: &Headless, index: usize) -> Option<Value> {
     let st = h.session.active()?;
-    let ts = st.selection.text.filter(|ts| ts.is_caret() && ts.cell.is_none())?;
+    let ts = st.selection.text.filter(|ts| ts.is_caret())?;
     let cs = h.session.cache.get(&st.doc, ts.story, None);
-    let (fi, x, bl, asc, desc) = designcraft_compose::caret(&cs, ts.focus)?;
+    let (fi, x, bl, asc, desc) = match ts.cell {
+        Some(cell) if cell.footnote_id().is_none() && cell.table > 0 && cell.table <= 9007199254740991 && cell.row < 4096 && cell.col < 4096 =>
+            designcraft_compose::cell_caret(&cs, cell.table, cell.row, cell.col, ts.focus)?,
+        Some(_) => return None,
+        None => designcraft_compose::caret(&cs, ts.focus)?,
+    };
     let ft = cs.frames.get(fi)?;
     let loc = st.doc.find(ft.frame)?;
     let (spread, _) = st.doc.page_loc(index)?;
@@ -289,7 +301,9 @@ fn caret_geometry(h: &Headless, index: usize) -> Option<Value> {
     let bounds = st.doc.page(index)?.bounds();
     if ![a.x,a.y,b.x,b.y].iter().all(|v| v.is_finite() && v.abs() <= 100000.0)
         || !bounds.contains(designcraft_geom::Point::new((a.x+b.x)/2.0,(a.y+b.y)/2.0)) { return None; }
-    Some(json!({"page":index,"frame":ft.frame,"story":ts.story,"points":[[a.x,a.y],[b.x,b.y]]}))
+    let mut caret = json!({"page":index,"frame":ft.frame,"story":ts.story,"points":[[a.x,a.y],[b.x,b.y]]});
+    if let Some(cell) = ts.cell { caret["cell"] = serde_json::to_value(cell).ok()?; }
+    Some(caret)
 }
 
 fn answer(h: &mut Headless, saved: &mut Option<Arc<Document>>, read: &Path, write: &Path, r: &Value) -> Result<Value, Box<dyn std::error::Error>> {

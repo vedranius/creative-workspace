@@ -1,3 +1,9 @@
+# Alpha.68 candidate — original server-composed table-cell caret
+
+`0.2.0-alpha.68` connects original cell-caret composition to the acknowledged page/selection and existing original blink. Cell addresses are strictly bounded and matched before ACK; no browser text layout is introduced. Original range replacement, sibling clipping, save and reopen are evidenced. Footnotes, whole-cell/multiple-cell tools and full original/provider/OS acceptance remain open; DesignCraft stays planned. [Evidence](evidence/designcraft-cell-caret.md).
+
+Install only independently verified Actions-built assets into a NEW root, preserving live installations and unsaved documents. Alpha.68 requires successful Actions, immutable tag/draft/source and downloaded checksum verification; local QA assets are not release assets. Alpha.67 was still in progress at this task's single entry snapshot. Preserve older runs/releases; no rerun/cancel/security or credential workaround. The public demo is unchanged.
+
 # Alpha.67 candidate — original server-rendered table-cell text range
 
 `0.2.0-alpha.67` adds the original translucent blue highlight inside a table cell, composed on the owned server. Original chooser/cell click/Ctrl+A/typing and native save/reopen are evidenced. Canonical content and printing/export data remain unchanged by selection. Cell caret, footnotes, whole-cell selection and full tool/provider/OS acceptance remain open; DesignCraft stays planned. [Evidence](evidence/designcraft-cell-text-selection.md).

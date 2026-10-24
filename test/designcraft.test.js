@@ -130,8 +130,12 @@ test('Server caret geometry is bounded, selection-bound and rejected before page
   overlay=valid;worker.doc.spreads[0].items[0].children[0].story=10;await assert.rejects(call(session.id,'page.select',{index:1},{expectedVersion:2}),/caret geometry/);worker.doc.spreads[0].items[0].children[0].story=9;
   overlay=null;let previous=await call(session.id,'state');assert.equal(previous.page,0);assert.equal(previous.stateVersion,2);
   overlay=valid;const ack=await call(session.id,'page.select',{index:1},{expectedVersion:2});assert.deepEqual(ack.caret,valid);assert.equal(ack.stateVersion,3);
-  worker.doc.selection.text.focus=3;await assert.rejects(call(session.id,'page.select',{index:0},{expectedVersion:3}),/caret geometry/);
-  overlay=null;previous=await call(session.id,'state');assert.equal(previous.page,1);assert.equal(previous.stateVersion,3);assert.equal(previous.caret,null);
+  worker.doc.selection.text.cell={table:12,row:0,col:0};
+  const cellValid={...valid,cell:{table:12,row:0,col:0}};
+  for(const cell of [undefined,null,{table:13,row:0,col:0},{table:12,row:1,col:0},{table:12,row:0,col:4096},{table:12,row:0,col:0,path:'/private'}]){overlay={...valid,...(cell===undefined?{}:{cell})};await assert.rejects(call(session.id,'page.select',{index:1},{expectedVersion:3}),/caret geometry/);}
+  overlay=cellValid;const cellAck=await call(session.id,'page.select',{index:1},{expectedVersion:3});assert.deepEqual(cellAck.caret,cellValid);assert.equal(cellAck.stateVersion,4);
+  worker.doc.selection.text.focus=3;await assert.rejects(call(session.id,'page.select',{index:0},{expectedVersion:4}),/caret geometry/);
+  overlay=null;previous=await call(session.id,'state');assert.equal(previous.page,1);assert.equal(previous.stateVersion,4);assert.equal(previous.caret,null);
   await design.close(session.id,{discard:true});
 });
 

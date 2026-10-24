@@ -1,0 +1,22 @@
+{
+  "version": "0.2.0-alpha.68",
+  "sourcePin": "a127c6d5c3576972bbd60445f26d893db071eef3",
+  "sourcePatchSha256": "be3a5117dafe43b9212e2e3771541c444284a5d9e0a0b221162d199d15253b22",
+  "sourceExact": true,
+  "nativeSourceMatchesReviewedPatch": true,
+  "uiPackage": "a127c6d5c3576972bbd60445f26d893db071eef3-be3a5117dafe",
+  "uiWasm": {
+    "file": "designcraft-web-ac330b94496a06ac_bg.wasm",
+    "sha256": "33342c2847464c7e70428d0c6540fab735dda69763c6a94bbf2723f5fd911662",
+    "freshBuild": true
+  },
+  "workerSha256": "5cd40226b577113d31d869d392b6d7ab9e39ec72fe028653b968ef5b974df78f",
+  "validation": {
+    "nativePassed": 7,
+    "originalUiPassed": 160,
+    "originalUiExistingIgnored": 1,
+    "gatewayPassed": 90
+  },
+  "localBuild": "QA only; Rust1.99, shared target, max2CPU/nice10/jobs1; not release assets",
+  "release": "Prototype alpha68 candidate; Actions/tag/draft/downloaded checksums pending"
+}
