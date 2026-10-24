@@ -32,21 +32,24 @@ export function serializePresetFile(items){
  if(bytes.length>PRESET_FILE_LIMIT)fail('Preset output exceeds 64 KiB');
  return bytes;
 }
-export function createPresetFileHost({items=[],destination=createExportDestination({format:'rrpreset'}),onTrace=()=>{}}={}){
+export function createPresetFileHost({items=[],destination=createExportDestination({format:'rrpreset'}),onTrace=()=>{},libraryHost}={}){
  let closed=false,busy=false;
  const library=items.length?JSON.parse(new TextDecoder().decode(serializePresetFile(items))).presets:[];
  const document={ready:true,file:{name:'preset-library'},path:'browser-preset-library:'+crypto.randomUUID(),generation:1};
  const check=()=>{if(closed)fail('Preset session closed');};
+ const sync=()=>{if(libraryHost){const s=libraryHost.status();if(s.revision===null||s.uncertain||s.busy)fail('Reload preset library before exporting');document.generation=s.revision+1;}};
  return {
-  async choose(options){check();if(busy)fail('Preset export already active');return destination.choose(options,document);},
+  async chooseImport(){check();if(!libraryHost)fail('Preset import unavailable');return libraryHost.choose();},
+  async choose(options){check();sync();if(busy)fail('Preset export already active');return destination.choose(options,document);},
   async invoke(command,args={}){
    check();onTrace({command,phase:'start'});
-   if(command==='load_presets')return structuredClone(library);
+   if(command==='load_presets')return libraryHost?libraryHost.load():structuredClone(library);
+   if(command==='handle_import_presets_from_files'&&libraryHost){if(Object.keys(args).join(',')!=='filePaths')fail('Invalid import arguments');return libraryHost.importFiles(args.filePaths);}
    if(command!=='handle_export_presets_to_file')fail('Preset command unavailable: '+command);
    if(busy)fail('Preset export already active');busy=true;
    try{
     if(Object.keys(args).sort().join(',')!=='filePath,presetsToExport')fail('Invalid preset export arguments');
-    const lease=destination.take(args.filePath,document),bytes=serializePresetFile(args.presetsToExport);
+    sync();const lease=destination.take(args.filePath,document),bytes=serializePresetFile(args.presetsToExport);
     const ack=await destination.write(lease,bytes,check);check();
     onTrace({command,phase:'ack',bytes:ack.bytes,sha256:ack.sha256});
     await destination.complete(ack);check();return null;
@@ -54,6 +57,6 @@ export function createPresetFileHost({items=[],destination=createExportDestinati
    finally{busy=false;}
   },
   status:()=>({closed,busy}),destination,
-  close(){closed=true;document.generation++;},
+  async close(){closed=true;document.generation++;await libraryHost?.close();},
  };
 }

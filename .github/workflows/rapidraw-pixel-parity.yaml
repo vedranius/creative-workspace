@@ -16,6 +16,7 @@ on:
       - 'scripts/smoke-rapidraw-last-used-settings.mjs'
       - 'scripts/smoke-rapidraw-settings-concurrency.mjs'
       - 'scripts/smoke-rapidraw-preset-file.mjs'
+      - 'scripts/smoke-rapidraw-preset-import.mjs'
       - 'scripts/verify-rapidraw-preset-file-native.mjs'
       - 'patches/rapidraw/**'
       - 'scripts/verify-rapidraw-export-settings-native.mjs'
@@ -48,6 +49,7 @@ on:
       - 'scripts/smoke-rapidraw-last-used-settings.mjs'
       - 'scripts/smoke-rapidraw-settings-concurrency.mjs'
       - 'scripts/smoke-rapidraw-preset-file.mjs'
+      - 'scripts/smoke-rapidraw-preset-import.mjs'
       - 'scripts/verify-rapidraw-preset-file-native.mjs'
       - 'patches/rapidraw/**'
       - 'scripts/verify-rapidraw-export-settings-native.mjs'
@@ -83,7 +85,7 @@ jobs:
       - run: npm install --no-save --package-lock=false playwright@1.55.0
       - run: npx playwright install --with-deps chromium
       - name: Verify RapidRAW browser WebGPU host boundary
-        run: node --test experiments/rapidraw-wasm-core/decoder-client.test.mjs experiments/rapidraw-wasm-core/webgpu-renderer.test.mjs experiments/rapidraw-wasm-core/react-transport.test.mjs experiments/rapidraw-wasm-core/export-client.test.mjs experiments/rapidraw-wasm-core/export-destination.test.mjs experiments/rapidraw-wasm-core/settings-storage.test.mjs experiments/rapidraw-wasm-core/preset-file.test.mjs
+        run: node --test experiments/rapidraw-wasm-core/decoder-client.test.mjs experiments/rapidraw-wasm-core/webgpu-renderer.test.mjs experiments/rapidraw-wasm-core/react-transport.test.mjs experiments/rapidraw-wasm-core/export-client.test.mjs experiments/rapidraw-wasm-core/export-destination.test.mjs experiments/rapidraw-wasm-core/settings-storage.test.mjs experiments/rapidraw-wasm-core/preset-file.test.mjs experiments/rapidraw-wasm-core/preset-library.test.mjs
       - name: Configure pinned Playwright Chromium
         run: node -e 'require("node:fs").appendFileSync(process.env.GITHUB_ENV, "CHROMIUM_PATH="+require("playwright").chromium.executablePath()+"\n")'
       - name: Reproduce native, Quality WASM, and Speed WASM pixels

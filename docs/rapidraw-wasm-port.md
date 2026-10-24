@@ -1,3 +1,9 @@
+# RWASM-03 — original development-preset import and library ACK (2026-10-24)
+
+The unpatched original Import toolbar/hook now imports bounded Exposure/folder `.rrpreset` files into an atomic IndexedDB library. Fresh IDs/name collisions match the extracted native merge. Two held readback ACKs, partial failure, actual transaction abort, second-tab CAS and reload/export pass in Chromium;64 host tests/check pass. [Evidence and continuation](rapidraw-wasm-preset-import-handoff.md).
+
+Experimental B, synthetic picker, no RAW/preset-card application, general library writes, legacy/OS/provider/full App acceptance or product release. JPEG preferences are separate. Next A: exact b441e00 Checks40091269520/Build40091269526 gate. Next B: original persisted Exposure preset card applied to supported public RAW through the existing preview pipeline. MAIN only.
+
 # RWASM-03 — original development-preset file export (2026-10-24)
 
 The unchanged original PresetsPanel Export All and usePresets command now export a bounded Exposure preset/folder file through explicit selection and real close/readback ACK. All601 bytes match the pinned original Rust serializer. Cancel, held ACK, newer-file refusal, three uncertain recoveries and separate Keep retention pass in Chromium;58 host tests/check pass. [Proof and continuation](rapidraw-wasm-preset-file-handoff.md).
