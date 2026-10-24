@@ -1,0 +1,55 @@
+--- a/src/hooks/useAppNavigation.ts
++++ b/src/hooks/useAppNavigation.ts
+@@ -17,7 +17,7 @@
+ 
+ export interface AppNavigationProps {
+   clearThumbnailQueue: () => void;
+-  beforeLeaveEditor?: () => Promise<boolean>;
++  beforeLeaveEditor?: (nextPath?: string) => Promise<boolean>;
+   refs: {
+     transformWrapperRef: React.RefObject<any>;
+     preloadedDataRef: React.RefObject<any>;
+@@ -97,14 +97,15 @@
+ 
+ export function useAppNavigation({ clearThumbnailQueue, refs, beforeLeaveEditor }: AppNavigationProps) {
+   const leavingEditor = useRef(false);
+-  const acknowledgeEditor = useCallback(async () => {
++  const selectingImage = useRef(false);
++  const acknowledgeEditor = useCallback(async (nextPath?: string) => {
+     if (leavingEditor.current) return false;
+     leavingEditor.current = true;
+     const state = useEditorStore.getState();
+     const path = state.selectedImage?.path;
+     const draft = JSON.stringify(state.adjustments);
+     try {
+-      const acknowledged = beforeLeaveEditor ? await beforeLeaveEditor() : await debouncedSave.flush();
++      const acknowledged = beforeLeaveEditor ? await beforeLeaveEditor(nextPath) : await debouncedSave.flush();
+       const latest = useEditorStore.getState();
+       if (acknowledged === false || latest.selectedImage?.path !== path || JSON.stringify(latest.adjustments) !== draft) return false;
+       return true;
+@@ -180,11 +181,14 @@
+ 
+   const handleImageSelect = useCallback(
+     async (path: string, openInEditor: boolean = true) => {
++      if (selectingImage.current) return false;
++      selectingImage.current = true;
++      try {
+       const { selectedImage, isSliderDragging, resetHistory, setEditor } = useEditorStore.getState();
+       const { setLibrary, multiSelectedPaths } = useLibraryStore.getState();
+       const { setUI } = useUIStore.getState();
+ 
+-      if (selectedImage?.path && selectedImage.path !== path && !await acknowledgeEditor()) return false;
++      if (selectedImage?.path !== path && !await acknowledgeEditor(path)) return false;
+ 
+       if (openInEditor) {
+         setUI({ activeView: 'editor' });
+@@ -344,6 +348,9 @@
+         if (state.interactivePatch?.url) URL.revokeObjectURL(state.interactivePatch.url);
+         return { interactivePatch: null };
+       });
++      } finally {
++        selectingImage.current = false;
++      }
+     },
+     [refs, acknowledgeEditor],
+   );

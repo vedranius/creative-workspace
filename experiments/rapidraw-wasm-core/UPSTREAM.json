@@ -586,5 +586,35 @@
         "src/hooks/useAppNavigation.ts": "29272c070ecbf7fa9a2f51ef588ddbf38b4314275ec554dab5c95ba6635a56f4"
       }
     }
+  },
+  "metadataLibrary": {
+    "scope": "Experimental original LibraryGrid thumbnail double-click and useAppNavigation different-document frontend cache/load with awaited metadata ACK, 4 selected browser Files / 256 MiB. One active decoder/GPU document; no folder/album/full App/OS/provider acceptance.",
+    "sourceFiles": {
+      "src/hooks/useEditorActions.ts": "8de8bfb9f0dcb0a485cb9dd4476ed1ae56c21803a82c4b62023f29c5d6da422d",
+      "src/hooks/useAppNavigation.ts": "dc87d9a014d2fd88c9b3422bd9a051977082a3e02422c90b91e9c1a13803c484",
+      "src/components/panel/right/ControlsPanel.tsx": "c2af946b1aef4967aae1bd9e92d26cdfea95b35960dba55938befd78e998a920",
+      "src/components/panel/editor/EditorToolbar.tsx": "91cc4966f81e354ea164e9b74be39728f8da80cdf14af647d85f0713262762ca",
+      "src/store/useEditorStore.ts": "86fdf855fab86fe2f6ef1fe8aa06b7484fb6e540cea09267208e776ee11c6742",
+      "src/utils/ImageLRUCache.ts": "6292aa3690de6f05405688672388a5a9489a3d71103e0853cb0dfc63f23d826a",
+      "src/components/panel/library/LibraryGrid.tsx": "a84af84ee7b9064fd3f49ae78cabc1e5af96b4b12c999a9f94f2e75c0fcf428a",
+      "src/components/panel/library/LibraryItems.tsx": "b780b8c5427aa3137691b3b3f60a6f202efdf2ae4db2d68de7caa0ef02b3df1d",
+      "src/hooks/useSortedLibrary.ts": "933f89e1cb08d9f706e3033f53ce9e3b3d2b885f6b861bc26ed38877e9854ac4",
+      "src/store/useLibraryStore.ts": "6245b4f1a500adc8c60a52b909d89d2aef6eb3b156081787ac4b24c154cf3d0f",
+      "src/store/useProcessStore.ts": "7a6e0efbc29cfc23fcf6fff7aacbc9f65808d5334456552a9e2408a943ee3976"
+    },
+    "basePatch": {
+      "path": "patches/rapidraw/b39884b3/metadata-navigation-v1.patch",
+      "sha256": "a8d186a86eb9e0fea7e706ae6b5d8e982861e5ab25f0b09025925be0c294216a",
+      "patchedFiles": {
+        "src/hooks/useAppNavigation.ts": "29272c070ecbf7fa9a2f51ef588ddbf38b4314275ec554dab5c95ba6635a56f4"
+      }
+    },
+    "sourcePatch": {
+      "path": "patches/rapidraw/b39884b3/metadata-library-v1.patch",
+      "sha256": "98e87ff22120db8c4d0461f7156b0a159dfd4ea64f6d6573f6752ed319ab35c7",
+      "patchedFiles": {
+        "src/hooks/useAppNavigation.ts": "e56a8af57173bdfe691a8b03224cfb7ab3f32e9b706a55067ad7d7a8d942f729"
+      }
+    }
   }
 }

@@ -8,8 +8,8 @@ const options=()=>({getState:useEditorStore.getState,
  flushMetadata(path:string,adjustments:any){debouncedSave(path,adjustments);return debouncedSave.flush();},
  cancelDebounce(){debouncedSave.cancel();debouncedSetHistory.cancel();}});
 (globalThis as any).rapidRawUseMetadataNavigation=(refs:any)=>{
- const navigation=useAppNavigation({refs,clearThumbnailQueue(){},beforeLeaveEditor:async()=>{
-  try{await (globalThis as any).rapidRawTransport.acknowledgeMetadata(options());return true;}
+ const navigation=useAppNavigation({refs,clearThumbnailQueue(){},beforeLeaveEditor:async(nextPath?:string)=>{
+  try{if((globalThis as any).rapidRawNavigationTarget)await (globalThis as any).rapidRawNavigationTarget(nextPath,options());else await (globalThis as any).rapidRawTransport.acknowledgeMetadata(options());return true;}
   catch(error){(globalThis as any).navigationError=String((error as any).message??error);return false;}
  }});
  (globalThis as any).rapidRawNavigation={...navigation,cache:globalImageCache,

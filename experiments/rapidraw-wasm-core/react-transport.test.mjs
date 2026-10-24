@@ -140,3 +140,37 @@ test('GPU drain during acknowledged close keeps the transition lease and refuses
   assert.deepEqual(await f.bridge.invoke('get_image_dimensions',{path:f.path}),{width:2,height:2});
  });
 });
+
+test('selected library registry is atomic, bounded, stable for a File and revoked on session close',async()=>{
+ const bridge=create(),files=['a','b','c','d'].map(n=>new File([n],'same.dng'));
+ assert.throws(()=>bridge.registerFiles(new Set(files)),/1..4/);
+ const paths=bridge.registerFiles(files.slice(0,2));assert.notEqual(paths[0],paths[1]);assert.deepEqual(bridge.registerFiles([files[0]]),[paths[0]]);
+ assert.throws(()=>bridge.registerFiles([files[2],files[3],new File(['e'],'same.dng')]),/4 Files/);
+ const next=bridge.registerFiles(files.slice(2));assert.equal(next.length,2);assert.equal(bridge.registeredFile(paths[0]),files[0]);
+ await assert.rejects(bridge.selectRegisteredFileAcknowledged('/etc/passwd',{}),/Unknown selected/);
+ await bridge.close();assert.throws(()=>bridge.registeredFile(paths[0]),/Unknown selected/);assert.throws(()=>bridge.registerFiles([files[0]]),/closed/);
+ // Synthetic File size descriptors exercise the registry budget without allocating buffers.
+ const budget=create(),large=['a','b','c'].map(n=>{const f=new File([n],n+'.dng');Object.defineProperty(f,'size',{value:128*1024*1024});return f;});
+ const retained=budget.registerFiles(large.slice(0,2));assert.throws(()=>budget.registerFiles([large[2]]),/256 MiB/);assert.equal(budget.registeredFile(retained[0]),large[0]);await budget.close();
+});
+test('different selected library File waits for ACK and preserves its stable path through cache-load order',async()=>{
+ await withMetadataDocument(async f=>{
+  const selected=new File(['b'],'same.dng'),[next]=f.bridge.registerFiles([selected]);let release;
+  const held=new Promise(r=>release=r),job=f.bridge.selectRegisteredFileAcknowledged(next,{...f,flushMetadata:()=>held});
+  await new Promise(r=>setTimeout(r,1));assert.deepEqual(await f.bridge.invoke('get_image_dimensions',{path:f.path}),{width:2,height:2});
+  await assert.rejects(f.bridge.selectRegisteredFileAcknowledged(next,f),/pending/);f.status.dirty=false;release(true);assert.equal(await job,next);
+  await assert.rejects(f.bridge.invoke('load_metadata',{path:f.path}),/Unknown/);assert.equal(await f.bridge.invoke('is_image_cached',{path:next}),false);
+  // Original frontend-cache path invokes load_image before load_metadata.
+  await f.bridge.invoke('load_image',{path:next});assert.equal(await f.bridge.invoke('is_image_cached',{path:next}),true);
+  f.state.selectedImage={path:next,isReady:true};assert.equal(await f.bridge.selectRegisteredFileAcknowledged(next,f),next);
+  await f.bridge.closeDocumentAcknowledged(f);assert.throws(()=>f.bridge.registeredFile(next),/Unknown selected/);
+ });
+});
+test('registered selection rejects unknown paths and failed/newer draft ACK without changing the active image',async()=>{
+ for(const mode of ['failure','newer'])await withMetadataDocument(async f=>{
+  const [next]=f.bridge.registerFiles([new File(['b'],'same.dng')]);let called=false;
+  await assert.rejects(f.bridge.selectRegisteredFileAcknowledged('unknown',{...f,flushMetadata:()=>{called=true;}}),/Unknown selected/);assert.equal(called,false);
+  await assert.rejects(f.bridge.selectRegisteredFileAcknowledged(next,{...f,flushMetadata:async()=>{if(mode==='failure')return false;f.state.adjustments={exposure:0};f.status.dirty=false;return true;}}),mode==='failure'?/not acknowledged/:/draft changed/);
+  assert.deepEqual(await f.bridge.invoke('get_image_dimensions',{path:f.path}),{width:2,height:2});assert.equal(f.cancelled(),0);
+ });
+});

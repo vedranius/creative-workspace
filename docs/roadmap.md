@@ -1,3 +1,9 @@
+# RWASM-03 — original different-document library selection (2026-10-24)
+
+Original LibraryGrid thumbnail double clicks now use the original navigation cache/load path with metadata ACK before switching. Same-name/different-content Files stay isolated, cached returns produce native-exact frames without writes, and uncertainty/newer drafts retain the active document.91 host tests/check and twelve browser assertions pass. [Evidence, registry bounds and continuation](rapidraw-wasm-metadata-library-handoff.md).
+
+Experimental B: four explicit browser Files/256MiB total registered input, one active decoder/GPU document, pinned source ACK patch; native/WASM unchanged. Ordinary single-click/clear, modifier/bulk/folder/album/full App/OS/provider acceptance remain open. No product release/main/demo/private-photo change. Next A: original footnote Insert/options contract; alpha69 release gate complete. Next B: original useLibraryActions single-click/clear awaits metadata ACK. MAIN only.
+
 # RWASM-03 — original Back to Library waits for metadata ACK (2026-10-24)
 
 Original Back to Library now waits before updating its editor cache, zoom and view. Same-image resume preserves native-exact pixels; failed/uncertain ACK and newer drafts retain the editor. Explicit acknowledged close detaches the old document only after GPU completion, and reopen reconciles without replay.88 host tests/check pass; browser proof and reviewed source pins are in the [handoff](rapidraw-wasm-metadata-navigation-handoff.md).

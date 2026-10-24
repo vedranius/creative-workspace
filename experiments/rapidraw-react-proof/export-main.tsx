@@ -41,6 +41,7 @@ const metadataHost=(globalThis as any).rapidRawMetadataFactory?.(metadataDefault
 const rendererTransport=createReactTransport({metadataHost,settingsHost,wasm,device,shaderSource:await(await fetch('/engine/shader.wgsl')).text(),defaults:metadataDefaults,getPreviewSettings:()=>useSettingsStore.getState().appSettings,workerUrl:'/engine/react-image-worker.js',exportFactory:host=>createExportBridge({...host,destination,runExport:(bytes,options)=>exportRawInWorker(bytes,{...options,onStatus:state=>{workerStates.push(state);(globalThis as any).exportQa?.onWorkerStatus?.(state);}})})});
 const transport=(globalThis as any).wrapRapidRawTransport?.(rendererTransport)??rendererTransport;
 const metadataUnsubscribe=metadataHost?useEditorStore.subscribe((state)=>{if(state.selectedImage?.isReady)metadataHost.observe((globalThis as any).rapidRawMetadataFile,state.adjustments);}):()=>{};
+const LibraryComponent=(globalThis as any).rapidRawLibraryComponent;
 const MetadataControls=(globalThis as any).rapidRawMetadataControls;
 const metadataTransition=(globalThis as any).rapidRawMetadataTransition;
 const PresetPanel=(globalThis as any).rapidRawPresetPanel;
@@ -61,9 +62,10 @@ function Proof(){
  const adjustments=useEditorStore(s=>s.adjustments),selectedImage=useEditorStore(s=>s.selectedImage);
  const exportState=useProcessStore(s=>s.exportState),appSettings=useSettingsStore(s=>s.appSettings);
  return <><header style={{padding:8}}>Isolated original React ExportPanel — bounded single JPEG / acknowledged output only
-  <input aria-label="Open RAW fixture" type="file" accept=".dng,.raf" onChange={async event=>{
+  <input aria-label="Open RAW fixture" type="file" accept=".dng,.raf" multiple={!!(globalThis as any).rapidRawLibraryInput} onChange={async event=>{
    const file=event.target.files?.[0];if(!file)return;
    try{
+   if((globalThis as any).rapidRawLibraryInput){await (globalThis as any).rapidRawLibraryInput(Array.from(event.target.files??[]));setOpenError('');return;}
    const path=metadataTransition?await transport.selectFileAcknowledged(file,{getState:useEditorStore.getState,flushMetadata:metadataTransition.flush,cancelDebounce:metadataTransition.cancel}):transport.selectFile(file);
    (globalThis as any).rapidRawMetadataFile=file;
    if((globalThis as any).rapidRawUseMetadataNavigation){
@@ -77,6 +79,7 @@ function Proof(){
    useEditorStore.getState().setEditor({selectedImage:{path,width:0,height:0,exif:{},isRaw:false,thumbnailUrl:'',isReady:false} as any,finalPreviewUrl:null,interactivePatch:null});
    }catch(error){setOpenError(String((error as any).message??error));}
   }}/>{openError&&<span role="alert">{openError}</span>}{navigation&&<><span aria-label="Original navigation view">{activeView}</span><button onClick={()=>navigation.handleImageSelect(useEditorStore.getState().selectedImage?.path)}>QA resume cached editor</button><button onClick={()=>{void (globalThis as any).rapidRawNavigation.closeDocument();}}>QA close acknowledged document</button></>}</header><main style={{display:'flex',height:'calc(100vh - 70px)',background:'#171717',color:'white'}}>
+  {LibraryComponent&&<LibraryComponent navigation={navigation}/>}
   <section style={{flex:1,minWidth:0,display:navigation&&activeView!=='editor'?'none':'flex'}}><Editor transformWrapperRef={transform} onBackToLibrary={navigation?.handleBackToLibrary??(()=>{})} onContextMenu={e=>e.preventDefault()}/></section>
   <aside aria-label="Original Basic panel" style={{width:300,padding:16,overflow:'auto'}}><PanelSwitcher region="rightTop" side="right" placement="top"/>{MetadataControls?<MetadataControls/>:<Basic adjustments={adjustments} appSettings={settings}
    setAdjustments={(update:any)=>useEditorStore.getState().setEditor(state=>({adjustments:typeof update==='function'?update(state.adjustments):{...state.adjustments,...update}}))}
