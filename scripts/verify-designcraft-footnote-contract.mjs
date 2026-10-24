@@ -1,4 +1,4 @@
-// Generated-document diagnostic; exact pinned source, isolated test crate, no upstream edits.
+// Generated-document native reference; exact pinned source, isolated test crate, no upstream edits.
 import assert from 'node:assert/strict';
 import {mkdir,readFile,writeFile,cp} from 'node:fs/promises';
 import path from 'node:path';
@@ -17,7 +17,7 @@ for(const [n,p]of Object.entries({'designcraft-mcp':'mcp','designcraft-engine':'
 toml+='serde_json={version="1",features=["float_roundtrip"]}\nzip={version="3",default-features=false,features=["deflate"]}\nimage={version="0.25",default-features=false,features=["png","jpeg","webp","gif","tiff","bmp"]}\n[profile.dev]\nopt-level=1\n[profile.dev.package."*"]\nopt-level=2\n';
 await writeFile(path.join(probe,'Cargo.toml'),toml);await cp(path.join(source,'Cargo.lock'),path.join(probe,'Cargo.lock'));await cp(path.join(root,'engines/designcraft/native/src/text_selection.rs'),path.join(probe,'src/text_selection.rs'));
 const oracle=String.raw`
-#[cfg(test)] mod footnote_contract {
+#[cfg(test)] mod reference_footnote_contract {
  use super::*;
  #[test] fn original_note_fixture() -> Result<(),Box<dyn std::error::Error>> {
   let output=PathBuf::from(std::env::var("CW_FOOTNOTE_OUTPUT")?);
@@ -43,8 +43,7 @@ const oracle=String.raw`
   h.call("engine.execute",json!({"command":"edit.selectAll","params":{}}))?;
   let range=h.session.active().and_then(|s|s.selection.text).ok_or("No note range")?;assert_eq!(range.range(),0..13);assert_eq!(range.cell,Some(addr));
   let selected=answer(&mut h,&mut saved,&output,&output,&json!({"method":"render","params":{"page":2}}))?;
-  // Current adapter omits note geometry; this is diagnostic evidence, not acceptance.
-  assert!(plain["caret"].is_null());assert!(selected["textSelection"].is_null());assert_eq!(plain["pngBase64"],selected["pngBase64"]);
+  assert_eq!(plain["caret"]["note"],json!({"kind":"footnote","id":"1"}));assert_eq!(selected["textSelection"]["note"],plain["caret"]["note"]);assert_ne!(plain["pngBase64"],selected["pngBase64"]);
   assert!(Arc::ptr_eq(&doc,&h.session.active().ok_or("No doc")?.doc));
   h.call("engine.execute",json!({"command":"text.insert","params":{"text":"Z"}}))?;
   let note_list=h.call("engine.execute",json!({"command":"footnote.list","params":{}}))?;
@@ -64,9 +63,9 @@ const oracle=String.raw`
 `;
 await writeFile(path.join(probe,'src/main.rs'),await readFile(path.join(root,'engines/designcraft/native/src/main.rs'),'utf8')+oracle);
 const run=name=>{const r=spawnSync('cargo',['test','--offline','--manifest-path',path.join(probe,'Cargo.toml'),name,'--','--exact'],{env:{...process.env,CW_FOOTNOTE_OUTPUT:out},encoding:'utf8'});if(r.status!==0)throw Error(r.stdout+'\n'+r.stderr);return r.stdout+r.stderr;};
-await writeFile(path.join(out,'native.log'),run('footnote_contract::original_note_fixture'));
+await writeFile(path.join(out,'native.log'),run('reference_footnote_contract::original_note_fixture'));
 const raw=await readFile(path.join(out,'selection-native.json'),'utf8'),parsed=JSON.parse(raw);assert.ok(raw.includes('18446744073709551615'));assert.equal(Number.isSafeInteger(parsed.text.cell.table),false);
 const rounded=JSON.stringify(parsed);assert.ok(rounded.includes('18446744073709552000'));assert.ok(!rounded.includes('18446744073709551615'));await writeFile(path.join(out,'selection-browser.json'),rounded);
-await writeFile(path.join(out,'negative.log'),run('footnote_contract::browser_sentinel_is_rejected_by_original_selection_type'));
-const report={source:originalUiPins.designcraft,sourcePatchSha256:originalUiPatches.designcraft.sha256,nativeFixture:JSON.parse(await readFile(path.join(out,'fixture.designcraft.json'))),fixtureSha256:hash(await readFile(path.join(out,'fixture.designcraft'))),savedSha256:hash(await readFile(path.join(out,'saved.designcraft'))),wire:{nativeSentinel:'18446744073709551615',browserDecimal:parsed.text.cell.table.toFixed(0),browserJsonDecimal:'18446744073709552000',safeInteger:false,originalSelectionError:await readFile(path.join(out,'selection-error.txt'),'utf8')},status:'diagnosed unsupported footnote wire/caret/range; not adapter acceptance',next:'Explicit safe tagged footnote address codec before JavaScript parsing, reverse hydration to original CellAddr, original note_caret/find_note geometry, exact note/story/frame/page/ACK validators.'};
+await writeFile(path.join(out,'negative.log'),run('reference_footnote_contract::browser_sentinel_is_rejected_by_original_selection_type'));
+const report={source:originalUiPins.designcraft,sourcePatchSha256:originalUiPatches.designcraft.sha256,nativeFixture:JSON.parse(await readFile(path.join(out,'fixture.designcraft.json'))),fixtureSha256:hash(await readFile(path.join(out,'fixture.designcraft'))),savedSha256:hash(await readFile(path.join(out,'saved.designcraft'))),wire:{nativeSentinel:'18446744073709551615',browserDecimal:parsed.text.cell.table.toFixed(0),browserJsonDecimal:'18446744073709552000',safeInteger:false,originalSelectionError:await readFile(path.join(out,'selection-error.txt'),'utf8')},status:'original footnote native contract and legacy numeric rejection verified; browser acceptance is separate',next:'Run the fresh original UI footnote browser smoke; keep full tools/providers/real OS acceptance separate.'};
 await assertOriginalUiSource(source,patch,'after footnote reference');await writeFile(path.join(out,'contract.json'),JSON.stringify(report,null,2)+'\n');console.log(JSON.stringify(report));

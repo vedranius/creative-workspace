@@ -1,0 +1,120 @@
+{
+  "workerSha256": "8976ce37fb0c33c43d60ee00cf1801c925716650952f0856b1717453e53a23e3",
+  "uiWasm": {
+    "path": "designcraft-web-b31662b6fda94701_bg.wasm",
+    "size": 40310300,
+    "sha256": "3d49d534a4b819da1dd12a9869ea143627d2aa9c53a6d70af2740bf0f7875b1c"
+  },
+  "status": "original-footnote-wire-caret-range-ack-save-reopen-passed",
+  "sourcePin": "a127c6d5c3576972bbd60445f26d893db071eef3",
+  "sourcePatchSha256": "61043195b8b169d4a4b21547811b39c87dafdb58d81840b7464c7dcb2242252f",
+  "fixture": {
+    "generatedNative": true,
+    "sha256": "e9193bd410f36200398f902553fc520fd18882cadc0463ff4201b34ab12e917f"
+  },
+  "page": 2,
+  "originalCaretClick": [
+    381.994,
+    445.5776666666666
+  ],
+  "note": {
+    "kind": "footnote",
+    "id": "1"
+  },
+  "wireContainsNoPseudoTable": true,
+  "caret": {
+    "page": 2,
+    "frame": 11,
+    "story": 12,
+    "points": [
+      [
+        714.612,
+        303.54799999999994
+      ],
+      [
+        714.612,
+        319.99999999999994
+      ]
+    ],
+    "note": {
+      "kind": "footnote",
+      "id": "1"
+    }
+  },
+  "range": {
+    "page": 2,
+    "story": 12,
+    "anchor": 0,
+    "focus": 13,
+    "quadCount": 1,
+    "glyphCount": 0,
+    "frames": [
+      11
+    ],
+    "bounds": [
+      96,
+      303,
+      167,
+      320
+    ],
+    "note": {
+      "kind": "footnote",
+      "id": "1"
+    }
+  },
+  "initialScreen": [
+    [
+      381.9939880371094,
+      438.8436279296875
+    ],
+    [
+      381.9939880371094,
+      456.6666259765625
+    ]
+  ],
+  "blink": {
+    "screenPoints": [
+      [
+        382.1629943847656,
+        438.8436279296875
+      ],
+      [
+        382.1629943847656,
+        456.6666259765625
+      ]
+    ],
+    "clip": {
+      "x": 380,
+      "y": 440,
+      "width": 5,
+      "height": 15
+    },
+    "samples": [
+      {
+        "dark": 5,
+        "sha256": "45c194d10c0ea2bcee2e8f2658df473ac8481f4a59610357eec6fccb76fa5813"
+      },
+      {
+        "dark": 20,
+        "sha256": "f33979bf797c93bc3c9ac02543dcf24a93c5eece3cb743c86142af9ac4579b31"
+      }
+    ],
+    "serverPngUnchanged": true
+  },
+  "heldTypingAck": {
+    "priorRevision": 5,
+    "acceptedRevision": 6,
+    "priorRangeHeld": true
+  },
+  "bodyUnchanged": true,
+  "canonicalUnchangedBySelection": true,
+  "siblingGeometryNull": true,
+  "siblingPngUnchanged": true,
+  "restoredGeometryAndPngExact": true,
+  "nativeSaveFreshReopenCanonicalExact": true,
+  "originalInputUnchanged": true,
+  "errors": [],
+  "failedResponses": [],
+  "requestFailures": [],
+  "permission": "Synthetic browser folder plus owned on-demand helper; actual original Open/thumbnail/Text Tool/select/typing. Real OS permission and full provider/tool parity remain unaccepted."
+}

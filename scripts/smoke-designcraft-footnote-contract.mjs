@@ -1,3 +1,4 @@
+// Historical negative reproducer for 9ab2d36. Current acceptance: smoke-designcraft-footnote-browser.mjs.
 import assert from 'node:assert/strict';
 import path from 'node:path';
 import {inflateSync} from 'node:zlib';

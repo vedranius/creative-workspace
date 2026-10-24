@@ -13,6 +13,7 @@
     "darwin-arm64"
   ],
   "limitations": [
+    "Alpha.69 fixes original DesignCraft footnote selection with a lossless tagged wire address before JavaScript parsing, native note caret/blue range overlays and canonical story/range/page ACK validation. Only bounded footnote editing is covered; whole-cell/multiple-cell tools, full app/providers/real OS permissions and all13 server acceptance remain incomplete. Prototype draft candidate; assets must be built and verified by Actions.",
     "Alpha.68 adds bounded original table-cell caret endpoints from the owned server, exact cell/selection/page ACK validation and original black UI blink. Footnotes, whole-cell/multiple-cell tools and full original/provider/OS acceptance remain incomplete. Keep prototype draft-only and distribute only verified Actions-built assets.",
     "Alpha.67 adds bounded original table-cell text-range blue highlights in the owned server PNG. Cell caret, footnotes, whole-cell/multiple-cell selection and full tool/provider/OS acceptance remain incomplete. Keep prototype draft-only and distribute only verified Actions-built assets.",
     "Alpha.66 renders bounded original non-cell text range highlights in the owned server PNG with matching canonical selection/page ACK. Table cells and full original/tool/provider/OS acceptance remain incomplete. Keep prototype draft-only; distribute only verified Actions-built assets.",

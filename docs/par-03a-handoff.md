@@ -1,3 +1,9 @@
+# PAR-03 alpha.69 — lossless original footnote candidate (2026-10-24)
+
+The owned worker tags the original u64 pseudo-table footnote address before JavaScript parsing. Original Rust UI hydration reconstructs CellAddr only after canonical note/story/UTF-8 range validation; original note_caret/find_note provide server caret/blue range with one origin offset, page clipping and matching ACK. Native8, UI161 (one existing ignored), gateway33 and repo91/check pass. Fresh original WASM/browser proves note click, Ctrl+A range, held typing ACK5→6, 15px independent blink, unchanged sibling PNG, exact restoration and native Save a Copy/reopen with zero errors. [Implementation, bounds and evidence](evidence/designcraft-footnote-wire.md).
+
+Alpha.69 requires its own Actions checks/build, immutable tag/draft/source and downloaded asset/checksum verification. Alpha68 is the prior verified draft and remains immutable. DesignCraft stays planned; full tools/provider/real OS/all13 acceptance remains open. Local feature and proof are complete; normal commit/push and the new alpha69 Actions/tag/draft/downloaded-asset gate are required. Independent next B: original useAppNavigation library/editor flush/cache/clear boundary with awaited metadata ACK and close/reopen recovery from8c5d0c1. MAIN only, no new writer/chat; preserve FilmCraft, live studios, original files, private photos and public demo.
+
 # PAR-03 — original footnote contract diagnosed (2026-10-24)
 
 The generated facing-page footnote fixture isolates a wire failure: original `CellAddr` uses the reserved u64::MAX sentinel, which JavaScript rounds before original Rust selection hydration. Native original hit/select/edit/save/reopen is independent of the missing adapter caret/range. Browser retains prior revision instead of accepting the malformed selection. [Contract, diagnostic evidence and exact fix scope](evidence/designcraft-footnote-contract.md).

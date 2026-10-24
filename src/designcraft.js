@@ -23,29 +23,46 @@ function frameStories(spread){
   while(items.length){const item=items.pop();if(++count>5000)throw fail('Server frame list exceeds 5,000 items',502);stories.set(item.id,item.story);if(item.children){if(!Array.isArray(item.children)||item.children.length+items.length>5000)throw fail('Invalid server frame list',502);items.push(...item.children);}}
   return stories;
 }
-function boundedTextSelection(value,document,page,png){
+// Match explicit note addresses to the native read model, whose IDs were bounded
+// before JSON serialization. Never accept the pseudo-table as a JavaScript number.
+function boundedNote(note,text,document,canonical,bad){
+  if(!note||typeof note!=='object'||Array.isArray(note)||Object.keys(note).sort().join(',')!=='id,kind'||note.kind!=='footnote'||typeof note.id!=='string'||! /^[1-9][0-9]{0,9}$/.test(note.id)||BigInt(note.id)>4294967295n||text.cell!=null||!text.note||Object.keys(text.note).sort().join(',')!=='id,kind'||note.kind!==text.note.kind||note.id!==text.note.id)bad();
+  const notes=document.stories?.find(s=>s.id===text.story)?.notes;
+  const match=Array.isArray(notes)&&notes.find(n=>n.id===note.id&&n.kind==='footnote');
+  if(!match||!Number.isSafeInteger(match.length)||![text.anchor,text.focus].every(n=>Number.isSafeInteger(n)&&n>=0&&n<=match.length))bad();
+  const canonicalNote=canonical?.stories?.[String(text.story)]?.notes?.find(n=>Number.isSafeInteger(n.id)&&String(n.id)===note.id);
+  if(!canonicalNote||typeof canonicalNote.text?.text!=='string')bad();
+  const bytes=Buffer.from(canonicalNote.text.text,'utf8');
+  if(bytes.length!==match.length||![text.anchor,text.focus].every(n=>n===bytes.length||(bytes[n]&0xc0)!==0x80))bad();
+  return {kind:'footnote',id:note.id};
+}
+function boundedTextSelection(value,document,page,png,canonical){
   if(value==null)return null;
   const bad=()=>{throw fail('Invalid server text selection geometry',502);};
-  if(typeof value!=='object'||Array.isArray(value)||Object.keys(value).filter(k=>k!=='cell').sort().join(',')!=='anchor,bounds,focus,frames,glyphCount,page,quadCount,story')bad();
+  if(typeof value!=='object'||Array.isArray(value)||Object.keys(value).filter(k=>k!=='cell'&&k!=='note').sort().join(',')!=='anchor,bounds,focus,frames,glyphCount,page,quadCount,story')bad();
   const text=document.selection?.text,spread=document.spreads?.find(sp=>sp.pages?.some(p=>p.index===page)),stories=frameStories(spread);
   if(![value.anchor,value.focus].every(n=>Number.isSafeInteger(n)&&n>=0&&n<=16*1024*1024)||value.page!==page||!Number.isSafeInteger(value.story)||value.story<0||!text||text.anchor===text.focus||value.anchor!==text.anchor||value.focus!==text.focus)bad();
   if(!Number.isSafeInteger(value.quadCount)||value.quadCount<1||value.quadCount>4096||!Number.isSafeInteger(value.glyphCount)||value.glyphCount<0||value.glyphCount>32768||!Array.isArray(value.frames)||value.frames.length<1||value.frames.length>5000||new Set(value.frames).size!==value.frames.length||value.frames.some(id=>!Number.isSafeInteger(id)||id<0||stories.get(id)!==value.story)||text.story!==value.story)bad();
-  const cell=value.cell;
+  const cell=value.cell,note=value.note;
+  if(note!==undefined){if(cell!==undefined)bad();boundedNote(note,text,document,canonical,bad);}
+  else if(text.note!==undefined)bad();
   if(cell!==undefined){if(!cell||typeof cell!=='object'||Object.keys(cell).sort().join(',')!=='col,row,table'||!Number.isSafeInteger(cell.table)||cell.table<1||![cell.row,cell.col].every(n=>Number.isSafeInteger(n)&&n>=0&&n<4096)||!text.cell||['table','row','col'].some(k=>cell[k]!==text.cell[k]))bad();}
   else if(text.cell!=null)bad();
   const b=value.bounds;if(!Array.isArray(b)||b.length!==4||b.some((n,i)=>!Number.isSafeInteger(n)||n<0||n>(i%2?png.readUInt32BE(20):png.readUInt32BE(16)))||b[2]<=b[0]||b[3]<=b[1])bad();
-  return {page,story:value.story,anchor:value.anchor,focus:value.focus,quadCount:value.quadCount,glyphCount:value.glyphCount,frames:[...value.frames],bounds:[...b],...(cell===undefined?{}:{cell:{table:cell.table,row:cell.row,col:cell.col}})};
+  return {page,story:value.story,anchor:value.anchor,focus:value.focus,quadCount:value.quadCount,glyphCount:value.glyphCount,frames:[...value.frames],bounds:[...b],...(cell===undefined?{}:{cell:{table:cell.table,row:cell.row,col:cell.col}}),...(note===undefined?{}:{note:{kind:'footnote',id:note.id}})};
 }
 
 // Server-composed caret only; no browser text layout. Validate before caching a render
 // or committing page.select, so a rejected overlay preserves the acknowledged view.
-function boundedCaret(value,document,page){
+function boundedCaret(value,document,page,canonical){
   if(value==null)return null;
   const bad=()=>{throw fail('Invalid server caret geometry',502);};
-  if(typeof value!=='object'||Array.isArray(value)||Object.keys(value).filter(k=>k!=='cell').sort().join(',')!=='frame,page,points,story')bad();
+  if(typeof value!=='object'||Array.isArray(value)||Object.keys(value).filter(k=>k!=='cell'&&k!=='note').sort().join(',')!=='frame,page,points,story')bad();
   const text=document.selection?.text;
   if(value.page!==page||![value.frame,value.story].every(id=>Number.isSafeInteger(id)&&id>=0)||!text||text.anchor!==text.focus||text.story!==value.story)bad();
-  const cell=value.cell;
+  const cell=value.cell,note=value.note;
+  if(note!==undefined){if(cell!==undefined)bad();boundedNote(note,text,document,canonical,bad);}
+  else if(text.note!==undefined)bad();
   if(cell!==undefined){if(!cell||typeof cell!=='object'||Array.isArray(cell)||Object.keys(cell).sort().join(',')!=='col,row,table'||!Number.isSafeInteger(cell.table)||cell.table<1||![cell.row,cell.col].every(n=>Number.isSafeInteger(n)&&n>=0&&n<4096)||!text.cell||['table','row','col'].some(k=>cell[k]!==text.cell[k]))bad();}
   else if(text.cell!=null)bad();
   if(!Array.isArray(value.points)||value.points.length!==2||value.points.some(point=>!Array.isArray(point)||point.length!==2||point.some(v=>typeof v!=='number'||!Number.isFinite(v)||Math.abs(v)>100000)))bad();
@@ -53,7 +70,7 @@ function boundedCaret(value,document,page){
   if(frameStories(spread).get(value.frame)!==value.story||!Array.isArray(bounds)||bounds.length!==4)bad();
   const x=(value.points[0][0]+value.points[1][0])/2,y=(value.points[0][1]+value.points[1][1])/2;
   if(x<bounds[0]||x>=bounds[2]||y<bounds[1]||y>=bounds[3])bad();
-  return {page,frame:value.frame,story:value.story,points:value.points.map(p=>[...p]),...(cell===undefined?{}:{cell:{table:cell.table,row:cell.row,col:cell.col}})};
+  return {page,frame:value.frame,story:value.story,points:value.points.map(p=>[...p]),...(cell===undefined?{}:{cell:{table:cell.table,row:cell.row,col:cell.col}}),...(note===undefined?{}:{note:{kind:'footnote',id:note.id}})};
 }
 
 // Do not forward arbitrary engine parameters: some native commands accept filesystem paths.
@@ -99,7 +116,7 @@ export function createDesignCraft({binary=process.env.CW_DESIGNCRAFT_BINARY||pat
   const get=id=>{const s=sessions.get(id);if(!s||s.engine.closed)throw fail('DesignCraft session is not available',404);if(s.closing)throw fail('DesignCraft session is closing',409);s.lastUsed=Date.now();return s;};
   async function snapshot(s,selectedPage=s.page){
     const document=await s.engine.call('state');let preview=null,documentSnapshot=null,caret=null,textSelection=null;
-    if(document){documentSnapshot=boundedCanonicalDocument(document.documentSnapshot);delete document.documentSnapshot;document.name=s.name||document.title;selectedPage=Math.max(0,Math.min(selectedPage,(document.pageCount||1)-1));const frame=await s.engine.call('render',{page:selectedPage});const png=boundedPng(frame.pngBase64);caret=boundedCaret(frame.caret,document,selectedPage);textSelection=boundedTextSelection(frame.textSelection,document,selectedPage,png);s.frames.set(++s.previewVersion,png);while(s.frames.size>3)s.frames.delete(s.frames.keys().next().value);preview=`/api/designcraft/sessions/${s.id}/preview.png?v=${s.previewVersion}`;}
+    if(document){documentSnapshot=boundedCanonicalDocument(document.documentSnapshot);delete document.documentSnapshot;document.name=s.name||document.title;selectedPage=Math.max(0,Math.min(selectedPage,(document.pageCount||1)-1));const frame=await s.engine.call('render',{page:selectedPage});const png=boundedPng(frame.pngBase64);caret=boundedCaret(frame.caret,document,selectedPage,documentSnapshot);textSelection=boundedTextSelection(frame.textSelection,document,selectedPage,png,documentSnapshot);s.frames.set(++s.previewVersion,png);while(s.frames.size>3)s.frames.delete(s.frames.keys().next().value);preview=`/api/designcraft/sessions/${s.id}/preview.png?v=${s.previewVersion}`;}
     s.page=selectedPage;s.dirty=document?.dirty||false;
     return {document,documentSnapshot,caret,textSelection,page:s.page,stateVersion:s.version,preview};
   }

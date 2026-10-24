@@ -1,3 +1,9 @@
+# Alpha.69 footnote candidate — 2026-10-24
+
+`0.2.0-alpha.69` fixes the original footnote u64 sentinel wire loss before JavaScript parsing and adds original native note caret/range geometry, validated against the canonical selection/story/page before hydration. [Local proof](evidence/designcraft-footnote-wire.md). Whole-cell tools, full original/provider/OS/all13 acceptance remain open; keep draft-only.
+
+Build and checks, immutable tag/draft/source, and independently downloaded Actions assets/checksums must be verified for this new source before distribution. Do not install local QA binaries/WASM as release assets or overwrite a running installation. Use a fresh install root and preserve live documents. Alpha68 below remains the last verified draft; its tag/assets are immutable.
+
 # Alpha.68 Actions assets verified (2026-10-24)
 
 Immutable `v0.2.0-alpha.68` and draft prerelease 422738419 resolve to `b441e007ce4bb5a6469b5bb7234e31a1f7a51552`. Checks and all 25 Build/release jobs passed. All 24 freshly downloaded assets/12 SHA256 pairs, three bundled Node runtimes,12 engine binaries, target/source/license/startup manifests and eight original UI file manifests are independently verified. [Complete verification](evidence/creative-workspace-alpha68-release.md).

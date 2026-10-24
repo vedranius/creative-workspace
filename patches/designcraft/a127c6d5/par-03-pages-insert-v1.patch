@@ -63,10 +63,10 @@ index 0000000000000000000000000000000000000000..781269bea303466ec799dde860f3e18d
 +image = { workspace = true }
 diff --git a/apps/cw-designcraft-engine/src/main.rs b/apps/cw-designcraft-engine/src/main.rs
 new file mode 100644
-index 0000000000000000000000000000000000000000..5d625b3de98705f3587e9322d38abb99a404083b
+index 0000000000000000000000000000000000000000..6917e655eb42ee223c60313abdd13ccb124cac66
 --- /dev/null
 +++ b/apps/cw-designcraft-engine/src/main.rs
-@@ -0,0 +1,473 @@
+@@ -0,0 +1,547 @@
 +// Contributor-original MIT OR Apache-2.0 adapter. No desktop/MCP server.
 +#![forbid(unsafe_code)]
 +#![deny(clippy::unwrap_used, clippy::expect_used, clippy::panic, clippy::todo)]
@@ -294,6 +294,9 @@ index 0000000000000000000000000000000000000000..5d625b3de98705f3587e9322d38abb99
 +    Ok(())
 +}
 +fn budget(d: &Document) -> Result<(), Box<dyn std::error::Error>> {
++    if d.stories.values().any(|s| s.notes.iter().any(|n| n.id == 0 || n.id > u32::MAX as u64)) {
++        return Err("Footnote ID exceeds the canonical JSON / wasm32 address budget".into());
++    }
 +    if d.page_count() == 0 || d.page_count() > 64 {
 +        return Err("Choose 1–64 pages".into());
 +    }
@@ -349,11 +352,32 @@ index 0000000000000000000000000000000000000000..5d625b3de98705f3587e9322d38abb99
 +}
 +// Original compose::caret and text transform, in spread coordinates (no UI layout).
 +// Original cell_caret already includes the placed cell origin; do not add it twice.
++// The original pseudo-table is u64::MAX. Encode it before any JavaScript JSON parse.
++// IDs fit both the canonical JSON number and the original wasm32 CellAddr row.
++fn note_address(cell: designcraft_doc::CellAddr) -> Option<Value> {
++    let id = cell.footnote_id()?;
++    (id > 0 && id <= u32::MAX as u64 && cell.col == 0).then(|| json!({"kind":"footnote","id":id.to_string()}))
++}
++fn wire_address(value: &mut Value, cell: designcraft_doc::CellAddr) -> Result<(), Box<dyn std::error::Error>> {
++    if cell.footnote_id().is_some() {
++        let note = note_address(cell).ok_or("Unsupported footnote address")?;
++        let object = value.as_object_mut().ok_or("Missing address container")?;
++        object.remove("cell"); object.insert("note".into(), note);
++    }
++    Ok(())
++}
++fn wire_selection(selection: &designcraft_doc::Selection) -> Result<Value, Box<dyn std::error::Error>> {
++    let mut value = serde_json::to_value(selection)?;
++    if let Some(cell) = selection.text.and_then(|t| t.cell) { wire_address(&mut value["text"], cell)?; }
++    Ok(value)
++}
 +fn caret_geometry(h: &Headless, index: usize) -> Option<Value> {
 +    let st = h.session.active()?;
 +    let ts = st.selection.text.filter(|ts| ts.is_caret())?;
 +    let cs = h.session.cache.get(&st.doc, ts.story, None);
 +    let (fi, x, bl, asc, desc) = match ts.cell {
++        Some(cell) if note_address(cell).is_some() =>
++            designcraft_compose::note_caret(&cs, cell.footnote_id()?, ts.focus)?,
 +        Some(cell) if cell.footnote_id().is_none() && cell.table > 0 && cell.table <= 9007199254740991 && cell.row < 4096 && cell.col < 4096 =>
 +            designcraft_compose::cell_caret(&cs, cell.table, cell.row, cell.col, ts.focus)?,
 +        Some(_) => return None,
@@ -371,7 +395,7 @@ index 0000000000000000000000000000000000000000..5d625b3de98705f3587e9322d38abb99
 +    if ![a.x,a.y,b.x,b.y].iter().all(|v| v.is_finite() && v.abs() <= 100000.0)
 +        || !bounds.contains(designcraft_geom::Point::new((a.x+b.x)/2.0,(a.y+b.y)/2.0)) { return None; }
 +    let mut caret = json!({"page":index,"frame":ft.frame,"story":ts.story,"points":[[a.x,a.y],[b.x,b.y]]});
-+    if let Some(cell) = ts.cell { caret["cell"] = serde_json::to_value(cell).ok()?; }
++    if let Some(cell) = ts.cell { caret["cell"] = serde_json::to_value(cell).ok()?; wire_address(&mut caret,cell).ok()?; }
 +    Some(caret)
 +}
 +
@@ -391,7 +415,7 @@ index 0000000000000000000000000000000000000000..5d625b3de98705f3587e9322d38abb99
 +            }
 +            v["dirty"] = json!(!clean);
 +            v["documentSnapshot"] = canonical_snapshot(&doc)?;
-+            v["selection"] = serde_json::to_value(selection)?;
++            v["selection"] = wire_selection(&selection)?;
 +            let history = h.call("engine.execute", json!({"command":"document.history","params":{}}))?;
 +            v["history"] = history;
 +            if let Some(st) = h.session.active()
@@ -403,6 +427,7 @@ index 0000000000000000000000000000000000000000..5d625b3de98705f3587e9322d38abb99
 +                    {
 +                        story["text"] = json!(s.text.chars().take(20000).collect::<String>());
 +                        story["editable"] = json!(s.text.encode_utf16().count() <= 20000);
++                        story["notes"] = json!(s.notes.iter().map(|n| json!({"kind":"footnote","id":n.id.to_string(),"length":n.text.text.len()})).collect::<Vec<_>>());
 +                    }
 +                }
 +            }
@@ -443,7 +468,12 @@ index 0000000000000000000000000000000000000000..5d625b3de98705f3587e9322d38abb99
 +            if !COMMANDS.contains(&c) {
 +                return Err("Unsupported workspace layout command".into());
 +            }
-+            Ok(h.call("engine.execute", p)?)
++            let mut result = h.call("engine.execute", p)?;
++            if let Some(cell) = result.get("cell").filter(|c| !c.is_null()) {
++                let cell: designcraft_doc::CellAddr = serde_json::from_value(cell.clone())?;
++                wire_address(&mut result, cell)?;
++            }
++            Ok(result)
 +        }
 +        "render" => {
 +            let st = h.session.active().ok_or("No document")?;
@@ -540,12 +570,56 @@ index 0000000000000000000000000000000000000000..5d625b3de98705f3587e9322d38abb99
 +    }
 +    Ok(())
 +}
++
++#[cfg(test)] mod footnote_contract {
++ use super::*;
++ #[test] fn original_note_fixture() -> Result<(),Box<dyn std::error::Error>> {
++  let output=std::env::var("CW_FOOTNOTE_OUTPUT").ok().map(PathBuf::from);
++  let mut h=Headless::new();let mut saved=None;
++  h.call("engine.execute",json!({"command":"file.new","params":{"pages":3,"facingPages":true}}))?;
++  let px=h.session.active().and_then(|s|s.doc.page(2)).ok_or("No page")?.bounds().x0;
++  let created=h.call("engine.execute",json!({"command":"frame.create","params":{"spread":1,"rect":[px+60.0,80.0,px+360.0,320.0],"content":"text","caret":true}}))?;
++  h.call("engine.execute",json!({"command":"text.insert","params":{"text":"Body text"}}))?;
++  let inserted=h.call("engine.execute",json!({"command":"footnote.insert","params":{"text":"Footnote text"}}))?;
++  let st=h.session.active().ok_or("No document")?;let ts=st.selection.text.ok_or("No selection")?;let addr=ts.cell.ok_or("No footnote address")?;let id=addr.footnote_id().ok_or("Not footnote")?;
++  assert_eq!(addr.table,u64::MAX);assert_eq!(inserted["id"],json!(id));
++  let cs=h.session.cache.get(&st.doc,ts.story,None);let (_,note)=designcraft_compose::find_note(&cs,id).ok_or("No placed note")?;
++  assert_eq!(note.text.frames.len(),1);let (_,x,bl,asc,_)=designcraft_compose::note_caret(&cs,id,1).ok_or("No original note caret")?;
++  let frame=designcraft_doc::ItemId(created["id"].as_u64().ok_or("No frame")?);let loc=st.doc.find(frame).ok_or("No frame location")?;
++  let m=st.doc.parent_xf(&loc)*st.doc.text_xf(st.doc.item(frame).ok_or("No frame item")?);let point=m*designcraft_geom::Point::new(x,bl-asc/2.0);
++  let doc=st.doc.clone();let fixture=designcraft_format::save(&doc)?;if let Some(output)=&output { std::fs::write(output.join("fixture.designcraft"),&fixture)?; }
++  let selection=serde_json::to_value(&st.selection)?;
++  let wire=wire_selection(&st.selection)?;
++  assert_eq!(wire["text"]["note"],json!({"kind":"footnote","id":"1"}));assert!(wire["text"].get("cell").is_none());
++  assert!(!serde_json::to_string(&wire)?.contains("1844674407370955"));
++  let plain=answer(&mut h,&mut saved,output.as_deref().unwrap_or(Path::new(".")),output.as_deref().unwrap_or(Path::new(".")),&json!({"method":"render","params":{"page":2}}))?;
++  h.call("engine.execute",json!({"command":"text.placeCaret","params":{"frame":frame,"point":[point.x,point.y]}}))?;
++  assert_eq!(h.session.active().and_then(|s|s.selection.text).and_then(|t|t.cell),Some(addr));
++  h.call("engine.execute",json!({"command":"edit.selectAll","params":{}}))?;
++  let range=h.session.active().and_then(|s|s.selection.text).ok_or("No note range")?;assert_eq!(range.range(),0..13);assert_eq!(range.cell,Some(addr));
++  let selected=answer(&mut h,&mut saved,output.as_deref().unwrap_or(Path::new(".")),output.as_deref().unwrap_or(Path::new(".")),&json!({"method":"render","params":{"page":2}}))?;
++  assert_eq!(plain["caret"]["note"],json!({"kind":"footnote","id":"1"}));
++  assert_eq!(selected["textSelection"]["note"],plain["caret"]["note"]);assert_ne!(plain["pngBase64"],selected["pngBase64"]);
++  assert!(caret_geometry(&h,1).is_none());
++  let sibling=answer(&mut h,&mut saved,output.as_deref().unwrap_or(Path::new(".")),output.as_deref().unwrap_or(Path::new(".")),&json!({"method":"render","params":{"page":1}}))?;
++  assert!(sibling["textSelection"].is_null());
++  assert!(Arc::ptr_eq(&doc,&h.session.active().ok_or("No doc")?.doc));
++  h.call("engine.execute",json!({"command":"text.insert","params":{"text":"Z"}}))?;
++  let note_list=h.call("engine.execute",json!({"command":"footnote.list","params":{}}))?;
++  assert!(note_list.to_string().contains("Z"));assert!(!note_list.to_string().contains("Footnote text"));
++  let edited_doc=h.session.active().ok_or("No edited document")?.doc.clone();let bytes=designcraft_format::save(&edited_doc)?;
++  let reopened=designcraft_format::load(&bytes)?;assert_eq!(canonical_snapshot(&reopened)?,canonical_snapshot(&edited_doc)?);
++  assert!(canonical_snapshot(&reopened)?.to_string().contains("Body text"));if let Some(output)=&output {std::fs::write(output.join("saved.designcraft"),bytes)?;}
++  if let Some(output)=&output { std::fs::write(output.join("fixture.designcraft.json"),serde_json::to_vec_pretty(&json!({"page":2,"frame":frame,"story":ts.story,"noteId":id,"point":[point.x,point.y],"nativeSentinel":u64::MAX.to_string(),"range":[0,13],"originalNoteCaret":[x,bl,asc],"currentAdapterCaret":plain["caret"],"currentAdapterSelection":selected["textSelection"],"canonicalUnchangedBySelection":true,"nativeTextHitAndEdit":true,"nativeSaveReopenCanonicalExact":true}))?)?; }
++  Ok(())
++ }
++}
 diff --git a/apps/cw-designcraft-engine/src/text_selection.rs b/apps/cw-designcraft-engine/src/text_selection.rs
 new file mode 100644
-index 0000000000000000000000000000000000000000..ea744f05215e73d323f2fa23df5031f9250bd039
+index 0000000000000000000000000000000000000000..cdf1874f01aa4b5be659120aed1fc06c2723401d
 --- /dev/null
 +++ b/apps/cw-designcraft-engine/src/text_selection.rs
-@@ -0,0 +1,158 @@
+@@ -0,0 +1,163 @@
 +// Pinned original inverse-selection algorithm from crates/ui-egui/src/canvas.rs
 +// a127c6d5c3576972bbd60445f26d893db071eef3 (MIT OR Apache-2.0).
 +// Compose/rasterize only in the owned engine; this transient preview never enters exports.
@@ -665,17 +739,21 @@ index 0000000000000000000000000000000000000000..ea744f05215e73d323f2fa23df5031f9
 +// Original draw_cell_selection: cell-local compose quads offset by its placed origin,
 +// translucent blue (80,140,255,110), without inverse glyph rendering.
 +fn apply_cell(h:&Headless,page:usize,scale:f64,frame:&mut Value,ts:designcraft_doc::TextSel,cell:designcraft_doc::CellAddr)->Result<(),Box<dyn std::error::Error>> {
-+    if cell.footnote_id().is_some() { return Ok(()); }
 +    let st=h.session.active().ok_or("Missing cell document")?;
 +    let cs=h.session.cache.get(&st.doc,ts.story,None);
-+    let Some((fi,_,placed))=designcraft_compose::find_cell(&cs,cell.table,cell.row,cell.col) else { return Ok(()) };
++    let found = match cell.footnote_id() {
++        Some(id) if super::note_address(cell).is_some() => designcraft_compose::find_note(&cs,id).map(|(fi,n)| (fi,n.origin,n.text.clone())),
++        Some(_) => return Err("Unsupported footnote address".into()),
++        None => designcraft_compose::find_cell(&cs,cell.table,cell.row,cell.col).map(|(fi,_,c)| (fi,c.origin,c.text.clone())),
++    };
++    let Some((fi,origin,text))=found else { return Ok(()) };
 +    let ft=&cs.frames[fi];let Some(loc)=st.doc.find(ft.frame) else { return Ok(()) };
 +    let (spread,_)=st.doc.page_loc(page).ok_or("Unknown cell page")?;
 +    if loc.spread!=designcraft_doc::SpreadRef::Doc(spread) { return Ok(()); }
 +    let it=st.doc.item(ft.frame).ok_or("Missing cell frame")?;
-+    let m=st.doc.parent_xf(&loc)*st.doc.text_xf(it)*Affine::translate(placed.origin.to_vec2());
++    let m=st.doc.parent_xf(&loc)*st.doc.text_xf(it)*Affine::translate(origin.to_vec2());
 +    let bounds=st.doc.page(page).ok_or("Missing cell page")?.bounds();
-+    let Some(text_frame)=placed.text.frames.first() else { return Ok(()) };
++    let Some(text_frame)=text.frames.first() else { return Ok(()) };
 +    let range=ts.range();let mut quads=Vec::new();let mut bbox=None::<Rect>;
 +    for line in &text_frame.lines {
 +        let s=range.start.max(line.range.start);let e=range.end.min(line.range.end);
@@ -702,6 +780,7 @@ index 0000000000000000000000000000000000000000..ea744f05215e73d323f2fa23df5031f9
 +    for q in &quads {let mut path=kurbo::BezPath::new();path.move_to(q[0]);for p in &q[1..]{path.line_to(*p);}path.close_path();rc.fill_path(&path);}
 +    rc.flush();let mut pm=vello_cpu::Pixmap::new(w,hh);rc.render(&mut pm,&mut vello_cpu::Resources::new());composite(frame,&pm,x0,y0,width,height)?;
 +    frame["textSelection"]=json!({"page":page,"story":ts.story,"anchor":ts.anchor,"focus":ts.focus,"quadCount":quads.len(),"glyphCount":0,"frames":[ft.frame],"bounds":[x0,y0,x1,y1],"cell":cell});
++    super::wire_address(&mut frame["textSelection"],cell)?;
 +    Ok(())
 +}
 diff --git a/apps/designcraft-web/Cargo.toml b/apps/designcraft-web/Cargo.toml
@@ -1623,7 +1702,7 @@ index fdf20e6c455a0c89e86ee54b25a209db177aa794..f0e439910964389724616e882e250683
                          ui.painter().rect_filled(r, 0.0, t.panel);
                      }
 diff --git a/crates/ui-egui/src/lib.rs b/crates/ui-egui/src/lib.rs
-index fb81e9c344d4390d2e3ff8a4d0d016ad563376fc..9b4b00eee61e59d9127622135b6ad85a081fa532 100644
+index fb81e9c344d4390d2e3ff8a4d0d016ad563376fc..1e883e463ddbac24eabd874a8771d6e77e3730b0 100644
 --- a/crates/ui-egui/src/lib.rs
 +++ b/crates/ui-egui/src/lib.rs
 @@ -25,7 +25,7 @@ pub mod theme;
@@ -1635,7 +1714,7 @@ index fb81e9c344d4390d2e3ff8a4d0d016ad563376fc..9b4b00eee61e59d9127622135b6ad85a
  use std::sync::mpsc::{Receiver, Sender};
  
  use designcraft_engine::{Session, SnapView, UiRequest, ViewInfo};
-@@ -54,6 +54,53 @@ pub type DownloadFn = Box<dyn FnMut(&str, &[u8])>;
+@@ -54,6 +54,92 @@ pub type DownloadFn = Box<dyn FnMut(&str, &[u8])>;
  /// Files delivered asynchronously with their original operation and document identity.
  pub type Inbox = std::sync::Arc<std::sync::Mutex<Vec<ImportedFile>>>;
  
@@ -1649,10 +1728,48 @@ index fb81e9c344d4390d2e3ff8a4d0d016ad563376fc..9b4b00eee61e59d9127622135b6ad85a
 +    pub points: [[f64; 2]; 2],
 +    #[serde(default)]
 +    pub cell: Option<HostCaretCell>,
++    #[serde(default)]
++    pub note: Option<HostNoteAddress>,
 +}
 +#[derive(Clone, Copy, Debug, PartialEq, serde::Deserialize)]
 +#[serde(deny_unknown_fields)]
 +pub struct HostCaretCell { pub table: u64, pub row: usize, pub col: usize }
++#[derive(Clone, Debug, PartialEq, serde::Deserialize)]
++#[serde(deny_unknown_fields)]
++pub struct HostNoteAddress { pub kind: String, pub id: String }
++impl HostNoteAddress {
++    fn id(&self) -> Option<u64> {
++        if self.kind != "footnote" || self.id.is_empty() || self.id.len() > 10 || self.id.starts_with('0') || !self.id.bytes().all(|b| b.is_ascii_digit()) { return None; }
++        self.id.parse::<u64>().ok().filter(|id| *id > 0 && *id <= u32::MAX as u64)
++    }
++    fn valid(&self, doc: &designcraft_doc::Document, ts: designcraft_doc::TextSel) -> bool {
++        let Some(id) = self.id() else { return false };
++        doc.story(ts.story).and_then(|s| s.notes.iter().find(|n| n.id == id)).is_some_and(|n|
++            [ts.anchor,ts.focus].iter().all(|pos| n.text.text.is_char_boundary(*pos)))
++    }
++}
++fn host_selection(mut value: Value, doc: &designcraft_doc::Document) -> Result<designcraft_doc::Selection,String> {
++    let note = value.get_mut("text").and_then(Value::as_object_mut).and_then(|text| text.remove("note"));
++    let address = match note {
++        Some(note) => {
++            if !value["text"]["cell"].is_null() { return Err("Conflicting acknowledged note/cell address".into()); }
++            let address: HostNoteAddress = serde_json::from_value(note).map_err(|e| format!("Invalid acknowledged note: {e}"))?;
++            let id = address.id().ok_or("Invalid acknowledged note ID")?;
++            value["text"]["cell"] = serde_json::to_value(designcraft_doc::CellAddr::footnote(id)).map_err(|e| e.to_string())?;
++            Some(address)
++        },
++        None => None,
++    };
++    let selection: designcraft_doc::Selection = serde_json::from_value(value).map_err(|e| format!("Invalid acknowledged selection: {e}"))?;
++    if let Some(ts) = selection.text {
++        if let Some(note) = address {
++            if !note.valid(doc,ts) { return Err("Acknowledged note does not belong to the canonical story/range".into()); }
++        } else if ts.cell.is_some_and(|c| c.footnote_id().is_some() || c.table == 0 || c.table > 9007199254740991 || c.row >= 4096 || c.col >= 4096) {
++            return Err("Invalid acknowledged cell address".into());
++        }
++    } else if address.is_some() { return Err("Acknowledged note has no text selection".into()); }
++    Ok(selection)
++}
 +impl HostCaret {
 +    fn valid(&self, doc: &designcraft_doc::Document, selection: &designcraft_doc::Selection, page: usize) -> bool {
 +        let Some(ts) = selection.text else { return false };
@@ -1661,8 +1778,9 @@ index fb81e9c344d4390d2e3ff8a4d0d016ad563376fc..9b4b00eee61e59d9127622135b6ad85a
 +        let same_story = doc.item(self.frame).is_some_and(|it| it.text_frame().is_some_and(|t| t.story == self.story));
 +        let midpoint = designcraft_geom::Point::new((self.points[0][0]+self.points[1][0])/2.0,(self.points[0][1]+self.points[1][1])/2.0);
 +        let same_cell = match (ts.cell,self.cell) {
-+            (None,None) => true,
-+            (Some(a),Some(b)) => a.footnote_id().is_none() && a.table>0 && a.table<=9007199254740991 && a.row<4096 && a.col<4096 && a.table==b.table && a.row==b.row && a.col==b.col,
++            (Some(a),None) if self.note.is_some() => self.note.as_ref().is_some_and(|n| n.valid(doc,ts) && a.footnote_id() == n.id() && a.col == 0),
++            (None,None) => self.note.is_none(),
++            (Some(a),Some(b)) => self.note.is_none() && a.footnote_id().is_none() && a.table>0 && a.table<=9007199254740991 && a.row<4096 && a.col<4096 && a.table==b.table && a.row==b.row && a.col==b.col,
 +            _ => false,
 +        };
 +        self.page == page && ts.is_caret() && same_cell && ts.story == self.story && same_story
@@ -1689,7 +1807,7 @@ index fb81e9c344d4390d2e3ff8a4d0d016ad563376fc..9b4b00eee61e59d9127622135b6ad85a
  /// Platform services injected by the host (desktop or web).
  #[derive(Default)]
  pub struct Services {
-@@ -71,6 +118,8 @@ pub struct Services {
+@@ -71,6 +157,8 @@ pub struct Services {
      pub download: Option<DownloadFn>,
      /// Files delivered asynchronously, drained every frame with their captured request context.
      pub inbox: Option<Inbox>,
@@ -1698,7 +1816,7 @@ index fb81e9c344d4390d2e3ff8a4d0d016ad563376fc..9b4b00eee61e59d9127622135b6ad85a
  }
  
  #[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
-@@ -484,6 +533,22 @@ pub struct DesignApp {
+@@ -484,6 +572,22 @@ pub struct DesignApp {
      last_time: f64,
      /// When recovery data was last written (seconds, egui time).
      pub last_recovery: f64,
@@ -1721,7 +1839,7 @@ index fb81e9c344d4390d2e3ff8a4d0d016ad563376fc..9b4b00eee61e59d9127622135b6ad85a
  }
  
  impl DesignApp {
-@@ -521,6 +586,7 @@ impl DesignApp {
+@@ -521,6 +625,7 @@ impl DesignApp {
              native_shortcuts: Default::default(),
              last_time: 0.0,
              last_recovery: 0.0,
@@ -1729,7 +1847,7 @@ index fb81e9c344d4390d2e3ff8a4d0d016ad563376fc..9b4b00eee61e59d9127622135b6ad85a
          }
      }
  
-@@ -561,6 +627,44 @@ impl DesignApp {
+@@ -561,6 +666,44 @@ impl DesignApp {
  
      /// THE entry point for every action (menus, shortcuts, palette, panels, control channel).
      pub fn run(&mut self, id: &str, params: Value) -> Result<Value, String> {
@@ -1774,7 +1892,7 @@ index fb81e9c344d4390d2e3ff8a4d0d016ad563376fc..9b4b00eee61e59d9127622135b6ad85a
          if let Some(r) = menus::run_ui(self, id, &params) {
              return r;
          }
-@@ -572,6 +676,98 @@ impl DesignApp {
+@@ -572,6 +715,98 @@ impl DesignApp {
          r
      }
  
@@ -1821,7 +1939,7 @@ index fb81e9c344d4390d2e3ff8a4d0d016ad563376fc..9b4b00eee61e59d9127622135b6ad85a
 +            return Err("Server document exceeds the 32-spread / 64-page hydration limit".into());
 +        }
 +        if ack.page >= page_count { return Err("Acknowledged page is outside the document".into()); }
-+        let selection: designcraft_doc::Selection = serde_json::from_value(ack.selection).map_err(|e| format!("Invalid acknowledged selection: {e}"))?;
++        let selection = host_selection(ack.selection, &document)?;
 +        if ack.caret.as_ref().is_some_and(|c| !c.valid(&document, &selection, ack.page)) { return Err("Invalid acknowledged caret geometry".into()); }
 +        if self.session.active().is_some() {
 +            self.session.replace_server_mirror_selection(document, ack.dirty, selection).map_err(|e| e.to_string())?;
@@ -1873,7 +1991,7 @@ index fb81e9c344d4390d2e3ff8a4d0d016ad563376fc..9b4b00eee61e59d9127622135b6ad85a
      /// Handle requests produced by tools/commands (dialogs, view changes, file pickers).
      pub fn after_engine(&mut self) {
          let reqs = std::mem::take(&mut self.session.ui_requests);
-@@ -757,8 +953,8 @@ impl DesignApp {
+@@ -757,8 +992,8 @@ impl DesignApp {
              self.perf.fps = self.perf.fps * 0.9 + (1.0 / dt).min(240.0) * 0.1;
          }
          self.last_time = now;
@@ -1884,7 +2002,7 @@ index fb81e9c344d4390d2e3ff8a4d0d016ad563376fc..9b4b00eee61e59d9127622135b6ad85a
              self.drain_inbox();
          }
          if !self.synthetic.is_empty() {
-@@ -816,6 +1012,7 @@ impl DesignApp {
+@@ -816,6 +1051,7 @@ impl DesignApp {
  
      /// Lay out the whole window.
      pub fn ui(&mut self, ui: &mut egui::Ui) {
@@ -1892,10 +2010,30 @@ index fb81e9c344d4390d2e3ff8a4d0d016ad563376fc..9b4b00eee61e59d9127622135b6ad85a
          let ctx = ui.ctx().clone();
          if !self.fonts_ready {
              ctx.request_repaint();
-@@ -1047,6 +1244,317 @@ pub fn drop_key_name_text(raw: &mut egui::RawInput, text_field_focused: bool) {
+@@ -1047,6 +1283,337 @@ pub fn drop_key_name_text(raw: &mut egui::RawInput, text_field_focused: bool) {
  mod tests {
      use super::*;
  
++    #[test]
++    fn tagged_footnote_hydrates_exact_native_address_and_rejects_ambiguous_or_unknown_notes() {
++        let mut session = Session::new();
++        session.execute("file.new",&json!({})).unwrap();
++        session.execute("frame.create",&json!({"rect":[40.0,40.0,300.0,300.0],"content":"text","caret":true})).unwrap();
++        session.execute("text.insert",&json!({"text":"Body"})).unwrap();
++        session.execute("footnote.insert",&json!({"text":"Footnote text"})).unwrap();
++        let st=session.active().unwrap();let original=st.selection.clone();
++        let mut wire=serde_json::to_value(&original).unwrap();wire["text"].as_object_mut().unwrap().remove("cell");
++        wire["text"]["note"]=json!({"kind":"footnote","id":"1"});
++        let decoded=host_selection(wire.clone(),&st.doc).unwrap();assert_eq!(decoded.text,original.text);
++        assert_eq!(decoded.text.unwrap().cell.unwrap().table,u64::MAX);
++        for note in [json!({"kind":"footnote","id":"0"}),json!({"kind":"footnote","id":"01"}),json!({"kind":"footnote","id":"4294967296"}),json!({"kind":"footnote","id":"2"}),json!({"kind":"endnote","id":"1"}),json!({"kind":"footnote","id":1}),json!({"kind":"footnote","id":"1","extra":true})] {
++            let mut bad=wire.clone();bad["text"]["note"]=note;assert!(host_selection(bad,&st.doc).is_err());
++        }
++        let mut bad=wire.clone();bad["text"]["cell"]=json!({"table":12,"row":0,"col":0});assert!(host_selection(bad,&st.doc).is_err());
++        let mut bad=wire.clone();bad["text"]["focus"]=json!(14);assert!(host_selection(bad,&st.doc).is_err());
++        assert!(host_selection(serde_json::to_value(&original).unwrap(),&st.doc).is_err());
++    }
++
 +    fn host_mirror_app(actions: std::sync::Arc<std::sync::Mutex<Vec<(String, Value)>>>) -> DesignApp {
 +        let mut session = Session::new();
 +        session.set_server_mirror();
@@ -1927,7 +2065,7 @@ index fb81e9c344d4390d2e3ff8a4d0d016ad563376fc..9b4b00eee61e59d9127622135b6ad85a
 +        let doc = &server.active().unwrap().doc;
 +        ack.snapshot = serde_json::to_value(doc).unwrap(); ack.selection = serde_json::to_value(&server.active().unwrap().selection).unwrap();
 +        let x = doc.page(2).unwrap().bounds().x0 + 50.0;
-+        let caret = HostCaret { page:2,frame:serde_json::from_value(frame["id"].clone()).unwrap(),story:serde_json::from_value(frame["story"].clone()).unwrap(),points:[[x,80.0],[x,92.0]],cell:None };
++        let caret = HostCaret { page:2,frame:serde_json::from_value(frame["id"].clone()).unwrap(),story:serde_json::from_value(frame["story"].clone()).unwrap(),points:[[x,80.0],[x,92.0]],cell:None,note:None };
 +        ack.caret = Some(caret.clone());
 +        let mut bad = ack.clone(); bad.caret.as_mut().unwrap().story = designcraft_doc::StoryId(999);
 +        assert!(app.apply_host_action_ack(bad).is_err()); assert_eq!(app.host_revision(),0); assert!(app.host_pending()); assert!(app.host_caret.is_none());
@@ -1946,7 +2084,7 @@ index fb81e9c344d4390d2e3ff8a4d0d016ad563376fc..9b4b00eee61e59d9127622135b6ad85a
 +        server.execute("table.insert",&json!({"rows":2,"cols":2,"width":280})).unwrap();
 +        server.execute("text.insert",&json!({"text":"Cell text"})).unwrap();
 +        let st=server.active().unwrap();let ts=st.selection.text.unwrap();let addr=ts.cell.unwrap();
-+        let caret=HostCaret{page:2,frame:serde_json::from_value(frame["id"].clone()).unwrap(),story:ts.story,points:[[x+10.0,90.0],[x+10.0,102.0]],cell:Some(HostCaretCell{table:addr.table,row:addr.row,col:addr.col})};
++        let caret=HostCaret{page:2,frame:serde_json::from_value(frame["id"].clone()).unwrap(),story:ts.story,points:[[x+10.0,90.0],[x+10.0,102.0]],cell:Some(HostCaretCell{table:addr.table,row:addr.row,col:addr.col}),note:None};
 +        assert!(caret.valid(&st.doc,&st.selection,2));assert!(!caret.valid(&st.doc,&st.selection,1));
 +        let mut bad=caret.clone();bad.cell=None;assert!(!bad.valid(&st.doc,&st.selection,2));
 +        for cell in [HostCaretCell{table:addr.table+1,row:addr.row,col:addr.col},HostCaretCell{table:addr.table,row:4096,col:addr.col},HostCaretCell{table:addr.table,row:addr.row,col:1}] {bad=caret.clone();bad.cell=Some(cell);assert!(!bad.valid(&st.doc,&st.selection,2));}

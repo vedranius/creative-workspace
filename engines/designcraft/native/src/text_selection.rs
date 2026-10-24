@@ -117,17 +117,21 @@ fn composite(frame: &mut Value, pm: &vello_cpu::Pixmap, x0:u32, y0:u32, width:u6
 // Original draw_cell_selection: cell-local compose quads offset by its placed origin,
 // translucent blue (80,140,255,110), without inverse glyph rendering.
 fn apply_cell(h:&Headless,page:usize,scale:f64,frame:&mut Value,ts:designcraft_doc::TextSel,cell:designcraft_doc::CellAddr)->Result<(),Box<dyn std::error::Error>> {
-    if cell.footnote_id().is_some() { return Ok(()); }
     let st=h.session.active().ok_or("Missing cell document")?;
     let cs=h.session.cache.get(&st.doc,ts.story,None);
-    let Some((fi,_,placed))=designcraft_compose::find_cell(&cs,cell.table,cell.row,cell.col) else { return Ok(()) };
+    let found = match cell.footnote_id() {
+        Some(id) if super::note_address(cell).is_some() => designcraft_compose::find_note(&cs,id).map(|(fi,n)| (fi,n.origin,n.text.clone())),
+        Some(_) => return Err("Unsupported footnote address".into()),
+        None => designcraft_compose::find_cell(&cs,cell.table,cell.row,cell.col).map(|(fi,_,c)| (fi,c.origin,c.text.clone())),
+    };
+    let Some((fi,origin,text))=found else { return Ok(()) };
     let ft=&cs.frames[fi];let Some(loc)=st.doc.find(ft.frame) else { return Ok(()) };
     let (spread,_)=st.doc.page_loc(page).ok_or("Unknown cell page")?;
     if loc.spread!=designcraft_doc::SpreadRef::Doc(spread) { return Ok(()); }
     let it=st.doc.item(ft.frame).ok_or("Missing cell frame")?;
-    let m=st.doc.parent_xf(&loc)*st.doc.text_xf(it)*Affine::translate(placed.origin.to_vec2());
+    let m=st.doc.parent_xf(&loc)*st.doc.text_xf(it)*Affine::translate(origin.to_vec2());
     let bounds=st.doc.page(page).ok_or("Missing cell page")?.bounds();
-    let Some(text_frame)=placed.text.frames.first() else { return Ok(()) };
+    let Some(text_frame)=text.frames.first() else { return Ok(()) };
     let range=ts.range();let mut quads=Vec::new();let mut bbox=None::<Rect>;
     for line in &text_frame.lines {
         let s=range.start.max(line.range.start);let e=range.end.min(line.range.end);
@@ -154,5 +158,6 @@ fn apply_cell(h:&Headless,page:usize,scale:f64,frame:&mut Value,ts:designcraft_d
     for q in &quads {let mut path=kurbo::BezPath::new();path.move_to(q[0]);for p in &q[1..]{path.line_to(*p);}path.close_path();rc.fill_path(&path);}
     rc.flush();let mut pm=vello_cpu::Pixmap::new(w,hh);rc.render(&mut pm,&mut vello_cpu::Resources::new());composite(frame,&pm,x0,y0,width,height)?;
     frame["textSelection"]=json!({"page":page,"story":ts.story,"anchor":ts.anchor,"focus":ts.focus,"quadCount":quads.len(),"glyphCount":0,"frames":[ft.frame],"bounds":[x0,y0,x1,y1],"cell":cell});
+    super::wire_address(&mut frame["textSelection"],cell)?;
     Ok(())
 }

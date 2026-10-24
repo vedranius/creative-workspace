@@ -1,3 +1,7 @@
+# Current PAR-03 alpha.69 footnote candidate
+
+Lossless tagged original footnote selection and native caret/blue range are implemented with strict canonical ACK validation. Native8/UI161 (one ignored)/gateway33/repo91/check pass; fresh WASM/browser note click/select/type heldACK/blink/sibling/save-reopen passes with zero errors. Actions release acceptance remains pending. [Evidence and exact limits](evidence/designcraft-footnote-wire.md). Keep DesignCraft planned. Next independent B: original library/editor navigation metadata ACK boundary from8c5d0c1; MAIN only.
+
 # PAR-03 — original footnote contract diagnosed (2026-10-24)
 
 The generated facing-page footnote fixture isolates a wire failure: original `CellAddr` uses the reserved u64::MAX sentinel, which JavaScript rounds before original Rust selection hydration. Native original hit/select/edit/save/reopen is independent of the missing adapter caret/range. Browser retains prior revision instead of accepting the malformed selection. [Contract, diagnostic evidence and exact fix scope](evidence/designcraft-footnote-contract.md).

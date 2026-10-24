@@ -408,3 +408,22 @@ test('Design inserts pages through the owned server command with page-count boun
   assert.deepEqual(worker.commands,['layout.pages.insert']);assert.deepEqual(worker.commandParams[0],{after:0,count:2});assert.equal(inserted.result.commandId,'layout.pages.insert');assert.equal(inserted.stateVersion,2);assert.equal(inserted.document.pageCount,3);assert.equal(inserted.document.dirty,true);
   await assert.rejects(call(session.id,'layout.pages.insert',{after:3,count:1},{expectedVersion:2}),/Unknown page/);await assert.rejects(call(session.id,'layout.pages.insert',{after:0,count:62},{expectedVersion:2}),/64-page/);await assert.rejects(call(session.id,'layout.pages.insert',{after:-1,count:1},{expectedVersion:2}),/after index/);assert.equal(worker.commands.length,1);await design.close(session.id,{discard:true});
 });
+
+
+test('Tagged footnote geometry binds exact canonical note/story/range and rejects numeric pseudo-tables',async t=>{
+  const {project,design,engines,call}=await fixture(t),session=await design.create(project);await call(session.id,'file.new',{preset:'A4'});
+  const worker=engines.find(e=>!e.closed),original=worker.call.bind(worker),note={kind:'footnote',id:'1'};
+  worker.doc.selection.text={story:9,anchor:2,focus:2,note};worker.doc.spreads[0].items=[{id:7,story:9}];worker.doc.stories=[{id:9,notes:[{...note,length:13}]}];worker.doc.documentSnapshot={stories:{9:{notes:[{id:1,text:{text:'Footnote text'}}]}}};
+  const valid={page:0,frame:7,story:9,points:[[50,60],[50,72]],note};let overlay=valid,range=null;
+  worker.call=async(method,p)=>{const result=await original(method,p);return method==='render'?{...result,caret:overlay,textSelection:range}:result;};
+  for(const bad of [{...valid,note:{kind:'footnote',id:'2'}},{...valid,note:{kind:'footnote',id:'01'}},{...valid,note:{kind:'footnote',id:'4294967296'}},{...valid,note:{kind:'footnote',id:1}},{...valid,cell:{table:18446744073709552000,row:1,col:0}},{...valid,note:{...note,extra:true}}]){overlay=bad;await assert.rejects(call(session.id,'page.select',{index:0},{expectedVersion:1}),/caret geometry/);}
+  overlay=valid;const ack=await call(session.id,'page.select',{index:0},{expectedVersion:1});assert.deepEqual(ack.caret,valid);
+  worker.doc.documentSnapshot.stories[9].notes[0].id=2;await assert.rejects(call(session.id,'page.select',{index:0},{expectedVersion:2}),/caret geometry/);worker.doc.documentSnapshot.stories[9].notes[0].id=1;
+  worker.doc.stories[0].notes=[];await assert.rejects(call(session.id,'page.select',{index:0},{expectedVersion:2}),/caret geometry/);worker.doc.stories[0].notes=[{...note,length:13}];
+  worker.doc.selection.text.focus=14;await assert.rejects(call(session.id,'state'),/caret geometry/);
+  worker.doc.documentSnapshot.stories[9].notes[0].text.text='éX';worker.doc.stories[0].notes[0].length=3;worker.doc.selection.text.anchor=1;worker.doc.selection.text.focus=1;await assert.rejects(call(session.id,'state'),/caret geometry/);worker.doc.documentSnapshot.stories[9].notes[0].text.text='Footnote text';worker.doc.stories[0].notes[0].length=13;
+  worker.doc.selection.text.anchor=0;worker.doc.selection.text.focus=13;overlay=null;range={page:0,story:9,anchor:0,focus:13,quadCount:1,glyphCount:0,frames:[7],bounds:[40,80,140,100],note};
+  const selected=await call(session.id,'page.select',{index:0},{expectedVersion:2});assert.deepEqual(selected.textSelection,range);
+  range={...range,note:{kind:'footnote',id:'2'}};await assert.rejects(call(session.id,'page.select',{index:0},{expectedVersion:3}),/text selection geometry/);
+  await design.close(session.id,{discard:true});
+});

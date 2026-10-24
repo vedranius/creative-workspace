@@ -1,0 +1,74 @@
+{
+  "fixtureSha256": "e9193bd410f36200398f902553fc520fd18882cadc0463ff4201b34ab12e917f",
+  "noteIdBudget": {
+    "minimum": "1",
+    "maximum": "4294967295",
+    "reason": "canonical JSON safe integer and original wasm32 row"
+  },
+  "nativeImportRejections": [
+    {
+      "id": "0",
+      "rejected": true,
+      "error": "Footnote ID exceeds the canonical JSON / wasm32 address budget"
+    },
+    {
+      "id": "4294967296",
+      "rejected": true,
+      "error": "Footnote ID exceeds the canonical JSON / wasm32 address budget"
+    }
+  ],
+  "sourcePin": "a127c6d5c3576972bbd60445f26d893db071eef3",
+  "sourcePatchSha256": "61043195b8b169d4a4b21547811b39c87dafdb58d81840b7464c7dcb2242252f",
+  "nativeTests": 8,
+  "originalUiTests": {
+    "passed": 161,
+    "ignored": 1
+  },
+  "gatewayTests": 33,
+  "repoTests": 91,
+  "npmCheck": true,
+  "originalCaret": {
+    "frame": 11,
+    "note": {
+      "id": "1",
+      "kind": "footnote"
+    },
+    "page": 2,
+    "points": [
+      [
+        778.2,
+        303.54799999999994
+      ],
+      [
+        778.2,
+        319.99999999999994
+      ]
+    ],
+    "story": 12
+  },
+  "originalRange": {
+    "anchor": 0,
+    "bounds": [
+      96,
+      303,
+      167,
+      320
+    ],
+    "focus": 13,
+    "frames": [
+      11
+    ],
+    "glyphCount": 0,
+    "note": {
+      "id": "1",
+      "kind": "footnote"
+    },
+    "page": 2,
+    "quadCount": 1,
+    "story": 12
+  },
+  "originalHitSelectEditBodyPreserved": true,
+  "canonicalUnchangedBySelection": true,
+  "nativeSaveReopenCanonicalExact": true,
+  "siblingOverlayNull": true
+}

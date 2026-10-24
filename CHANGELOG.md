@@ -1,3 +1,10 @@
+## [0.2.0-alpha.69] - 2026-10-24
+
+- Preserve original footnote selection through JavaScript with an explicit decimal-string note address; reconstruct native CellAddr only after canonical validation in the original Rust UI.
+- Compose original note caret and translucent blue range on the owned server, applying the note origin once and clipping to the acknowledged page. Keep existing table limits and ACK ordering.
+- Verify generated facing-page note click, select-all, held typing ACK, visible blink, sibling restoration and native Save a Copy/reopen. DesignCraft remains planned; real folder permission, full provider/tools/OS/all13 acceptance remains open.
+- New prototype draft candidate; fresh Actions assets and immutable tag/draft/downloaded checksums remain required. Prior alpha68 assets stay immutable.
+
 ## [0.2.0-alpha.68] - 2026-10-24
 
 - Correct the release smoke observer race by correlating each parsed RPC ACK with its request ID/revision and waiting for acknowledged character input; retain original Clear/Undo/Redo canonical and PNG assertions. Product/runtime version remains this candidate.
