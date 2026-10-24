@@ -56,12 +56,13 @@ export function createReactTransport({wasm,device,shaderSource,defaults,getPrevi
    return {width:image.width,height:image.height,is_raw:true,as_shot_white_balance:image.asShot.whiteBalance,
     metadata:{adjustments:null},exif:{},development_mode:image.developmentMode};
   }
-  if(command==='apply_adjustments'||command==='generate_uncropped_preview'){
-   const uncropped=command==='generate_uncropped_preview';
-   const image=current;if(!image)throw Error('No browser RAW image loaded');check(image.version);
+  if(command==='apply_adjustments'||command==='generate_uncropped_preview'||command==='generate_preset_preview'){
+   const uncropped=command==='generate_uncropped_preview',preset=command==='generate_preset_preview';
+   if(preset&&Object.keys(args).join(',')!=='jsAdjustments')throw TypeError('Preset preview accepts original adjustments only');
+   const image=current;if(!image)throw Error(preset?'No original image loaded for preset preview':'No browser RAW image loaded');check(image.version);
    if(args.roi!=null||args.computeWaveform)throw new UnavailableCommandError('ROI/waveform');
    const settings=getPreviewSettings(),liveQuality=settings?.livePreviewQuality??'high';
-   const interactive=uncropped?false:!!args.isInteractive,previewDim=args.targetResolution??settings?.editorPreviewResolution??1920;
+   const interactive=uncropped||preset?false:!!args.isInteractive,previewDim=preset?400:args.targetResolution??settings?.editorPreviewResolution??1920;
    if(typeof liveQuality!=='string'||liveQuality.length>128)throw TypeError('Invalid live preview quality');
 
    if(!Number.isSafeInteger(previewDim)||previewDim<1||previewDim>32768)throw TypeError('Invalid original preview target');
@@ -78,7 +79,7 @@ export function createReactTransport({wasm,device,shaderSource,defaults,getPrevi
    const geometry={orientationSteps,flipHorizontal,flipVertical,rotation,crop:crop===null?null:{x:crop.x,y:crop.y,width:crop.width,height:crop.height}};
    const key=JSON.stringify([uncropped,previewDim,geometry,interactive?liveQuality:'final']);
    for(const [key,value] of Object.entries(adjustments)){
-    if(uncropped&&key==='showClipping')continue;
+    if((uncropped||preset)&&key==='showClipping')continue;
     if(supported.has(key)||['rotation','orientationSteps','flipHorizontal','flipVertical','crop','aspectRatio'].includes(key))continue;
     if(JSON.stringify(value)!==JSON.stringify(defaults[key]))throw new UnavailableCommandError(`adjustment ${key}`);
    }
@@ -97,10 +98,16 @@ export function createReactTransport({wasm,device,shaderSource,defaults,getPrevi
     image.preview={width:preview.width,height:preview.height,target:previewDim,key,quality:preview.quality,divisor:preview.divisor,scaleForGpu:preview.scaleForGpu,cropOffset:[preview.cropOffsetX??0,preview.cropOffsetY??0]};
     trace.push({command:uncropped?'uncropped-preview-result':'preview-result',geometry,target:previewDim,interactive,liveQuality,quality:preview.quality,divisor:preview.divisor,width:preview.width,height:preview.height,originalWidth:image.width,originalHeight:image.height,scaleForGpu:preview.scaleForGpu,cropOffset:[preview.cropOffsetX??0,preview.cropOffsetY??0],rgbSha256:preview.rgbSha256,uploadSha256:await hash(inputRgbaF16)});
    }
-   const packed=packGlobalRendererFixture(wasm,JSON.stringify(uncropped?{...adjustments,showClipping:false}:adjustments),image.asShot,{baselineExposure:0,compensateHighlightPreservation:true});
+   const packed=packGlobalRendererFixture(wasm,JSON.stringify(uncropped||preset?{...adjustments,showClipping:false}:adjustments),image.asShot,{baselineExposure:0,compensateHighlightPreservation:true});
    const frame=await renderOriginalFrame({device,width:image.preview.width,height:image.preview.height,shaderSource,
     inputTexture:image.resources.inputTexture,adjustments:packed,resources:image.resources.resources,outputPrecision:'eight'});
    check(image.version);
+   if(preset){
+    const bytes=wasm.encode_uncropped_preview(frame.width,frame.height,frame.pixels);check(image.version);
+    trace.push({command:'preset-preview-result',target:400,quality:80,width:frame.width,height:frame.height,exposure:adjustments.exposure,
+     rgbSha256:trace.findLast(t=>t.command==='preview-result')?.rgbSha256,uploadSha256:trace.findLast(t=>t.command==='preview-result')?.uploadSha256,adjustmentSha256:await hash(packed.bytes),rgbaSha256:await hash(frame.pixels),jpegSha256:await hash(bytes),bytes:bytes.byteLength});
+    check(image.version);return bytes;
+   }
    if(uncropped){
     const bytes=wasm.encode_uncropped_preview(frame.width,frame.height,frame.pixels);
     const reader=new FileReader();const dataUrl=await new Promise((resolve,reject)=>{reader.onload=()=>resolve(reader.result);reader.onerror=()=>reject(reader.error);reader.readAsDataURL(new Blob([bytes],{type:'image/jpeg'}));});check(image.version);

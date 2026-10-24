@@ -24,3 +24,7 @@ test('newer-file and close failures retain exact preset bytes with no replay',as
 test('keep retention and closed-session refusal preserve recovery',async()=>{
  const f=fixture();f.keep();await f.invoke();const [r]=await f.destination.listRecovery();assert.equal(r.state,'complete');assert.deepEqual(await f.destination.readRecovery(r.id),serializePresetFile(items));f.host.close();await assert.rejects(f.host.choose({}),/closed/);
 });
+
+test('original tool/style preset types are accepted alongside prior experimental fixture labels',()=>{
+ for(const presetType of ['tool','style'])assert.doesNotThrow(()=>serializePresetFile([{preset:{...items[0].preset,presetType}}]));
+});

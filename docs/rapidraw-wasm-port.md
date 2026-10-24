@@ -1,3 +1,9 @@
+# RWASM-03 — persisted original Exposure preset card (2026-10-24)
+
+The original PresetsPanel now applies a persisted Exposure+0.8 preset to the public CC0 DNG, Amount200 produces+1.6, card toggle restores the exact baseline, and reload/open/reapply preserves library revision1. Source400px/q80/clipping-off thumbnail and512px/q94 editor match4,412,160 native RGBA8 components and419,208 JPEG bytes on matched SwiftShader;66 host tests/check pass. [Evidence, backend limits and continuation](rapidraw-wasm-preset-apply-handoff.md).
+
+Experimental B: original UI/shader/native/WASM unchanged, synthetic picker and isolated composition; general library writes, metadata autosave, legacy/OS/provider/full App acceptance remain open. NVIDIA-versus-SwiftShader original dither differs by at most2LSB; no universal GPU byte-parity claim. No product release/main/demo/private-photo change. Next A: exact b441e00 alpha68 Checks/Build/assets gate. Next B: source create-tool-preset callback with atomic library ACK before list/success, retaining Exposure-only limits. MAIN only.
+
 # RWASM-03 — original development-preset import and library ACK (2026-10-24)
 
 The unpatched original Import toolbar/hook now imports bounded Exposure/folder `.rrpreset` files into an atomic IndexedDB library. Fresh IDs/name collisions match the extracted native merge. Two held readback ACKs, partial failure, actual transaction abort, second-tab CAS and reload/export pass in Chromium;64 host tests/check pass. [Evidence and continuation](rapidraw-wasm-preset-import-handoff.md).

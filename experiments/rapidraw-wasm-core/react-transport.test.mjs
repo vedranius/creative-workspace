@@ -62,3 +62,9 @@ test('export cancel bypasses pending preview queue; native error strings and sou
   await bridge.close();assert.equal(closed,true);assert.throws(()=>bridge.selectFile(new File(['x'],'closed.dng')),/closed/);
  }finally{globalThis.Worker=previous;}
 });
+
+test('original preset preview requires a loaded RAW and refuses target/ROI/interactive overrides',async()=>{
+ const bridge=create();await assert.rejects(bridge.invoke('generate_preset_preview',{jsAdjustments:{}}),/No original image loaded/);
+ for(const extra of [{targetResolution:999999},{roi:{}},{isInteractive:true}])await assert.rejects(bridge.invoke('generate_preset_preview',{jsAdjustments:{},...extra}),/adjustments only/);
+ await bridge.close();await assert.rejects(bridge.invoke('generate_preset_preview',{jsAdjustments:{}}),/closed/);
+});

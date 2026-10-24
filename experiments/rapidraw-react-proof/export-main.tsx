@@ -36,7 +36,9 @@ const settingsHost=(globalThis as any).rapidRawSettingsHost;
 let retention='until-ack';const workerStates:any[]=[];
 // QA may inject a real OPFS chooser; normal operation requires the OS picker.
 const destination=createExportDestination({pickFile:options=>(globalThis as any).exportQa?.pickFile?.(options)??globalThis.showSaveFilePicker(options),getRetention:()=>retention});
-const transport=createReactTransport({settingsHost,wasm,device,shaderSource:await(await fetch('/engine/shader.wgsl')).text(),defaults:INITIAL_ADJUSTMENTS,getPreviewSettings:()=>useSettingsStore.getState().appSettings,workerUrl:'/engine/react-image-worker.js',exportFactory:host=>createExportBridge({...host,destination,runExport:(bytes,options)=>exportRawInWorker(bytes,{...options,onStatus:state=>{workerStates.push(state);(globalThis as any).exportQa?.onWorkerStatus?.(state);}})})});
+const rendererTransport=createReactTransport({settingsHost,wasm,device,shaderSource:await(await fetch('/engine/shader.wgsl')).text(),defaults:INITIAL_ADJUSTMENTS,getPreviewSettings:()=>useSettingsStore.getState().appSettings,workerUrl:'/engine/react-image-worker.js',exportFactory:host=>createExportBridge({...host,destination,runExport:(bytes,options)=>exportRawInWorker(bytes,{...options,onStatus:state=>{workerStates.push(state);(globalThis as any).exportQa?.onWorkerStatus?.(state);}})})});
+const transport=(globalThis as any).wrapRapidRawTransport?.(rendererTransport)??rendererTransport;
+const PresetPanel=(globalThis as any).rapidRawPresetPanel;
 (globalThis as any).rapidRawTransport=transport;
 const settings={editorPreviewResolution:512,useWgpuRenderer:false,enableZoomHifi:false,enableLivePreviews:true,
  livePreviewQuality:'high',baselineExposure:0,compensateHighlightPreservation:true,copyPasteSettings:{autoSync:false}};
@@ -64,8 +66,9 @@ function Proof(){
  <PanelSwitcher region="leftTop" side="left" placement="top"/>
  <label>Recovery retention <select aria-label="Recovery retention" defaultValue="until-ack" onChange={event=>{retention=event.target.value;}}><option value="until-ack">Until write ACK</option><option value="keep">Keep recovery copy</option></select></label>
  <ExportPanel exportState={exportState} selectedImage={selectedImage} multiSelectedPaths={[]} setExportState={useProcessStore.getState().setExportState} appSettings={appSettings} onSettingsChange={settingsHost?useSettingsStore.getState().handleSettingsChange:useSettingsStore.getState().setAppSettings} rootPaths={[]} isVisible={true}/></aside>
+ {PresetPanel&&<aside aria-label="Original Presets panel" style={{width:340,overflow:'auto',padding:8}}><PresetPanel/></aside>}
  </main><ToastContainer position="bottom-left" theme="dark"/></>;
 }
 function Layout(){const layoutSensors=useSensors(useSensor(PointerSensor,{activationConstraint:{distance:5}}));return <DndContext sensors={layoutSensors}><ContextMenuProvider><Proof/></ContextMenuProvider></DndContext>;}
 const root=createRoot(document.getElementById('root')!);root.render(<Layout/>);
-(globalThis as any).proof={settingsHost,settingsStore:useSettingsStore,gpuErrors,adapter:{vendor:adapter.info.vendor,architecture:adapter.info.architecture},store:useEditorStore,processStore:useProcessStore,destination,workerStates,trace:transport.trace,uiStore:useUIStore,setLiveQuality(livePreviewQuality:string){useSettingsStore.getState().setAppSettings({...useSettingsStore.getState().appSettings,livePreviewQuality} as any);},async close(){root.unmount();await transport.close();device.destroy();},settings};
+(globalThis as any).proof={...(globalThis as any).rapidRawPresetProof,settingsHost,settingsStore:useSettingsStore,gpuErrors,adapter:{vendor:adapter.info.vendor,architecture:adapter.info.architecture},store:useEditorStore,processStore:useProcessStore,destination,workerStates,trace:transport.trace,uiStore:useUIStore,setLiveQuality(livePreviewQuality:string){useSettingsStore.getState().setAppSettings({...useSettingsStore.getState().appSettings,livePreviewQuality} as any);},async close(){root.unmount();await transport.close();device.destroy();},settings};

@@ -15,7 +15,7 @@ export function serializePresetFile(items){
   if(!p||typeof p!=='object'||Array.isArray(p)||Object.keys(p).some(k=>!['id','name','adjustments','includeMasks','includeCropTransform','presetType'].includes(k)))fail('Unsupported preset field');
   identity(p);if(++count>32)fail('Choose up to 32 presets');
   if(p.includeMasks!==undefined&&p.includeMasks!==false||p.includeCropTransform!==undefined&&p.includeCropTransform!==false)fail('Masks and crop presets unavailable');
-  if(p.presetType!==undefined&&!['user','global'].includes(p.presetType))fail('Unsupported preset type');
+  if(p.presetType!==undefined&&!['tool','style','user','global'].includes(p.presetType))fail('Unsupported preset type');
   // First file slice accepts the already-proven original Exposure scalar only.
   const a=p.adjustments;if(!a||typeof a!=='object'||Array.isArray(a)||Object.keys(a).join(',')!=='exposure'||typeof a.exposure!=='number'||!Number.isFinite(a.exposure)||Math.abs(a.exposure)>5)fail('Only bounded Exposure presets are available');
   return {id:p.id,name:p.name,adjustments:p.adjustments,...(p.includeMasks===undefined?{}:{includeMasks:p.includeMasks}),...(p.includeCropTransform===undefined?{}:{includeCropTransform:p.includeCropTransform}),...(p.presetType===undefined?{}:{presetType:p.presetType})};
