@@ -1,0 +1,40 @@
+{
+  "source": "a127c6d5c3576972bbd60445f26d893db071eef3",
+  "sourcePatchSha256": "be3a5117dafe43b9212e2e3771541c444284a5d9e0a0b221162d199d15253b22",
+  "nativeFixture": {
+    "canonicalUnchangedBySelection": true,
+    "currentAdapterCaret": null,
+    "currentAdapterSelection": null,
+    "frame": 11,
+    "nativeSaveReopenCanonicalExact": true,
+    "nativeSentinel": "18446744073709551615",
+    "nativeTextHitAndEdit": true,
+    "noteId": 1,
+    "originalNoteCaret": [
+      714.456,
+      315.97999999999996,
+      12.432
+    ],
+    "page": 2,
+    "point": [
+      714.456,
+      309.76399999999995
+    ],
+    "range": [
+      0,
+      13
+    ],
+    "story": 12
+  },
+  "fixtureSha256": "aab3366ba10f2c69f1507e02ee4fff2bf9ae7de48e818117bcd7b062ab54ea95",
+  "savedSha256": "aa95b6ee41ba06a6df6d9f9d4b48942d06deea2b64b48c2f7a57a80704de02cc",
+  "wire": {
+    "nativeSentinel": "18446744073709551615",
+    "browserDecimal": "18446744073709551616",
+    "browserJsonDecimal": "18446744073709552000",
+    "safeInteger": false,
+    "originalSelectionError": "invalid type: floating point `1.8446744073709552e+19`, expected u64 at line 1 column 100"
+  },
+  "status": "diagnosed unsupported footnote wire/caret/range; not adapter acceptance",
+  "next": "Explicit safe tagged footnote address codec before JavaScript parsing, reverse hydration to original CellAddr, original note_caret/find_note geometry, exact note/story/frame/page/ACK validators."
+}

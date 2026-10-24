@@ -10,6 +10,8 @@ on:
       - 'LICENSE.md'
       - 'CHANGELOG.md'
       - 'release/config.json'
+      - 'scripts/verify-designcraft-footnote-contract.mjs'
+      - 'scripts/smoke-designcraft-footnote-contract.mjs'
       - '.github/workflows/release.yaml'
       - '.github/workflows/artcraft-demo.yaml'
   workflow_dispatch:

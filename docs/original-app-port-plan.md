@@ -1,3 +1,9 @@
+# PAR-03 — original footnote contract diagnosed (2026-10-24)
+
+The generated facing-page footnote fixture isolates a wire failure: original `CellAddr` uses the reserved u64::MAX sentinel, which JavaScript rounds before original Rust selection hydration. Native original hit/select/edit/save/reopen is independent of the missing adapter caret/range. Browser retains prior revision instead of accepting the malformed selection. [Contract, diagnostic evidence and exact fix scope](evidence/designcraft-footnote-contract.md).
+
+Diagnostic-only, not footnote acceptance or a new product release. Existing alpha68 source patch/worker/UI/WASM/version stay unchanged, and its Actions assets are already verified complete. Next A: explicit lossless tagged footnote address before JS parsing, original CellAddr hydration and note_caret/find_note overlays with canonical note/story/frame/page/ACK validation. Next B: Exposure metadata Reset/Undo/Redo/document-switch lifecycle from f8532af. MAIN only; preserve live studios, FilmCraft, private input and demo.
+
 # PAR-03 alpha.68 — immutable draft assets verified (2026-10-24)
 
 Checks40091269520 and all 25 Build/release40091269526 jobs passed for b441e007. Immutable tag and draft prerelease point to that exact source. All 24 downloaded assets/12 checksum pairs, three Node runtimes, 12 embedded engine binaries and source/license/startup manifests verify; eight UI manifests match 167 files and both DesignCraft patch provenances match. [Evidence and support limits](evidence/creative-workspace-alpha68-release.md).

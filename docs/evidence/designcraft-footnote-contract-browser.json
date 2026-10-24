@@ -1,0 +1,38 @@
+{
+  "status": "diagnosed-original-footnote-ack-hydration-failure-not-acceptance",
+  "sourcePin": "a127c6d5c3576972bbd60445f26d893db071eef3",
+  "sourcePatchSha256": "be3a5117dafe43b9212e2e3771541c444284a5d9e0a0b221162d199d15253b22",
+  "fixture": {
+    "generatedNative": true,
+    "sha256": "aab3366ba10f2c69f1507e02ee4fff2bf9ae7de48e818117bcd7b062ab54ea95"
+  },
+  "page": 2,
+  "originalCaretClick": [
+    381.994,
+    445.5776666666666
+  ],
+  "noteId": 1,
+  "nativeSentinel": "18446744073709551615",
+  "browserSentinelJson": "18446744073709552000",
+  "safeInteger": false,
+  "serverAcceptedRevision": 3,
+  "browserRetainedRevision": 2,
+  "browserPending": false,
+  "caretNull": true,
+  "rangeNull": true,
+  "canonicalUnchanged": true,
+  "previewUnchanged": true,
+  "nativeSaveFreshReopenCanonicalExact": true,
+  "originalInputUnchanged": true,
+  "errors": [],
+  "failedResponses": [],
+  "requestFailures": [],
+  "permission": "Synthetic browser folder plus owned on-demand helper; actual original Open/thumbnail/Text Tool/caret request, not OS permission acceptance.",
+  "next": "Implement tagged safe footnote selection wire codec before JS parsing; hydrate original CellAddr without lossy numbers, then note_caret/find_note overlays and exact note/story/frame/page validators.",
+  "uiWasm": {
+    "path": "designcraft-web-ac330b94496a06ac_bg.wasm",
+    "size": 40362505,
+    "sha256": "33342c2847464c7e70428d0c6540fab735dda69763c6a94bbf2723f5fd911662"
+  },
+  "workerSha256": "5cd40226b577113d31d869d392b6d7ab9e39ec72fe028653b968ef5b974df78f"
+}
