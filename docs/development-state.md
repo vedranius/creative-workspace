@@ -1,3 +1,9 @@
+# RWASM-03 — concurrent presets, export snapshots and stale-tab CAS (2026-10-24)
+
+Three real RAW/JPEG exports verify that last-used settings retain captured export values and the latest preset edit, refuse a concurrent pending settings write, and preserve newer presets written by a real second browser tab. File Success survives both preference rejections. Original preset controls remain blocked during export; cross-component changes use the actual source-store callback programmatically. Reload reconciliation waits for settings load ACK. [Evidence, limits and continuation](rapidraw-wasm-settings-concurrency-handoff.md).
+
+QA-only experimental B: unchanged source patches/runtime/native/WASM, reused verified stage, no product release/main/demo/private-photo change. Host54 and npm check pass; complete React/OPFS/IDB proof is local, with synthetic chooser rather than actual OS/common-provider acceptance. Next A: exact alpha67CI gate, then original cell caret; cell range highlight is already complete. Next B: original preset file import/export contract. MAIN only, no new writer/chat.
+
 # RWASM-03 — last-used export preferences after file ACK (2026-10-23)
 
 The reviewed original ExportPanel now waits for its terminal Success event before saving `__last_used__`, independently awaiting settings commit/readback. Native invoke returns before the background export completes; this contract is source-pinned. Actual browser tests hold file and preference ACKs, restore saved controls after reload, retain file Success when IDB aborts, and preserve recovery/no preference write on output failure or original GPU-stage Cancel. No destination authority persists. [Evidence and continuation](rapidraw-wasm-last-used-settings-handoff.md).
