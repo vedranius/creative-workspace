@@ -26,12 +26,15 @@ function frameStories(spread){
 function boundedTextSelection(value,document,page,png){
   if(value==null)return null;
   const bad=()=>{throw fail('Invalid server text selection geometry',502);};
-  if(typeof value!=='object'||Array.isArray(value)||Object.keys(value).sort().join(',')!=='anchor,bounds,focus,frames,glyphCount,page,quadCount,story')bad();
+  if(typeof value!=='object'||Array.isArray(value)||Object.keys(value).filter(k=>k!=='cell').sort().join(',')!=='anchor,bounds,focus,frames,glyphCount,page,quadCount,story')bad();
   const text=document.selection?.text,spread=document.spreads?.find(sp=>sp.pages?.some(p=>p.index===page)),stories=frameStories(spread);
-  if(![value.anchor,value.focus].every(n=>Number.isSafeInteger(n)&&n>=0&&n<=16*1024*1024)||value.page!==page||!Number.isSafeInteger(value.story)||value.story<0||!text||text.cell!=null||text.anchor===text.focus||value.anchor!==text.anchor||value.focus!==text.focus)bad();
+  if(![value.anchor,value.focus].every(n=>Number.isSafeInteger(n)&&n>=0&&n<=16*1024*1024)||value.page!==page||!Number.isSafeInteger(value.story)||value.story<0||!text||text.anchor===text.focus||value.anchor!==text.anchor||value.focus!==text.focus)bad();
   if(!Number.isSafeInteger(value.quadCount)||value.quadCount<1||value.quadCount>4096||!Number.isSafeInteger(value.glyphCount)||value.glyphCount<0||value.glyphCount>32768||!Array.isArray(value.frames)||value.frames.length<1||value.frames.length>5000||new Set(value.frames).size!==value.frames.length||value.frames.some(id=>!Number.isSafeInteger(id)||id<0||stories.get(id)!==value.story)||text.story!==value.story)bad();
+  const cell=value.cell;
+  if(cell!==undefined){if(!cell||typeof cell!=='object'||Object.keys(cell).sort().join(',')!=='col,row,table'||!Number.isSafeInteger(cell.table)||cell.table<1||![cell.row,cell.col].every(n=>Number.isSafeInteger(n)&&n>=0&&n<4096)||!text.cell||['table','row','col'].some(k=>cell[k]!==text.cell[k]))bad();}
+  else if(text.cell!=null)bad();
   const b=value.bounds;if(!Array.isArray(b)||b.length!==4||b.some((n,i)=>!Number.isSafeInteger(n)||n<0||n>(i%2?png.readUInt32BE(20):png.readUInt32BE(16)))||b[2]<=b[0]||b[3]<=b[1])bad();
-  return {page,story:value.story,anchor:value.anchor,focus:value.focus,quadCount:value.quadCount,glyphCount:value.glyphCount,frames:[...value.frames],bounds:[...b]};
+  return {page,story:value.story,anchor:value.anchor,focus:value.focus,quadCount:value.quadCount,glyphCount:value.glyphCount,frames:[...value.frames],bounds:[...b],...(cell===undefined?{}:{cell:{table:cell.table,row:cell.row,col:cell.col}})};
 }
 
 // Server-composed caret only; no browser text layout. Validate before caching a render

@@ -1,3 +1,11 @@
+# PAR-03 alpha.67 — original table-cell text range verified (2026-10-24)
+
+The owned engine composes the original translucent blue highlight inside a table cell; bounded metadata binds its exact table/row/col to canonical selection/frame/story/page before ACK. Actual original Open/thumbnail/Text Tool/Ctrl+A/typing, held ACK, sibling clipping and native Save a Copy/reopen pass with unchanged original input. Native7/JS90/check pass. [Evidence and screenshot](evidence/designcraft-cell-text-selection.md).
+
+The original frontend is unchanged and its proven WASM reused; only owned native source changed. Alpha.66 Build39900948950 failed the older Clear/Undo test's comparison between selected and unselected PNGs. That assertion now checks exact canonical and plain-content PNG restoration while retaining highlight/Clear/Redo pixel checks; it passes locally. No rerun/cancel/security/credential workaround. Alpha.67 remains a prototype draft candidate pending Actions/tag/downloaded checksum verification. Cell caret, footnotes, whole-cell/multiple-cell selection and full original/provider/OS/all13 acceptance remain open; DesignCraft stays planned.
+
+Next independent B in this SAME MAIN chat from34d8ee7: concurrent preset edits versus a pending export/last-used write, captured exported values and revision CAS, then original preset file contracts. Last-used file/preference ACK/failure/cancel is already proved. Next A: check exact alpha.67 CI once, verify immutable draft assets only if published, then native original table-cell caret endpoints and original blink. Preserve live studios, FilmCraft, private photographs and public demo; no new writer/chat.
+
 # PAR-03 alpha.66 — original native text range verified (2026-10-23)
 
 The owned engine now renders original non-cell range highlights into its selected-page PNG: black compose quads and inverted glyph colors. Gateway validation binds bounded metadata to the exact canonical range/story/frame/page before ACK. Actual original Ctrl+A holds prior revision/caret until ACK12; right-facing-page screenshot/native pixels, sibling clipping and byte-identical unselected PNG restoration ACK15 pass. Canonical document/printing data remain unchanged. Native6/JS90/check and native open/edit/save/reopen pass. [Evidence, screenshot and reproducer](evidence/designcraft-native-text-selection.md).

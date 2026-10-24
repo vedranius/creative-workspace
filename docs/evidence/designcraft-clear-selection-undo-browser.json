@@ -1,0 +1,79 @@
+{
+  "status": "original-edit-clear-undo-redo-server-ack-browser-proof",
+  "browser": "Chromium",
+  "workerSha256": "da6fb84e85bd537421a99260a124af7b5c8a1df4b9ba3c246544aa17792a5890",
+  "sourcePin": "a127c6d5c3576972bbd60445f26d893db071eef3",
+  "fileNew": {
+    "commandId": "file.new",
+    "revision": 1
+  },
+  "graphicFrame": {
+    "commandId": "frame.create",
+    "revision": 2
+  },
+  "textFrame": {
+    "commandId": "frame.create",
+    "revision": 3,
+    "story": 10
+  },
+  "textCaret": {
+    "commandId": "text.placeCaret",
+    "revision": 4
+  },
+  "serverText": {
+    "text": "INK",
+    "insertRevisions": [
+      5,
+      6,
+      7
+    ]
+  },
+  "selectAll": {
+    "method": "edit.selectAll",
+    "ackCommandId": "edit.selectAll",
+    "revision": 8,
+    "selectedText": {
+      "anchor": 0,
+      "focus": 3,
+      "frame": 9,
+      "story": 10
+    }
+  },
+  "editClear": {
+    "method": "edit.clear",
+    "params": {},
+    "ackCommandId": "edit.clear",
+    "revision": 9,
+    "serverTextCleared": true,
+    "documentDirty": true,
+    "beforeServerRenderSha256": "a7d80234c75d43dae7cb270e5e19de4742c0b0fa001034b2556af78baaede1ac",
+    "afterServerRenderSha256": "40402e053fbcda7f6379931420bdbea7192004fd1973c890cafb6cd40efdc273",
+    "serverRenderChanged": true
+  },
+  "editUndo": {
+    "method": "edit.undo",
+    "ackCommandId": "edit.undo",
+    "revision": 10,
+    "serverTextRestored": true,
+    "documentDirty": true,
+    "serverRenderSha256": "5df6966e4b65f3bdcb4467bf9757a6de3eae71b009ba12a88d23cd6411e89ecc",
+    "plainBeforeRenderSha256": "5df6966e4b65f3bdcb4467bf9757a6de3eae71b009ba12a88d23cd6411e89ecc",
+    "canonicalRestored": true,
+    "rangeOverlayRestored": false,
+    "renderRestored": true
+  },
+  "editRedo": {
+    "method": "edit.redo",
+    "params": {},
+    "ackCommandId": "edit.redo",
+    "revision": 11,
+    "serverTextCleared": true,
+    "documentDirty": true,
+    "serverRenderSha256": "40402e053fbcda7f6379931420bdbea7192004fd1973c890cafb6cd40efdc273",
+    "renderRestored": true
+  },
+  "serverRenderPresented": true,
+  "permission": "synthetic provider chooser fixture; not permission evidence",
+  "browserErrors": [],
+  "failedResponses": []
+}

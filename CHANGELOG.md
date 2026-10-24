@@ -1,3 +1,9 @@
+## [0.2.0-alpha.67] - 2026-10-24
+
+- Render original translucent blue text range highlights inside a table cell in the owned native preview. Bind the bounded cell address to canonical selection/frame/story/page before ACK; preserve printing/export content.
+- Verify actual original folder/open chooser, facing-page cell click, held Ctrl+A ACK, typing, native save/reopen and unchanged original input. Keep cell caret, footnotes, whole-cell selection and full tools/providers/OS acceptance open.
+- Correct the pre-Clear Undo browser assertion to compare the restored canonical document and plain pre-selection PNG; the inverse selection overlay is transient. Keep original Clear/Undo/Redo pixel checks and immutable draft-only Actions release requirements.
+
 ## [0.2.0-alpha.66] - 2026-10-23
 
 - Render original DesignCraft non-cell text range highlighting in the owned native engine: black compose quads and original inverted glyph colors, clipped to the selected page. Keep document content and printing/export rendering unchanged.

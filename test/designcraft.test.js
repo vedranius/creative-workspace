@@ -143,6 +143,9 @@ test('Native inverse-selection metadata binds page/range/frames and bounds befor
   for(const bad of [{...valid,page:0},{...valid,anchor:1},{...valid,story:10},{...valid,frames:[8]},{...valid,frames:[7,7]},{...valid,bounds:[0,0,801,100]},{...valid,bounds:[0,0,1.1,10]},{...valid,quadCount:4097},{...valid,glyphCount:32769},{...valid,path:'/private'}]){selection=bad;await assert.rejects(call(session.id,'page.select',{index:1},{expectedVersion:2}),/text selection geometry/);}
   selection=null;const before=await call(session.id,'state');assert.equal(before.stateVersion,2);assert.equal(before.page,0);
   selection=valid;const selected=await call(session.id,'page.select',{index:1},{expectedVersion:2});assert.deepEqual(selected.textSelection,valid);assert.equal(selected.stateVersion,3);assert.equal(selected.caret,null);
+  worker.doc.selection.text.cell={table:12,row:0,col:0};const cellValid={...valid,cell:{table:12,row:0,col:0}};
+  for(const cell of [undefined,null,{table:13,row:0,col:0},{table:12,row:1,col:0},{table:12,row:0,col:4096},{table:12,row:0,col:0,path:'/private'}]){selection={...valid,...(cell===undefined?{}:{cell})};await assert.rejects(call(session.id,'page.select',{index:1},{expectedVersion:3}),/text selection geometry/);}
+  selection=cellValid;const cellSelected=await call(session.id,'page.select',{index:1},{expectedVersion:3});assert.deepEqual(cellSelected.textSelection,cellValid);assert.equal(cellSelected.stateVersion,4);
   await design.close(session.id,{discard:true});
 });
 

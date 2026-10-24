@@ -70,6 +70,40 @@ fn zip_budget(bytes: &[u8]) -> Result<(), Box<dyn std::error::Error>> {
 mod tests {
     use super::*;
     #[test]
+    fn original_cell_range_is_blue_transient_and_page_bound() -> Result<(),Box<dyn std::error::Error>> {
+        let mut h=Headless::new();let mut saved=None;let root=std::env::temp_dir();
+        h.call("engine.execute",json!({"command":"file.new","params":{"pages":3,"facingPages":true}}))?;
+        let page_x=h.session.active().and_then(|s|s.doc.page(2)).ok_or("Missing page")?.bounds().x0;
+        let created=h.call("engine.execute",json!({"command":"frame.create","params":{"spread":1,"rect":[page_x+60.0,80.0,page_x+360.0,320.0],"content":"text","caret":true}}))?;
+        h.call("engine.execute",json!({"command":"table.insert","params":{"rows":2,"cols":2,"width":280}}))?;
+        h.call("engine.execute",json!({"command":"text.insert","params":{"text":"Cell text"}}))?;
+        let st=h.session.active().ok_or("No doc")?;let ts=st.selection.text.ok_or("No text")?;let cell=ts.cell.ok_or("No cell")?;
+        let cs=h.session.cache.get(&st.doc,ts.story,None);
+        let (_,x,bl,asc,_)=designcraft_compose::cell_caret(&cs,cell.table,cell.row,cell.col,1).ok_or("No cell caret")?;
+        let frame=designcraft_doc::ItemId(created["id"].as_u64().ok_or("Missing frame")?);
+        let loc=st.doc.find(frame).ok_or("No frame")?;let m=st.doc.parent_xf(&loc)*st.doc.text_xf(st.doc.item(frame).ok_or("No item")?);
+        let point=m*designcraft_geom::Point::new(x,bl-asc/2.0);let doc=st.doc.clone();
+        if let Ok(file)=std::env::var("CW_DESIGNCRAFT_CELL_FIXTURE") {
+            let bytes=designcraft_format::save(&doc)?;
+            let mut output=std::fs::OpenOptions::new().write(true).create_new(true).open(&file)?;output.write_all(&bytes)?;
+            std::fs::write(format!("{file}.json"),serde_json::to_vec(&json!({"page":2,"point":[point.x,point.y],"frame":frame,"story":ts.story,"cell":cell}))?)?;
+        }
+        let plain=answer(&mut h,&mut saved,&root,&root,&json!({"method":"render","params":{"page":2}}))?;
+        h.call("engine.execute",json!({"command":"edit.selectAll","params":{}}))?;
+        let selected=answer(&mut h,&mut saved,&root,&root,&json!({"method":"render","params":{"page":2}}))?;
+        assert_eq!(selected["textSelection"]["cell"],serde_json::to_value(cell)?);assert_eq!(selected["textSelection"]["focus"],9);
+        let png=image::load_from_memory_with_format(&designcraft_engine::cmd::base64_decode(selected["pngBase64"].as_str().ok_or("No PNG")?),image::ImageFormat::Png)?.to_rgba8();
+        assert!(png.pixels().any(|p|p[0]>=178&&p[0]<=182&&p[1]>=203&&p[1]<=207&&p[2]==255));
+        assert_eq!(h.call("ui.render",json!({"page":2,"scale":1.0}))?["pngBase64"],plain["pngBase64"]);
+        assert!(Arc::ptr_eq(&doc,&h.session.active().ok_or("No doc")?.doc));
+        let sibling=answer(&mut h,&mut saved,&root,&root,&json!({"method":"render","params":{"page":1}}))?;assert!(sibling["textSelection"].is_null());
+        h.call("engine.execute",json!({"command":"text.placeCaret","params":{"frame":frame,"point":[point.x,point.y]}}))?;
+        // First press inside a range preserves it for native drag; blank cell space collapses it.
+        h.call("engine.execute",json!({"command":"text.placeCaret","params":{"frame":frame,"point":[point.x+100.0,point.y]}}))?;
+        let restored=answer(&mut h,&mut saved,&root,&root,&json!({"method":"render","params":{"page":2}}))?;assert_eq!(restored["pngBase64"],plain["pngBase64"]);
+        Ok(())
+    }
+    #[test]
     fn original_range_inversion_is_transient_and_clipped_to_facing_page() -> Result<(), Box<dyn std::error::Error>> {
         let mut h = Headless::new();let mut saved = None;let root = std::env::temp_dir();
         h.call("engine.execute",json!({"command":"file.new","params":{"pages":3,"facingPages":true}}))?;

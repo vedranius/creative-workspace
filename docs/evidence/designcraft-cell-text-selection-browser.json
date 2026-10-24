@@ -1,0 +1,56 @@
+{
+  "status": "original-table-cell-text-range-blue-server-highlight",
+  "sourcePin": "a127c6d5c3576972bbd60445f26d893db071eef3",
+  "sourcePatchSha256": "08c0282d4c76c6d9f83e43f6d16ef28d059be50aa39e6f1899a63ce92b0c3bae",
+  "fixture": {
+    "generatedNative": true,
+    "originalSha256": "974293db835602e0d50dacf69574154eca1246d6fc0c098ff8d8c5441422d423"
+  },
+  "page": 2,
+  "originalCaretClick": [
+    348.53633333333335,
+    207.734
+  ],
+  "cell": {
+    "col": 0,
+    "row": 0,
+    "table": 13
+  },
+  "range": {
+    "page": 2,
+    "story": 12,
+    "anchor": 0,
+    "focus": 9,
+    "quadCount": 1,
+    "glyphCount": 0,
+    "frames": [
+      11
+    ],
+    "bounds": [
+      64,
+      84,
+      108,
+      101
+    ],
+    "cell": {
+      "table": 13,
+      "row": 0,
+      "col": 0
+    }
+  },
+  "heldAck": {
+    "revision": 3,
+    "priorPngPreserved": true
+  },
+  "plainPngSha256": "43f1e9653a657c5071a25171be81dfa306da7011c1ec754bccc40512abbef816",
+  "selectedPngSha256": "59505bdf84a11ac47dc5fb980e76aa1970f59ca2b439639b835ea7860bf0ea7b",
+  "canonicalUnchangedBySelection": true,
+  "siblingClipped": true,
+  "restoredExactly": true,
+  "actualTyping": "Z",
+  "savedAndReopenedCanonicalExact": true,
+  "originalInputUnchanged": true,
+  "errors": [],
+  "permission": "Synthetic browser folder, actual original chooser/copy-first; not real OS permission acceptance.",
+  "limits": "Cell text range only. Cell caret, footnotes, whole-cell/multiple-cell selection and full table tools/providers/OS remain open."
+}

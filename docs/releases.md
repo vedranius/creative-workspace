@@ -1,3 +1,9 @@
+# Alpha.67 candidate — original server-rendered table-cell text range
+
+`0.2.0-alpha.67` adds the original translucent blue highlight inside a table cell, composed on the owned server. Original chooser/cell click/Ctrl+A/typing and native save/reopen are evidenced. Canonical content and printing/export data remain unchanged by selection. Cell caret, footnotes, whole-cell selection and full tool/provider/OS acceptance remain open; DesignCraft stays planned. [Evidence](evidence/designcraft-cell-text-selection.md).
+
+Install only independently verified Actions-built assets into a NEW root, preserving live installations and unsaved documents. Alpha.67 requires successful Actions, immutable tag/draft/source and downloaded checksum verification. Alpha.66's Clear/Undo QA assertion failed before publication and is corrected here; no release or assets are claimed for that run. Earlier release API403 remains documented without reruns or credential/security workarounds. Local QA artifacts are not release assets; public demo unchanged.
+
 # Alpha.66 candidate — original server-rendered text selection
 
 `0.2.0-alpha.66` composes original non-cell range highlights in the owned native PNG with bounded page/story/frame/range validation before ACK. Original Ctrl+A, held ACK, right-facing-page inverse pixels, sibling clipping and exact plain-PNG restoration are evidenced. Canonical document and printing/export content remain unchanged. Table cells, full tools/provider/OS acceptance remain open; DesignCraft stays planned. [Evidence](evidence/designcraft-native-text-selection.md).

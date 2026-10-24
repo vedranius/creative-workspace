@@ -1,0 +1,11 @@
+{
+  "previousPatchSha256": "5f0def9e2804c51f75aa1e970a4976e6709b0a7b388d51d875942c93a66194d1",
+  "sourcePatchSha256": "08c0282d4c76c6d9f83e43f6d16ef28d059be50aa39e6f1899a63ce92b0c3bae",
+  "changedPatchSections": [
+    "diff --git a/apps/cw-designcraft-engine/src/main.rs b/apps/cw-designcraft-engine/src/main.rs",
+    "diff --git a/apps/cw-designcraft-engine/src/text_selection.rs b/apps/cw-designcraft-engine/src/text_selection.rs"
+  ],
+  "frontendUnchanged": true,
+  "onlyOwnedNativePackageChanged": true,
+  "reusedWasmSha256": "90a7765049291f76ba02785732fb60013863438b57573678363039cbd544d71e"
+}

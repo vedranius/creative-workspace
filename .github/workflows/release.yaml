@@ -237,7 +237,8 @@ jobs:
           CARGO_BUILD_JOBS: '1'
         run: |
           cargo test --manifest-path build/original-ui/source-designcraft/Cargo.toml -p designcraft-ui-egui original_page_move_waits_for_matching_ack_and_preserves_page_identity
-          cargo test --manifest-path build/original-ui/source-designcraft/Cargo.toml -p cw-designcraft-engine
+          mkdir -p build/designcraft-par03-evidence
+          CW_DESIGNCRAFT_CELL_FIXTURE="$PWD/build/designcraft-par03-evidence/cell-fixture.designcraft" cargo test --manifest-path build/original-ui/source-designcraft/Cargo.toml -p cw-designcraft-engine
       - name: Verify the original UI against the owned server worker
         env:
           CW_DESIGNCRAFT_BINARY: ${{ github.workspace }}/build/staged/designcraft/cw-designcraft-engine
@@ -292,6 +293,7 @@ jobs:
           node docs/evidence/designcraft-facing-page-text-browser.mjs
           CW_PAR03_CARET_REPORT=build/designcraft-par03-evidence/caret-browser.json CW_PAR03_CARET_SCREENSHOT=build/designcraft-par03-evidence/caret-browser.png node scripts/smoke-designcraft-caret-browser.mjs
           CW_PAR03_SELECTION_REPORT=build/designcraft-par03-evidence/text-selection-browser.json CW_PAR03_SELECTION_SCREENSHOT=build/designcraft-par03-evidence/text-selection-browser.png node scripts/smoke-designcraft-text-selection-browser.mjs
+          CW_PAR03_WORK_ROOT=build/host-tmp/designcraft-cell-selection CW_DESIGNCRAFT_CELL_FIXTURE=build/designcraft-par03-evidence/cell-fixture.designcraft CW_PAR03_CELL_REPORT=build/designcraft-par03-evidence/cell-browser.json CW_PAR03_CELL_SCREENSHOT=build/designcraft-par03-evidence/cell-browser.png node scripts/smoke-designcraft-cell-selection-browser.mjs
       - name: Build and prove the original preset/server-canvas candidate
         env:
           CW_DESIGNCRAFT_BINARY: ${{ github.workspace }}/build/staged/designcraft/cw-designcraft-engine
