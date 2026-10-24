@@ -21,7 +21,7 @@ export function createPresetLibrary({backend=createPresetLibraryDatabase(),pickF
  if(!Number.isSafeInteger(timeoutMs)||timeoutMs<10||timeoutMs>30000)fail('Invalid library deadline');
  let current=null,busy=false,uncertain=false,closed=false,pending=null;const leases=new Map();
  const io=async fn=>{if(pending)fail('Previous library IO still pending');const p=Promise.resolve().then(fn);pending=p;p.then(()=>{if(pending===p)pending=null;},()=>{if(pending===p)pending=null;});let timer;try{return await Promise.race([p,new Promise((_,reject)=>{timer=setTimeout(()=>reject(Error('Preset library IO timed out; reload after IO settles')),timeoutMs);})]);}finally{clearTimeout(timer);}};
- const ready=()=>{if(closed||busy||!current||uncertain)fail('Reload preset library before importing');};
+ const ready=()=>{if(closed||busy||!current||uncertain)fail('Reload preset library before writing');};
  const check=()=>{if(closed)fail('Preset library session closed');};
  return {
   async load(){if(closed||busy)fail('Preset library busy or closed');uncertain=true;current=record(await io(()=>backend.read()));check();uncertain=false;return structuredClone(current.presets);},
@@ -34,6 +34,16 @@ export function createPresetLibrary({backend=createPresetLibraryDatabase(),pickF
     if(await io(()=>h.queryPermission({mode:'read'}))!=='granted')fail('Preset read permission not granted');const file=await io(()=>h.getFile());check();if(file.size<1||file.size>PRESET_FILE_LIMIT)fail('Preset file exceeds 64 KiB');selected.push({handle:h,file,revision:current.revision,expires:Date.now()+300000});
    }
    return selected.map(l=>{const token='browser-preset-input:'+crypto.randomUUID();leases.set(token,l);return token;});
+  },
+  async saveCreated(items){
+   ready();const presets=boundedLibrary(items),prior=current.presets,created=presets.at(-1)?.preset;
+   if(presets.length!==prior.length+1||JSON.stringify(presets.slice(0,-1))!==JSON.stringify(prior)||!created||created.presetType!=='tool'||!(/^[a-f0-9]{8}-(?:[a-f0-9]{4}-){3}[a-f0-9]{12}$/).test(created.id))fail('Only one new Exposure tool preset can be saved; existing presets must be unchanged');
+   const next={schema:1,revision:current.revision+1,presets};if(!Number.isSafeInteger(next.revision))fail('Preset revision limit reached');
+   busy=true;let committing=false;
+   try{
+    committing=true;await io(()=>backend.commit(current.revision,next));check();const actual=record(await io(()=>backend.read()));check();
+    if(JSON.stringify(actual)!==JSON.stringify(next))fail('Preset library readback did not acknowledge this write');current=next;return null;
+   }catch(error){if(committing||pending)uncertain=true;throw error;}finally{busy=false;}
   },
   async importFiles(tokens){
    ready();if(!Array.isArray(tokens)||tokens.length<1||tokens.length>8||new Set(tokens).size!==tokens.length)fail('Invalid preset input choices');

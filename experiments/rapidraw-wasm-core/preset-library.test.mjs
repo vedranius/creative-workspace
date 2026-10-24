@@ -38,3 +38,25 @@ test('input bytes, library size, permission and closed session are bounded',asyn
 test('timeout blocks another import while IO is pending; reload reconciles durable result',async()=>{
  const f=fixture({timeoutMs:100});await f.host.load();f.state.readGate=gate();const job=f.import();await until(()=>f.state.reading);await assert.rejects(job,/timed out/);assert.equal(f.host.status().uncertain,true);assert.equal(f.host.status().pendingIO,true);await assert.rejects(f.host.choose(),/Reload/);f.state.readGate.release();await until(()=>!f.host.status().pendingIO);await f.host.load();assert.equal(f.host.status().revision,1);assert.equal(f.host.status().uncertain,false);
 });
+
+const created=(name='Created',exposure=0.8)=>({preset:{id:crypto.randomUUID(),name,adjustments:{exposure},includeMasks:false,includeCropTransform:false,presetType:'tool'}});
+test('create tool preset waits for exact write/readback ACK and refuses duplicate or nonappend writes',async()=>{
+ const f=fixture();await f.host.load();f.state.readGate=gate();const value=[created()];let resolved=false;const job=f.host.saveCreated(value).then(v=>{resolved=true;return v;});await until(()=>f.state.reading);
+ assert.equal(f.state.record.revision,1);assert.equal(f.host.status().revision,0);assert.equal(resolved,false);await assert.rejects(f.host.saveCreated(value),/Reload/);
+ f.state.readGate.release();assert.equal(await job,null);assert.equal(f.host.status().revision,1);assert.deepEqual((await f.host.load())[0].preset,value[0].preset);
+ await assert.rejects(f.host.saveCreated(value),/Only one new/);await assert.rejects(f.host.saveCreated([{...created(),preset:{...value[0].preset,name:'Changed'}},created()]),/unchanged/);assert.equal(f.state.commits,1);
+});
+test('create refuses unsupported shapes, styles, counts, values and stale source before IO',async()=>{
+ const f=fixture();await f.host.load();for(const value of [[{preset:{...created().preset,presetType:'style'}}],[{preset:{...created().preset,adjustments:{exposure:6}}}],[{preset:{...created().preset,adjustments:{contrast:1}}}],[{folder:{id:'folder',name:'Folder',children:[]}}],Array.from({length:33},()=>created()),[{preset:{...created().preset,includeMasks:true}}]])await assert.rejects(f.host.saveCreated(value));
+ assert.equal(f.state.commits,0);assert.equal(f.host.status().uncertain,false);await f.host.close();await assert.rejects(f.host.saveCreated([created()]),/Reload/);
+});
+test('create abort/readback mismatch/other-tab conflict preserve acknowledged revision without replay',async()=>{
+ for(const fault of ['abort','readback','stale']){
+  const f=fixture();await f.host.load();let expected=null;if(fault==='abort')f.state.aborted=true;if(fault==='stale'){f.state.record={schema:1,revision:1,presets:[created('Peer')]};expected=structuredClone(f.state.record);}if(fault==='readback')f.backend.read=async()=>null;
+  await assert.rejects(f.host.saveCreated([created()]));assert.equal(f.host.status().revision,0);assert.equal(f.host.status().uncertain,true);
+  await assert.rejects(f.host.saveCreated([created()]),/Reload/);if(fault!=='readback')assert.deepEqual(f.state.record,expected);else assert.equal(f.state.record.revision,1);
+ }
+});
+test('create timeout keeps unacknowledged durable result and blocks writes until reconciliation',async()=>{
+ const f=fixture({timeoutMs:50});await f.host.load();f.state.readGate=gate();const job=f.host.saveCreated([created()]);await until(()=>f.state.reading);await assert.rejects(job,/timed out/);assert.equal(f.host.status().revision,0);assert.equal(f.host.status().pendingIO,true);await assert.rejects(f.host.saveCreated([created()]),/Reload/);f.state.readGate.release();await until(()=>!f.host.status().pendingIO);await f.host.load();assert.equal(f.host.status().revision,1);assert.equal(f.state.commits,1);
+});

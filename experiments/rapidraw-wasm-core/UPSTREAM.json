@@ -477,5 +477,26 @@
     "target": 400,
     "jpegQuality": 80,
     "showClipping": false
+  },
+  "presetCreate": {
+    "scope": "Experimental original create-tool-preset action: one appended Exposure-only item, source SavePresets ABI, atomic IndexedDB CAS/write/readback before list/modal success. Reviewed source ACK patch; no general CRUD/reorder/style/metadata/OS/provider/full App acceptance.",
+    "sourceFiles": {
+      "src/hooks/usePresets.ts": "0b545710738a886df5a6946723e0e4e580027d98cc7a92f9bacd777bc7cf6258",
+      "src/components/panel/right/PresetsPanel.tsx": "f91a154e80a92c8692c625a9a43e1be06534024b78d79ce0052176d25ecf2949",
+      "src/components/modals/ConfigurePresetModal.tsx": "090545bc74c1c75342a958b503e26d64ad890024e14f3a722f2ceb176fdfdf8b",
+      "src-tauri/src/file_management.rs": "3f639e11c2f8a74baa31285b2aa9456516e5c71b6c8e4d78a42dbe61f5c4a219"
+    },
+    "sourcePatch": {
+      "path": "patches/rapidraw/b39884b3/preset-create-ack-v1.patch",
+      "sha256": "b9f8e6ed4dafbf2e118ef6c21a7fa93db79af746a2de0ecbc340bd47c7b48cf5",
+      "patchedFiles": {
+        "src/hooks/usePresets.ts": "6179e0bc0b2e5c4e88f34b9f5abd867c1136ca718c5ea1138df43ad07a261d22",
+        "src/components/panel/right/PresetsPanel.tsx": "eeff7800680185b2270f5ce055825c78a1dceeaf8a02227053fe8929c0307a7b",
+        "src/components/modals/ConfigurePresetModal.tsx": "d04e5f0f1f5de5bae57af0739231f8b00204b3e47214f3ed743399c32c30b80d"
+      }
+    },
+    "commands": [
+      "save_presets"
+    ]
   }
 }

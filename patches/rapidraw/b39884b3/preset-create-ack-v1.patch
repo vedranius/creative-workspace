@@ -1,0 +1,163 @@
+diff --git a/src/hooks/usePresets.ts b/src/hooks/usePresets.ts
+--- a/src/hooks/usePresets.ts
++++ b/src/hooks/usePresets.ts
+@@ -1,4 +1,4 @@
+-import { useState, useEffect, useCallback } from 'react';
++import { useState, useEffect, useCallback, useRef } from 'react';
+ import { invoke } from '@tauri-apps/api/core';
+ import debounce from 'lodash.debounce';
+ import { Adjustments, COPYABLE_ADJUSTMENT_KEYS, ADJUSTMENT_GROUPS, INITIAL_ADJUSTMENTS } from '../utils/adjustments';
+@@ -36,6 +36,7 @@
+ export function usePresets(currentAdjustments: Adjustments) {
+   const [presets, setPresets] = useState<Array<UserPreset>>([]);
+   const [isLoading, setIsLoading] = useState(true);
++  const createPending = useRef(false);
+ 
+   const loadPresets = useCallback(async () => {
+     setIsLoading(true);
+@@ -63,7 +64,7 @@
+     loadPresets();
+   }, [loadPresets]);
+ 
+-  const addPreset = (
++  const addPreset = async (
+     name: string,
+     folderId: string | null = null,
+     includeMasks: boolean = false,
+@@ -119,9 +120,17 @@
+       updatedPresets = [...presets, { preset: newPresetData }];
+     }
+ 
+-    setPresets(updatedPresets);
+-    savePresetsToBackend(updatedPresets);
+-    return newPresetData;
++    if (isLoading || createPending.current) throw new Error('Preset library is busy');
++    createPending.current = true;
++    setIsLoading(true);
++    try {
++      await invoke(Invokes.SavePresets, { presets: updatedPresets });
++      setPresets(updatedPresets);
++      return newPresetData;
++    } finally {
++      createPending.current = false;
++      setIsLoading(false);
++    }
+   };
+ 
+   const addFolder = (name: string) => {
+diff --git a/src/components/panel/right/PresetsPanel.tsx b/src/components/panel/right/PresetsPanel.tsx
+--- a/src/components/panel/right/PresetsPanel.tsx
++++ b/src/components/panel/right/PresetsPanel.tsx
+@@ -935,7 +935,7 @@
+         await generateSinglePreview(updated);
+       }
+     } else {
+-      const newPreset = addPreset(name, null, includeMasks, includeCropTransform, presetType);
++      const newPreset = await addPreset(name, null, includeMasks, includeCropTransform, presetType);
+       if (newPreset) {
+         await generateSinglePreview(newPreset);
+       }
+diff --git a/src/components/modals/ConfigurePresetModal.tsx b/src/components/modals/ConfigurePresetModal.tsx
+--- a/src/components/modals/ConfigurePresetModal.tsx
++++ b/src/components/modals/ConfigurePresetModal.tsx
+@@ -11,7 +11,7 @@
+ interface ConfigurePresetModalProps {
+   isOpen: boolean;
+   onClose(): void;
+-  onSave(name: string, includeMasks: boolean, includeCropTransform: boolean, presetType: 'tool' | 'style'): void;
++  onSave(name: string, includeMasks: boolean, includeCropTransform: boolean, presetType: 'tool' | 'style'): void | Promise<void>;
+   initialPreset?: Preset | null;
+ }
+ 
+@@ -107,9 +107,14 @@
+   const [presetType, setPresetType] = useState<'tool' | 'style'>('style');
+   const [isMounted, setIsMounted] = useState(false);
+   const [show, setShow] = useState(false);
++  const [saving, setSaving] = useState(false);
++  const [saveError, setSaveError] = useState('');
++  const savingRef = useRef(false);
++  const requestClose = useCallback(() => { if (!savingRef.current) onClose(); }, [onClose]);
+ 
+   useEffect(() => {
+     if (isOpen) {
++      setSaveError('');
+       setName(initialPreset?.name || '');
+       setIncludeMasks(
+         initialPreset?.includeMasks ??
+@@ -139,10 +144,19 @@
+     }
+   }, [isOpen, initialPreset]);
+ 
+-  const handleSave = useCallback(() => {
+-    if (name.trim()) {
+-      onSave(name.trim(), includeMasks, includeCropTransform, presetType);
++  const handleSave = useCallback(async () => {
++    if (!name.trim() || savingRef.current) return;
++    savingRef.current = true;
++    setSaving(true);
++    setSaveError('');
++    try {
++      await onSave(name.trim(), includeMasks, includeCropTransform, presetType);
+       onClose();
++    } catch (error) {
++      setSaveError(String(error instanceof Error ? error.message : error));
++    } finally {
++      savingRef.current = false;
++      setSaving(false);
+     }
+   }, [name, includeMasks, includeCropTransform, presetType, onSave, onClose]);
+ 
+@@ -151,10 +165,10 @@
+       if (e.key === 'Enter') {
+         handleSave();
+       } else if (e.key === 'Escape') {
+-        onClose();
++        requestClose();
+       }
+     },
+-    [handleSave, onClose],
++    [handleSave, requestClose],
+   );
+ 
+   if (!isMounted) {
+@@ -169,9 +183,10 @@
+         transition-opacity duration-300 ease-in-out
+         ${show ? 'opacity-100' : 'opacity-0'}
+       `}
+-      onClick={onClose}
++      onClick={requestClose}
+       role="dialog"
+       aria-modal="true"
++      aria-busy={saving}
+     >
+       <div
+         className={`
+@@ -184,6 +199,7 @@
+         <Text variant={TextVariants.title} className="mb-4">
+           {initialPreset ? t('modals.configurePreset.titleConfigure') : t('modals.configurePreset.titleSave')}
+         </Text>
++        <fieldset disabled={saving} className="min-w-0 border-0 p-0 m-0">
+         <input
+           autoFocus
+           className="w-full bg-bg-primary text-text-primary border border-border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-accent"
+@@ -205,10 +221,11 @@
+ 
+         <PresetTypeSwitch selectedType={presetType} onChange={setPresetType} />
+ 
++        {saveError && <div role="alert" className="mt-3 text-red-400">{saveError}</div>}
+         <div className="flex justify-end gap-3 mt-6">
+           <button
+             className="px-4 py-2 rounded-md text-text-secondary hover:bg-surface transition-colors"
+-            onClick={onClose}
++            onClick={requestClose}
+           >
+             {t('modals.configurePreset.cancel')}
+           </button>
+@@ -220,6 +237,7 @@
+             {t('modals.configurePreset.save')}
+           </button>
+         </div>
++        </fieldset>
+       </div>
+     </div>
+   );

@@ -1,3 +1,9 @@
+# RWASM-03 — original create-tool-preset write ACK (2026-10-24)
+
+The original Save New Preset/Tool dialog now waits for atomic library write/readback before adding its card or closing. Held ACK, double click, real transaction abort, stale-tab CAS and durable-but-unacknowledged reload reconciliation pass in Chromium; the created card reproduces the native+0.8 JPEG. A reviewed three-file source ACK patch preserves original controls/algorithms/command IDs.70 host tests/check and800-byte extracted native save reference pass. [Evidence and continuation](rapidraw-wasm-preset-create-handoff.md).
+
+Experimental B only: one appended Exposure tool preset,32 presets/64KiB, unchanged existing items. General CRUD/style/metadata/OS/provider/full App acceptance remains open; no engine/WASM rebuild, product release/main/demo/private-photo change. Next A: exact b441e00 alpha68 CI/assets gate. Next B: original existing-tool Configure/rename save with ACK before list/modal success. MAIN only.
+
 # RWASM-03 — persisted original Exposure preset card (2026-10-24)
 
 The original PresetsPanel now applies a persisted Exposure+0.8 preset to the public CC0 DNG, Amount200 produces+1.6, card toggle restores the exact baseline, and reload/open/reapply preserves library revision1. Source400px/q80/clipping-off thumbnail and512px/q94 editor match4,412,160 native RGBA8 components and419,208 JPEG bytes on matched SwiftShader;66 host tests/check pass. [Evidence, backend limits and continuation](rapidraw-wasm-preset-apply-handoff.md).

@@ -44,6 +44,7 @@ export function createPresetFileHost({items=[],destination=createExportDestinati
   async invoke(command,args={}){
    check();onTrace({command,phase:'start'});
    if(command==='load_presets')return libraryHost?libraryHost.load():structuredClone(library);
+   if(command==='save_presets'&&libraryHost){if(Object.keys(args).join(',')!=='presets')fail('Invalid preset save arguments');return libraryHost.saveCreated(args.presets);}
    if(command==='handle_import_presets_from_files'&&libraryHost){if(Object.keys(args).join(',')!=='filePaths')fail('Invalid import arguments');return libraryHost.importFiles(args.filePaths);}
    if(command!=='handle_export_presets_to_file')fail('Preset command unavailable: '+command);
    if(busy)fail('Preset export already active');busy=true;
