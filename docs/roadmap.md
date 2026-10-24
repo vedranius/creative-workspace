@@ -1,3 +1,9 @@
+# RWASM-03 — original Back to Library waits for metadata ACK (2026-10-24)
+
+Original Back to Library now waits before updating its editor cache, zoom and view. Same-image resume preserves native-exact pixels; failed/uncertain ACK and newer drafts retain the editor. Explicit acknowledged close detaches the old document only after GPU completion, and reopen reconciles without replay.88 host tests/check pass; browser proof and reviewed source pins are in the [handoff](rapidraw-wasm-metadata-navigation-handoff.md).
+
+Experimental B only: original navigation hook plus a pinned ACK patch, isolated one-File library and explicit QA close boundary. Arbitrary library/folder/album navigation, zoomed-in ROI, full App/OS/provider acceptance remain open. Native/WASM unchanged; no product release/main/demo/private-photo change. Next A: alpha69 exact Build40117793506/tag/draft/Actions-assets gate. Next B: different-document selection through original handleImageSelect cache/load. MAIN only.
+
 # RWASM-03 — original metadata history and acknowledged document selection (2026-10-24)
 
 Original ControlsPanel Reset and EditorToolbar Undo/Redo now round-trip Exposure metadata, and the isolated selected-File transition waits for the latest draft ACK. Held writes retain the old image; same-name/different-content inputs stay isolated; uncertain writes/newer drafts veto selection and reload reconciles without replay.85 host tests/check and native-exact original browser frames pass. [Evidence and continuation](rapidraw-wasm-metadata-lifecycle-handoff.md).

@@ -73,10 +73,11 @@ function metadataSelectionFixture(){
  const status={dirty:true,busy:false,uncertain:false,pendingIO:false},state={selectedImage:null,adjustments:{exposure:0.8}};
  let cancelCount=0;
  const metadataHost={status:()=>({...status}),load:async()=>({adjustments:null}),snapshot:()=>({adjustments:null}),close:async()=>{}};
- const bridge=createReactTransport({metadataHost,wasm:{},device:{queue:{onSubmittedWorkDone:async()=>{}}},defaults:{}});
+ const device={queue:{onSubmittedWorkDone:async()=>{}}};
+ const bridge=createReactTransport({metadataHost,wasm:{},device,defaults:{}});
  const path=bridge.selectFile(new File(['a'],'same.dng'));
  state.selectedImage={path,isReady:true};
- return {bridge,state,status,path,getState:()=>state,cancelDebounce:()=>cancelCount++,cancelled:()=>cancelCount};
+ return {bridge,device,state,status,path,getState:()=>state,cancelDebounce:()=>cancelCount++,cancelled:()=>cancelCount};
 }
 async function withMetadataDocument(fn){
  const prior=globalThis.Worker;
@@ -107,4 +108,35 @@ test('a failed clean RAW decode permits another explicit File selection without 
  await assert.rejects(f.bridge.selectFileAcknowledged(new File(['b'],'same.dng'),f),/Wait/);f.status.dirty=false;f.status.uncertain=true;await assert.rejects(f.bridge.selectFileAcknowledged(new File(['b'],'same.dng'),f),/Wait/);
  f.status.uncertain=false;assert.notEqual(await f.bridge.selectFileAcknowledged(new File(['b'],'same.dng'),f),f.path);
  }finally{await f.bridge.close();globalThis.Worker=prior;}
+});
+
+
+test('acknowledged editor leave retains resources while held and refuses direct cache-clear bypass',async()=>{
+ await withMetadataDocument(async f=>{
+  let release;const held=new Promise(r=>release=r);let left=false;
+  const leave=f.bridge.acknowledgeMetadata({...f,flushMetadata:()=>held}).then(v=>{left=v;return v;});
+  await new Promise(r=>setTimeout(r,1));assert.equal(left,false);
+  await assert.rejects(f.bridge.invoke('clear_session_caches'),/cache retained/);
+  await assert.rejects(f.bridge.closeDocumentAcknowledged(f),/pending/);
+  assert.deepEqual(await f.bridge.invoke('get_image_dimensions',{path:f.path}),{width:2,height:2});
+  f.status.dirty=false;release(true);assert.equal(await leave,true);assert.equal(f.cancelled(),1);
+ });
+});
+test('explicit close refuses failed or newer draft ACK, then detaches only an acknowledged document',async()=>{
+ for(const mode of ['failure','newer','success'])await withMetadataDocument(async f=>{
+  const closing=f.bridge.closeDocumentAcknowledged({...f,flushMetadata:async()=>{if(mode==='failure')return false;f.status.dirty=false;if(mode==='newer')f.state.adjustments={exposure:0};return true;}});
+  if(mode!=='success'){await assert.rejects(closing,mode==='failure'?/not acknowledged/:/draft changed/);assert.deepEqual(await f.bridge.invoke('get_image_dimensions',{path:f.path}),{width:2,height:2});}
+  else{assert.equal(await closing,true);await assert.rejects(f.bridge.invoke('get_image_dimensions',{path:f.path}),/Unknown/);assert.notEqual(await f.bridge.selectFileAcknowledged(new File(['b'],'same.dng'),f),f.path);}
+ });
+});
+
+
+test('GPU drain during acknowledged close keeps the transition lease and refuses a later draft',async()=>{
+ await withMetadataDocument(async f=>{
+  f.status.dirty=false;let release;const gate=new Promise(r=>release=r);f.device.queue.onSubmittedWorkDone=()=>gate;
+  const close=f.bridge.closeDocumentAcknowledged(f);await new Promise(r=>setTimeout(r,1));
+  await assert.rejects(f.bridge.selectFileAcknowledged(new File(['b'],'same.dng'),f),/pending/);
+  f.state.adjustments={exposure:0};f.status.dirty=true;release();await assert.rejects(close,/Draft changed/);
+  assert.deepEqual(await f.bridge.invoke('get_image_dimensions',{path:f.path}),{width:2,height:2});
+ });
 });

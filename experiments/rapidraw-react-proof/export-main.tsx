@@ -55,6 +55,9 @@ function Proof(){
  useImageLoader(cached);
  useImageProcessing(transform,prev,{previewJobIdRef:job,latestRenderedJobIdRef:rendered,currentResRef:resolution});
  useTauriListeners({refreshAllFolderTrees(){},handleSelectSubfolder(){},refreshImageList(){},markGenerated(){}});
+ const navigationRefs={transformWrapperRef:transform,cachedEditStateRef:cached,preloadedDataRef:useRef(null),selectedImagePathRef:useRef(null),isBackendReadyRef:useRef(true),latestRenderedJobIdRef:rendered,previewJobIdRef:job,currentResRef:resolution,prevAdjustmentsRef:prev};
+ const navigation=(globalThis as any).rapidRawUseMetadataNavigation?.(navigationRefs);
+ const activeView=useUIStore(s=>s.activeView);
  const adjustments=useEditorStore(s=>s.adjustments),selectedImage=useEditorStore(s=>s.selectedImage);
  const exportState=useProcessStore(s=>s.exportState),appSettings=useSettingsStore(s=>s.appSettings);
  return <><header style={{padding:8}}>Isolated original React ExportPanel — bounded single JPEG / acknowledged output only
@@ -63,12 +66,18 @@ function Proof(){
    try{
    const path=metadataTransition?await transport.selectFileAcknowledged(file,{getState:useEditorStore.getState,flushMetadata:metadataTransition.flush,cancelDebounce:metadataTransition.cancel}):transport.selectFile(file);
    (globalThis as any).rapidRawMetadataFile=file;
+   if((globalThis as any).rapidRawUseMetadataNavigation){
+    // A selected browser File is the one visible item in this isolated QA library.
+    // Folder discovery and arbitrary library navigation remain outside this proof.
+    useLibraryStore.getState().setLibrary({imageList:[{path,is_edited:false,modified:file.lastModified,rating:0,flag:null,tags:[],exif:{},is_virtual_copy:false,is_cloud_placeholder:false,is_raw:true,group_id:null}]});
+    useUIStore.getState().setUI({activeView:'editor'});
+   }
    setOpenError('');
    useLibraryStore.getState().setLibrary({isViewLoading:true});
    useEditorStore.getState().setEditor({selectedImage:{path,width:0,height:0,exif:{},isRaw:false,thumbnailUrl:'',isReady:false} as any,finalPreviewUrl:null,interactivePatch:null});
    }catch(error){setOpenError(String((error as any).message??error));}
-  }}/>{openError&&<span role="alert">{openError}</span>}</header><main style={{display:'flex',height:'calc(100vh - 70px)',background:'#171717',color:'white'}}>
-  <section style={{flex:1,minWidth:0,display:'flex'}}><Editor transformWrapperRef={transform} onBackToLibrary={()=>{}} onContextMenu={e=>e.preventDefault()}/></section>
+  }}/>{openError&&<span role="alert">{openError}</span>}{navigation&&<><span aria-label="Original navigation view">{activeView}</span><button onClick={()=>navigation.handleImageSelect(useEditorStore.getState().selectedImage?.path)}>QA resume cached editor</button><button onClick={()=>{void (globalThis as any).rapidRawNavigation.closeDocument();}}>QA close acknowledged document</button></>}</header><main style={{display:'flex',height:'calc(100vh - 70px)',background:'#171717',color:'white'}}>
+  <section style={{flex:1,minWidth:0,display:navigation&&activeView!=='editor'?'none':'flex'}}><Editor transformWrapperRef={transform} onBackToLibrary={navigation?.handleBackToLibrary??(()=>{})} onContextMenu={e=>e.preventDefault()}/></section>
   <aside aria-label="Original Basic panel" style={{width:300,padding:16,overflow:'auto'}}><PanelSwitcher region="rightTop" side="right" placement="top"/>{MetadataControls?<MetadataControls/>:<Basic adjustments={adjustments} appSettings={settings}
    setAdjustments={(update:any)=>useEditorStore.getState().setEditor(state=>({adjustments:typeof update==='function'?update(state.adjustments):{...state.adjustments,...update}}))}
    onDragStateChange={isSliderDragging=>useEditorStore.getState().setEditor({isSliderDragging})}/>}

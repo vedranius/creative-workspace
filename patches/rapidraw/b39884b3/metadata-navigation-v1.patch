@@ -1,0 +1,98 @@
+--- a/src/hooks/useAppNavigation.ts
++++ b/src/hooks/useAppNavigation.ts
+@@ -1,4 +1,4 @@
+-import { useCallback } from 'react';
++import { useCallback, useRef } from 'react';
+ import { invoke } from '@tauri-apps/api/core';
+ import { open } from '@tauri-apps/plugin-dialog';
+ import { homeDir } from '@tauri-apps/api/path';
+@@ -17,6 +17,7 @@
+ 
+ export interface AppNavigationProps {
+   clearThumbnailQueue: () => void;
++  beforeLeaveEditor?: () => Promise<boolean>;
+   refs: {
+     transformWrapperRef: React.RefObject<any>;
+     preloadedDataRef: React.RefObject<any>;
+@@ -94,7 +95,26 @@
+   }
+ };
+ 
+-export function useAppNavigation({ clearThumbnailQueue, refs }: AppNavigationProps) {
++export function useAppNavigation({ clearThumbnailQueue, refs, beforeLeaveEditor }: AppNavigationProps) {
++  const leavingEditor = useRef(false);
++  const acknowledgeEditor = useCallback(async () => {
++    if (leavingEditor.current) return false;
++    leavingEditor.current = true;
++    const state = useEditorStore.getState();
++    const path = state.selectedImage?.path;
++    const draft = JSON.stringify(state.adjustments);
++    try {
++      const acknowledged = beforeLeaveEditor ? await beforeLeaveEditor() : await debouncedSave.flush();
++      const latest = useEditorStore.getState();
++      if (acknowledged === false || latest.selectedImage?.path !== path || JSON.stringify(latest.adjustments) !== draft) return false;
++      return true;
++    } catch (error) {
++      console.error('Navigation metadata acknowledgement failed:', error);
++      return false;
++    } finally {
++      leavingEditor.current = false;
++    }
++  }, [beforeLeaveEditor]);
+   const {
+     transformWrapperRef,
+     preloadedDataRef,
+@@ -122,7 +142,8 @@
+     useUIStore.getState().setUI({ isLibraryExportPanelVisible: false });
+   }, []);
+ 
+-  const handleBackToLibrary = useCallback(() => {
++  const handleBackToLibrary = useCallback(async () => {
++    if (!await acknowledgeEditor()) return false;
+     const { selectedImage } = useEditorStore.getState();
+     const { setLibrary } = useLibraryStore.getState();
+     const { setUI } = useUIStore.getState();
+@@ -139,7 +160,6 @@
+       previewOverride: null,
+     });
+ 
+-    debouncedSave.flush();
+     debouncedSetHistory.cancel();
+ 
+     const lastActivePath = selectedImage?.path ?? null;
+@@ -155,7 +175,8 @@
+       clearLibrarySelection();
+     }
+     setUI({ activeView: 'library', slideDirection: 1 });
+-  }, [refs]);
++    return true;
++  }, [refs, acknowledgeEditor]);
+ 
+   const handleImageSelect = useCallback(
+     async (path: string, openInEditor: boolean = true) => {
+@@ -163,6 +184,8 @@
+       const { setLibrary, multiSelectedPaths } = useLibraryStore.getState();
+       const { setUI } = useUIStore.getState();
+ 
++      if (selectedImage?.path && selectedImage.path !== path && !await acknowledgeEditor()) return false;
++
+       if (openInEditor) {
+         setUI({ activeView: 'editor' });
+       }
+@@ -170,7 +193,6 @@
+       if (selectedImage?.path === path) return;
+ 
+       useEditorStore.getState().patchesSentToBackend.clear();
+-      debouncedSave.flush();
+       debouncedSetHistory.cancel();
+ 
+       if (selectedImage?.path && cachedEditStateRef.current) {
+@@ -323,7 +345,7 @@
+         return { interactivePatch: null };
+       });
+     },
+-    [refs],
++    [refs, acknowledgeEditor],
+   );
+ 
+   const handleSelectSubfolder = useCallback(

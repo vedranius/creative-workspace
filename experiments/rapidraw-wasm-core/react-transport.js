@@ -42,7 +42,7 @@ export function createReactTransport({wasm,device,shaderSource,defaults,getPrevi
  async function execute(command,args={}){
   if(closed)throw Error('Browser session closed');
   trace.push({command});
-  if(command==='clear_session_caches'){await clear();return;}
+  if(command==='clear_session_caches'){const s=metadataHost?.status();if(s&&(s.dirty||s.busy||s.uncertain||s.pendingIO))throw Error('Metadata not acknowledged; cache retained');await clear();return;}
   if(command==='load_settings')return structuredClone(getPreviewSettings());
   if(command==='get_image_dimensions'){requirePath(args.path);if(!current||current.version!==generation)throw Error('Browser RAW is not ready');return {width:current.width,height:current.height};}
   if(command==='load_metadata'){
@@ -137,18 +137,14 @@ export function createReactTransport({wasm,device,shaderSource,defaults,getPrevi
   throw new UnavailableCommandError(command);
  }
  function select(selected){if(!(selected instanceof File)||!isRawInputSizeAllowed(selected.size))throw TypeError('Select a bounded RAW File');if(closed)throw Error('Browser session closed');exportHost?.cancel();imageWorker?.close();generation++;file=selected;const name=selected.name.replace(/[\\/\x00-\x1f\x7f]/g,'_').slice(0,180)||'input.raw';path=`browser-document:${crypto.randomUUID()}/${name}`;return path;}
- return {
-  trace,
-  selectFile(selected){if(metadataHost&&file)throw Error("Use acknowledged metadata selection");return select(selected);},
-  async selectFileAcknowledged(selected,{getState,flushMetadata,cancelDebounce}={}){
+ async function acknowledged(action,{getState,flushMetadata,cancelDebounce}={}){
    if(selecting||closed)throw Error("Document selection already pending or closed");
-   if(!(selected instanceof File)||!isRawInputSizeAllowed(selected.size))throw TypeError("Select a bounded RAW File");
    selecting=true;try{
     if(metadataHost&&file){
      const state=getState(),version=generation,priorPath=path;
      if(!state.selectedImage?.isReady||state.selectedImage.path!==path||!current||current.version!==generation){
       const failed=metadataHost.status();
-      if(state.selectedImage==null&&!failed.dirty&&!failed.busy&&!failed.uncertain&&!failed.pendingIO){cancelDebounce();return select(selected);}
+      if(state.selectedImage==null&&!failed.dirty&&!failed.busy&&!failed.uncertain&&!failed.pendingIO){cancelDebounce();return await action();}
       throw Error("Wait for current document metadata and image");
      }
      const captured=JSON.stringify(state.adjustments),status=metadataHost.status();
@@ -159,8 +155,27 @@ export function createReactTransport({wasm,device,shaderSource,defaults,getPrevi
      if(latest.selectedImage?.path!==priorPath||JSON.stringify(latest.adjustments)!==captured||after.dirty||after.busy||after.uncertain||after.pendingIO)throw Error("Current draft changed or metadata uncertain; image retained");
      cancelDebounce();
     }
-    return select(selected);
+    return await action();
    }finally{selecting=false;}
+ }
+ return {
+  trace,
+  selectFile(selected){if(metadataHost&&file)throw Error("Use acknowledged metadata selection");return select(selected);},
+  async selectFileAcknowledged(selected,options){
+   if(!(selected instanceof File)||!isRawInputSizeAllowed(selected.size))throw TypeError("Select a bounded RAW File");
+   return acknowledged(()=>select(selected),options);
+  },
+  async acknowledgeMetadata(options){return acknowledged(()=>true,options);},
+  async closeDocumentAcknowledged(options){
+   const state=options.getState(),priorPath=state.selectedImage?.path,draft=JSON.stringify(state.adjustments);
+   return acknowledged(async()=>{
+    await device.queue.onSubmittedWorkDone();
+    const latest=options.getState(),status=metadataHost?.status();
+    if(closed||latest.selectedImage?.path!==priorPath||JSON.stringify(latest.adjustments)!==draft||status&&(status.dirty||status.busy||status.uncertain||status.pendingIO))throw Error('Draft changed before close; image retained');
+    exportHost?.cancel();generation++;imageWorker?.close();imageWorker=null;
+    const prior=current;current=null;prior?.resources?.ownedTextures.forEach(t=>t.destroy());file=null;path=null;
+    trace.push({command:'document-close-ack'});return true;
+   },options);
   },
   listen(event,callback){
    if(closed||typeof event!=='string'||event.length>128||typeof callback!=='function')return Promise.reject(Error('Invalid event subscription'));
@@ -180,7 +195,7 @@ export function createReactTransport({wasm,device,shaderSource,defaults,getPrevi
     // Export and cancellation never wait behind a preview or a pending export.
     try{return Promise.resolve(command==='cancel_export'?exportHost.cancel():exportHost.execute(args)).catch(error=>{throw nativeError(error);});}catch(error){return Promise.reject(nativeError(error));}
    }
-   if(command==='clear_session_caches')exportHost?.cancel();
+   if(command==='clear_session_caches'){const s=metadataHost?.status();if(s&&(s.dirty||s.busy||s.uncertain||s.pendingIO))return Promise.reject(Error('Metadata not acknowledged; cache retained'));exportHost?.cancel();}
    const result=queue.then(()=>execute(command,args));queue=result.catch(()=>{});return result;
   },
   async close(){closed=true;await clear();await metadataHost?.close();await exportHost?.close();await settingsHost?.close();file=null;path=null;await queue;listeners.clear();},

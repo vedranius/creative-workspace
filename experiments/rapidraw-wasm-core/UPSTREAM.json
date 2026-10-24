@@ -568,5 +568,23 @@
         "src/hooks/useEditorActions.ts": "a255dd16bea56f3cfe431e1d037736a1365ad7872d09a59aad4ce950a927ebf5"
       }
     }
+  },
+  "metadataNavigation": {
+    "scope": "Experimental original Back to Library cache/view boundary and same-image resume with awaited metadata ACK; explicit acknowledged close/reopen. Full App, arbitrary library/folder navigation and providers remain unaccepted.",
+    "sourceFiles": {
+      "src/hooks/useEditorActions.ts": "8de8bfb9f0dcb0a485cb9dd4476ed1ae56c21803a82c4b62023f29c5d6da422d",
+      "src/hooks/useAppNavigation.ts": "dc87d9a014d2fd88c9b3422bd9a051977082a3e02422c90b91e9c1a13803c484",
+      "src/components/panel/right/ControlsPanel.tsx": "c2af946b1aef4967aae1bd9e92d26cdfea95b35960dba55938befd78e998a920",
+      "src/components/panel/editor/EditorToolbar.tsx": "91cc4966f81e354ea164e9b74be39728f8da80cdf14af647d85f0713262762ca",
+      "src/store/useEditorStore.ts": "86fdf855fab86fe2f6ef1fe8aa06b7484fb6e540cea09267208e776ee11c6742",
+      "src/utils/ImageLRUCache.ts": "6292aa3690de6f05405688672388a5a9489a3d71103e0853cb0dfc63f23d826a"
+    },
+    "sourcePatch": {
+      "path": "patches/rapidraw/b39884b3/metadata-navigation-v1.patch",
+      "sha256": "a8d186a86eb9e0fea7e706ae6b5d8e982861e5ab25f0b09025925be0c294216a",
+      "patchedFiles": {
+        "src/hooks/useAppNavigation.ts": "29272c070ecbf7fa9a2f51ef588ddbf38b4314275ec554dab5c95ba6635a56f4"
+      }
+    }
   }
 }
