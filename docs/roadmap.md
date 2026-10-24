@@ -1,6 +1,8 @@
-# Current PAR-03 alpha.69 footnote candidate
+# PAR-03 alpha.69 — immutable Actions draft assets verified (2026-10-24)
 
-Lossless tagged original footnote selection and native caret/blue range are implemented with strict canonical ACK validation. Native8/UI161 (one ignored)/gateway33/repo91/check pass; fresh WASM/browser note click/select/type heldACK/blink/sibling/save-reopen passes with zero errors. Actions release acceptance remains pending. [Evidence and exact limits](evidence/designcraft-footnote-wire.md). Keep DesignCraft planned. Next independent B: original library/editor navigation metadata ACK boundary from8c5d0c1; MAIN only.
+Checks40117793523 and all 25 Build/release40117793506 jobs passed for `8b7f5488`. Tag v0.2.0-alpha.69 and draft prerelease 422929719 resolve to the exact source. All 24 downloaded assets/12 SHA256 pairs, three Node runtimes, 12 engine binaries, startup/licenses/source manifests and eight UI manifests/167 files verify. DesignCraft patch `61043195` matches source and packaged provenance. [Release evidence and limits](evidence/creative-workspace-alpha69-release.md) · [Footnote implementation/browser proof](evidence/designcraft-footnote-wire.md).
+
+Evidence-only: alpha69 remains a draft prototype; full tools/providers/real OS/all13 acceptance stays open and DesignCraft planned. No product version, build, tag/release/asset, B merge, private-photo, live studio or demo changes. Next B in SAME MAIN from `194fd521`: exact Checks40135474787/pixel40135474882 snapshot, then different-document original handleImageSelect cache/load with awaited metadata ACK. Back/cache/zoom/view/same-path resume/explicit close-reopen is complete. Next A: original footnote Insert/options/remaining command contract. Preserve FilmCraft and originals; no new writer/chat.
 
 # PAR-03 — original footnote contract diagnosed (2026-10-24)
 

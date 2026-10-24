@@ -1,0 +1,639 @@
+{
+  "verifiedAtUtc": "2026-10-24T21:46:05.953899+00:00",
+  "identity": "vedranius",
+  "tag": "v0.2.0-alpha.69",
+  "sourceCommit": "8b7f54885ae950487fbe72276ab0b58054877121",
+  "releaseDatabaseId": 422929719,
+  "isDraft": true,
+  "isPrerelease": true,
+  "published": false,
+  "buildRun": 40117793506,
+  "checksRun": 40117793523,
+  "allRunsSourceCommitExact": true,
+  "jobs": [
+    {
+      "name": "contract",
+      "conclusion": "success"
+    },
+    {
+      "name": "original-gridcraft",
+      "conclusion": "success"
+    },
+    {
+      "name": "original-wordcraft",
+      "conclusion": "success"
+    },
+    {
+      "name": "original-deckcraft",
+      "conclusion": "success"
+    },
+    {
+      "name": "original-soundcraft",
+      "conclusion": "success"
+    },
+    {
+      "name": "original-filmcraft",
+      "conclusion": "success"
+    },
+    {
+      "name": "original-cadcraft",
+      "conclusion": "success"
+    },
+    {
+      "name": "original-figcraft",
+      "conclusion": "success"
+    },
+    {
+      "name": "native (ubuntu-22.04, linux-x64, vectorcraft)",
+      "conclusion": "success"
+    },
+    {
+      "name": "native (windows-2022, win32-x64, vectorcraft)",
+      "conclusion": "success"
+    },
+    {
+      "name": "native (ubuntu-22.04, linux-x64, pdfcraft)",
+      "conclusion": "success"
+    },
+    {
+      "name": "native (ubuntu-22.04, linux-x64, photocraft)",
+      "conclusion": "success"
+    },
+    {
+      "name": "native (macos-14, darwin-arm64, vectorcraft)",
+      "conclusion": "success"
+    },
+    {
+      "name": "native (windows-2022, win32-x64, designcraft)",
+      "conclusion": "success"
+    },
+    {
+      "name": "native (macos-14, darwin-arm64, pdfcraft)",
+      "conclusion": "success"
+    },
+    {
+      "name": "native (macos-14, darwin-arm64, designcraft)",
+      "conclusion": "success"
+    },
+    {
+      "name": "native (windows-2022, win32-x64, photocraft)",
+      "conclusion": "success"
+    },
+    {
+      "name": "native (macos-14, darwin-arm64, photocraft)",
+      "conclusion": "success"
+    },
+    {
+      "name": "native (ubuntu-22.04, linux-x64, designcraft)",
+      "conclusion": "success"
+    },
+    {
+      "name": "native (windows-2022, win32-x64, pdfcraft)",
+      "conclusion": "success"
+    },
+    {
+      "name": "bundle (ubuntu-22.04, linux-x64)",
+      "conclusion": "success"
+    },
+    {
+      "name": "bundle (macos-14, darwin-arm64)",
+      "conclusion": "success"
+    },
+    {
+      "name": "bundle (windows-2022, win32-x64)",
+      "conclusion": "success"
+    },
+    {
+      "name": "original-designcraft",
+      "conclusion": "success"
+    },
+    {
+      "name": "publish",
+      "conclusion": "success"
+    }
+  ],
+  "downloadedAssetCount": 24,
+  "downloadedBytes": 474727078,
+  "archiveSidecarPairsExact": 12,
+  "assets": [
+    {
+      "name": "creative-workspace-0.2.0-alpha.69-cadcraft-original-ui.tar.gz",
+      "id": 673079999,
+      "size": 8509265,
+      "sha256": "6e7354217775b3710a43fc6e33a94da44bf33c60356a1f040d255426ab8975a8",
+      "githubDigestExact": true
+    },
+    {
+      "name": "creative-workspace-0.2.0-alpha.69-cadcraft-original-ui.tar.gz.sha256",
+      "id": 673080003,
+      "size": 128,
+      "sha256": "4852a00aeb574a7e1c2f3cec56fe0497d98993771432a7ba04093a7fab76e02f",
+      "githubDigestExact": true
+    },
+    {
+      "name": "creative-workspace-0.2.0-alpha.69-darwin-arm64.tar.gz",
+      "id": 673080001,
+      "size": 122016111,
+      "sha256": "52b34a678b6eba0f2c2a6d7ce9ebad7c2d3040b4e0659f51b98a3c54821a3143",
+      "githubDigestExact": true
+    },
+    {
+      "name": "creative-workspace-0.2.0-alpha.69-darwin-arm64.tar.gz.sha256",
+      "id": 673080008,
+      "size": 120,
+      "sha256": "8b763be527ca78968a9e155819428f815cd325f2f9cb5b797790411ac88147e7",
+      "githubDigestExact": true
+    },
+    {
+      "name": "creative-workspace-0.2.0-alpha.69-deckcraft-original-ui.tar.gz",
+      "id": 673080002,
+      "size": 9398635,
+      "sha256": "d637eee1475e32312d585a83b1e086f52a78c58b7a31e686191143a6687ffded",
+      "githubDigestExact": true
+    },
+    {
+      "name": "creative-workspace-0.2.0-alpha.69-deckcraft-original-ui.tar.gz.sha256",
+      "id": 673080022,
+      "size": 129,
+      "sha256": "f56402e04115b8941c5e7408708893513fea29b46978f5a7f09ec734056bdab6",
+      "githubDigestExact": true
+    },
+    {
+      "name": "creative-workspace-0.2.0-alpha.69-designcraft-host-canvas-candidate.tar.gz",
+      "id": 673080042,
+      "size": 15401519,
+      "sha256": "f30deec7f7607aee265825b76ceca3df8046298e1f9b56eb47a3aa9f12663a68",
+      "githubDigestExact": true
+    },
+    {
+      "name": "creative-workspace-0.2.0-alpha.69-designcraft-host-canvas-candidate.tar.gz.sha256",
+      "id": 673080050,
+      "size": 141,
+      "sha256": "01cd177ded6194274b7acee4ea9cee7410475ef84af0d339fd24b7f4cb5d7547",
+      "githubDigestExact": true
+    },
+    {
+      "name": "creative-workspace-0.2.0-alpha.69-designcraft-par03-preview.tar.gz",
+      "id": 673080051,
+      "size": 15428633,
+      "sha256": "5f5c7bc4d9fffe8e3156ed8b8b63083d69ad39b1aca7dcc3501c3b52a9ef9764",
+      "githubDigestExact": true
+    },
+    {
+      "name": "creative-workspace-0.2.0-alpha.69-designcraft-par03-preview.tar.gz.sha256",
+      "id": 673080072,
+      "size": 133,
+      "sha256": "0b2d9821af0361bec252eaf4ac87045c5eabdd86ceb05cdfedf2988b2a005d16",
+      "githubDigestExact": true
+    },
+    {
+      "name": "creative-workspace-0.2.0-alpha.69-figcraft-original-ui.tar.gz",
+      "id": 673080075,
+      "size": 8019101,
+      "sha256": "21180165088c4fbfaa79f1b44d0231dc65139bba2e40bc13dc378fd052b3c506",
+      "githubDigestExact": true
+    },
+    {
+      "name": "creative-workspace-0.2.0-alpha.69-figcraft-original-ui.tar.gz.sha256",
+      "id": 673080088,
+      "size": 128,
+      "sha256": "b1a52a9357888a7e059cd8bd574ad3efc8e44ebc57d794dd4ca2bc5cf85bcc16",
+      "githubDigestExact": true
+    },
+    {
+      "name": "creative-workspace-0.2.0-alpha.69-filmcraft-original-ui.tar.gz",
+      "id": 673080089,
+      "size": 12707856,
+      "sha256": "c9d881f64454921a5904a2153ea80d2e0916908aa3ef0aa566ccd6372c4d1161",
+      "githubDigestExact": true
+    },
+    {
+      "name": "creative-workspace-0.2.0-alpha.69-filmcraft-original-ui.tar.gz.sha256",
+      "id": 673080093,
+      "size": 129,
+      "sha256": "0ac9919da8f1577626ccbb33d80f87ec422af1f3ae62bc0df5ecfa48c73fb15a",
+      "githubDigestExact": true
+    },
+    {
+      "name": "creative-workspace-0.2.0-alpha.69-gridcraft-original-ui.tar.gz",
+      "id": 673080109,
+      "size": 7133725,
+      "sha256": "bb5732b83027435c94b4a27b8043a4cc80d0b41c5f55de521cca09c912c5ff9e",
+      "githubDigestExact": true
+    },
+    {
+      "name": "creative-workspace-0.2.0-alpha.69-gridcraft-original-ui.tar.gz.sha256",
+      "id": 673080114,
+      "size": 129,
+      "sha256": "ac9d4b3fdef3d55b54829310e0fc61efb6fb1abd3b5a859c0790e763a6bae1ad",
+      "githubDigestExact": true
+    },
+    {
+      "name": "creative-workspace-0.2.0-alpha.69-linux-x64.tar.gz",
+      "id": 673080116,
+      "size": 133914885,
+      "sha256": "e9ec27ed3dec81ea892736ca0448ef2df5954189eda85b7af1554aeec4496362",
+      "githubDigestExact": true
+    },
+    {
+      "name": "creative-workspace-0.2.0-alpha.69-linux-x64.tar.gz.sha256",
+      "id": 673080142,
+      "size": 117,
+      "sha256": "47d192f7a7fae63b0b60537730578573cf071e2ffe9826d55a9d3d7d4d5d0ee1",
+      "githubDigestExact": true
+    },
+    {
+      "name": "creative-workspace-0.2.0-alpha.69-soundcraft-original-ui.tar.gz",
+      "id": 673080144,
+      "size": 5949260,
+      "sha256": "a71502cca83967d59cafad64d2759b573a166e32df4865aa99ca3cbf07b51a78",
+      "githubDigestExact": true
+    },
+    {
+      "name": "creative-workspace-0.2.0-alpha.69-soundcraft-original-ui.tar.gz.sha256",
+      "id": 673080152,
+      "size": 130,
+      "sha256": "9f591fb332a12750a940f21e8a2b607c1f06871b315d9a1e3811aabd713046c0",
+      "githubDigestExact": true
+    },
+    {
+      "name": "creative-workspace-0.2.0-alpha.69-win32-x64.zip",
+      "id": 673080163,
+      "size": 121205612,
+      "sha256": "53069d774ca251d738fb22fccfdaa03ebb14fa29173ce7ef443378a3629bb695",
+      "githubDigestExact": true
+    },
+    {
+      "name": "creative-workspace-0.2.0-alpha.69-win32-x64.zip.sha256",
+      "id": 673080170,
+      "size": 114,
+      "sha256": "bc16aa5f14f246776f7dac6920f332302c7b28118c457dab92689aad22bd5ff6",
+      "githubDigestExact": true
+    },
+    {
+      "name": "creative-workspace-0.2.0-alpha.69-wordcraft-original-ui.tar.gz",
+      "id": 673080181,
+      "size": 15040949,
+      "sha256": "e612f378c5014b53b51702ca1c71d837264d9d49160391fbfdd7090cdb61a97b",
+      "githubDigestExact": true
+    },
+    {
+      "name": "creative-workspace-0.2.0-alpha.69-wordcraft-original-ui.tar.gz.sha256",
+      "id": 673080179,
+      "size": 129,
+      "sha256": "853981d60d92723386877c0aadcc27a13b111821c71a41f62a548112a7257916",
+      "githubDigestExact": true
+    }
+  ],
+  "bundles": [
+    {
+      "target": "linux-x64",
+      "version": "0.2.0-alpha.69",
+      "commit": "8b7f54885ae950487fbe72276ab0b58054877121",
+      "node": "v24.21.0",
+      "nodeSha256": "7fde7b8afa198da66257f42ee2001d874c7355631e6d1579a5fb5ef1f246df4c",
+      "archiveNodeHashExact": true,
+      "launchersInstallLicensesPresent": true,
+      "startupEvidenceExact": true,
+      "engines": [
+        {
+          "id": "photocraft",
+          "version": "0.6.0",
+          "commit": "29d5f791d52cd54e411611a609fbc56949e0c653",
+          "source": "https://github.com/storytold/photocraft.git",
+          "license": "MIT OR Apache-2.0",
+          "binary": "native/photocraft/photocraft-cli",
+          "sha256": "811724a5c6a5770b942fb069ce0fef6aeaa65e64ab1283a92212465043fd5357",
+          "verification": "target-native-open-edit-save-reopen-smoke",
+          "archiveBinaryHashExact": true,
+          "engineManifestExact": true,
+          "licensesPresent": true
+        },
+        {
+          "id": "pdfcraft",
+          "version": "0.5.0",
+          "commit": "9ccf77bdf685bc3cb0f545865c9f9b3e97ab5025",
+          "source": "https://github.com/storytold/pdfcraft.git",
+          "license": "MIT OR Apache-2.0",
+          "binary": "native/pdfcraft/cw-pdfcraft-engine",
+          "sha256": "c6efd51f67fb9dfcd46a7b93df09a5bf58f3f89822409d55074028b26997cb37",
+          "verification": "target-native-open-edit-save-reopen-smoke",
+          "archiveBinaryHashExact": true,
+          "engineManifestExact": true,
+          "licensesPresent": true
+        },
+        {
+          "id": "vectorcraft",
+          "version": "0.8.0",
+          "commit": "96344f07617edb24ab22fa08430ad1389042811d",
+          "source": "https://github.com/storytold/vectorcraft.git",
+          "license": "MIT OR Apache-2.0",
+          "binary": "native/vectorcraft/cw-vectorcraft-engine",
+          "sha256": "0148e4a219353012781e04feef49a02223a485d8b6efdde856d79587d57c6454",
+          "verification": "target-native-open-edit-save-reopen-smoke",
+          "archiveBinaryHashExact": true,
+          "engineManifestExact": true,
+          "licensesPresent": true
+        },
+        {
+          "id": "designcraft",
+          "version": "0.5.0",
+          "commit": "a127c6d5c3576972bbd60445f26d893db071eef3",
+          "source": "https://github.com/storytold/designcraft.git",
+          "license": "MIT OR Apache-2.0",
+          "binary": "native/designcraft/cw-designcraft-engine",
+          "sha256": "c1570db171efae1e59926ebecb31324fe157bbd07b06f8cb5518a3dde5441588",
+          "verification": "target-native-open-edit-save-reopen-smoke",
+          "archiveBinaryHashExact": true,
+          "engineManifestExact": true,
+          "licensesPresent": true
+        }
+      ],
+      "localExecution": false,
+      "nativeSmokeEvidence": "Actions target runner"
+    },
+    {
+      "target": "darwin-arm64",
+      "version": "0.2.0-alpha.69",
+      "commit": "8b7f54885ae950487fbe72276ab0b58054877121",
+      "node": "v24.20.0",
+      "nodeSha256": "9d050fd455b56426e25d4d603c7c501cbb2630348e836cf221dcce748e90588a",
+      "archiveNodeHashExact": true,
+      "launchersInstallLicensesPresent": true,
+      "startupEvidenceExact": true,
+      "engines": [
+        {
+          "id": "photocraft",
+          "version": "0.6.0",
+          "commit": "29d5f791d52cd54e411611a609fbc56949e0c653",
+          "source": "https://github.com/storytold/photocraft.git",
+          "license": "MIT OR Apache-2.0",
+          "binary": "native/photocraft/photocraft-cli",
+          "sha256": "4b0cbaa1f0e0c4d57309a930d5406b38c920b773c0bf64279decf92d1539a4f6",
+          "verification": "target-native-open-edit-save-reopen-smoke",
+          "archiveBinaryHashExact": true,
+          "engineManifestExact": true,
+          "licensesPresent": true
+        },
+        {
+          "id": "pdfcraft",
+          "version": "0.5.0",
+          "commit": "9ccf77bdf685bc3cb0f545865c9f9b3e97ab5025",
+          "source": "https://github.com/storytold/pdfcraft.git",
+          "license": "MIT OR Apache-2.0",
+          "binary": "native/pdfcraft/cw-pdfcraft-engine",
+          "sha256": "04f6c4bd61fdc289ed75064e2c44ffea1b0e48e33659b1862dd7701c803b3577",
+          "verification": "target-native-open-edit-save-reopen-smoke",
+          "archiveBinaryHashExact": true,
+          "engineManifestExact": true,
+          "licensesPresent": true
+        },
+        {
+          "id": "vectorcraft",
+          "version": "0.8.0",
+          "commit": "96344f07617edb24ab22fa08430ad1389042811d",
+          "source": "https://github.com/storytold/vectorcraft.git",
+          "license": "MIT OR Apache-2.0",
+          "binary": "native/vectorcraft/cw-vectorcraft-engine",
+          "sha256": "06775d1d38d28e1c38e72f00266fa31d86508ad6be882c4999ac8b9ee3e1428e",
+          "verification": "target-native-open-edit-save-reopen-smoke",
+          "archiveBinaryHashExact": true,
+          "engineManifestExact": true,
+          "licensesPresent": true
+        },
+        {
+          "id": "designcraft",
+          "version": "0.5.0",
+          "commit": "a127c6d5c3576972bbd60445f26d893db071eef3",
+          "source": "https://github.com/storytold/designcraft.git",
+          "license": "MIT OR Apache-2.0",
+          "binary": "native/designcraft/cw-designcraft-engine",
+          "sha256": "b516f60f4f804ad1d643228c0dd4a2cbd7ad9fb42e0107915a75c4bc3ee441b1",
+          "verification": "target-native-open-edit-save-reopen-smoke",
+          "archiveBinaryHashExact": true,
+          "engineManifestExact": true,
+          "licensesPresent": true
+        }
+      ],
+      "localExecution": false,
+      "nativeSmokeEvidence": "Actions target runner"
+    },
+    {
+      "target": "win32-x64",
+      "version": "0.2.0-alpha.69",
+      "commit": "8b7f54885ae950487fbe72276ab0b58054877121",
+      "node": "v24.21.0",
+      "nodeSha256": "ba4e6d110e8c1592a1ecd390f6b05f3da124b13871a5be62b341a07a853c6c32",
+      "archiveNodeHashExact": true,
+      "launchersInstallLicensesPresent": true,
+      "startupEvidenceExact": true,
+      "engines": [
+        {
+          "id": "photocraft",
+          "version": "0.6.0",
+          "commit": "29d5f791d52cd54e411611a609fbc56949e0c653",
+          "source": "https://github.com/storytold/photocraft.git",
+          "license": "MIT OR Apache-2.0",
+          "binary": "native/photocraft/photocraft-cli.exe",
+          "sha256": "8aa9db6b420b66a2a8c362ee47446cd453f7ef942b8e62b47076f06b737f9314",
+          "verification": "target-native-open-edit-save-reopen-smoke",
+          "archiveBinaryHashExact": true,
+          "engineManifestExact": true,
+          "licensesPresent": true
+        },
+        {
+          "id": "pdfcraft",
+          "version": "0.5.0",
+          "commit": "9ccf77bdf685bc3cb0f545865c9f9b3e97ab5025",
+          "source": "https://github.com/storytold/pdfcraft.git",
+          "license": "MIT OR Apache-2.0",
+          "binary": "native/pdfcraft/cw-pdfcraft-engine.exe",
+          "sha256": "e5997e32373ad8263666a6a1f190547a305e30fe7e6428085f5c57a30937b6cf",
+          "verification": "target-native-open-edit-save-reopen-smoke",
+          "archiveBinaryHashExact": true,
+          "engineManifestExact": true,
+          "licensesPresent": true
+        },
+        {
+          "id": "vectorcraft",
+          "version": "0.8.0",
+          "commit": "96344f07617edb24ab22fa08430ad1389042811d",
+          "source": "https://github.com/storytold/vectorcraft.git",
+          "license": "MIT OR Apache-2.0",
+          "binary": "native/vectorcraft/cw-vectorcraft-engine.exe",
+          "sha256": "d6efc3a13eb33af348deff0277b675b60188999766f4ba5106671b124afc7ba3",
+          "verification": "target-native-open-edit-save-reopen-smoke",
+          "archiveBinaryHashExact": true,
+          "engineManifestExact": true,
+          "licensesPresent": true
+        },
+        {
+          "id": "designcraft",
+          "version": "0.5.0",
+          "commit": "a127c6d5c3576972bbd60445f26d893db071eef3",
+          "source": "https://github.com/storytold/designcraft.git",
+          "license": "MIT OR Apache-2.0",
+          "binary": "native/designcraft/cw-designcraft-engine.exe",
+          "sha256": "8f7fcf2b1262c143fcd99a899a25b30113668d8041a8707d169d1d9d4e0f530b",
+          "verification": "target-native-open-edit-save-reopen-smoke",
+          "archiveBinaryHashExact": true,
+          "engineManifestExact": true,
+          "licensesPresent": true
+        }
+      ],
+      "localExecution": false,
+      "nativeSmokeEvidence": "Actions target runner"
+    }
+  ],
+  "limitations": [
+    "Read-only archive verification; native execution was performed by the corresponding Actions target runners.",
+    "Prototype prerelease remains draft. Real OS folder permission, full original app/provider acceptance and all13 server adapters remain open.",
+    "No tag, release, asset, security permission, protected service, private photograph or public demo changed."
+  ],
+  "originalUiPreviews": [
+    {
+      "name": "creative-workspace-0.2.0-alpha.69-cadcraft-original-ui.tar.gz",
+      "app": "cadcraft",
+      "upstreamCommit": "fc4e98315a8d771b5ab832f0ade0b5e7b106df7f",
+      "processingMetadata": "browser",
+      "manifestFilesExact": 10,
+      "wasm": [
+        {
+          "path": "cadcraft/fc4e98315a8d771b5ab832f0ade0b5e7b106df7f/cadcraft-web-e558b119220c5f67_bg.wasm",
+          "sha256": "351048e1c500520c30c7aaec679bcd92d75f50ee5543b5f7d219795209f06a51",
+          "size": 22546705
+        }
+      ],
+      "sourcePatch": null
+    },
+    {
+      "name": "creative-workspace-0.2.0-alpha.69-deckcraft-original-ui.tar.gz",
+      "app": "deckcraft",
+      "upstreamCommit": "d78e657e4cb1e490ceb5445785c052d9cf5ad963",
+      "processingMetadata": "browser",
+      "manifestFilesExact": 11,
+      "wasm": [
+        {
+          "path": "deckcraft/d78e657e4cb1e490ceb5445785c052d9cf5ad963/deckcraft-web-2782e3c1baf90951_bg.wasm",
+          "sha256": "a1c1443e1f4373d5c21a1a6cd35e45399cf95307be9b955b82a65399a8c16df3",
+          "size": 25489466
+        }
+      ],
+      "sourcePatch": null
+    },
+    {
+      "name": "creative-workspace-0.2.0-alpha.69-designcraft-par03-preview.tar.gz",
+      "app": "designcraft",
+      "upstreamCommit": "a127c6d5c3576972bbd60445f26d893db071eef3",
+      "processingMetadata": "browser",
+      "manifestFilesExact": 12,
+      "wasm": [
+        {
+          "path": "designcraft/a127c6d5c3576972bbd60445f26d893db071eef3-61043195b8b1/designcraft-web-4937cacd2f35cb73_bg.wasm",
+          "sha256": "108fc8bbc80af0238699791816fedad280ffbed3b6c9be32d603c266cd09ab84",
+          "size": 40310312
+        }
+      ],
+      "sourcePatch": {
+        "id": "par-03-pages-insert-v1",
+        "sha256": "61043195b8b169d4a4b21547811b39c87dafdb58d81840b7464c7dcb2242252f"
+      },
+      "releaseSourcePatchExact": true
+    },
+    {
+      "name": "creative-workspace-0.2.0-alpha.69-figcraft-original-ui.tar.gz",
+      "app": "figcraft",
+      "upstreamCommit": "833f0d2c27f0acbae5394848930ae531fc89c724",
+      "processingMetadata": "browser",
+      "manifestFilesExact": 11,
+      "wasm": [
+        {
+          "path": "figcraft/833f0d2c27f0acbae5394848930ae531fc89c724/figcraft-web-797f4d8caca40c75_bg.wasm",
+          "sha256": "ef3ae39b51d5a773560b7ff69fde6bd2a29c74704883124178ba53c064c728bf",
+          "size": 20859132
+        }
+      ],
+      "sourcePatch": null
+    },
+    {
+      "name": "creative-workspace-0.2.0-alpha.69-filmcraft-original-ui.tar.gz",
+      "app": "filmcraft",
+      "upstreamCommit": "4e2d0bc2d3646f9cf27ef7aa8b2095c6858c7efe",
+      "processingMetadata": "browser",
+      "manifestFilesExact": 89,
+      "wasm": [
+        {
+          "path": "filmcraft/4e2d0bc2d3646f9cf27ef7aa8b2095c6858c7efe-8aee3cdf5acc/filmcraft_web_bg.wasm",
+          "sha256": "a970efcd10686fd023d6d93522bc0e9192044b99cb1f9f147dc98afc63d33e11",
+          "size": 39024367
+        }
+      ],
+      "sourcePatch": {
+        "id": "mkv-pending-v1",
+        "sha256": "8aee3cdf5acc1380564965329472b92f9a02207e6e11a63bb4983f54ef5688bc"
+      }
+    },
+    {
+      "name": "creative-workspace-0.2.0-alpha.69-gridcraft-original-ui.tar.gz",
+      "app": "gridcraft",
+      "upstreamCommit": "d9d09f0baa912e88c5111107903fc8c640214b57",
+      "processingMetadata": "browser",
+      "manifestFilesExact": 12,
+      "wasm": [
+        {
+          "path": "gridcraft/d9d09f0baa912e88c5111107903fc8c640214b57/gridcraft-web-fbb8d639c2e003a5_bg.wasm",
+          "sha256": "dc7f98ffbe4053021ff6131a85a7f4ed5626114d399ad049fb52c3db4beac360",
+          "size": 18886574
+        }
+      ],
+      "sourcePatch": null
+    },
+    {
+      "name": "creative-workspace-0.2.0-alpha.69-soundcraft-original-ui.tar.gz",
+      "app": "soundcraft",
+      "upstreamCommit": "3a28a657692c1b98b28c276d8f61df9471074f0f",
+      "processingMetadata": "browser",
+      "manifestFilesExact": 11,
+      "wasm": [
+        {
+          "path": "soundcraft/3a28a657692c1b98b28c276d8f61df9471074f0f/soundcraft-web-46ed92e1ef8a9c01_bg.wasm",
+          "sha256": "10b6cb29b1a3701a4193144247dab8f49c607cc9750792ee8660480c8bd758cd",
+          "size": 15463595
+        }
+      ],
+      "sourcePatch": null
+    },
+    {
+      "name": "creative-workspace-0.2.0-alpha.69-wordcraft-original-ui.tar.gz",
+      "app": "wordcraft",
+      "upstreamCommit": "fc41918814f62645b6746ed68e71e8c2c2e85d6f",
+      "processingMetadata": "browser",
+      "manifestFilesExact": 11,
+      "wasm": [
+        {
+          "path": "wordcraft/fc41918814f62645b6746ed68e71e8c2c2e85d6f/wordcraft-web-1b5f6a1319f285d4_bg.wasm",
+          "sha256": "70550b6cae3ba46fe08224698a2fd7a27c7bf0b55c33e8a9d6a89148035217ae",
+          "size": 39784962
+        }
+      ],
+      "sourcePatch": null
+    }
+  ],
+  "hostCanvasCandidates": [
+    {
+      "name": "creative-workspace-0.2.0-alpha.69-designcraft-host-canvas-candidate.tar.gz",
+      "upstreamCommit": "a127c6d5c3576972bbd60445f26d893db071eef3",
+      "sourcePatch": "patches/designcraft/a127c6d5/par-03-provider-binding-candidate.patch",
+      "sourcePatchSha256": "27c0c700330215288d50fcefc0ef27297579bf1cc8ef2146dcf26c41f158634f",
+      "releaseSourcePatchExact": true,
+      "status": "bounded-candidate; catalog planned",
+      "wasm": [
+        {
+          "path": "./designcraft-web-e2cbcdac0f2842ad_bg.wasm",
+          "sha256": "08cce3b8910b8519e785a21a1e59ef4e9e028c5c3937fc7338513d5b897c7fc0",
+          "size": 40277344
+        }
+      ]
+    }
+  ]
+}
