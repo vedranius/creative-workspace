@@ -8,7 +8,7 @@ import {createNeutralRendererResources,packRgb32fRendererInput,packGlobalRendere
 export class UnavailableCommandError extends Error {
  constructor(command){super(`Browser experiment does not support ${command}`);this.name='UnavailableCommandError';this.code='unavailable-command';}
 }
-export function createReactTransport({wasm,device,shaderSource,defaults,getPreviewSettings=()=>({editorPreviewResolution:1920,livePreviewQuality:'high'}),workerUrl=new URL('./react-image-worker.js',import.meta.url),exportFactory,settingsHost}) {
+export function createReactTransport({wasm,device,shaderSource,defaults,getPreviewSettings=()=>({editorPreviewResolution:1920,livePreviewQuality:'high'}),workerUrl=new URL('./react-image-worker.js',import.meta.url),exportFactory,settingsHost,metadataHost}) {
  let file=null,path=null,current=null,generation=0,imageWorker=null,queue=Promise.resolve(),closed=false;
  const trace=[],listeners=new Map();
  const emit=(event,payload)=>{trace.push({command:'event',event,payload});for(const callback of [...(listeners.get(event)||[])])callback({event,payload});};
@@ -45,16 +45,30 @@ export function createReactTransport({wasm,device,shaderSource,defaults,getPrevi
   if(command==='clear_session_caches'){await clear();return;}
   if(command==='load_settings')return structuredClone(getPreviewSettings());
   if(command==='get_image_dimensions'){requirePath(args.path);if(!current||current.version!==generation)throw Error('Browser RAW is not ready');return {width:current.width,height:current.height};}
-  if(command==='load_metadata'){requirePath(args.path);return {adjustments:null};}
+  if(command==='load_metadata'){
+   requirePath(args.path);return metadataHost?metadataHost.load(file):{adjustments:null};
+  }
+  if(command==='save_metadata_and_update_thumbnail'&&metadataHost){
+   requirePath(args.path);if(Object.keys(args).sort().join(',')!=='adjustments,path'||!current||current.version!==generation)throw Error('Invalid metadata document');
+   const selected=file,version=generation;metadataHost.validate(args.adjustments);
+   const bytes=await execute('generate_preset_preview',{jsAdjustments:args.adjustments});check(version);
+   if(bytes.length>90000)throw Error('Metadata thumbnail exceeds 90 KiB');
+   let binary='';for(let i=0;i<bytes.length;i+=8192)binary+=String.fromCharCode(...bytes.subarray(i,i+8192));
+   const data='data:image/jpeg;base64,'+btoa(binary);
+   await metadataHost.save(selected,args.adjustments,data);check(version);
+   emit('thumbnail-generated',{path:args.path,data,is_edited:args.adjustments.exposure!==0});
+   trace.push({command:'metadata-ack',revision:metadataHost.status().revision});return null;
+  }
   if(command==='load_image'){
    requirePath(args.path);await clear();const version=generation,selected=file;
    const client=createImageWorker();imageWorker=client;
    const bytes=await selected.arrayBuffer();check(version);
    const image=await client.call('load',{bytes},[bytes]);check(version);
    current={version,width:image.width,height:image.height,asShot:image.asShot,client,resources:null,preview:null};
+   const metadata=metadataHost?metadataHost.snapshot(selected):{adjustments:null};check(version);
    trace.push({command:'load-result',width:image.width,height:image.height,developmentMode:image.developmentMode,rgbSha256:image.rgbSha256});
    return {width:image.width,height:image.height,is_raw:true,as_shot_white_balance:image.asShot.whiteBalance,
-    metadata:{adjustments:null},exif:{},development_mode:image.developmentMode};
+    metadata,exif:{},development_mode:image.developmentMode};
   }
   if(command==='apply_adjustments'||command==='generate_uncropped_preview'||command==='generate_preset_preview'){
    const uncropped=command==='generate_uncropped_preview',preset=command==='generate_preset_preview';
@@ -146,6 +160,6 @@ export function createReactTransport({wasm,device,shaderSource,defaults,getPrevi
    if(command==='clear_session_caches')exportHost?.cancel();
    const result=queue.then(()=>execute(command,args));queue=result.catch(()=>{});return result;
   },
-  async close(){closed=true;await clear();await exportHost?.close();await settingsHost?.close();file=null;path=null;await queue;listeners.clear();},
+  async close(){closed=true;await clear();await metadataHost?.close();await exportHost?.close();await settingsHost?.close();file=null;path=null;await queue;listeners.clear();},
  };
 }

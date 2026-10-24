@@ -20,7 +20,7 @@ import {createExportDestination} from '/engine/export-destination.js';
 import {createExportBridge} from '/engine/export-bridge.js';
 import {exportRawInWorker} from '/engine/export-client.js';
 import {useSettingsStore} from './src/store/useSettingsStore';
-import {INITIAL_ADJUSTMENTS} from './src/utils/adjustments';
+import {normalizeLoadedAdjustments,INITIAL_ADJUSTMENTS} from './src/utils/adjustments';
 import {THEMES,DEFAULT_THEME_ID} from './src/utils/themes';
 import {Panel} from './src/components/ui/AppProperties';
 import './src/i18n';
@@ -36,8 +36,11 @@ const settingsHost=(globalThis as any).rapidRawSettingsHost;
 let retention='until-ack';const workerStates:any[]=[];
 // QA may inject a real OPFS chooser; normal operation requires the OS picker.
 const destination=createExportDestination({pickFile:options=>(globalThis as any).exportQa?.pickFile?.(options)??globalThis.showSaveFilePicker(options),getRetention:()=>retention});
-const rendererTransport=createReactTransport({settingsHost,wasm,device,shaderSource:await(await fetch('/engine/shader.wgsl')).text(),defaults:INITIAL_ADJUSTMENTS,getPreviewSettings:()=>useSettingsStore.getState().appSettings,workerUrl:'/engine/react-image-worker.js',exportFactory:host=>createExportBridge({...host,destination,runExport:(bytes,options)=>exportRawInWorker(bytes,{...options,onStatus:state=>{workerStates.push(state);(globalThis as any).exportQa?.onWorkerStatus?.(state);}})})});
+const metadataDefaults=(globalThis as any).rapidRawMetadataFactory?normalizeLoadedAdjustments(INITIAL_ADJUSTMENTS):INITIAL_ADJUSTMENTS;
+const metadataHost=(globalThis as any).rapidRawMetadataFactory?.(metadataDefaults);
+const rendererTransport=createReactTransport({metadataHost,settingsHost,wasm,device,shaderSource:await(await fetch('/engine/shader.wgsl')).text(),defaults:metadataDefaults,getPreviewSettings:()=>useSettingsStore.getState().appSettings,workerUrl:'/engine/react-image-worker.js',exportFactory:host=>createExportBridge({...host,destination,runExport:(bytes,options)=>exportRawInWorker(bytes,{...options,onStatus:state=>{workerStates.push(state);(globalThis as any).exportQa?.onWorkerStatus?.(state);}})})});
 const transport=(globalThis as any).wrapRapidRawTransport?.(rendererTransport)??rendererTransport;
+const metadataUnsubscribe=metadataHost?useEditorStore.subscribe((state)=>{if(state.selectedImage?.isReady)metadataHost.observe((globalThis as any).rapidRawMetadataFile,state.adjustments);}):()=>{};
 const PresetPanel=(globalThis as any).rapidRawPresetPanel;
 (globalThis as any).rapidRawTransport=transport;
 const settings={editorPreviewResolution:512,useWgpuRenderer:false,enableZoomHifi:false,enableLivePreviews:true,
@@ -54,6 +57,7 @@ function Proof(){
  return <><header style={{padding:8}}>Isolated original React ExportPanel — bounded single JPEG / acknowledged output only
   <input aria-label="Open RAW fixture" type="file" accept=".dng,.raf" onChange={event=>{
    const file=event.target.files?.[0];if(!file)return;
+   (globalThis as any).rapidRawMetadataFile=file;
    const path=transport.selectFile(file);
    useLibraryStore.getState().setLibrary({isViewLoading:true});
    useEditorStore.getState().setEditor({selectedImage:{path,width:0,height:0,exif:{},isRaw:false,thumbnailUrl:'',isReady:false} as any,finalPreviewUrl:null,interactivePatch:null});
@@ -71,4 +75,4 @@ function Proof(){
 }
 function Layout(){const layoutSensors=useSensors(useSensor(PointerSensor,{activationConstraint:{distance:5}}));return <DndContext sensors={layoutSensors}><ContextMenuProvider><Proof/></ContextMenuProvider></DndContext>;}
 const root=createRoot(document.getElementById('root')!);root.render(<Layout/>);
-(globalThis as any).proof={...(globalThis as any).rapidRawPresetProof,settingsHost,settingsStore:useSettingsStore,gpuErrors,adapter:{vendor:adapter.info.vendor,architecture:adapter.info.architecture},store:useEditorStore,processStore:useProcessStore,destination,workerStates,trace:transport.trace,uiStore:useUIStore,setLiveQuality(livePreviewQuality:string){useSettingsStore.getState().setAppSettings({...useSettingsStore.getState().appSettings,livePreviewQuality} as any);},async close(){root.unmount();await transport.close();device.destroy();},settings};
+(globalThis as any).proof={metadataHost,...(globalThis as any).rapidRawPresetProof,settingsHost,settingsStore:useSettingsStore,gpuErrors,adapter:{vendor:adapter.info.vendor,architecture:adapter.info.architecture},store:useEditorStore,processStore:useProcessStore,destination,workerStates,trace:transport.trace,uiStore:useUIStore,setLiveQuality(livePreviewQuality:string){useSettingsStore.getState().setAppSettings({...useSettingsStore.getState().appSettings,livePreviewQuality} as any);},async close(){root.unmount();metadataUnsubscribe();await transport.close();device.destroy();},settings};

@@ -1,3 +1,9 @@
+# RWASM-03 — original Exposure metadata auto-save/read ACK (2026-10-24)
+
+Original Exposure now persists content-bound private browser metadata and a native-exact400px JPEG thumbnail only after atomic IndexedDB commit/readback. Held ACK stays dirty, real abort and stale-tab CAS preserve records, and uncertain readback reconciles through reload/reopen without replay; editor pixels remain native-exact.81 host tests/check and original sandboxed browser proof pass. [Evidence and continuation](rapidraw-wasm-metadata-handoff.md).
+
+Experimental B only: original hooks/store/UI/algorithms unchanged, host dirty status does not invent a source saved indicator. Exposure±5,32 records/4MiB, no sidecars/EXIF/original writes, private input or product release. Full App/OS/provider/other effects/navigation-pending-save acceptance remains open. Alpha68 A assets are independently verified complete; next A is original footnote caret/range/generated documents. Next B is Reset/Undo/Redo and document switching while auto-save is pending. MAIN only.
+
 # RWASM-03 — original existing-tool Configure Preset name ACK (2026-10-24)
 
 The original card context menu/Configure Preset dialog now renames one Exposure tool preset only after atomic library write/readback. Old name, ID, values and unrelated items survive held ACK, abort, stale-tab conflict and uncertain readback; reload reconciles without replay and the renamed card remains native-exact.74 host tests/check and extracted native save bytes pass. [Evidence and continuation](rapidraw-wasm-preset-configure-handoff.md).

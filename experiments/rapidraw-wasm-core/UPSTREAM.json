@@ -528,5 +528,28 @@
     "commands": [
       "save_presets"
     ]
+  },
+  "metadataUi": {
+    "scope": "Experimental original Exposure autosave/read and thumbnail event with private content-bound IndexedDB CAS/readback ACK; unchanged source UI/hooks. No sidecars, OS/common-provider/full App or arbitrary adjustment acceptance. No native filesystem metadata parity claim.",
+    "sourceFiles": {
+      "src/hooks/useImageLoader.ts": "6e8cbf9c08b8b09438193e345d22bc000a086a1fd6424a2dfe928ad8f21bed30",
+      "src/hooks/useImageProcessing.ts": "f0070afca39a04690ded76badd78f069c7ee046a7f3cdc8c3d4b7bad40d9b2bb",
+      "src/hooks/useEditorActions.ts": "8de8bfb9f0dcb0a485cb9dd4476ed1ae56c21803a82c4b62023f29c5d6da422d",
+      "src/hooks/useTauriListeners.ts": "55b05c8f37bf4d9ad7ec6b9db4f212d06dcbd77569dcb5d1cb63666d9c10e536",
+      "src/store/useEditorStore.ts": "86fdf855fab86fe2f6ef1fe8aa06b7484fb6e540cea09267208e776ee11c6742",
+      "src/utils/adjustments.ts": "142840e13ab737aaefa3910d4da2e64405e50c486c514285bff63e7c7c861d6d",
+      "src-tauri/src/file_management.rs": "3f639e11c2f8a74baa31285b2aa9456516e5c71b6c8e4d78a42dbe61f5c4a219",
+      "src-tauri/src/exif_processing.rs": "7e87a2e10391a330e6f2bf1e241cddf04ebac59a91134d5b43b2d230c7999af5"
+    },
+    "maxDocuments": 32,
+    "maxStoredBytes": 4194304,
+    "maxThumbnailEncodedBytes": 131072,
+    "maxAdjustmentInputBytes": 65536,
+    "exposureRange": [
+      -5,
+      5
+    ],
+    "deadlineMs": 10000,
+    "identity": "SHA256 of complete selected File bytes plus byte length; no filename/lastModified/path/authority persisted"
   }
 }

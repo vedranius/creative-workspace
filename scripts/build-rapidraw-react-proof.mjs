@@ -4,9 +4,10 @@ import {createHash} from 'node:crypto';
 import {spawnSync} from 'node:child_process';
 import path from 'node:path';
 const [upstream,destination,wasmDir,variant]=process.argv.slice(2);
+const metadataVariant=variant==='metadata';
 const configureVariant=variant==='preset-configure',createVariant=variant==='preset-create'||configureVariant,applyVariant=variant==='preset-apply'||createVariant;
 const presetVariant=variant==='presets'||variant==='preset-import'||applyVariant;
-const exportVariant=variant==='export'||variant==='settings'||applyVariant;
+const exportVariant=metadataVariant||variant==='export'||variant==='settings'||applyVariant;
 if(variant&&!exportVariant&&!presetVariant)throw Error('Unknown proof variant');
 if(!upstream||!destination||!wasmDir)throw Error('NATIVE_SOURCE NEW_STAGE WASM_DIR');
 const root=path.resolve(import.meta.dirname,'..'),dest=path.resolve(destination);
@@ -32,6 +33,11 @@ if(variant==='settings'){
  await cp(path.join(root,'experiments/rapidraw-react-proof/settings-main.tsx'),path.join(dest,'main.tsx'));
 }
 
+if(metadataVariant){
+ await cp(path.join(root,'experiments/rapidraw-react-proof/export-main.tsx'),path.join(dest,'export-main.tsx'));
+ await cp(path.join(root,'experiments/rapidraw-react-proof/metadata-main.tsx'),path.join(dest,'main.tsx'));
+ for(const [name,sha]of Object.entries(coreMeta.metadataUi.sourceFiles))if(createHash('sha256').update(await readFile(path.join(upstream,name))).digest('hex')!==sha)throw Error('Original metadata contract differs: '+name);
+}
 if(presetVariant){
  await cp(path.join(root,'experiments/rapidraw-react-proof/presets-main.tsx'),path.join(dest,'main.tsx'));
  for(const [name,expected]of Object.entries(coreMeta.presetFiles.sourceFiles))if(createHash('sha256').update(await readFile(path.join(upstream,name))).digest('hex')!==expected)throw Error('Original preset file contract differs: '+name);
@@ -68,6 +74,7 @@ for(const name of ['cw_rapidraw_wasm_probe.js','cw_rapidraw_wasm_probe_bg.wasm']
 for(const name of ['worker.js','react-image-worker.js','decoder-client.js','webgpu-renderer.js','react-transport.js','shader.wgsl'])await cp(path.join(root,'experiments/rapidraw-wasm-core',name),path.join(engine,name));
 if(variant==='preset-import'||applyVariant)await cp(path.join(root,'experiments/rapidraw-wasm-core/preset-library.js'),path.join(engine,'preset-library.js'));
 if(presetVariant)for(const name of ['preset-file.js','export-destination.js'])await cp(path.join(root,'experiments/rapidraw-wasm-core',name),path.join(engine,name));
+if(metadataVariant)await cp(path.join(root,'experiments/rapidraw-wasm-core/metadata-storage.js'),path.join(engine,'metadata-storage.js'));
 if(variant==='settings')await cp(path.join(root,'experiments/rapidraw-wasm-core/settings-storage.js'),path.join(engine,'settings-storage.js'));
 if(exportVariant){
  for(const name of ['export-destination.js','export-bridge.js','export-client.js','export-worker.js'])await cp(path.join(root,'experiments/rapidraw-wasm-core',name),path.join(engine,name));
@@ -77,8 +84,8 @@ if(exportVariant){
 const sources={};for(const name of ['src/hooks/useImageLoader.ts','src/hooks/useImageProcessing.ts','src/hooks/useEditorActions.ts','src/components/panel/Editor.tsx','src/components/panel/editor/ImageCanvas.tsx','src/components/adjustments/Basic.tsx','src/components/ui/Slider.tsx','src/store/useEditorStore.ts','src/utils/defaultAdjustments.json','package-lock.json','src/utils/themes.ts','src/hooks/useAppInitialization.ts','src/components/panel/right/CropPanel.tsx','src/context/ContextMenuContext.tsx','src/utils/cropUtils.ts','src/components/panel/PanelSwitcher.tsx','src/App.tsx'])sources[name]=createHash('sha256').update(await readFile(path.join(upstream,name))).digest('hex');
 const expected=coreMeta.reactUi.sourceFiles;
 if(JSON.stringify(sources)!==JSON.stringify(expected))throw Error('Pinned original React source hashes differ');
-const runtimeSha256={};for(const name of ['react-image-worker.js','react-transport.js',...((variant==='preset-import'||applyVariant)?['preset-library.js']:[]),...(presetVariant?['preset-file.js','export-destination.js']:[]),...(variant==='settings'?['settings-storage.js']:[]),...(exportVariant?['export-destination.js','export-bridge.js','export-client.js','export-worker.js']:[])])runtimeSha256[name]=createHash('sha256').update(await readFile(path.join(engine,name))).digest('hex');
-await writeFile(path.join(dest,'source-proof.json'),JSON.stringify({nativeSource:pin,presetFiles:presetVariant?coreMeta.presetFiles:undefined,presetApply:applyVariant?coreMeta.presetApply:undefined,presetCreate:createVariant?coreMeta.presetCreate:undefined,presetConfigure:configureVariant?coreMeta.presetConfigure:undefined,presetLibrary:(variant==='preset-import'||applyVariant)?coreMeta.presetLibrary:undefined,settingsUi:variant==='settings'?coreMeta.settingsUi:undefined,exportUi:exportVariant?coreMeta.exportUi:undefined,license:'AGPL-3.0-only',sourceFiles:sources,runtimeSha256,wasmSha256,qualityTimerCompatibility:qualityTimer,previewResize:coreMeta.previewResize,interactivePreview:coreMeta.interactivePreview,orientationFlip:coreMeta.orientationFlip,cropPreview:coreMeta.cropPreview,uncroppedPreview:coreMeta.uncroppedPreview,fineRotation:coreMeta.fineRotation,fineInteractive:coreMeta.fineInteractive,scope:configureVariant?coreMeta.presetConfigure.scope:createVariant?coreMeta.presetCreate.scope:applyVariant?coreMeta.presetApply.scope:variant==='preset-import'?coreMeta.presetLibrary.scope:presetVariant?coreMeta.presetFiles.scope:variant==='settings'?coreMeta.settingsUi.scope:exportVariant?coreMeta.exportUi.scope:'Unchanged original hooks/stores/Editor/Basic/Slider in QA composition. Core invoke aliased; native Clerk explicitly unavailable; no full App/menu/provider acceptance.'},null,2)+'\n');
+const runtimeSha256={};for(const name of ['react-image-worker.js','react-transport.js',...(metadataVariant?['metadata-storage.js']:[]),...((variant==='preset-import'||applyVariant)?['preset-library.js']:[]),...(presetVariant?['preset-file.js','export-destination.js']:[]),...(variant==='settings'?['settings-storage.js']:[]),...(exportVariant?['export-destination.js','export-bridge.js','export-client.js','export-worker.js']:[])])runtimeSha256[name]=createHash('sha256').update(await readFile(path.join(engine,name))).digest('hex');
+await writeFile(path.join(dest,'source-proof.json'),JSON.stringify({nativeSource:pin,metadataUi:metadataVariant?coreMeta.metadataUi:undefined,presetFiles:presetVariant?coreMeta.presetFiles:undefined,presetApply:applyVariant?coreMeta.presetApply:undefined,presetCreate:createVariant?coreMeta.presetCreate:undefined,presetConfigure:configureVariant?coreMeta.presetConfigure:undefined,presetLibrary:(variant==='preset-import'||applyVariant)?coreMeta.presetLibrary:undefined,settingsUi:variant==='settings'?coreMeta.settingsUi:undefined,exportUi:exportVariant?coreMeta.exportUi:undefined,license:'AGPL-3.0-only',sourceFiles:sources,runtimeSha256,wasmSha256,qualityTimerCompatibility:qualityTimer,previewResize:coreMeta.previewResize,interactivePreview:coreMeta.interactivePreview,orientationFlip:coreMeta.orientationFlip,cropPreview:coreMeta.cropPreview,uncroppedPreview:coreMeta.uncroppedPreview,fineRotation:coreMeta.fineRotation,fineInteractive:coreMeta.fineInteractive,scope:metadataVariant?coreMeta.metadataUi.scope:configureVariant?coreMeta.presetConfigure.scope:createVariant?coreMeta.presetCreate.scope:applyVariant?coreMeta.presetApply.scope:variant==='preset-import'?coreMeta.presetLibrary.scope:presetVariant?coreMeta.presetFiles.scope:variant==='settings'?coreMeta.settingsUi.scope:exportVariant?coreMeta.exportUi.scope:'Unchanged original hooks/stores/Editor/Basic/Slider in QA composition. Core invoke aliased; native Clerk explicitly unavailable; no full App/menu/provider acceptance.'},null,2)+'\n');
 if(process.env.RAPIDRAW_REACT_DEPENDENCY_STAGE){
  const cached=path.resolve(process.env.RAPIDRAW_REACT_DEPENDENCY_STAGE);
  if(!Buffer.from(await readFile(path.join(cached,'package-lock.json'))).equals(await readFile(path.join(dest,'package-lock.json'))))throw Error('Cached dependency lock differs');
