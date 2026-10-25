@@ -1,0 +1,39 @@
+{
+  "arcIdentityPreserved": true,
+  "bodySelectionAfter": {
+    "content": false,
+    "items": [],
+    "text": {
+      "anchor": 10,
+      "focus": 10,
+      "story": 12
+    }
+  },
+  "canonicalDocumentExact": true,
+  "command": "footnote.goToReference",
+  "dirtyAfter": false,
+  "historyExact": true,
+  "invalidParamsAndBodySelectionRejectedBeforeMutation": true,
+  "nonReferencePageHasNoCaret": true,
+  "noteSelectionBefore": {
+    "content": false,
+    "items": [],
+    "text": {
+      "anchor": 13,
+      "focus": 13,
+      "note": {
+        "id": "1",
+        "kind": "footnote"
+      },
+      "story": 12
+    }
+  },
+  "originalCaretPage": 2,
+  "originalUtf8ReferencePos": 10,
+  "params": {},
+  "result": {
+    "page": 2,
+    "pos": 10,
+    "story": 12
+  }
+}

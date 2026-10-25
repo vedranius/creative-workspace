@@ -32,6 +32,7 @@ const COMMANDS: &[&str] = &[
     "text.insert",
     "footnote.insert",
     "footnote.options",
+    "footnote.goToReference",
     "text.delete",
     "type.char",
     "edit.clear",
@@ -399,6 +400,19 @@ fn caret_geometry(h: &Headless, index: usize) -> Option<Value> {
     Some(caret)
 }
 
+// Resolve the original body caret on an isolated selection-only candidate.
+// No document/history change or filesystem parameter is admitted by this command.
+fn footnote_reference_page(h:&Headless,p:&Value)->Result<usize,Box<dyn std::error::Error>> {
+    if !p.as_object().is_some_and(|o|o.is_empty()) {return Err("footnote.goToReference takes no parameters".into());}
+    let st=h.session.active().ok_or("No document")?;
+    let mut candidate=Headless::new();
+    let mut mirror=DocState::new((*st.doc).clone(),None);mirror.selection=st.selection.clone();candidate.session.add_document(mirror);
+    candidate.call("engine.execute",json!({"command":"footnote.goToReference","params":{}}))?;
+    let count=st.doc.spreads.iter().map(|s|s.pages.len()).sum::<usize>();
+    if count==0 || count>64 {return Err("Reference page exceeds the 64-page server limit".into());}
+    (0..count).find(|&page|caret_geometry(&candidate,page).is_some()).ok_or_else(||"Footnote reference has no visible body caret".into())
+}
+
 fn answer(h: &mut Headless, saved: &mut Option<Arc<Document>>, read: &Path, write: &Path, r: &Value) -> Result<Value, Box<dyn std::error::Error>> {
     let method = r.get("method").and_then(Value::as_str).unwrap_or("");
     let p = r.get("params").cloned().unwrap_or(json!({}));
@@ -477,7 +491,9 @@ fn answer(h: &mut Headless, saved: &mut Option<Arc<Document>>, read: &Path, writ
                 || (matches!(c,"text.insert" | "text.delete" | "edit.clear")
                     && st.selection.text.and_then(|t|t.cell).and_then(|cell|cell.footnote_id()).is_some()))
                 .map(|st|(st.doc.clone(),st.selection.clone()));
+            let reference_page=if c=="footnote.goToReference" {Some(footnote_reference_page(h,p.get("params").unwrap_or(&Value::Null))?)} else {None};
             let mut result = h.call("engine.execute", p)?;
+            if let Some(page)=reference_page {result["page"]=json!(page);}
             if let Some((doc,selection))=note_history
                 && let Some(entry)=h.session.active_mut().and_then(|st|st.history.undo.last_mut())
                 && Arc::ptr_eq(&entry.doc,&doc) { entry.selection=selection; }
@@ -708,5 +724,30 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
    let root=PathBuf::from(out);std::fs::write(root.join("options-fixture.designcraft"),designcraft_format::save(&old)?)?;
    std::fs::write(root.join("options-native.json"),serde_json::to_vec_pretty(&json!({"params":params,"result":result,"sourceCommand":"footnote.options","frame":frame,"rejectedBeforeMutation":10,"selectionUnchanged":true,"storyAndPageUnchanged":true,"undoRedoCanonicalExact":true,"saveReopenCanonicalExact":true}))?)?;
   }Ok(())
+ }
+}
+
+#[cfg(test)] mod footnote_reference_contract {
+ use super::*;
+ #[test] fn reference_is_selection_only_utf8_page_bound_and_rejects_before_mutation()->Result<(),Box<dyn std::error::Error>> {
+  let mut h=Headless::new();let mut saved=None;
+  h.call("engine.execute",json!({"command":"file.new","params":{"pages":3,"facingPages":true}}))?;
+  let px=h.session.active().ok_or("doc")?.doc.page(2).ok_or("page")?.bounds().x0;
+  let f=h.call("engine.execute",json!({"command":"frame.create","params":{"spread":1,"rect":[px+60.0,80.0,px+360.0,320.0],"content":"text","caret":true}}))?;
+  h.call("engine.execute",json!({"command":"text.insert","params":{"text":"Body é text after"}}))?;
+  h.call("engine.execute",json!({"command":"text.select","params":{"story":f["story"],"anchor":7,"focus":7}}))?;
+  let execute=|h:&mut Headless,saved:&mut Option<Arc<Document>>,p:Value|answer(h,saved,Path::new("."),Path::new("."),&json!({"method":"command","params":{"command":"footnote.goToReference","params":p}}));
+  let before=h.session.active().ok_or("doc")?.selection.clone();assert!(execute(&mut h,&mut saved,json!({})).is_err());assert_eq!(h.session.active().ok_or("doc")?.selection.text,before.text);
+  h.call("engine.execute",json!({"command":"footnote.insert","params":{"text":"Footnote text"}}))?;
+  let doc=h.session.active().ok_or("doc")?.doc.clone();saved=Some(doc.clone());let canonical=canonical_snapshot(&doc)?;
+  let selection=wire_selection(&h.session.active().ok_or("doc")?.selection)?;
+  let history=h.call("engine.execute",json!({"command":"document.history","params":{}}))?;
+  let caret=caret_geometry(&h,2).ok_or("note caret")?;
+  if let Ok(root)=std::env::var("CW_FOOTNOTE_OUTPUT") {let root=Path::new(&root);std::fs::write(root.join("reference-fixture.designcraft"),designcraft_format::save(&doc)?)?;std::fs::write(root.join("reference-fixture.designcraft.json"),serde_json::to_vec_pretty(&json!({"frame":f["id"],"story":f["story"],"page":2,"referencePos":10,"point":[caret["points"][0][0],(caret["points"][0][1].as_f64().ok_or("y")?+caret["points"][1][1].as_f64().ok_or("y")?)/2.0]}))?)?;}
+  for p in [Value::Null,json!([]),json!({"path":"private"}),json!({"page":2})] {assert!(execute(&mut h,&mut saved,p).is_err());assert_eq!(wire_selection(&h.session.active().ok_or("doc")?.selection)?,selection);assert!(Arc::ptr_eq(&doc,&h.session.active().ok_or("doc")?.doc));}
+  let result=execute(&mut h,&mut saved,json!({}))?;assert_eq!(result["page"],2);assert_eq!(result["pos"],10);assert_eq!(result["story"],f["story"]);
+  let state=answer(&mut h,&mut saved,Path::new("."),Path::new("."),&json!({"method":"state"}))?;assert_eq!(state["dirty"],false);assert_eq!(state["documentSnapshot"],canonical);assert!(state["selection"]["text"].get("note").is_none());assert!(state["selection"]["text"]["cell"].is_null());assert_eq!(state["selection"]["text"]["focus"],10);assert_eq!(state["history"],history);assert!(Arc::ptr_eq(&doc,&h.session.active().ok_or("doc")?.doc));assert!(caret_geometry(&h,2).is_some());assert!(caret_geometry(&h,1).is_none());
+  let old=wire_selection(&h.session.active().ok_or("doc")?.selection)?;assert!(execute(&mut h,&mut saved,json!({})).is_err());assert_eq!(wire_selection(&h.session.active().ok_or("doc")?.selection)?,old);
+  if let Ok(root)=std::env::var("CW_FOOTNOTE_OUTPUT") {std::fs::write(Path::new(&root).join("reference-native.json"),serde_json::to_vec_pretty(&json!({"command":"footnote.goToReference","params":{},"result":result,"noteSelectionBefore":selection,"bodySelectionAfter":old,"canonicalDocumentExact":true,"arcIdentityPreserved":true,"dirtyAfter":state["dirty"],"historyExact":true,"invalidParamsAndBodySelectionRejectedBeforeMutation":true,"originalUtf8ReferencePos":10,"originalCaretPage":2,"nonReferencePageHasNoCaret":true}))?)?;}Ok(())
  }
 }

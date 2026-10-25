@@ -2,7 +2,7 @@
 
 # Creative Workspace
 
-**Version: 0.2.0-alpha.71** — prototype/prerelease draft candidate. Original DesignCraft Type > Document Footnote Options now applies bounded original numbering, formatting and layout through the owned worker. Its dialog preserves the draft through failure/pending and closes only after matching canonical ACK. Local native/browser Undo/Redo and retained Save a Copy/reopen pass; this source still needs its own Actions/tag/draft/downloaded asset gate. Full tools/providers/real OS/all13 acceptance stay open; DesignCraft stays planned. Install Actions-built assets only into a fresh root. [Options evidence](docs/evidence/designcraft-footnote-options.md), [verified alpha70 assets](docs/evidence/creative-workspace-alpha70-release.md), [release limits](docs/releases.md).
+**Version: 0.2.0-alpha.72** — prototype/prerelease draft candidate. Original DesignCraft Type > Go to Footnote Reference returns the caret to the original UTF-8 body reference through matching server ACK, with content, dirty/name and Undo history preserved. Pending body typing waits for that ACK. Local native/browser page navigation, FIFO/UndoRedo and retained Save Copy/reopen pass; this source needs its own Actions/tag/draft/downloaded assets gate. Full tools/providers/real OS/all13 acceptance remains open; DesignCraft stays planned. Install only verified Actions assets into a fresh root. [Reference evidence](docs/evidence/designcraft-footnote-reference.md), [verified alpha71 assets](docs/evidence/creative-workspace-alpha71-release.md), [release limits](docs/releases.md).
 
 Bring your creative tools together in one browser studio. Choose an application, select your files, and access your own server from a lightweight laptop. The goal is **the original application interfaces and tools in the browser, with the server doing the heavy work**: photography, image editing, illustration, PDF, publishing, video, motion graphics, office documents, spreadsheets, presentations, CAD, interface design and audio. Browser controls run locally; document commands, data and previews travel to the server. No VNC or remote desktop is involved.
 
@@ -13,6 +13,8 @@ Bring your creative tools together in one browser studio. Choose an application,
 Alpha.24 adds an original Open-dialog candidate for a selected laptop `.designcraft` file: streaming copy-first upload is acknowledged in the same isolated session before the native server opens it and returns original UI state/server preview. Alpha.26 adds the original File → Save a Copy… candidate for an explicit new server-workspace path with workspace retention; native and atomic write ACKs precede success, the source stays dirty under its original name, and an existing path is never overwritten. Laptop output is refused until browser write ACK exists. This remains an isolated review candidate; catalog and full parity stay planned. [Open and Save Copy scope](docs/designcraft-host-canvas.md).
 
 ## What is new
+
+- **DesignCraft Go to Footnote Reference (alpha.72 candidate):** original Type command, native reference-page/caret composition, canonical ACK and held body typing without changing note content. [Evidence](docs/evidence/designcraft-footnote-reference.md).
 
 - **DesignCraft Document Footnote Options (alpha.71 candidate):** original dialog and command, bounded server processing, retained draft until ACK, original numbering pixels and native save/reopen. [Evidence](docs/evidence/designcraft-footnote-options.md).
 
@@ -196,7 +198,7 @@ Historical screenshot of the earlier eight-project catalog, with original-author
 
 ## Installation
 
-Alpha.71 is a draft prototype candidate. Use its own verified Actions assets and a fresh install/UI package root; retain prior installs and open documents. No locally built binary is a release asset.
+Alpha.72 is a draft prototype candidate. Use its own verified Actions assets and a fresh install/UI package root, preserving older installs and open documents.
 
 ### Portable prototype downloads
 

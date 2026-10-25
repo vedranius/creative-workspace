@@ -1,3 +1,9 @@
+## [0.2.0-alpha.72] - 2026-10-25
+
+- Connect original DesignCraft `footnote.goToReference` through the owned worker and matching canonical ACK, using the original UTF-8 reference position and native visible body-caret page.
+- Preserve content, dirty/name and Undo history for this selection-only action; reject extra parameters or invalid reference selection before mutation, and hold body typing until the navigation ACK.
+- Draft prototype candidate. Full original tools/providers/real OS/all13 acceptance remains open; distribute only independently verified Actions-built assets.
+
 ## [0.2.0-alpha.71] - 2026-10-25
 
 - Connect the original DesignCraft Document Footnote Options dialog and unchanged `footnote.options` command to the owned worker, with bounded partial parameters and exact isolated original candidate validation before mutation/history.

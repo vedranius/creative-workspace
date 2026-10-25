@@ -457,3 +457,15 @@ test('Original Footnote Options validates partial DTO and waits for worker ACK w
   const ack=await pending;assert.equal(ack.stateVersion,2);assert.equal(ack.result.commandId,'footnote.options');assert.deepEqual(worker.commandParams,[params]);
   await assert.rejects(call(session.id,'footnote.options',params,{expectedVersion:1}),e=>e.code==='STATE_VERSION_CONFLICT');await design.close(session.id,{discard:true});
 });
+
+
+test('Original footnote reference navigation is empty-parameter, ACK/page-bound and selection-only',async t=>{
+ const {project,design,engines,call}=await fixture(t),session=await design.create(project);await call(session.id,'file.new',{preset:'A4'});
+ const worker=engines.find(e=>!e.closed),base=worker.call.bind(worker);worker.doc.dirty=false;
+ for(const params of [{path:'/private'},{page:2},{note:1}])await assert.rejects(call(session.id,'footnote.goToReference',params,{expectedVersion:1}),/no parameters/);
+ let release,entered;const held=new Promise(r=>release=r),started=new Promise(r=>entered=r);let reject=true;
+ worker.call=async(m,p)=>{if(m==='command'&&p.command==='footnote.goToReference'){if(reject)throw Error('not in footnote text');entered();await held;worker.commands.push(p.command);worker.commandParams.push(p.params);return {story:1,pos:10,page:0};}return base(m,p);};
+ await assert.rejects(call(session.id,'footnote.goToReference',{}, {expectedVersion:1}),/not in footnote/);assert.equal((await call(session.id,'state')).stateVersion,1);reject=false;
+ const pending=call(session.id,'footnote.goToReference',{}, {expectedVersion:1});await started;assert.deepEqual(worker.commands,[]);release();const ack=await pending;assert.equal(ack.stateVersion,2);assert.equal(ack.result.commandId,'footnote.goToReference');assert.equal(ack.page,0);assert.equal(ack.document.dirty,false);assert.deepEqual(worker.commands,['footnote.goToReference']);assert.deepEqual(worker.commandParams,[{}]);
+ await assert.rejects(call(session.id,'footnote.goToReference',{}, {expectedVersion:1}),e=>e.code==='STATE_VERSION_CONFLICT');
+});

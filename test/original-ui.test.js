@@ -12,7 +12,7 @@ test('DesignCraft PAR-03 variant is pinned to its exact reviewed source patch',a
   const patch=originalUiPatches.designcraft,bytes=await readFile(new URL('../'+patch.path,import.meta.url));
   assert.equal(patch.id,'par-03-pages-insert-v1');
   assert.equal(patch.path,'patches/designcraft/a127c6d5/par-03-pages-insert-v1.patch');
-  assert.equal(patch.sha256,'2504cf665ab05be5187efd23db60d6ddfa526617f36a399ccc321de34ec3fdf8');
+  assert.equal(patch.sha256,'10ddd4ca15a18cebce8bfed0491557f7dae81bedd747dde2c09ed8d12584ddd9');
   assert.equal(createHash('sha256').update(bytes).digest('hex'),patch.sha256);
   assert.match(bytes.toString('utf8'),/diff --git a\/apps\/designcraft-web\/file-provider\.js/);
   assert.match(bytes.toString('utf8'),/openRecovery\(\{app:"designcraft"/);

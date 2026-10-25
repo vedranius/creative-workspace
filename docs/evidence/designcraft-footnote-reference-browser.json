@@ -1,0 +1,60 @@
+{
+  "status": "original-Go-to-Footnote-Reference-ack-page-fifo-undo-save-reopen-passed",
+  "sourcePin": "a127c6d5c3576972bbd60445f26d893db071eef3",
+  "sourcePatchSha256": "10ddd4ca15a18cebce8bfed0491557f7dae81bedd747dde2c09ed8d12584ddd9",
+  "workerSha256": "cc86f956426aeff435c102ae334ab77e635ecd246d894371c8d737a1f90d29b7",
+  "uiWasm": {
+    "path": "designcraft-web-6870962872336930_bg.wasm",
+    "size": 40364353,
+    "sha256": "01875a12f404f5a4fe75fd4e8684ca7ea9a479d51d9c8092d36478a43bdff7f3"
+  },
+  "fixture": {
+    "generatedNative": true,
+    "sha256": "f112616ff76003c350a570906589d86698da4c369710ab8a49c203890dcccb1f"
+  },
+  "originalMenu": {
+    "referenceItem": [
+      295,
+      976.5
+    ],
+    "commandId": "footnote.goToReference",
+    "params": {}
+  },
+  "rejectedSelectionPreserved": true,
+  "heldReferenceAck": {
+    "priorRevision": 5,
+    "acceptedRevision": 6,
+    "typingQueuedUntilAck": true
+  },
+  "selectedPage": {
+    "before": 1,
+    "after": 2
+  },
+  "bodyCaret": {
+    "page": 2,
+    "frame": 11,
+    "story": 12,
+    "points": [
+      [
+        711.378,
+        80
+      ],
+      [
+        711.378,
+        96.452
+      ]
+    ]
+  },
+  "utf8ReferencePos": 10,
+  "canonicalDirtyNameHistoryPreserved": true,
+  "contentPngUnchanged": "0839ad85de42e7160385ef34435db6c2e0b0ae9c62f819f42963edf0b2ded81a",
+  "typedBodyOnly": true,
+  "canonicalAndPngUndoRedoExact": true,
+  "nativeSaveFreshReopenCanonicalAndPngExact": true,
+  "originalInputUnchanged": true,
+  "expectedPreMutationRejections": 1,
+  "errors": [],
+  "failedResponses": [],
+  "requestFailures": [],
+  "permission": "Actual original Open/Pages/Type/Go to Footnote Reference and body FIFO typing/Undo/Redo; synthetic folder/helper, real owned worker retained Save Copy/fresh reopen. Real OS/provider/full tool acceptance remains open."
+}

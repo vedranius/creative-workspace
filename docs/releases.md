@@ -1,5 +1,7 @@
 # Alpha.70 original Insert Footnote candidate — 2026-10-25
 
+`0.2.0-alpha.72` connects the original Go to Footnote Reference command with canonical selection/page ACK and held body typing. It preserves document content, dirty/name and Undo history. [Evidence](evidence/designcraft-footnote-reference.md). Keep draft/prerelease until this exact source's Actions checks, immutable tag/draft and downloaded assets/checksums pass. Full tools/providers/real OS/all13 acceptance remains open; local binaries are QA only.
+
 `0.2.0-alpha.71` connects the original Document Footnote Options dialog/command with bounded worker validation and matching ACK before mirror changes or dialog close. Rejected drafts remain for explicit correction/retry. [Evidence and limits](evidence/designcraft-footnote-options.md). Keep draft/prerelease until this source's Actions checks, immutable tag/draft and downloaded assets/checksums are verified. Full tools/providers/real OS/all13 acceptance remains open; no local binaries are release assets.
 
 `0.2.0-alpha.70` connects the original Type > Insert Footnote command to the owned server, with matching ACK before mirror mutation or queued note typing. Exact original candidate validation bounds the resulting document before the actual edit; original composition/numbering and tagged note/caret/range remain. [Implementation and acceptance evidence](evidence/designcraft-footnote-insert.md). Footnote Options, full original/provider/OS/all13 acceptance remain open; keep draft-only.

@@ -1,3 +1,11 @@
+# PAR-03 alpha.72 — original Go to Footnote Reference candidate (2026-10-25)
+
+Original Type > Go to Footnote Reference now uses the unchanged command through native selection/page composition and matching canonical ACK. Empty parameters only; invalid note selection is rejected before mutation. Navigation preserves content, dirty/name and Undo history; held body typing reaches the body after ACK. [Native/browser reports and original UI screenshots](evidence/designcraft-footnote-reference.md).
+
+13 native / 166 UI + 1 ignored / 36 gateway / 94 repository tests, check/release/YAML and actual original menu held/failure/page1→2/FIFO/UndoRedo/retained native Save Copy/fresh-reopen pass. New alpha72 source CI/tag/draft/downloaded asset verification remains required; alpha71/70/69 gates are complete and immutable. DesignCraft stays planned; full tools/providers/real OS/all13 acceptance remains open. Local worker/WASM are QA only.
+
+Next B in SAME MAIN from72bd653: one actual supported RAW File into original RapidRAW App navigation/managers/EditorView through the existing registered-File/metadata ACK transport. Empty original root startup is complete; root File integration/export remain unaccepted. Next A: exact alpha72 CI/draft/assets gate, then original Type > Insert Endnote bounded native/UI/selection contract. No new writer/chat/main-B merge/private-photo/live-studio/demo changes; preserve FilmCraft/originals.
+
 # PAR-03 alpha.71 — immutable Actions draft assets verified (2026-10-25)
 
 Checks40172373909 and all25 Build/release40172373905 jobs passed for `81705bf`. Immutable v0.2.0-alpha.71 tag and draft prerelease423262136 resolve to that source. All24 downloaded assets/12 SHA256 pairs, three Node runtimes,12 engine binaries, startup/licenses/source manifests and eight UI manifests/167 files verify. DesignCraft patch2504cf66 matches source/packaged provenance; Actions WASM a71b3485 was measured independently. [Release evidence and limits](evidence/creative-workspace-alpha71-release.md) · [Footnote Options native/browser proof](evidence/designcraft-footnote-options.md).
