@@ -22,8 +22,20 @@
   "qaOnlyCorrection": "Await exact revision and command ID without relaxing request, canonical page count, dirty or PNG assertions; report only the registry-selected package with exact patch hash.",
   "localBrowser": "passed with current optimized UI/owned native worker; zero browser/HTTP/request errors",
   "productVersion": "0.2.0-alpha.70",
-  "releaseAssetsVerified": false,
+  "releaseAssetsVerified": true,
   "tagOrReleaseRewritten": false,
   "ciRerunOrCancellation": false,
-  "next": "Fresh normal push triggers a new run; inspect its exact source/tag/draft/24 assets/12 checksum pairs after success. Local QA is not a release asset."
+  "next": "Initial failed source/run above is historical. Alpha70 exact-source immutable draft/assets gate is COMPLETE; continue original Footnote Options after next B settings initialization. No rerun/cancel/rewrite.",
+  "resolvedBy": {
+    "sourceCommit": "c60686f720c6771f85c5cf7f654ef6d10e8a350e",
+    "checksRun": 40155555976,
+    "buildRun": 40155555942,
+    "successfulJobs": 25,
+    "tag": "v0.2.0-alpha.70",
+    "draftReleaseId": 423133154,
+    "downloadedAssets": 24,
+    "checksumPairs": 12,
+    "evidence": "creative-workspace-alpha70-release.json",
+    "actionsPar03WasmSha256": "7517f8e99f491af5f1e691e6de3da07feb762bc9b89664d2f906d9335f7f6157"
+  }
 }
