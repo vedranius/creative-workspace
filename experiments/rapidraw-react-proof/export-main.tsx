@@ -49,7 +49,7 @@ const metadataTransition=(globalThis as any).rapidRawMetadataTransition;
 const PresetPanel=(globalThis as any).rapidRawPresetPanel;
 (globalThis as any).rapidRawTransport=transport;
 const settings={editorPreviewResolution:512,useWgpuRenderer:false,enableZoomHifi:false,enableLivePreviews:true,
- livePreviewQuality:'high',baselineExposure:0,compensateHighlightPreservation:true,copyPasteSettings:{autoSync:false}};
+ livePreviewQuality:'high',baselineExposure:0,compensateHighlightPreservation:true,copyPasteSettings:{autoSync:false},...(globalThis as any).rapidRawProofSettings};
 useSettingsStore.getState().setAppSettings(settingsHost?await transport.invoke('load_settings'):settings as any);
 useUIStore.getState().setUI({activeView:'editor',activePanel:Panel.Adjustments} as any);
 function Proof(){
@@ -60,7 +60,7 @@ function Proof(){
  useTauriListeners({refreshAllFolderTrees(){},handleSelectSubfolder(){},refreshImageList(){},markGenerated(){}});
  const navigationRefs={transformWrapperRef:transform,cachedEditStateRef:cached,preloadedDataRef:useRef(null),selectedImagePathRef:useRef(null),isBackendReadyRef:useRef(true),latestRenderedJobIdRef:rendered,previewJobIdRef:job,currentResRef:resolution,prevAdjustmentsRef:prev};
  const navigation=(globalThis as any).rapidRawUseMetadataNavigation?.(navigationRefs);
- const libraryActions=LibraryActionsHook?.(navigation);
+ const libraryActions=LibraryActionsHook?.(navigation,navigationRefs);
  const activeView=useUIStore(s=>s.activeView);
  const adjustments=useEditorStore(s=>s.adjustments),selectedImage=useEditorStore(s=>s.selectedImage);
  const exportState=useProcessStore(s=>s.exportState),appSettings=useSettingsStore(s=>s.appSettings);

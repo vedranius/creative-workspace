@@ -188,3 +188,29 @@ test('superseded preview uses the original native rejection string while real wo
   }
  }finally{globalThis.Worker=previous;}
 });
+
+test('paste admission refuses other documents, bulk, unsupported values and uncertain metadata before work',async()=>{
+ await withMetadataDocument(async f=>{
+  f.status.dirty=false;
+  const good={paths:[f.path],adjustments:{exposure:0.8}};
+  for(const args of [{...good,paths:[]},{...good,paths:[f.path,f.path]},{...good,paths:['/etc/passwd']},{...good,adjustments:{contrast:1}},{...good,adjustments:{exposure:6}},{...good,adjustments:{exposure:NaN}},{...good,extra:true}])await assert.rejects(f.bridge.invoke('apply_adjustments_to_paths',args));
+  for(const flag of ['dirty','busy','uncertain','pendingIO']){f.status[flag]=true;await assert.rejects(f.bridge.invoke('apply_adjustments_to_paths',good),/not acknowledged/);f.status[flag]=false;}
+  assert.equal(f.bridge.trace.filter(t=>t.command==='generate_preset_preview').length,0);
+  assert.deepEqual(await f.bridge.invoke('get_image_dimensions',{path:f.path}),{width:2,height:2});
+ });
+});
+test('pending paste holds navigation/cache and refuses another write while rendering, then tears down safely',async()=>{
+ const previous=globalThis.Worker;let preview=false,saves=0;
+ globalThis.Worker=class{terminate(){}postMessage(d){if(d.command==='load')queueMicrotask(()=>this.onmessage({data:{id:d.id,ok:true,width:2,height:2,asShot:{}}}));else preview=true;}};
+ const defaults={exposure:0,brightness:0,contrast:0,highlights:0,shadows:0,whites:0,blacks:0,toneMapper:'basic'},metadataHost={load:async()=>({adjustments:null}),snapshot:()=>({adjustments:defaults}),status:()=>({}),validate(){},save:async()=>saves++,close:async()=>{}};
+ const bridge=createReactTransport({metadataHost,wasm:{},device:{queue:{onSubmittedWorkDone:async()=>{}}},defaults});
+ try{
+  const path=bridge.selectFile(new File(['x'],'public.dng'));await bridge.invoke('load_image',{path});
+  const args={paths:[path],adjustments:{exposure:0.8}},job=bridge.invoke('apply_adjustments_to_paths',args).catch(e=>e);
+  while(!preview)await new Promise(r=>setTimeout(r,1));
+  await assert.rejects(bridge.invoke('apply_adjustments_to_paths',args),/pending/);
+  await assert.rejects(bridge.invoke('clear_session_caches'),/cache retained/);
+  await assert.rejects(bridge.selectFileAcknowledged(new File(['y'],'other.dng'),{}),/pending/);
+  await bridge.close();assert.equal(await job,'Superseded or worker failed');assert.equal(saves,0);
+ }finally{await bridge.close();globalThis.Worker=previous;}
+});

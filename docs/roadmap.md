@@ -1,3 +1,9 @@
+# RWASM-03 — original single-File Copy/Paste ACK (2026-10-25)
+
+Original BottomBar Copy/Paste now uses bounded Exposure metadata merge with commit/readback before editor/cache changes and Paste indication. Held, uncertain, aborted and newer drafts preserve the proper state; reload never replays.94 host tests/check,18 source browser assertions,3 extracted native merge cases and native-exact RGBA/JPEG frames pass with zero unexpected errors. [Evidence and continuation](rapidraw-wasm-metadata-copy-paste-handoff.md).
+
+Experimental B: reviewed source ACK patch, unchanged original components/processing/engine/WASM, one selected File, existing resource/privacy limits. General effects/bulk/full App/OS/provider/zoomed ROI remain open; no product release/main/demo/private input change. Alpha70 still built original-designcraft at entry; next A is its immutable release gate then FootnoteOptions. Next B: original CopyPasteSettingsModal preference ACK. MAIN only.
+
 # RWASM-03 — original editor Filmstrip click ACK (2026-10-25)
 
 Original EditorView/BottomBar/Filmstrip now uses the original action hook with metadata ACK before selection/cache changes. Held/failed/newer drafts preserve the editor; cached A/B frames and reload restore independent metadata without writes.92 host tests/check and16 actual browser assertions/native-exact RGBA/JPEG frames pass with zero unexpected errors. [Evidence and continuation](rapidraw-wasm-metadata-filmstrip-handoff.md).

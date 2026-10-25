@@ -1,0 +1,109 @@
+--- a/src/hooks/useEditorActions.ts
++++ b/src/hooks/useEditorActions.ts
+@@ -1,4 +1,4 @@
+-import { useCallback } from 'react';
++import { useCallback, useRef } from 'react';
+ import { invoke } from '@tauri-apps/api/core';
+ import debounce from 'lodash.debounce';
+ import { toast } from 'react-toastify';
+@@ -88,7 +88,11 @@
+   }
+ };
+ 
+-export function useEditorActions() {
++export function useEditorActions({ beforePaste, onPasteAcknowledged }: {
++  beforePaste?: () => Promise<boolean>;
++  onPasteAcknowledged?: (path: string, adjustments: Adjustments) => void;
++} = {}) {
++  const pastePending = useRef(false);
+   const { t } = useTranslation();
+   const setEditor = useEditorStore((s) => s.setEditor);
+ 
+@@ -362,7 +366,8 @@
+   }, []);
+ 
+   const handlePasteAdjustments = useCallback(
+-    (paths?: string[]) => {
++    async (paths?: string[]) => {
++      if (pastePending.current) return false;
+       const { copiedAdjustments, selectedImage, adjustments } = useEditorStore.getState();
+       const { multiSelectedPaths } = useLibraryStore.getState();
+       const { appSettings } = useSettingsStore.getState();
+@@ -401,32 +406,53 @@
+         paths || (multiSelectedPaths.length > 0 ? multiSelectedPaths : selectedImage ? [selectedImage.path] : []);
+       if (pathsToUpdate.length === 0) return;
+ 
+-      pathsToUpdate.forEach((p) => globalImageCache.delete(p));
+-
+-      if (selectedImage && pathsToUpdate.includes(selectedImage.path)) {
+-        setAdjustments({ ...adjustments, ...adjustmentsToApply });
++      const draft = JSON.stringify(adjustments);
++      const clipboard = JSON.stringify(copiedAdjustments);
++      const selection = () => {
++        const library = useLibraryStore.getState();
++        return JSON.stringify([library.multiSelectedPaths, library.libraryActivePath, library.selectionAnchorPath]);
++      };
++      const selected = selection();
++      const matches = () => {
++        const latest = useEditorStore.getState();
++        return latest.selectedImage?.path === selectedImage?.path && JSON.stringify(latest.adjustments) === draft &&
++          JSON.stringify(latest.copiedAdjustments) === clipboard && selection() === selected;
++      };
++      pastePending.current = true;
++      setProcess({ isPasted: false });
++      try {
++        const acknowledged = beforePaste ? await beforePaste() : await debouncedSave.flush();
++        if (acknowledged === false || !matches()) return false;
++        await invoke(Invokes.ApplyAdjustmentsToPaths, { paths: pathsToUpdate, adjustments: adjustmentsToApply });
++        if (!matches()) return false;
++
++        // Exposure does not alter lens metadata. Other native tools retain their original refresh.
++        let lensMetadata: any = null;
++        if (selectedImage && pathsToUpdate.includes(selectedImage.path) &&
++            Object.keys(adjustmentsToApply).some((key) => key !== 'exposure')) {
++          const meta: any = await invoke('load_metadata', { path: selectedImage.path });
++          if (!matches()) return false;
++          if (meta.adjustments) lensMetadata = {
++            lensMaker: meta.adjustments.lensMaker,
++            lensModel: meta.adjustments.lensModel,
++            lensDistortionParams: meta.adjustments.lensDistortionParams,
++          };
++        }
++        pathsToUpdate.forEach((p) => globalImageCache.delete(p));
++        if (selectedImage && pathsToUpdate.includes(selectedImage.path)) {
++          setAdjustments({ ...adjustments, ...adjustmentsToApply, ...(lensMetadata || {}) });
++          onPasteAcknowledged?.(selectedImage.path, useEditorStore.getState().adjustments);
++        }
++        setProcess({ isPasted: true });
++        return true;
++      } catch (err) {
++        toast.error(`Failed to paste adjustments: ${err}`);
++        return false;
++      } finally {
++        pastePending.current = false;
+       }
+-
+-      invoke(Invokes.ApplyAdjustmentsToPaths, { paths: pathsToUpdate, adjustments: adjustmentsToApply })
+-        .then(() => {
+-          if (selectedImage && pathsToUpdate.includes(selectedImage.path)) {
+-            invoke('load_metadata', { path: selectedImage.path }).then((meta: any) => {
+-              if (meta.adjustments) {
+-                setAdjustments((prev: any) => ({
+-                  ...prev,
+-                  lensMaker: meta.adjustments.lensMaker,
+-                  lensModel: meta.adjustments.lensModel,
+-                  lensDistortionParams: meta.adjustments.lensDistortionParams,
+-                }));
+-              }
+-            });
+-          }
+-        })
+-        .catch((err) => toast.error(`Failed to paste adjustments: ${err}`));
+-
+-      setProcess({ isPasted: true });
+     },
+-    [setAdjustments],
++    [setAdjustments, beforePaste, onPasteAcknowledged],
+   );
+ 
+   const handleZoomChange = useCallback((zoomValue: number, fitToWindow: boolean = false) => {

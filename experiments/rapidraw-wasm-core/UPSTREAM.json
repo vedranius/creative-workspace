@@ -666,5 +666,31 @@
       }
     },
     "scope": "Original EditorView/BottomBar/Filmstrip ordinary pointer click with useLibraryActions.handleImageClick waits for matching metadata ACK before selection and cache mutations. Existing shared ordinary-click/clear latch, original controls/algorithms, explicit registered Files and native-exact Exposure frames. Modifier/bulk/full App/OS/provider/zoomed ROI acceptance remains open; isolated QA composition only."
+  },
+  "metadataCopyPaste": {
+    "basePatch": {
+      "path": "patches/rapidraw/b39884b3/metadata-filmstrip-v1.patch",
+      "sha256": "c320b33156d2ca4d2a6cd410aeb7d8916662820490f6d6813474f55140b105df",
+      "patchedFiles": {
+        "src/hooks/useLibraryActions.ts": "e2611a48d4ffc2d3aa497c2fd1cc1b609a0ff73aa65359f1187f91b6be20bcf4"
+      }
+    },
+    "sourceFiles": {
+      "src/hooks/useEditorActions.ts": "8de8bfb9f0dcb0a485cb9dd4476ed1ae56c21803a82c4b62023f29c5d6da422d",
+      "src/components/views/EditorView.tsx": "80c2ef1fc54e27e82f3b247e09256bdc85f91290f78f6e151be8c87860752480",
+      "src/components/panel/BottomBar.tsx": "bbd8f58e894460469a35f7286885ab3e4b2cff07e588705f7c9d812ef6ca3952",
+      "src/utils/adjustments.ts": "142840e13ab737aaefa3910d4da2e64405e50c486c514285bff63e7c7c861d6d"
+    },
+    "nativeContract": {
+      "src-tauri/src/file_management.rs": "3f639e11c2f8a74baa31285b2aa9456516e5c71b6c8e4d78a42dbe61f5c4a219"
+    },
+    "sourcePatch": {
+      "path": "patches/rapidraw/b39884b3/metadata-copy-paste-v1.patch",
+      "sha256": "e6a4490d5c41ed8ce91c5a1d9ddcadfadf7b65d338015e085c783a8519702fdb",
+      "patchedFiles": {
+        "src/hooks/useEditorActions.ts": "f3fed5f115b4f40f1e9bc58b0a9b9dd56b4b5d1d95b73d5ce7ea3faa3a87a638"
+      }
+    },
+    "scope": "Original BottomBar Copy/Paste and useEditorActions for one selected registered File, Exposure-only partial metadata merge and matching durable write/readback before cache, editor and Paste indication. Original JSON selection/merge algorithm, current draft/clipboard/selection veto, native-exact frames. Bulk, other effects, full App/OS/provider acceptance remains open; isolated QA composition only."
   }
 }

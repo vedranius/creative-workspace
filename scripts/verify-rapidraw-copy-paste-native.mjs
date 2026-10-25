@@ -1,0 +1,21 @@
+// Exact pinned native partial-adjustment merge on generated public browser evidence only.
+import assert from 'node:assert/strict';
+import {readFile,writeFile,mkdir} from 'node:fs/promises';
+import {createHash} from 'node:crypto';
+import {spawnSync} from 'node:child_process';
+import path from 'node:path';
+const [source,browserPath,work]=process.argv.slice(2);if(!work)throw Error('NATIVE_SOURCE BROWSER_PROOF NEW_PRIVATE_DIR');
+const hash=b=>createHash('sha256').update(b).digest('hex'),meta=JSON.parse(await readFile(new URL('../experiments/rapidraw-wasm-core/UPSTREAM.json',import.meta.url))),browser=JSON.parse(await readFile(browserPath));
+assert.deepEqual(browser.source.metadataCopyPaste,meta.metadataCopyPaste);assert.ok(browser.assertions.originalBottomBarCopyPaste&&browser.assertions.nativeFramesExact);
+const file=await readFile(path.join(source,'src-tauri/src/file_management.rs'),'utf8');assert.equal(hash(file),meta.metadataCopyPaste.nativeContract['src-tauri/src/file_management.rs']);
+const start=file.indexOf('pub async fn apply_adjustments_to_paths('),a=file.indexOf('            let mut new_adjustments = existing_metadata.adjustments;',start),b=file.indexOf('            resolve_lens_params_in_adjustments(',a);assert.ok(start>0&&a>start&&b>a);
+const block=file.slice(a,b),defaults=await readFile(path.join(source,'src/utils/defaultAdjustments.json'));assert.equal(hash(defaults),meta.reactUi.sourceFiles['src/utils/defaultAdjustments.json']);
+const cases=browser.mergeCases;assert.equal(cases.length,3);assert.ok(cases.every(c=>Object.keys(c.patch).join(',')==='exposure'&&[c.baseExposure,c.patch.exposure,c.resultExposure].every(n=>Number.isFinite(n)&&Math.abs(n)<=5)));
+await mkdir(work);await mkdir(path.join(work,'src'));await writeFile(path.join(work,'Cargo.toml'),'[package]\nname="cw-copy-paste-reference"\nversion="0.0.0"\nedition="2021"\n[dependencies]\nserde_json="=1.0.151"\n');
+await writeFile(path.join(work,'src/defaults.json'),defaults);
+const rust=`use serde_json::Value;\nstruct Metadata{adjustments:Value}\nfn default_adjustments()->Value{panic!("Null/default initialization excluded from this non-null reference")}\nfn native_merge(existing_metadata:Metadata,adjustments:Value)->Value{\n${block}\nnew_adjustments}\nfn main(){let a:Vec<String>=std::env::args().collect();let cases:Value=serde_json::from_slice(&std::fs::read(&a[1]).unwrap()).unwrap();let mut result=Vec::new();for case in cases.as_array().unwrap(){let mut base:Value=serde_json::from_str(include_str!("defaults.json")).unwrap();base["exposure"]=case["baseExposure"].clone();let mut expected=base.clone();expected["exposure"]=case["resultExposure"].clone();let merged=native_merge(Metadata{adjustments:base},case["patch"].clone());assert_eq!(merged,expected);result.push(serde_json::json!({"id":case["id"],"resultExposure":merged["exposure"],"allOtherDefaultsPreserved":true}));}std::fs::write(&a[2],serde_json::to_vec_pretty(&result).unwrap()).unwrap();}`;
+await writeFile(path.join(work,'src/main.rs'),rust);await writeFile(path.join(work,'cases.json'),JSON.stringify(cases));
+const run=spawnSync('cargo',['run','--offline','--manifest-path',path.join(work,'Cargo.toml'),'--',path.join(work,'cases.json'),path.join(work,'native.json')],{stdio:'inherit',env:process.env});if(run.status!==0)throw Error('Pinned native copy/paste merge reference failed');
+const native=JSON.parse(await readFile(path.join(work,'native.json')));assert.equal(native.length,cases.length);
+await writeFile(path.join(work,'reference.json'),JSON.stringify({scope:'Exact hash-pinned original Rust partial JSON adjustment merge extracted from apply_adjustments_to_paths. Non-null generated neutral Exposure records using original UI default JSON. Null/native default initialization, lens resolution, async desktop sidecar/XMP IO and full native App/OS/bulk acceptance excluded. Browser IndexedDB ACK is independently verified.',nativeSource:meta.nativeApplication.commit,sourceSha256:hash(file),extractedBlockSha256:hash(block),defaultsSha256:hash(defaults),lockSha256:hash(await readFile(path.join(work,'Cargo.lock'))),cases:native,nullBaseInitializationAccepted:false,exactNativeMerge:true},null,2)+'\n');
+console.log(JSON.stringify({nativeCopyPasteMerge:true,cases:native.length}));

@@ -1,0 +1,27 @@
+{
+  "scope": "Exact hash-pinned original Rust partial JSON adjustment merge extracted from apply_adjustments_to_paths. Non-null generated neutral Exposure records using original UI default JSON. Null/native default initialization, lens resolution, async desktop sidecar/XMP IO and full native App/OS/bulk acceptance excluded. Browser IndexedDB ACK is independently verified.",
+  "nativeSource": "b39884b38d8f148caef6fd0d52afd264951be329",
+  "sourceSha256": "3f639e11c2f8a74baa31285b2aa9456516e5c71b6c8e4d78a42dbe61f5c4a219",
+  "extractedBlockSha256": "b00fde18b745675ae21dfa53931d7a3046d9eb09636094e74931af3f0cb3d110",
+  "defaultsSha256": "d650db51fe618e3522767832edf911ea8b6da68d61c2db54912193c64d2332bc",
+  "lockSha256": "208c0f2cd4bf23268157548e7412988172482002f4cd173f27c08e296c71385a",
+  "cases": [
+    {
+      "allOtherDefaultsPreserved": true,
+      "id": "copy-a-to-b",
+      "resultExposure": 0.8
+    },
+    {
+      "allOtherDefaultsPreserved": true,
+      "id": "replace-nonneutral-exposure",
+      "resultExposure": 0.8
+    },
+    {
+      "allOtherDefaultsPreserved": true,
+      "id": "replace-with-copied-zero",
+      "resultExposure": 0
+    }
+  ],
+  "nullBaseInitializationAccepted": false,
+  "exactNativeMerge": true
+}

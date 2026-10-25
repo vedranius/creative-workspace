@@ -10,7 +10,7 @@ export class UnavailableCommandError extends Error {
 }
 export function createReactTransport({wasm,device,shaderSource,defaults,getPreviewSettings=()=>({editorPreviewResolution:1920,livePreviewQuality:'high'}),workerUrl=new URL('./react-image-worker.js',import.meta.url),exportFactory,settingsHost,metadataHost}) {
  const registered=new Map(),registeredPaths=new WeakMap();let registeredBytes=0,metadataFile=null;
- let file=null,path=null,current=null,generation=0,imageWorker=null,queue=Promise.resolve(),closed=false,selecting=false;
+ let file=null,path=null,current=null,generation=0,imageWorker=null,queue=Promise.resolve(),closed=false,selecting=false,pastePending=false;
  const trace=[],listeners=new Map();
  const emit=(event,payload)=>{trace.push({command:'event',event,payload});for(const callback of [...(listeners.get(event)||[])])callback({event,payload});};
  const exportHost=exportFactory?.({getDocument:()=>({file,path,generation,ready:!closed&&current?.version===generation}),emit});
@@ -40,10 +40,18 @@ export function createReactTransport({wasm,device,shaderSource,defaults,getPrevi
   await device.queue.onSubmittedWorkDone();prior?.resources?.ownedTextures.forEach(t=>t.destroy());
  }
  function requirePath(value){if(closed||!file||value!==path)throw Error('Unknown browser document');}
+ function validatePaste(args){
+  if(!metadataHost||closed)throw Error('Metadata session unavailable or closed');
+  if(!args||Object.keys(args).sort().join(',')!=='adjustments,paths'||!Array.isArray(args.paths)||args.paths.length!==1||
+     !args.adjustments||typeof args.adjustments!=='object'||Array.isArray(args.adjustments)||Object.keys(args.adjustments).join(',')!=='exposure'||
+     typeof args.adjustments.exposure!=='number'||!Number.isFinite(args.adjustments.exposure)||Math.abs(args.adjustments.exposure)>5)throw TypeError('Paste accepts one active path and bounded Exposure only');
+  requirePath(args.paths[0]);if(!current||current.version!==generation)throw Error('Paste requires the ready active RAW');
+  const status=metadataHost.status();if(status.dirty||status.busy||status.uncertain||status.pendingIO)throw Error('Metadata not acknowledged before paste');
+ }
  async function execute(command,args={}){
   if(closed)throw Error('Browser session closed');
   trace.push({command});
-  if(command==='clear_session_caches'){const s=metadataHost?.status();if(s&&(s.dirty||s.busy||s.uncertain||s.pendingIO))throw Error('Metadata not acknowledged; cache retained');await clear();return;}
+  if(command==='clear_session_caches'){if(pastePending)return Promise.reject(Error('Paste pending; cache retained'));const s=metadataHost?.status();if(s&&(s.dirty||s.busy||s.uncertain||s.pendingIO))throw Error('Metadata not acknowledged; cache retained');await clear();return;}
   if(command==='load_settings')return structuredClone(getPreviewSettings());
   if(command==='get_image_dimensions'){requirePath(args.path);if(!current||current.version!==generation)throw Error('Browser RAW is not ready');return {width:current.width,height:current.height};}
   if(command==='load_metadata'){
@@ -52,6 +60,12 @@ export function createReactTransport({wasm,device,shaderSource,defaults,getPrevi
   if(command==='is_image_cached'){
    if(!registered.has(args.path))requirePath(args.path);
    return args.path===path&&current?.version===generation;
+  }
+  if(command==='apply_adjustments_to_paths'){
+   validatePaste(args);const candidate={...(metadataHost.snapshot(file).adjustments??structuredClone(defaults)),...args.adjustments};
+   metadataHost.validate(candidate);
+   await execute('save_metadata_and_update_thumbnail',{path:args.paths[0],adjustments:candidate});
+   return null;
   }
   if(command==='save_metadata_and_update_thumbnail'&&metadataHost){
    requirePath(args.path);if(Object.keys(args).sort().join(',')!=='adjustments,path'||!current||current.version!==generation)throw Error('Invalid metadata document');
@@ -144,7 +158,7 @@ export function createReactTransport({wasm,device,shaderSource,defaults,getPrevi
  }
  function select(selected,registeredPath){if(!(selected instanceof File)||!isRawInputSizeAllowed(selected.size))throw TypeError('Select a bounded RAW File');if(closed)throw Error('Browser session closed');exportHost?.cancel();imageWorker?.close();generation++;file=selected;const name=selected.name.replace(/[\\/\x00-\x1f\x7f]/g,'_').slice(0,180)||'input.raw';path=registeredPath??`browser-document:${crypto.randomUUID()}/${name}`;return path;}
  async function acknowledged(action,{getState,flushMetadata,cancelDebounce}={}){
-   if(selecting||closed)throw Error("Document selection already pending or closed");
+   if(selecting||pastePending||closed)throw Error("Document selection or paste already pending or closed");
    selecting=true;try{
     if(metadataHost&&file){
      const state=getState(),version=generation,priorPath=path;
@@ -214,10 +228,12 @@ export function createReactTransport({wasm,device,shaderSource,defaults,getPrevi
     // Export and cancellation never wait behind a preview or a pending export.
     try{return Promise.resolve(command==='cancel_export'?exportHost.cancel():exportHost.execute(args)).catch(error=>{throw nativeError(error);});}catch(error){return Promise.reject(nativeError(error));}
    }
-   if(command==='clear_session_caches'){const s=metadataHost?.status();if(s&&(s.dirty||s.busy||s.uncertain||s.pendingIO))return Promise.reject(Error('Metadata not acknowledged; cache retained'));exportHost?.cancel();}
+   if(command==='clear_session_caches'){if(pastePending)return Promise.reject(Error('Paste pending; cache retained'));const s=metadataHost?.status();if(s&&(s.dirty||s.busy||s.uncertain||s.pendingIO))return Promise.reject(Error('Metadata not acknowledged; cache retained'));exportHost?.cancel();}
+   const paste=command==='apply_adjustments_to_paths';
+   if(paste){if(pastePending)return Promise.reject(Error('Paste already pending'));try{validatePaste(args);args=structuredClone(args);}catch(error){return Promise.reject(error);}pastePending=true;}
    const result=queue.then(()=>execute(command,args));queue=result.catch(()=>{});
    // Native Tauri rejects a superseded preview with this string; the source hook compares it exactly.
-   return result.catch(error=>{if(error?.message==='Superseded or worker failed')throw nativeError(error);throw error;});
+   return result.catch(error=>{if(error?.message==='Superseded or worker failed')throw nativeError(error);throw error;}).finally(()=>{if(paste)pastePending=false;});
   },
   async close(){closed=true;await clear();await metadataHost?.close();await exportHost?.close();await settingsHost?.close();file=null;path=null;registered.clear();registeredBytes=0;metadataFile=null;await queue;listeners.clear();},
  };
