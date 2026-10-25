@@ -1,3 +1,9 @@
+# RWASM-03 — actual App selected preset Export ACK (2026-10-25)
+
+Original PresetsPanel context-menu Export Preset now writes one selected Exposure Tool through fresh destination/close/readback ACK. Held ACK, cancel/denied, changed file, stale peer library, separate retention and reload without replay pass16 positive browser assertions;115 host/check/YAML pass. The337 bytes match pinned original Rust; reapplication remains native-exact. [Evidence and continuation](rapidraw-wasm-app-preset-export-handoff.md).
+
+Experimental B; actual OS picker/full App/providers/export-all and preset recovery UI remain open. Source/WASM reused, no product release/main/demo/private input change. Next A: alpha74 exact immutable Actions assets gate from fbc4165. Next B: explicit retained .rrpreset recovery-copy UI with fresh destination ACK. SAME MAIN only.
+
 # RWASM-03 — actual App Configure Preset name ACK (2026-10-25)
 
 The original App context menu/Configure dialog now renames one bounded Exposure tool preset only after durable library ACK. Old card/draft retention, duplicate Save, real abort, stale-tab preservation, uncertain reload, unchanged IDs/values and native-exact application pass13 browser assertions;111 host/check/YAML pass. [Evidence and continuation](rapidraw-wasm-app-preset-configure-handoff.md).

@@ -1,0 +1,12 @@
+{
+  "nativeSource": "b39884b38d8f148caef6fd0d52afd264951be329",
+  "sourceSha256": "3f639e11c2f8a74baa31285b2aa9456516e5c71b6c8e4d78a42dbe61f5c4a219",
+  "extractedTypesSha256": "d79af0fe56706ff2b806331b708fee05d3fcf82e4a0099693cf733dc841034bb",
+  "extractedFunctionSha256": "7711eeed8b64f23be1d17acc48c0db0860f4ef4f30d56d80991b2a624e1d49bd",
+  "cachedReferenceBinarySha256": "beca2921947699dd67c3a944c0c838876ed44b862dab6dce85e985abfca96714",
+  "bytes": 337,
+  "sha256": "e17cdd4045585ef2da6ac23a53daeca0c67d2ec2b53778c3488706362868d94b",
+  "exactNativeSelectedBytes": true,
+  "cachedOriginalReferenceReused": true,
+  "scope": "Generated selected Tool preset through cached pinned original Rust types/export function. No native/WASM rebuild or general filesystem/preset export acceptance."
+}

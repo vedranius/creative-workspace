@@ -1026,5 +1026,26 @@
       "experiments/rapidraw-react-proof/app-preset-configure-main.tsx": "a9db110d736e034dd7308da9981a553bd66a852be8e1d9ab38785374d4bd49b6"
     },
     "scope": "Experimental actual original App Configure Preset name save: one existing top-level Exposure Tool name only, same ID/values/flags/order/unrelated records, durable IDB CAS/write/readback before card/dialog success. Held/aborted/stale/uncertain writes retain draft; actual-root/native output preserved. General editing/full App/OS/providers remain unaccepted."
+  },
+  "appPresetExport": {
+    "basePatch": {
+      "path": "patches/rapidraw/b39884b3/preset-configure-ack-v1.patch",
+      "sha256": "eb8d7ca24afe08d4d24ee0c84af351e69e50a69a074d02965e80704eb1b40276",
+      "patchedFiles": {
+        "src/hooks/usePresets.ts": "e1e52bd5fd9f489da5869f719792f9ca0039ad163847f52893f3e56a31d6e4c4",
+        "src/components/panel/right/PresetsPanel.tsx": "d13bb182a95ceca872ab357285324921c5924ab48e6e50ff309bb30c70b904de",
+        "src/components/modals/ConfigurePresetModal.tsx": "d04e5f0f1f5de5bae57af0739231f8b00204b3e47214f3ed743399c32c30b80d"
+      }
+    },
+    "sourceFiles": {
+      "src/hooks/usePresets.ts": "0b545710738a886df5a6946723e0e4e580027d98cc7a92f9bacd777bc7cf6258",
+      "src/components/panel/right/PresetsPanel.tsx": "f91a154e80a92c8692c625a9a43e1be06534024b78d79ce0052176d25ecf2949",
+      "src/components/modals/ConfigurePresetModal.tsx": "090545bc74c1c75342a958b503e26d64ad890024e14f3a722f2ceb176fdfdf8b",
+      "src-tauri/src/file_management.rs": "3f639e11c2f8a74baa31285b2aa9456516e5c71b6c8e4d78a42dbe61f5c4a219"
+    },
+    "bootstrapFiles": {
+      "experiments/rapidraw-react-proof/app-preset-export-main.tsx": "77f3565dd6763a9feb1e3acb9f9c5f37f4494b7849864467f8bc430a8c312fc1"
+    },
+    "scope": "Experimental actual original App selected Exposure Tool preset export only. Existing native command/body and fresh empty destination/write/close/readback ACK, separate retention and retained uncertain output; bounded read verifies library revision/content at selection and immediately before export. Synthetic chooser evidence is not OS permission acceptance. General export-all/folders/full App/providers remain open."
   }
 }
