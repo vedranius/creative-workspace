@@ -1,3 +1,9 @@
+# RWASM-03 — original settings load preserves None (2026-10-25)
+
+The source useAppInitialization load section now preserves intentional Select None, supplies bounded legacy defaults without writing, and rejects newer-store supersession. Actual source React/IDB proves held/error/corrupt entry guards, stale CAS and read-only reload with native-exact frames.96 host/check and16 browser assertions pass. [Evidence and continuation](rapidraw-wasm-settings-initialization-handoff.md).
+
+Experimental B: source load function/isolated bootstrap; full hook/App/workspace/language/folder auto-persistence/native desktop migration/OS/provider remain open. No product release/main/demo/private input change. Alpha70 release gate is COMPLETE; A docs Checks passed. Next A: Document Footnote Options. Next B: full source hook browser-capability/auto-save readiness boundary, preserving completed load/modal/Paste. MAIN only.
+
 # RWASM-03 — original Copy/Paste preference modal ACK (2026-10-25)
 
 Original BottomBar opens the source CopyPasteSettingsModal for Merge/Replace and Exposure-only inclusion. Save waits for durable commit/readback before store/close; abort, uncertainty, second-tab CAS and newer local drafts preserve the modal.96 host tests/check and18 actual browser assertions/native-exact frames pass. [Evidence and continuation](rapidraw-wasm-copy-paste-settings-handoff.md).

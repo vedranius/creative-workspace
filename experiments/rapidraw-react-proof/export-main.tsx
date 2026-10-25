@@ -51,7 +51,8 @@ const PresetPanel=(globalThis as any).rapidRawPresetPanel;
 (globalThis as any).rapidRawTransport=transport;
 const settings={editorPreviewResolution:512,useWgpuRenderer:false,enableZoomHifi:false,enableLivePreviews:true,
  livePreviewQuality:'high',baselineExposure:0,compensateHighlightPreservation:true,copyPasteSettings:{autoSync:false},...(globalThis as any).rapidRawProofSettings};
-useSettingsStore.getState().setAppSettings(settingsHost?await transport.invoke('load_settings'):settings as any);
+if((globalThis as any).rapidRawInitializeSettings) await (globalThis as any).rapidRawInitializeSettings();
+else useSettingsStore.getState().setAppSettings(settingsHost?await transport.invoke('load_settings'):settings as any);
 useUIStore.getState().setUI({activeView:'editor',activePanel:Panel.Adjustments} as any);
 function Proof(){
  const [openError,setOpenError]=useState('');
@@ -65,6 +66,7 @@ function Proof(){
  const activeView=useUIStore(s=>s.activeView);
  const adjustments=useEditorStore(s=>s.adjustments),selectedImage=useEditorStore(s=>s.selectedImage);
  const exportState=useProcessStore(s=>s.exportState),appSettings=useSettingsStore(s=>s.appSettings);
+ if(!appSettings||(globalThis as any).rapidRawInitialization?.status==='error')return <div role="alert" style={{background:'#171717',color:'#fff',minHeight:'100vh',padding:16}}>Settings could not be loaded. Your saved preferences are unchanged. Reload to read them again.</div>;
  return <><header style={{padding:8}}>Isolated original React ExportPanel — bounded single JPEG / acknowledged output only
   <input aria-label="Open RAW fixture" type="file" accept=".dng,.raf" multiple={!!(globalThis as any).rapidRawLibraryInput} onChange={async event=>{
    const file=event.target.files?.[0];if(!file)return;

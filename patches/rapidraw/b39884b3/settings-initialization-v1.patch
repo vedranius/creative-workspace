@@ -1,0 +1,75 @@
+diff --git a/src/hooks/useAppInitialization.ts b/src/hooks/useAppInitialization.ts
+--- a/src/hooks/useAppInitialization.ts
++++ b/src/hooks/useAppInitialization.ts
+@@ -46,6 +46,31 @@
+       ? shortLang
+       : fallbackLang;
+ };
++
++// Shared by the original initialization hook and the isolated browser preference composition.
++// Loading supplies in-memory legacy defaults; it never writes or replaces an intentional None.
++export async function loadInitialSettings({ supportedAdjustments, isCurrent = () => true }: {
++  supportedAdjustments?: string[]; isCurrent?: () => boolean;
++} = {}) {
++  const settings: any = await invoke(Invokes.LoadSettings);
++  if (!isCurrent()) throw new Error('Newer settings superseded initialization');
++  const copy = settings.copyPasteSettings;
++  const keys = supportedAdjustments ?? COPYABLE_ADJUSTMENT_KEYS;
++  if (!copy || !Array.isArray(copy.includedAdjustments)) {
++    settings.copyPasteSettings = {
++      ...copy, mode: copy?.mode ?? 'merge', includedAdjustments: [...keys],
++      knownAdjustments: copy?.knownAdjustments ?? [...keys], autoSync: copy?.autoSync ?? false,
++    };
++  }
++  if (supportedAdjustments) {
++    const prefs = settings.copyPasteSettings;
++    if (!['merge', 'replace'].includes(prefs.mode) || prefs.autoSync !== false) throw new Error('Unsupported browser copy/paste preferences');
++    for (const values of [prefs.includedAdjustments, prefs.knownAdjustments]) {
++      if (!Array.isArray(values) || new Set(values).size !== values.length || values.some(key => !keys.includes(key))) throw new Error('Unsupported browser adjustment key');
++    }
++  }
++  return settings;
++}
+ 
+ export const useAppInitialization = ({
+   preloadedDataRef,
+@@ -147,15 +172,12 @@
+   }, [setSupportedTypes]);
+ 
+   useEffect(() => {
+-    Promise.all([invoke(Invokes.LoadSettings), invoke<boolean>(Invokes.IsTetheringSupported).catch(() => false)])
++    let current = true;
++    const previous = useSettingsStore.getState().appSettings;
++    const isCurrent = () => current && useSettingsStore.getState().appSettings === previous;
++    Promise.all([loadInitialSettings({isCurrent}), invoke<boolean>(Invokes.IsTetheringSupported).catch(() => false)])
+       .then(async ([settings, isTetheringSupported]: [any, boolean]) => {
+-        if (
+-          !settings.copyPasteSettings ||
+-          !settings.copyPasteSettings.includedAdjustments ||
+-          settings.copyPasteSettings.includedAdjustments.length === 0
+-        ) {
+-          settings.copyPasteSettings = { mode: 'merge', includedAdjustments: COPYABLE_ADJUSTMENT_KEYS };
+-        }
++        if (!isCurrent()) return;
+ 
+         if (!settings.language) {
+           settings.language = getDefaultLanguage(i18n);
+@@ -276,6 +298,7 @@
+           .catch((e) => console.error('Failed to notify backend of readiness:', e));
+       })
+       .catch((err) => {
++        if (!isCurrent()) return;
+         console.error('Failed to load settings:', err);
+         setAppSettings({
+           lastRootPath: null,
+@@ -285,8 +308,9 @@
+         });
+       })
+       .finally(() => {
+-        isInitialMount.current = false;
++        if (current) isInitialMount.current = false;
+       });
++    return () => { current = false; };
+   }, [
+     isAndroid,
+     setAppSettings,
