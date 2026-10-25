@@ -1,3 +1,9 @@
+# RWASM-03 — actual App PresetsPanel/metadata ACK (2026-10-25)
+
+Original App now admits its source PresetsPanel through an explicit capability and bounded preset chooser/library host. Real import readback, native-exact card/toggle, held/uncertain metadata Close/newer-draft veto and abort/reload preservation pass15 browser assertions;111 host/check pass. [Evidence and continuation](rapidraw-wasm-app-presets-handoff.md).
+
+Experimental B; root preset editing/full App/tools/OS/providers remain open. Original algorithms/runtime/WASM unchanged; no product release/main/demo/private input change. A alpha73 Checks passed/Build was running at entry. Next A: alpha73 immutable Actions assets gate then Endnote Options. Next B: actual-root bounded Exposure tool-preset Create/ACK. SAME MAIN only.
+
 # RWASM-03 — actual App Copy/Paste Settings (2026-10-25)
 
 Original App now composes its source CopyPasteSettingsModal with existing durable settings/metadata ACK. Held/failed ACK, None/Exposure Paste, stale-tab/newer-draft veto and native-exact frame pass20 actual-root browser assertions;111 host/check pass. [Evidence and continuation](rapidraw-wasm-app-copy-paste-handoff.md).

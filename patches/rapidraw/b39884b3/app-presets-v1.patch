@@ -1,0 +1,50 @@
+--- a/src/App.tsx
++++ b/src/App.tsx
+@@ -149,9 +149,9 @@
+   close(): Promise<void>;
+ }
+ export interface BrowserExportCapabilities { getRetention(): string; setRetention(value: string): void; }
+-interface BrowserAppProps { browserCopyPaste?: boolean; browserRecovery?: React.ComponentType<{onClose:()=>void}>; browserExport?: BrowserExportCapabilities; browserCapabilities?: BrowserInitializationCapabilities; browserStatus?: string; browserDocument?: BrowserDocumentCapabilities; }
+-
+-function App({browserCapabilities, browserStatus, browserDocument, browserExport, browserRecovery: BrowserRecovery, browserCopyPaste}: BrowserAppProps) {
++interface BrowserAppProps { browserPresets?: boolean; browserCopyPaste?: boolean; browserRecovery?: React.ComponentType<{onClose:()=>void}>; browserExport?: BrowserExportCapabilities; browserCapabilities?: BrowserInitializationCapabilities; browserStatus?: string; browserDocument?: BrowserDocumentCapabilities; }
++
++function App({browserCapabilities, browserStatus, browserDocument, browserExport, browserRecovery: BrowserRecovery, browserCopyPaste, browserPresets}: BrowserAppProps) {
+   const copyPasteOpen = useUIStore(state => state.isCopyPasteSettingsModalOpen);
+   const [recoveryOpen, setRecoveryOpen] = useState(false);
+   const [activeImageDragItem, setActiveImageDragItem] = useState<{ path: string; paths: string[] } | null>(null);
+@@ -740,7 +740,7 @@
+ 
+   const renderAppPanel = useCallback(
+     (panelId: Panel) => {
+-      if (browserDocument && panelId !== Panel.Adjustments && !(browserExport && panelId === Panel.Export)) return null;
++      if (browserDocument && panelId !== Panel.Adjustments && !(browserExport && panelId === Panel.Export) && !(browserPresets && panelId === Panel.Presets)) return null;
+       switch (panelId) {
+         case Panel.FolderTree:
+           return (
+@@ -794,6 +794,7 @@
+     },
+     [
+       browserDocument,
++      browserPresets,
+       browserExport,
+       isResizing,
+       handleFolderTreeContextMenu,
+@@ -1157,7 +1158,7 @@
+   );
+ }
+ 
+-const AppWrapper = ({browserCapabilities, browserDocument, browserExport, browserRecovery, browserCopyPaste}: BrowserAppProps = {}) => {
++const AppWrapper = ({browserCapabilities, browserDocument, browserExport, browserRecovery, browserCopyPaste, browserPresets}: BrowserAppProps = {}) => {
+   const [browserStatus, setBrowserStatus] = useState('loading');
+   const capabilities = useMemo(() => browserCapabilities ? {...browserCapabilities, onState: (state: Parameters<BrowserInitializationCapabilities['onState']>[0]) => {
+     setBrowserStatus(state.status);
+@@ -1170,7 +1171,7 @@
+ 
+   return (
+     <ContextMenuProvider>
+-      <App browserCapabilities={capabilities} browserStatus={browserStatus} browserDocument={browserDocument} browserExport={browserExport} browserRecovery={browserRecovery} browserCopyPaste={browserCopyPaste} />
++      <App browserCapabilities={capabilities} browserStatus={browserStatus} browserDocument={browserDocument} browserExport={browserExport} browserRecovery={browserRecovery} browserCopyPaste={browserCopyPaste} browserPresets={browserPresets} />
+       <GlobalTooltip />
+     </ContextMenuProvider>
+   );

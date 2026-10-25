@@ -940,5 +940,33 @@
       "experiments/rapidraw-react-proof/app-copy-paste-main.tsx": "d56f6dc17ab6ad5eb3f29971cdabf76e6cd00d6c0b895d66abdd5bcf7f941aa7"
     },
     "scope": "Experimental original App root CopyPasteSettingsModal with explicit browser capability, original BottomBar/Copy/Paste and bounded Exposure-only durable preference and metadata ACK. Existing original processing/WASM unchanged. OS/full App/tools/providers remain unaccepted."
+  },
+  "appPresets": {
+    "basePatch": {
+      "path": "patches/rapidraw/b39884b3/app-copy-paste-v1.patch",
+      "sha256": "88bd5efe2b960b757692fc37cff455aa9c53c090b347a5dba676a648c7187a28",
+      "patchedFiles": {
+        "src/App.tsx": "4381ffadadc9e6d15cdff8dedb2a06fff1c0d98a4d7f899b9389a3ed5a054e8e"
+      }
+    },
+    "sourcePatch": {
+      "path": "patches/rapidraw/b39884b3/app-presets-v1.patch",
+      "sha256": "536df271aed11b6c5d4413c90bd6a0ec01b0e489e86f9d2314968f5941f30267",
+      "patchedFiles": {
+        "src/App.tsx": "8c68d45bd6d87569300b07c2d7c3a96ee4224c309f8c64a670b4cb042dacc476"
+      }
+    },
+    "bootstrapFiles": {
+      "experiments/rapidraw-react-proof/app-presets-main.tsx": "382d6d190e5215aed31fb5da6a65fa15764d78158d4025b13cac65fa40e27bd0",
+      "experiments/rapidraw-react-proof/app-presets-dialog.js": "3f07e334ac408a0ee8a812952684cd30b24d178dcef2d2da9dd75e0045ee0c25"
+    },
+    "scope": "Experimental original App root PresetsPanel with existing bounded Exposure IDB library import/read ACK, original card/amount/toggle and metadata draft ACK/transition guards. Native algorithms/runtime/WASM unchanged. General preset editing/tools/OS/providers/full App remain unaccepted.",
+    "sourceFiles": {
+      "src/components/panel/right/PresetsPanel.tsx": "f91a154e80a92c8692c625a9a43e1be06534024b78d79ce0052176d25ecf2949",
+      "src/hooks/usePresets.ts": "0b545710738a886df5a6946723e0e4e580027d98cc7a92f9bacd777bc7cf6258",
+      "src/components/ui/AppProperties.tsx": "0466b4bb7f9ea3474a65ef4a4f7ee08c4409d3f85ecd1dd2db7db028c96699f9",
+      "src-tauri/src/file_management.rs": "3f639e11c2f8a74baa31285b2aa9456516e5c71b6c8e4d78a42dbe61f5c4a219",
+      "src-tauri/src/lib.rs": "ce69ae5e06b5c5f0eb7b6592d981c727c1be07e7787000a41e50ed77618b2606"
+    }
   }
 }
