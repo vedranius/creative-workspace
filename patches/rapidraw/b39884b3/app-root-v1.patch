@@ -1,0 +1,357 @@
+diff --git a/src/App.tsx b/src/App.tsx
+--- a/src/App.tsx
++++ b/src/App.tsx
+@@ -60,7 +60,7 @@
+ import { useLibraryActions } from './hooks/useLibraryActions';
+ import { useProductivityActions } from './hooks/useProductivityActions';
+ 
+-import { useAppInitialization } from './hooks/useAppInitialization';
++import { useAppInitialization, BrowserInitializationCapabilities } from './hooks/useAppInitialization';
+ import { useAndroidBackHandler } from './hooks/useAndroidBackHandler';
+ import './i18n';
+ 
+@@ -138,11 +138,14 @@
+   );
+ }
+ 
+-function App() {
++interface BrowserAppProps { browserCapabilities?: BrowserInitializationCapabilities; browserStatus?: string; }
++
++function App({browserCapabilities, browserStatus}: BrowserAppProps) {
+   const [activeImageDragItem, setActiveImageDragItem] = useState<{ path: string; paths: string[] } | null>(null);
+ 
+-  const { appSettings, theme, osPlatform, handleSettingsChange } = useSettingsStore(
++  const { appSettings, theme, osPlatform, handleSettingsChange, browserSettingsReady } = useSettingsStore(
+     useShallow((state) => ({
++      browserSettingsReady: state.browserSettingsReady,
+       appSettings: state.appSettings,
+       theme: state.theme,
+       osPlatform: state.osPlatform,
+@@ -259,6 +262,7 @@
+   }>({});
+ 
+   useAppInitialization({
++    browserCapabilities,
+     preloadedDataRef,
+     thumbnailSize,
+     setThumbnailSize,
+@@ -360,7 +364,7 @@
+     externalEditSession,
+     isFinishing: isExternalEditFinishing,
+     finishExternalEdit,
+-  } = useExternalEditSession(handleImageSelect);
++  } = useExternalEditSession(handleImageSelect, !browserCapabilities);
+ 
+   const {
+     handleRate,
+@@ -458,6 +462,7 @@
+   });
+ 
+   useTauriListeners({
++    enabled: !browserCapabilities,
+     refreshAllFolderTrees,
+     handleSelectSubfolder,
+     refreshImageList: handleLibraryRefresh,
+@@ -467,6 +472,7 @@
+   useAndroidBackHandler();
+ 
+   useKeyboardShortcuts({
++    enabled: !browserCapabilities,
+     sortedImageList,
+     handleBackToLibrary,
+     handleDeleteSelected,
+@@ -536,6 +542,7 @@
+   }, [activePanel, activeView, setEditor]);
+ 
+   useEffect(() => {
++    if (browserCapabilities) return;
+     const unlisten = listen('ai-connector-status-update', (event: any) => {
+       setEditor({ isAIConnectorConnected: event.payload.connected });
+     });
+@@ -545,7 +552,7 @@
+       clearInterval(interval);
+       unlisten.then((f) => f());
+     };
+-  }, [setEditor]);
++  }, [browserCapabilities, setEditor]);
+ 
+   const createResizeHandler = (stateKey: string, startSize: number) => (e: ReactPointerEvent<HTMLDivElement>) => {
+     if (e.pointerType === 'mouse' && e.button !== 0) return;
+@@ -659,6 +666,7 @@
+   };
+ 
+   useEffect(() => {
++    if (browserCapabilities) return;
+     const appWindow = getCurrentWindow();
+     const checkFullscreen = async () => {
+       setUI({ isWindowFullScreen: await appWindow.isFullscreen() });
+@@ -668,7 +676,7 @@
+     return () => {
+       unlistenPromise.then((unlisten: any) => unlisten());
+     };
+-  }, [setUI]);
++  }, [browserCapabilities, setUI]);
+ 
+   const handlePanelSelect = useCallback(
+     (panelId: Panel) => {
+@@ -851,8 +859,16 @@
+   const effectiveLeftWidth = uiVisibility.leftPanel ? leftPanelWidth : 48;
+   const effectiveRightWidth = uiVisibility.rightPanel ? rightPanelWidth : useWidePanels ? 58 : 48;
+ 
++  // Browser root bootstrap admits no document or folder authority yet.
++  if (browserCapabilities && (!browserSettingsReady || !appSettings)) return (
++    <div role={browserStatus === 'loading' ? 'status' : 'alert'} className="min-h-screen bg-bg-primary text-text-primary p-4">
++      {browserStatus === 'loading' ? 'Loading saved preferences…' : 'Settings could not be loaded. Your saved preferences are unchanged. Reload to read them again.'}
++    </div>
++  );
++
+   return (
+     <>
++      {!browserCapabilities && <>
+       <ImageProcessingManager
+         transformWrapperRef={transformWrapperRef}
+         prevAdjustmentsRef={prevAdjustmentsRef}
+@@ -861,6 +877,7 @@
+         currentResRef={currentResRef}
+       />
+       <ImageLoaderManager cachedEditStateRef={cachedEditStateRef} />
++      </>}
+       <div
+         className={clsx(
+           'flex flex-col h-screen font-sans text-text-primary overflow-hidden select-none',
+@@ -868,7 +885,7 @@
+           isWgpuActive ? 'bg-transparent' : 'bg-bg-primary',
+         )}
+       >
+-        {!isAndroid && (
++        {!browserCapabilities && !isAndroid && (
+           <div
+             className={clsx(
+               'shrink-0 overflow-hidden z-50',
+@@ -1025,7 +1042,7 @@
+             </DragOverlay>
+           </DndContext>
+         </div>
+-        <AppModals
++        {!browserCapabilities && <AppModals
+           handleImageSelect={handleImageSelect}
+           handleSavePanorama={handleSavePanorama}
+           handleStartPanorama={handleStartPanorama}
+@@ -1047,7 +1064,7 @@
+           handleSaveCollage={handleSaveCollage}
+           handleCreateAlbumItem={handleCreateAlbumItem}
+           handleRenameAlbumItem={handleRenameAlbumItem}
+-        />
++        />}
+         <ToastContainer
+           position="bottom-right"
+           autoClose={5000}
+@@ -1072,14 +1089,20 @@
+   );
+ }
+ 
+-const AppWrapper = () => {
++const AppWrapper = ({browserCapabilities}: BrowserAppProps = {}) => {
++  const [browserStatus, setBrowserStatus] = useState('loading');
++  const capabilities = useMemo(() => browserCapabilities ? {...browserCapabilities, onState: (state: Parameters<BrowserInitializationCapabilities['onState']>[0]) => {
++    setBrowserStatus(state.status);
++    browserCapabilities.onState(state);
++  }} : undefined, [browserCapabilities]);
+   useEffect(() => {
++    if (capabilities) return;
+     useCloudStore.getState().initAuth();
+-  }, []);
++  }, [capabilities]);
+ 
+   return (
+     <ContextMenuProvider>
+-      <App />
++      <App browserCapabilities={capabilities} browserStatus={browserStatus} />
+       <GlobalTooltip />
+     </ContextMenuProvider>
+   );
+diff --git a/src/hooks/useTauriListeners.ts b/src/hooks/useTauriListeners.ts
+--- a/src/hooks/useTauriListeners.ts
++++ b/src/hooks/useTauriListeners.ts
+@@ -8,6 +8,7 @@
+ import { useLibraryStore } from '../store/useLibraryStore';
+ 
+ interface TauriListenerProps {
++  enabled?: boolean;
+   refreshAllFolderTrees: () => void;
+   handleSelectSubfolder: (path: string, isNewRoot?: boolean, preloadedImages?: any[], expandParents?: boolean) => void;
+   refreshImageList: () => void;
+@@ -15,6 +16,7 @@
+ }
+ 
+ export function useTauriListeners({
++  enabled = true,
+   refreshAllFolderTrees,
+   handleSelectSubfolder,
+   refreshImageList,
+@@ -33,6 +35,7 @@
+   const flushHandle = useRef<number | null>(null);
+ 
+   useEffect(() => {
++    if (!enabled) return;
+     let isEffectActive = true;
+ 
+     const flushThumbnailBatch = () => {
+@@ -402,5 +405,5 @@
+       ratingBuffer.current = {};
+       listeners.forEach((p) => p.then((unlisten) => unlisten()));
+     };
+-  }, []);
++  }, [enabled]);
+ }
+diff --git a/src/hooks/useExternalEditSession.ts b/src/hooks/useExternalEditSession.ts
+--- a/src/hooks/useExternalEditSession.ts
++++ b/src/hooks/useExternalEditSession.ts
+@@ -14,7 +14,7 @@
+  * Opens the requested image in the editor and, for edit sessions, exports
+  * the result to the caller-provided output path and exits the app.
+  */
+-export function useExternalEditSession(handleImageSelect: (path: string) => void) {
++export function useExternalEditSession(handleImageSelect: (path: string) => void, enabled = true) {
+   const initialFileToOpen = useProcessStore((state) => state.initialFileToOpen);
+   const externalEditSession = useProcessStore((state) => state.externalEditSession);
+   const exportStatus = useProcessStore((state) => state.exportState.status);
+@@ -26,27 +26,28 @@
+   });
+ 
+   useEffect(() => {
+-    if (!initialFileToOpen) return;
++    if (!enabled || !initialFileToOpen) return;
+     useProcessStore.getState().setProcess({ initialFileToOpen: null });
+     handleImageSelectRef.current(initialFileToOpen);
+-  }, [initialFileToOpen]);
++  }, [enabled, initialFileToOpen]);
+ 
+   useEffect(() => {
+-    if (!externalEditSession) return;
++    if (!enabled || !externalEditSession) return;
+     setIsFinishing(false);
+     handleImageSelectRef.current(externalEditSession.source);
+-  }, [externalEditSession]);
++  }, [enabled, externalEditSession]);
+ 
+   useEffect(() => {
+-    if (!isFinishing) return;
++    if (!enabled || !isFinishing) return;
+     if (exportStatus === Status.Success) {
+       exit(0);
+     } else if (exportStatus === Status.Error || exportStatus === Status.Cancelled) {
+       setIsFinishing(false);
+     }
+-  }, [isFinishing, exportStatus]);
++  }, [enabled, isFinishing, exportStatus]);
+ 
+   const finishExternalEdit = useCallback(async () => {
++    if (!enabled) throw new Error('Native external edit sessions are unavailable');
+     const session = useProcessStore.getState().externalEditSession;
+     const { selectedImage, adjustments } = useEditorStore.getState();
+     if (!session || !selectedImage) return;
+@@ -95,7 +96,7 @@
+         errorMessage: typeof error === 'string' ? error : 'Export failed',
+       });
+     }
+-  }, []);
++  }, [enabled]);
+ 
+   return { externalEditSession, isFinishing, finishExternalEdit };
+ }
+diff --git a/src/hooks/useKeyboardShortcuts.ts b/src/hooks/useKeyboardShortcuts.ts
+--- a/src/hooks/useKeyboardShortcuts.ts
++++ b/src/hooks/useKeyboardShortcuts.ts
+@@ -18,6 +18,7 @@
+ };
+ 
+ interface KeyboardShortcutsProps {
++  enabled?: boolean;
+   sortedImageList: Array<ImageFile>;
+   handleBackToLibrary(): void;
+   handleDeleteSelected(): void;
+@@ -29,6 +30,7 @@
+ }
+ 
+ export const useKeyboardShortcuts = ({
++  enabled = true,
+   sortedImageList,
+   handleBackToLibrary,
+   handleDeleteSelected,
+@@ -61,6 +63,7 @@
+   }, []);
+ 
+   useEffect(() => {
++    if (!enabled) return;
+     const getStoreState = () => ({
+       editor: useEditorStore.getState(),
+       library: useLibraryStore.getState(),
+@@ -732,6 +735,7 @@
+       window.removeEventListener('keydown', handleKeyDown);
+     };
+   }, [
++    enabled,
+     handleBackToLibrary,
+     handleDeleteSelected,
+     handleDeleteRejected,
+diff --git a/src/components/panel/MainLibrary.tsx b/src/components/panel/MainLibrary.tsx
+--- a/src/components/panel/MainLibrary.tsx
++++ b/src/components/panel/MainLibrary.tsx
+@@ -42,6 +42,7 @@
+ import { TextColors, TextVariants, TextWeights } from '../../types/typography';
+ import { useLibraryStore } from '../../store/useLibraryStore';
+ import { useUIStore } from '../../store/useUIStore';
++import { useSettingsStore } from '../../store/useSettingsStore';
+ import SettingsPanel from './SettingsPanel';
+ 
+ import LibraryGrid from './library/LibraryGrid';
+@@ -165,6 +166,7 @@
+ 
+ export default function MainLibrary(props: MainLibraryProps) {
+   const { t } = useTranslation();
++  const browserMode = useSettingsStore((state) => state.osPlatform === 'browser');
+   const setUI = useUIStore((state) => state.setUI);
+   const [appVersion, setAppVersion] = useState('');
+   const [isUpdateAvailable, setIsUpdateAvailable] = useState(false);
+@@ -287,6 +289,7 @@
+   }, [isBusyDelayed]);
+ 
+   useEffect(() => {
++    if (browserMode) return;
+     const compareVersions = (v1: string, v2: string) => {
+       const parts1 = v1.split('.').map(Number);
+       const parts2 = v2.split('.').map(Number);
+@@ -326,7 +329,7 @@
+     };
+ 
+     checkVersion();
+-  }, []);
++  }, [browserMode]);
+ 
+   if (!props.rootPaths || props.rootPaths.length === 0) {
+     if (!props.appSettings) {
+@@ -403,6 +406,7 @@
+                       {hasLastPath && (
+                         <Button
+                           className="rounded-md h-11 w-full flex justify-center items-center shadow-md transition-transform duration-200 hover:scale-[1.01] active:scale-[.98]"
++                          disabled={browserMode}
+                           onClick={props.onContinueSession}
+                           size="lg"
+                         >
+@@ -414,6 +418,7 @@
+                           className={`rounded-md grow flex justify-center items-center shadow-md h-11 transition-transform duration-200 hover:scale-[1.01] active:scale-[.98] ${
+                             hasLastPath ? 'bg-surface text-text-primary' : ''
+                           }`}
++                          disabled={browserMode}
+                           onClick={props.onOpenFolder}
+                           size="lg"
+                         >
+@@ -426,6 +431,7 @@
+                         </Button>
+                         <Button
+                           className="px-3 bg-surface text-text-primary shadow-md h-11 transition-transform duration-200 hover:scale-[1.03] active:scale-[.96]"
++                          disabled={browserMode}
+                           onClick={() => setUI({ isSettingsOpen: true })}
+                           size="lg"
+                           data-tooltip={t('settings.general.title')}

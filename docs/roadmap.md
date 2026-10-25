@@ -1,3 +1,9 @@
+# RWASM-03 — actual original App root startup/layout (2026-10-25)
+
+Original AppWrapper/App now mount the original LibraryView/MainLibrary responsive startup layout through real IDB readiness. Native auth/window/AI/version/listener/shortcut/external-edit effects are inactive; failed/held/closed entry cannot mount controls or write. 96 host/check and17 positive browser assertions pass with zero unexpected errors/IPC/workers/automatic writes. [Evidence and continuation](rapidraw-wasm-app-root-handoff.md).
+
+Experimental empty-root bootstrap only: original File/editor/export/metadata variants remain separate; root File integration/full App/desktop/OS/provider remain unaccepted. Native/runtime/WASM unchanged; no product release/main/demo/private input change. Next A: footnote.goToReference from69bafc6; alpha71/70/69 release gates complete. Next B: one actual browser RAW File into original App navigation/managers/EditorView with existing metadata ACK transport. MAIN only.
+
 # RWASM-03 — full original initialization hook readiness (2026-10-25)
 
 The full source useAppInitialization hook now runs with explicit browser capabilities. Held/failed/corrupt/stale/closed startup cannot enable Save; desktop auto-effects never invoke. A real late durable ACK regression is fixed: closed source settings stay unchanged, revision4 survives, and explicit reload reconciles without replay.96 host/check and27 positive browser assertions/native-exact frames pass. [Evidence and continuation](rapidraw-wasm-settings-readiness-handoff.md).
