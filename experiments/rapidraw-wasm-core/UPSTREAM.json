@@ -750,5 +750,30 @@
       }
     },
     "scope": "Experimental original useAppInitialization load section extracted as loadInitialSettings, used by original hook and isolated React/IDB bootstrap. Preserve intentional None; in-memory bounded legacy defaults; held/failed/corrupt/stale reads cannot overwrite newer source store. No automatic load/migration writes. Full original hook/App/workspace/language/folder/native-desktop migration/OS/provider/bulk remain unaccepted; same source modal and unchanged native/WASM/pixels."
+  },
+  "settingsReadiness": {
+    "basePatch": {
+      "path": "patches/rapidraw/b39884b3/settings-initialization-v1.patch",
+      "sha256": "8eea132941eb43ec3f2c40cbcfe840b30c3b1c8f9bdd921eabbe1a00a6686688",
+      "patchedFiles": {
+        "src/hooks/useAppInitialization.ts": "976ad773233437e183f43b12a322039e0b8b6fbaa44e9690b76ab853ee2693f3"
+      }
+    },
+    "sourceFiles": {
+      "src/hooks/useAppInitialization.ts": "418afe949997ae248fb4f10a84ab4c52da27e8bad536c5fec95a2f4210f43e41",
+      "src/store/useSettingsStore.ts": "9e5b295cfea558565bc9b55be918c5f71ef4469d8a9de2b8d7fac80fc37468e2"
+    },
+    "nativeContract": {
+      "src-tauri/src/app_settings.rs": "3aa6b50e35500c484f1f360859947c7fbb38af98bc8498c0a979e234fd15c617"
+    },
+    "sourcePatch": {
+      "path": "patches/rapidraw/b39884b3/settings-readiness-v1.patch",
+      "sha256": "2fdcc0bb636081b930ebada3133360249e86f30041c869526aaf3421bbac3c4b",
+      "patchedFiles": {
+        "src/hooks/useAppInitialization.ts": "ab02c01fffc945297f3c0675b9ee9edae8a848e366c13570b74fee309a674715",
+        "src/store/useSettingsStore.ts": "ec7ce6d8f4d39174a7a86bd8a65082e42567527b6aab59ed40352be5bd42bcd3"
+      }
+    },
+    "scope": "Experimental full original useAppInitialization mounted with explicit browser capabilities. Actual source load effect and settings-store readiness gate; failed/stale/cancelled startup cannot enable writes. Desktop platform/workspace/language/folder/frontend-ready and all automatic persistence effects disabled in this mode. Original preference modal/editor/native pixels unchanged; no full App/desktop/native migration/OS/provider or public availability acceptance."
   }
 }

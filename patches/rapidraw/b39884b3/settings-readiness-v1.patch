@@ -1,0 +1,287 @@
+diff --git a/src/hooks/useAppInitialization.ts b/src/hooks/useAppInitialization.ts
+--- a/src/hooks/useAppInitialization.ts
++++ b/src/hooks/useAppInitialization.ts
+@@ -9,6 +9,7 @@
+ import { THEMES, DEFAULT_THEME_ID, ThemeProps } from '../utils/themes';
+ import { COPYABLE_ADJUSTMENT_KEYS, withAdjustmentLayout } from '../utils/adjustments';
+ import {
++  SupportedTypes,
+   FilterCriteria,
+   Invokes,
+   LibraryViewMode,
+@@ -21,7 +22,14 @@
+ } from '../components/ui/AppProperties';
+ import { useTranslation } from 'react-i18next';
+ 
++export interface BrowserInitializationCapabilities {
++  supportedAdjustments: string[];
++  supportedTypes: SupportedTypes;
++  onState: (state: {status: 'loading' | 'ready' | 'error' | 'closed'; error?: string}) => void;
++}
++
+ interface UseAppInitializationProps {
++  browserCapabilities?: BrowserInitializationCapabilities;
+   preloadedDataRef: React.RefObject<any>;
+   thumbnailSize: ThumbnailSize;
+   setThumbnailSize: (size: ThumbnailSize) => void;
+@@ -73,6 +81,7 @@
+ }
+ 
+ export const useAppInitialization = ({
++  browserCapabilities,
+   preloadedDataRef,
+   thumbnailSize,
+   setThumbnailSize,
+@@ -162,22 +171,38 @@
+   const prevImageCountsNeed = useRef<boolean | undefined>(undefined);
+ 
+   useEffect(() => {
+-    initPlatform();
+-  }, [initPlatform]);
+-
+-  useEffect(() => {
++    if (browserCapabilities) useSettingsStore.setState({osPlatform: 'browser'});
++    else initPlatform();
++  }, [initPlatform, browserCapabilities]);
++
++  useEffect(() => {
++    if (browserCapabilities) { setSupportedTypes(browserCapabilities.supportedTypes); return; }
+     invoke(Invokes.GetSupportedFileTypes)
+       .then((types: any) => setSupportedTypes(types))
+       .catch((err) => console.error('Failed to load supported file types:', err));
+-  }, [setSupportedTypes]);
++  }, [setSupportedTypes, browserCapabilities]);
+ 
+   useEffect(() => {
+     let current = true;
++    isInitialMount.current = true;
++    if (browserCapabilities) {
++      useSettingsStore.setState({browserSettingsReady: false});
++      browserCapabilities.onState({status: 'loading'});
++    }
+     const previous = useSettingsStore.getState().appSettings;
+     const isCurrent = () => current && useSettingsStore.getState().appSettings === previous;
+-    Promise.all([loadInitialSettings({isCurrent}), invoke<boolean>(Invokes.IsTetheringSupported).catch(() => false)])
++    Promise.all([loadInitialSettings({isCurrent, supportedAdjustments: browserCapabilities?.supportedAdjustments}), browserCapabilities ? Promise.resolve(false) : invoke<boolean>(Invokes.IsTetheringSupported).catch(() => false)])
+       .then(async ([settings, isTetheringSupported]: [any, boolean]) => {
+-        if (!isCurrent()) return;
++        if (!isCurrent()) throw new Error('Newer settings superseded initialization');
++        if (browserCapabilities) {
++          // Only preferences admitted by the browser backend are hydrated. Desktop
++          // workspace/language/folder migration and frontend-ready IO are unavailable.
++          setAppSettings(settings);
++          isInitialMount.current = false;
++          useSettingsStore.setState({browserSettingsReady: true});
++          browserCapabilities.onState({status: 'ready'});
++          return;
++        }
+ 
+         if (!settings.language) {
+           settings.language = getDefaultLanguage(i18n);
+@@ -296,8 +321,13 @@
+             }
+           })
+           .catch((e) => console.error('Failed to notify backend of readiness:', e));
++        if (current && useSettingsStore.getState().appSettings === settings) isInitialMount.current = false;
+       })
+       .catch((err) => {
++        if (browserCapabilities) {
++          if (current) browserCapabilities.onState({status: 'error', error: String(err?.message ?? err)});
++          return;
++        }
+         if (!isCurrent()) return;
+         console.error('Failed to load settings:', err);
+         setAppSettings({
+@@ -306,12 +336,17 @@
+           thumbnailSize: defaultThumbnailSize,
+           libraryViewMode: defaultLibraryViewMode,
+         });
+-      })
+-      .finally(() => {
+-        if (current) isInitialMount.current = false;
+       });
+-    return () => { current = false; };
++    return () => {
++      current = false;
++      isInitialMount.current = true;
++      if (browserCapabilities) {
++        useSettingsStore.setState({browserSettingsReady: false});
++        browserCapabilities.onState({status: 'closed', error: 'Browser initialization was cancelled'});
++      }
++    };
+   }, [
++    browserCapabilities,
+     isAndroid,
+     setAppSettings,
+     setTheme,
+@@ -329,7 +364,7 @@
+   ]);
+ 
+   useEffect(() => {
+-    if (isInitialMount.current || !appSettings) return;
++    if (browserCapabilities || isInitialMount.current || !appSettings) return;
+ 
+     const currentWorkspaceStr = JSON.stringify(appSettings.workspace || {});
+     const newWorkspaceStr = JSON.stringify(workspaceProps);
+@@ -341,66 +376,66 @@
+ 
+       return () => clearTimeout(timeoutId);
+     }
+-  }, [workspaceProps, appSettings, handleSettingsChange]);
+-
+-  useEffect(() => {
+-    if (isInitialMount.current || !appSettings) return;
++  }, [browserCapabilities, workspaceProps, appSettings, handleSettingsChange]);
++
++  useEffect(() => {
++    if (browserCapabilities || isInitialMount.current || !appSettings) return;
+     if (JSON.stringify(appSettings.uiVisibility) !== JSON.stringify(uiVisibility)) {
+       handleSettingsChange({ ...appSettings, uiVisibility });
+     }
+-  }, [uiVisibility, appSettings, handleSettingsChange]);
+-
+-  useEffect(() => {
+-    if (isInitialMount.current || !appSettings) return;
++  }, [browserCapabilities, uiVisibility, appSettings, handleSettingsChange]);
++
++  useEffect(() => {
++    if (browserCapabilities || isInitialMount.current || !appSettings) return;
+     if (JSON.stringify(appSettings.adjustmentLayout?.openSections) !== JSON.stringify(collapsibleSectionsState)) {
+       handleSettingsChange(withAdjustmentLayout(appSettings, { openSections: collapsibleSectionsState }));
+     }
+-  }, [collapsibleSectionsState, appSettings, handleSettingsChange]);
+-
+-  useEffect(() => {
+-    if (isInitialMount.current || !appSettings) return;
++  }, [browserCapabilities, collapsibleSectionsState, appSettings, handleSettingsChange]);
++
++  useEffect(() => {
++    if (browserCapabilities || isInitialMount.current || !appSettings) return;
+     if (appSettings.thumbnailSize !== thumbnailSize) {
+       handleSettingsChange({ ...appSettings, thumbnailSize });
+     }
+-  }, [thumbnailSize, appSettings, handleSettingsChange]);
+-
+-  useEffect(() => {
+-    if (isInitialMount.current || !appSettings) return;
++  }, [browserCapabilities, thumbnailSize, appSettings, handleSettingsChange]);
++
++  useEffect(() => {
++    if (browserCapabilities || isInitialMount.current || !appSettings) return;
+     if (appSettings.thumbnailAspectRatio !== thumbnailAspectRatio) {
+       handleSettingsChange({ ...appSettings, thumbnailAspectRatio });
+     }
+-  }, [thumbnailAspectRatio, appSettings, handleSettingsChange]);
+-
+-  useEffect(() => {
+-    if (isInitialMount.current || !appSettings) return;
++  }, [browserCapabilities, thumbnailAspectRatio, appSettings, handleSettingsChange]);
++
++  useEffect(() => {
++    if (browserCapabilities || isInitialMount.current || !appSettings) return;
+     if (appSettings.libraryViewMode !== libraryViewMode) {
+       handleSettingsChange({ ...appSettings, libraryViewMode });
+     }
+-  }, [libraryViewMode, appSettings, handleSettingsChange]);
+-
+-  useEffect(() => {
+-    if (isInitialMount.current || !appSettings) return;
++  }, [browserCapabilities, libraryViewMode, appSettings, handleSettingsChange]);
++
++  useEffect(() => {
++    if (browserCapabilities || isInitialMount.current || !appSettings) return;
+     if (JSON.stringify(appSettings.sortCriteria) !== JSON.stringify(sortCriteria)) {
+       handleSettingsChange({ ...appSettings, sortCriteria });
+     }
+-  }, [sortCriteria, appSettings, handleSettingsChange]);
+-
+-  useEffect(() => {
+-    if (isInitialMount.current || !appSettings) return;
++  }, [browserCapabilities, sortCriteria, appSettings, handleSettingsChange]);
++
++  useEffect(() => {
++    if (browserCapabilities || isInitialMount.current || !appSettings) return;
+     if (JSON.stringify(appSettings.filterCriteria) !== JSON.stringify(filterCriteria)) {
+       handleSettingsChange({ ...appSettings, filterCriteria });
+     }
+-  }, [filterCriteria, appSettings, handleSettingsChange]);
+-
+-  useEffect(() => {
+-    if (isInitialMount.current || !appSettings) return;
++  }, [browserCapabilities, filterCriteria, appSettings, handleSettingsChange]);
++
++  useEffect(() => {
++    if (browserCapabilities || isInitialMount.current || !appSettings) return;
+     if (appSettings.language && appSettings.language !== i18n.language) {
+       i18n.changeLanguage(appSettings.language);
+     }
+-  }, [appSettings?.language, i18n.language]);
+-
+-  useEffect(() => {
+-    if (isInitialMount.current || !appSettings) return;
++  }, [browserCapabilities, appSettings?.language, i18n.language]);
++
++  useEffect(() => {
++    if (browserCapabilities || isInitialMount.current || !appSettings) return;
+     if (!currentFolderPath && !activeAlbumId) return;
+ 
+     const currentExpanded = Array.from(expandedFolders);
+@@ -430,10 +465,10 @@
+         },
+       });
+     }
+-  }, [currentFolderPath, expandedFolders, activeAlbumId, expandedAlbumGroups, appSettings, handleSettingsChange]);
+-
+-  useEffect(() => {
+-    if (!appSettings) return;
++  }, [browserCapabilities, currentFolderPath, expandedFolders, activeAlbumId, expandedAlbumGroups, appSettings, handleSettingsChange]);
++
++  useEffect(() => {
++    if (browserCapabilities || isInitialMount.current || !appSettings) return;
+ 
+     const needsImageCounts = Boolean(
+       appSettings.enableFolderImageCounts || appSettings.folderTreeSort?.key === 'imageCount',
+@@ -497,7 +532,7 @@
+         });
+     }
+     // eslint-disable-next-line react-hooks/exhaustive-deps
+-  }, [appSettings?.enableFolderImageCounts, appSettings?.folderTreeSort?.key]);
++  }, [browserCapabilities, appSettings?.enableFolderImageCounts, appSettings?.folderTreeSort?.key]);
+ 
+   useEffect(() => {
+     const root = document.documentElement;
+diff --git a/src/store/useSettingsStore.ts b/src/store/useSettingsStore.ts
+--- a/src/store/useSettingsStore.ts
++++ b/src/store/useSettingsStore.ts
+@@ -5,6 +5,7 @@
+ import { DEFAULT_THEME_ID } from '../utils/themes';
+ 
+ interface SettingsState {
++  browserSettingsReady: boolean | null;
+   appSettings: AppSettings | null;
+   theme: string;
+   supportedTypes: SupportedTypes | null;
+@@ -19,6 +20,7 @@
+ }
+ 
+ export const useSettingsStore = create<SettingsState>((set, get) => ({
++  browserSettingsReady: null,
+   appSettings: null,
+   theme: DEFAULT_THEME_ID,
+   supportedTypes: null,
+@@ -39,6 +41,7 @@
+   setSupportedTypes: (types) => set({ supportedTypes: types }),
+ 
+   handleSettingsChange: async (newSettings: AppSettings) => {
++    if (get().browserSettingsReady === false) throw new Error('Browser settings initialization is not ready');
+     if (!newSettings) {
+       console.error('handleSettingsChange was called with null settings. Aborting save operation.');
+       return;
+@@ -49,6 +52,7 @@
+     const previous = get().appSettings;
+     try {
+       await invoke(Invokes.SaveSettings, { settings: settingsToSave });
++      if (get().browserSettingsReady === false) throw new Error('Browser settings initialization closed before settings ACK');
+       if (get().appSettings !== previous) throw new Error('Newer settings replaced the pending draft; reload preferences');
+     if (newSettings.theme && newSettings.theme !== get().theme) {
+       set({ theme: newSettings.theme });

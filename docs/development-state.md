@@ -1,3 +1,9 @@
+# RWASM-03 — full original initialization hook readiness (2026-10-25)
+
+The full source useAppInitialization hook now runs with explicit browser capabilities. Held/failed/corrupt/stale/closed startup cannot enable Save; desktop auto-effects never invoke. A real late durable ACK regression is fixed: closed source settings stay unchanged, revision4 survives, and explicit reload reconciles without replay.96 host/check and27 positive browser assertions/native-exact frames pass. [Evidence and continuation](rapidraw-wasm-settings-readiness-handoff.md).
+
+Experimental B: actual full hook, isolated composition; full App/native desktop/general effects/OS/provider remain open. Native/runtime/WASM unchanged; no product release/main/demo/private input change. Next A: alpha71 exact Build40172373905/draft/Actions assets gate, then footnote.goToReference. Next B: original App root bootstrap/startup-cleanup with this capability/readiness lifecycle and original layout. MAIN only.
+
 # RWASM-03 — original settings load preserves None (2026-10-25)
 
 The source useAppInitialization load section now preserves intentional Select None, supplies bounded legacy defaults without writing, and rejects newer-store supersession. Actual source React/IDB proves held/error/corrupt entry guards, stale CAS and read-only reload with native-exact frames.96 host/check and16 browser assertions pass. [Evidence and continuation](rapidraw-wasm-settings-initialization-handoff.md).

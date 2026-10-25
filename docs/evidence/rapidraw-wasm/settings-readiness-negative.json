@@ -1,0 +1,10 @@
+{
+  "case": "real preference commit held after durable IDB completion; full initialization hook unmounted before source Save ACK",
+  "priorPatchSha256": "277627d031c30d6c90adcbf9b887b9edc01741009c1d4056cef4bbf13af4d454",
+  "durableRevision": 4,
+  "sourceReadinessAfterUnmount": false,
+  "priorSourceMode": "replace",
+  "actualLatePublishedMode": "merge",
+  "failure": "Source callback published after cleanup; canonical source-store equality assertion failed",
+  "fix": "Recheck readiness after durable invoke ACK before source settings/theme publication; preserve backend commit and require explicit reload"
+}
