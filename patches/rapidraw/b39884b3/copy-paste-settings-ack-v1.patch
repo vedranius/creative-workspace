@@ -1,0 +1,170 @@
+diff --git a/src/components/modals/CopyPasteSettingsModal.tsx b/src/components/modals/CopyPasteSettingsModal.tsx
+--- a/src/components/modals/CopyPasteSettingsModal.tsx
++++ b/src/components/modals/CopyPasteSettingsModal.tsx
+@@ -11,7 +11,8 @@
+ interface CopyPasteSettingsModalProps {
+   isOpen: boolean;
+   onClose(): void;
+-  onSave(settings: CopyPasteSettings): void;
++  onSave(settings: CopyPasteSettings): void | Promise<void>;
++  supportedAdjustments?: string[];
+   settings: CopyPasteSettings;
+ }
+ 
+@@ -118,8 +119,14 @@
+   );
+ };
+ 
+-export default function CopyPasteSettingsModal({ isOpen, onClose, onSave, settings }: CopyPasteSettingsModalProps) {
++export default function CopyPasteSettingsModal({ isOpen, onClose, onSave, settings, supportedAdjustments }: CopyPasteSettingsModalProps) {
+   const { t } = useTranslation();
++  const pending = useRef(false);
++  const [isPending, setIsPending] = useState(false);
++  const [saveError, setSaveError] = useState<string | null>(null);
++  const latestSettings = useRef(settings); latestSettings.current = settings;
++  const allowedKeys = supportedAdjustments ?? COPYABLE_ADJUSTMENT_KEYS;
++  const close = useCallback(() => { if (!pending.current) onClose(); }, [onClose]);
+   const [isMounted, setIsMounted] = useState(false);
+   const [show, setShow] = useState(false);
+   const [localSettings, setLocalSettings] = useState<CopyPasteSettings>(settings || DEFAULT_SETTINGS);
+@@ -127,6 +134,7 @@
+   useEffect(() => {
+     if (isOpen) {
+       setLocalSettings(settings || DEFAULT_SETTINGS);
++      setSaveError(null);
+       setIsMounted(true);
+       const timer = setTimeout(() => setShow(true), 10);
+       return () => clearTimeout(timer);
+@@ -137,16 +145,25 @@
+     }
+   }, [isOpen, settings]);
+ 
+-  const handleSave = useCallback(() => {
+-    onSave(localSettings);
+-    onClose();
+-  }, [localSettings, onSave, onClose]);
++  const handleSave = useCallback(async () => {
++    if (pending.current) return;
++    pending.current = true; setIsPending(true); setSaveError(null);
++    const captured = settings;
++    try {
++      await onSave(localSettings);
++      // A parent may replace settings while this write is pending. Keep its modal open.
++      if (latestSettings.current !== captured && latestSettings.current !== localSettings) return;
++      onClose();
++    } catch {
++      setSaveError('Settings were not acknowledged. Reload preferences before saving again.');
++    } finally { pending.current = false; setIsPending(false); }
++  }, [localSettings, onSave, onClose, settings]);
+ 
+   const handleKeyDown = useCallback(
+     (e: KeyboardEvent) => {
+-      if (e.key === 'Escape') onClose();
++      if (e.key === 'Escape') close();
+     },
+-    [onClose],
++    [close],
+   );
+ 
+   useEffect(() => {
+@@ -159,7 +176,7 @@
+   }, [isOpen, handleKeyDown]);
+ 
+   const handleSelectAll = () => {
+-    setLocalSettings((prev) => ({ ...prev, includedAdjustments: [...COPYABLE_ADJUSTMENT_KEYS] }));
++    setLocalSettings((prev) => ({ ...prev, includedAdjustments: [...allowedKeys] }));
+   };
+ 
+   const handleSelectNone = () => {
+@@ -184,8 +201,9 @@
+       className={`fixed inset-0 flex items-center justify-center z-50 bg-black/30 backdrop-blur-xs transition-opacity duration-300 ease-in-out ${
+         show ? 'opacity-100' : 'opacity-0'
+       }`}
+-      onClick={onClose}
++      onClick={close}
+       role="dialog"
++      aria-busy={isPending}
+     >
+       <div
+         className={`bg-surface rounded-lg shadow-xl p-6 w-full max-w-2xl flex flex-col transform transition-all duration-300 ease-out ${
+@@ -196,7 +214,9 @@
+         <Text variant={TextVariants.title} className="mb-4">
+           {t('modals.copyPaste.title')}
+         </Text>
+-        <div className="grow overflow-y-auto pr-2 -mr-2 space-y-6">
++        {isPending && <div role="status">Saving settings…</div>}
++        {saveError && <div role="alert">{saveError}</div>}
++        <fieldset disabled={isPending} className={`grow overflow-y-auto pr-2 -mr-2 space-y-6 border-0 min-w-0 ${isPending ? 'pointer-events-none' : ''}`}>
+           <div>
+             <Text variant={TextVariants.heading} className="block mb-2">
+               {t('modals.copyPaste.pasteMode')}
+@@ -218,6 +238,7 @@
+               {t('modals.copyPaste.autoSyncTitle')}
+             </Text>
+             <Switch
++              disabled={!!supportedAdjustments || isPending}
+               label={t('modals.copyPaste.autoSyncLabel')}
+               checked={localSettings.autoSync}
+               onChange={(checked) => setLocalSettings((p) => ({ ...p, autoSync: checked }))}
+@@ -249,7 +270,10 @@
+             </div>
+             <div className="bg-bg-primary p-4 rounded-md max-h-64 overflow-y-auto">
+               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-4 gap-y-6">
+-                {Object.entries(ADJUSTMENT_GROUPS).map(([section, groups]) => (
++                {Object.entries(ADJUSTMENT_GROUPS).map(([section, sourceGroups]) => {
++                  const groups = sourceGroups.map(group => ({...group, keys: group.keys.filter(key => allowedKeys.includes(key))})).filter(group => group.keys.length);
++                  if (!groups.length) return null;
++                  return (
+                   <div key={section}>
+                     <Text variant={TextVariants.heading} className="mb-2">
+                       {t(`editor.adjustments.sections.${section}`, { defaultValue: capitalize(section) })}
+@@ -260,7 +284,8 @@
+                       return (
+                         <div key={group.label} className="mb-1.5 last:mb-0">
+                           <Switch
+-                            label={t(group.label)}
++                            disabled={isPending}
++                            label={supportedAdjustments && group.keys.length === 1 ? t(`adjustments.basic.${group.keys[0]}`, {defaultValue: t(group.label)}) : t(group.label)}
+                             checked={isFullyChecked}
+                             onChange={(checked) => handleGroupToggle(group.keys, checked)}
+                           />
+@@ -268,20 +293,21 @@
+                       );
+                     })}
+                   </div>
+-                ))}
++                );})}
+               </div>
+             </div>
+           </div>
+-        </div>
++        </fieldset>
+ 
+         <div className="flex justify-end gap-3 mt-6 pt-4 border-t border-surface">
+           <Button
+             className="px-4 py-2 rounded-md text-text-secondary bg-surface hover:bg-surface transition-colors"
+-            onClick={onClose}
++            disabled={isPending}
++            onClick={close}
+           >
+             {t('modals.copyPaste.cancel')}
+           </Button>
+-          <Button onClick={handleSave}>{t('modals.copyPaste.save')}</Button>
++          <Button disabled={isPending} onClick={handleSave}>{t('modals.copyPaste.save')}</Button>
+         </div>
+       </div>
+     </div>
+diff --git a/src/store/useSettingsStore.ts b/src/store/useSettingsStore.ts
+--- a/src/store/useSettingsStore.ts
++++ b/src/store/useSettingsStore.ts
+@@ -46,8 +46,10 @@
+ 
+     const { searchCriteria: _searchCriteria, ...settingsToSave } = newSettings as any;
+ 
++    const previous = get().appSettings;
+     try {
+       await invoke(Invokes.SaveSettings, { settings: settingsToSave });
++      if (get().appSettings !== previous) throw new Error('Newer settings replaced the pending draft; reload preferences');
+     if (newSettings.theme && newSettings.theme !== get().theme) {
+       set({ theme: newSettings.theme });
+     }

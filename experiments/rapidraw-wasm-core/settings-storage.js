@@ -15,7 +15,15 @@ export function boundedSettings(input){
  if(value.baselineExposure!==undefined&&!finite(value.baselineExposure,-5,5))fail('Invalid baseline exposure');
  if(value.livePreviewQuality!==undefined&&!['high','speed','balanced'].includes(value.livePreviewQuality))fail('Invalid preview quality');
  if(value.theme!==undefined&&(typeof value.theme!=='string'||value.theme.length>64||!/^[a-zA-Z0-9_-]+$/.test(value.theme)))fail('Invalid theme');
- if(value.copyPasteSettings!==undefined&&(Object.keys(value.copyPasteSettings||{}).join(',')!=='autoSync'||value.copyPasteSettings.autoSync!==false))fail('Automatic sidecar sync is unavailable');
+ if(value.copyPasteSettings!==undefined){
+  const c=value.copyPasteSettings;
+  if(!c||typeof c!=='object'||Array.isArray(c)||c.autoSync!==false)fail('Automatic sidecar sync is unavailable');
+  // Preserve existing autoSync-only records; expanded records use the original four-key ABI.
+  if(Object.keys(c).join(',')!=='autoSync'){
+   if(Object.keys(c).sort().join(',')!=='autoSync,includedAdjustments,knownAdjustments,mode'||!['merge','replace'].includes(c.mode))fail('Unsupported copy/paste preferences');
+   for(const keys of [c.includedAdjustments,c.knownAdjustments])if(!Array.isArray(keys)||keys.length>1||keys.some(k=>k!=='exposure'))fail('Only Exposure copy/paste preferences are available');
+  }
+ }
  const presets=value.exportPresets??[];if(!Array.isArray(presets)||presets.length>32)fail('Choose up to 32 export presets');
  const ids=new Set();
  for(const p of presets){

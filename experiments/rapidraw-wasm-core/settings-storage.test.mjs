@@ -36,3 +36,16 @@ test('legacy preview-only load_settings remains compatible without a persistence
 test('the reviewed source ACK patch is pinned independently of original/native source',async()=>{
  const {readFile}=await import('node:fs/promises'),{createHash}=await import('node:crypto');const meta=JSON.parse(await readFile(new URL('./UPSTREAM.json',import.meta.url)));const bytes=await readFile(new URL('../../'+meta.settingsUi.sourcePatch.path,import.meta.url));assert.equal(createHash('sha256').update(bytes).digest('hex'),meta.settingsUi.sourcePatch.sha256);assert.equal(Object.keys(meta.settingsUi.sourcePatch.patchedFiles).length,2);
 });
+
+test('original copy/paste preferences round-trip both modes and none/Exposure without replacing unrelated preferences',async()=>{
+ const backend=memory(),host=createBrowserSettings({backend});await host.load();
+ for(const mode of ['merge','replace'])for(const includedAdjustments of [[],['exposure']]){
+  await host.save({...settings(),copyPasteSettings:{mode,includedAdjustments,knownAdjustments:['exposure'],autoSync:false}});
+  const restored=await createBrowserSettings({backend}).load();assert.equal(restored.copyPasteSettings.mode,mode);assert.deepEqual(restored.copyPasteSettings.includedAdjustments,includedAdjustments);assert.equal(restored.exportPresets[0].name,preset.name);
+ }
+});
+test('malformed/automatic/bulk-effect preference shapes refuse before commit and leave legacy settings readable',async()=>{
+ const backend=memory(),host=createBrowserSettings({backend});await host.load();const valid={mode:'merge',includedAdjustments:['exposure'],knownAdjustments:['exposure'],autoSync:false};
+ for(const copyPasteSettings of [null,[],{...valid,autoSync:true},{...valid,mode:'anything'},{...valid,includedAdjustments:['contrast']},{...valid,includedAdjustments:['exposure','exposure']},{...valid,knownAdjustments:['private/path']},{...valid,extra:'unknown'},{...valid,includedAdjustments:null}])await assert.rejects(host.save({...settings(),copyPasteSettings}));
+ assert.equal(await backend.read(),null);assert.equal(host.status().uncertain,false);await host.save(settings());assert.deepEqual((await createBrowserSettings({backend}).load()).copyPasteSettings,{autoSync:false});
+});

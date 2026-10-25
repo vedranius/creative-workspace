@@ -1,3 +1,9 @@
+# RWASM-03 — original Copy/Paste preference modal ACK (2026-10-25)
+
+Original BottomBar opens the source CopyPasteSettingsModal for Merge/Replace and Exposure-only inclusion. Save waits for durable commit/readback before store/close; abort, uncertainty, second-tab CAS and newer local drafts preserve the modal.96 host tests/check and18 actual browser assertions/native-exact frames pass. [Evidence and continuation](rapidraw-wasm-copy-paste-settings-handoff.md).
+
+Experimental B: pinned source ACK/filter patch, original controls/commands/algorithms and unchanged native/WASM. Auto-sync/general effects/bulk/full App/useAppInitialization/native migration/OS/provider remain unaccepted; no product release/main/demo/private input change. Alpha70 still ran DesignCraft at entry; next A is its gate then FootnoteOptions. Next B: original settings initialization/migration preserving intentional None and newer/corrupt preferences. MAIN only.
+
 # RWASM-03 — original single-File Copy/Paste ACK (2026-10-25)
 
 Original BottomBar Copy/Paste now uses bounded Exposure metadata merge with commit/readback before editor/cache changes and Paste indication. Held, uncertain, aborted and newer drafts preserve the proper state; reload never replays.94 host tests/check,18 source browser assertions,3 extracted native merge cases and native-exact RGBA/JPEG frames pass with zero unexpected errors. [Evidence and continuation](rapidraw-wasm-metadata-copy-paste-handoff.md).

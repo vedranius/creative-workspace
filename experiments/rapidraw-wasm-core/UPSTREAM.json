@@ -692,5 +692,39 @@
       }
     },
     "scope": "Original BottomBar Copy/Paste and useEditorActions for one selected registered File, Exposure-only partial metadata merge and matching durable write/readback before cache, editor and Paste indication. Original JSON selection/merge algorithm, current draft/clipboard/selection veto, native-exact frames. Bulk, other effects, full App/OS/provider acceptance remains open; isolated QA composition only."
+  },
+  "copyPasteSettings": {
+    "baseSettingsPatch": {
+      "path": "patches/rapidraw/b39884b3/settings-ack-v1.patch",
+      "sha256": "2c660a2d5fb8ce98579a0abb8d35b5612734771628a390a48b1c18ee3381a43e",
+      "patchedFiles": {
+        "src/store/useSettingsStore.ts": "b3a0586ff034ae827e1317817b4852a28247991bbf87375b9ce4cc68af0ebd9e",
+        "src/components/ui/ExportPresetsList.tsx": "5bf0d16e24eff2ad5c4d2a1cd969ceb9be5d73e311a2c358337b289effdf5147"
+      }
+    },
+    "baseMetadataPatch": {
+      "path": "patches/rapidraw/b39884b3/metadata-copy-paste-v1.patch",
+      "sha256": "e6a4490d5c41ed8ce91c5a1d9ddcadfadf7b65d338015e085c783a8519702fdb",
+      "patchedFiles": {
+        "src/hooks/useEditorActions.ts": "f3fed5f115b4f40f1e9bc58b0a9b9dd56b4b5d1d95b73d5ce7ea3faa3a87a638"
+      }
+    },
+    "sourceFiles": {
+      "src/components/modals/CopyPasteSettingsModal.tsx": "690d98ea3300cd25b56bff42563ac73e307975894419aae1c4a7a4b36c3cd48d",
+      "src/store/useSettingsStore.ts": "9e5b295cfea558565bc9b55be918c5f71ef4469d8a9de2b8d7fac80fc37468e2",
+      "src/utils/adjustments.ts": "142840e13ab737aaefa3910d4da2e64405e50c486c514285bff63e7c7c861d6d",
+      "src/components/panel/BottomBar.tsx": "bbd8f58e894460469a35f7286885ab3e4b2cff07e588705f7c9d812ef6ca3952",
+      "src/components/views/EditorView.tsx": "80c2ef1fc54e27e82f3b247e09256bdc85f91290f78f6e151be8c87860752480",
+      "src/components/modals/AppModals.tsx": "241d46f4a4b95c014fd79c1ba76d65ecd110c68695b965104bc370471e3d1db2"
+    },
+    "sourcePatch": {
+      "path": "patches/rapidraw/b39884b3/copy-paste-settings-ack-v1.patch",
+      "sha256": "513d0cb1b18a16f225c44e8bbbf47b929a987486676c35b221932a4074517472",
+      "patchedFiles": {
+        "src/components/modals/CopyPasteSettingsModal.tsx": "8fd07292b7e623475075d78f34f00dc9a3b2ec3d24467992bbc5107c66ed7f1a",
+        "src/store/useSettingsStore.ts": "635b6a524346cb5d9a822f61c9dafb5d410eb9f06a76a49dcb1c0c7a5f9997a3"
+      }
+    },
+    "scope": "Experimental original BottomBar settings button and CopyPasteSettingsModal: durable mode/Exposure-only inclusion preferences with ACK before close/store, legacy defaults, CAS/uncertain/reload. Original source controls with optional supported-key filter; autoSync disabled. Existing public RAW/source Copy/Paste/native frame proof reused. No full App/general effects/bulk/OS/provider acceptance or public release."
   }
 }

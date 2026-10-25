@@ -46,6 +46,7 @@ const EditorComponent=(globalThis as any).rapidRawEditorComponent??Editor;
 const LibraryActionsHook=(globalThis as any).rapidRawUseLibraryActions;
 const MetadataControls=(globalThis as any).rapidRawMetadataControls;
 const metadataTransition=(globalThis as any).rapidRawMetadataTransition;
+const PreferenceModals=(globalThis as any).rapidRawPreferenceModals;
 const PresetPanel=(globalThis as any).rapidRawPresetPanel;
 (globalThis as any).rapidRawTransport=transport;
 const settings={editorPreviewResolution:512,useWgpuRenderer:false,enableZoomHifi:false,enableLivePreviews:true,
@@ -92,7 +93,7 @@ function Proof(){
  <label>Recovery retention <select aria-label="Recovery retention" defaultValue="until-ack" onChange={event=>{retention=event.target.value;}}><option value="until-ack">Until write ACK</option><option value="keep">Keep recovery copy</option></select></label>
  <ExportPanel exportState={exportState} selectedImage={selectedImage} multiSelectedPaths={[]} setExportState={useProcessStore.getState().setExportState} appSettings={appSettings} onSettingsChange={settingsHost?useSettingsStore.getState().handleSettingsChange:useSettingsStore.getState().setAppSettings} rootPaths={[]} isVisible={true}/></aside>
  {PresetPanel&&<aside aria-label="Original Presets panel" style={{width:340,overflow:'auto',padding:8}}><PresetPanel/></aside>}
- </main><ToastContainer position="bottom-left" theme="dark"/></>;
+ </main>{PreferenceModals&&<PreferenceModals/>}<ToastContainer position="bottom-left" theme="dark"/></>;
 }
 function Layout(){const layoutSensors=useSensors(useSensor(PointerSensor,{activationConstraint:{distance:5}}));return <DndContext sensors={layoutSensors}><ContextMenuProvider><Proof/></ContextMenuProvider></DndContext>;}
 const root=createRoot(document.getElementById('root')!);root.render(<Layout/>);
