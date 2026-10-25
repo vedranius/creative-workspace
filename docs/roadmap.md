@@ -1,3 +1,9 @@
+# RWASM-03 — original library single-click and clear ACK (2026-10-25)
+
+Original LibraryGrid ordinary clicks and clear-selection now wait for matching metadata ACK. Held/failed/newer drafts preserve File/selection/cache; successful clear invalidates only its stale frontend entry, and same-path reload restores metadata without autosave replay. Native cancellation strings match the original source hook.92 host tests/check,18 original browser assertions and native-exact RGBA/JPEG frames pass with zero unexpected errors. [Evidence and continuation](rapidraw-wasm-metadata-selection-handoff.md).
+
+Experimental B: pinned two-file source patch, unchanged controls/algorithms/native/WASM and existing File/resource bounds; no product release/main/demo/private-photo change. Modifier/bulk/folder/album/full App/real OS/provider and zoomed ROI remain open. Next A: exact alpha70 CI/assets gate then FootnoteOptions; next B: original editor filmstrip ordinary click ACK. MAIN only.
+
 # RWASM-03 — original different-document library selection (2026-10-24)
 
 Original LibraryGrid thumbnail double clicks now use the original navigation cache/load path with metadata ACK before switching. Same-name/different-content Files stay isolated, cached returns produce native-exact frames without writes, and uncertainty/newer drafts retain the active document.91 host tests/check and twelve browser assertions pass. [Evidence, registry bounds and continuation](rapidraw-wasm-metadata-library-handoff.md).

@@ -174,3 +174,17 @@ test('registered selection rejects unknown paths and failed/newer draft ACK with
   assert.deepEqual(await f.bridge.invoke('get_image_dimensions',{path:f.path}),{width:2,height:2});assert.equal(f.cancelled(),0);
  });
 });
+
+test('superseded preview uses the original native rejection string while real worker failures remain errors',async()=>{
+ const previous=globalThis.Worker;let worker,posted;
+ globalThis.Worker=class{constructor(){worker=this;}terminate(){}postMessage(data){posted=data;}};
+ try{
+  for(const superseded of [true,false]){
+   posted=null;const bridge=create(),path=bridge.selectFile(new File(['x'],'public.dng'));
+   const job=bridge.invoke('load_image',{path});while(!posted)await new Promise(r=>setTimeout(r,1));
+   if(superseded){bridge.selectFile(new File(['y'],'other.dng'));await assert.rejects(job,error=>error==='Superseded or worker failed');}
+   else{worker.onerror({message:'Actual RAW worker failure',preventDefault(){}});await assert.rejects(job,error=>error instanceof Error&&error.message==='Actual RAW worker failure');}
+   await bridge.close();
+  }
+ }finally{globalThis.Worker=previous;}
+});

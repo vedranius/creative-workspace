@@ -616,5 +616,31 @@
         "src/hooks/useAppNavigation.ts": "e56a8af57173bdfe691a8b03224cfb7ab3f32e9b706a55067ad7d7a8d942f729"
       }
     }
+  },
+  "metadataSelection": {
+    "basePatch": {
+      "path": "patches/rapidraw/b39884b3/metadata-library-v1.patch",
+      "sha256": "98e87ff22120db8c4d0461f7156b0a159dfd4ea64f6d6573f6752ed319ab35c7",
+      "patchedFiles": {
+        "src/hooks/useAppNavigation.ts": "e56a8af57173bdfe691a8b03224cfb7ab3f32e9b706a55067ad7d7a8d942f729"
+      }
+    },
+    "sourceFiles": {
+      "src/hooks/useLibraryActions.ts": "d43ee4e0eac16f4501442e1f1e24cf141ec40b69246794e43014dac0a4262917",
+      "src/utils/ImageLRUCache.ts": "6292aa3690de6f05405688672388a5a9489a3d71103e0853cb0dfc63f23d826a",
+      "src/hooks/useAppNavigation.ts": "dc87d9a014d2fd88c9b3422bd9a051977082a3e02422c90b91e9c1a13803c484"
+    },
+    "sourcePatch": {
+      "path": "patches/rapidraw/b39884b3/metadata-selection-v1.patch",
+      "sha256": "4dfcf530adeb775cf4fe7cb4676b1e76e5b5d31cf99b03398a6ed832fa28f9f1",
+      "patchedFiles": {
+        "src/hooks/useLibraryActions.ts": "bdb673e4e2de8f0da6f7623958547878d4297d907d66ae2342898d4b439df1d1",
+        "src/hooks/useAppNavigation.ts": "b298a3aee89427bc47453aac257120afc9452409d975e0a717c84fa6a22830e8"
+      }
+    },
+    "scope": "Original useLibraryActions ordinary single-click and library clear-selection wait for matching metadata ACK. Original LibraryGrid gestures, registered Files, one active decoder and native-exact Exposure frames. Modifier/bulk/folder/album/full App/OS/provider acceptance remains open; isolated QA composition only.",
+    "nativeContract": {
+      "src-tauri/src/lib.rs": "ce69ae5e06b5c5f0eb7b6592d981c727c1be07e7787000a41e50ed77618b2606"
+    }
   }
 }

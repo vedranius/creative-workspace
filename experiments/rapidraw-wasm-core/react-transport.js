@@ -215,7 +215,9 @@ export function createReactTransport({wasm,device,shaderSource,defaults,getPrevi
     try{return Promise.resolve(command==='cancel_export'?exportHost.cancel():exportHost.execute(args)).catch(error=>{throw nativeError(error);});}catch(error){return Promise.reject(nativeError(error));}
    }
    if(command==='clear_session_caches'){const s=metadataHost?.status();if(s&&(s.dirty||s.busy||s.uncertain||s.pendingIO))return Promise.reject(Error('Metadata not acknowledged; cache retained'));exportHost?.cancel();}
-   const result=queue.then(()=>execute(command,args));queue=result.catch(()=>{});return result;
+   const result=queue.then(()=>execute(command,args));queue=result.catch(()=>{});
+   // Native Tauri rejects a superseded preview with this string; the source hook compares it exactly.
+   return result.catch(error=>{if(error?.message==='Superseded or worker failed')throw nativeError(error);throw error;});
   },
   async close(){closed=true;await clear();await metadataHost?.close();await exportHost?.close();await settingsHost?.close();file=null;path=null;registered.clear();registeredBytes=0;metadataFile=null;await queue;listeners.clear();},
  };

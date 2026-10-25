@@ -1,0 +1,150 @@
+--- a/src/hooks/useLibraryActions.ts
++++ b/src/hooks/useLibraryActions.ts
+@@ -1,4 +1,5 @@
+-import { useCallback } from 'react';
++import { useCallback, useRef } from 'react';
++import { debouncedSave, debouncedSetHistory } from './useEditorActions';
+ import { invoke } from '@tauri-apps/api/core';
+ import { toast } from 'react-toastify';
+ import { useLibraryStore } from '../store/useLibraryStore';
+@@ -100,7 +101,10 @@
+   }
+ };
+ 
+-export function useLibraryActions(handleImageSelect?: (path: string, openInEditor?: boolean) => void) {
++export function useLibraryActions(
++  handleImageSelect?: (path: string, openInEditor?: boolean) => void | boolean | Promise<void | boolean>,
++  beforeClearSelection?: () => Promise<boolean>,
++) {
+   const handleRate = useCallback((newRating: number, paths?: string[]) => {
+     const { imageRatings, imageList, setLibrary } = useLibraryStore.getState();
+ 
+@@ -264,9 +268,12 @@
+     }
+   }, []);
+ 
+-  const handleClearSelection = useCallback(() => {
++  // Ordinary selection and clearing share a latch while durable metadata is pending.
++  const selectionPending = useRef(false);
++  const handleClearSelection = useCallback(async () => {
++    if (selectionPending.current) return false;
+     const activeView = useUIStore.getState().activeView;
+-    const { selectedImage } = useEditorStore.getState();
++    const { selectedImage, adjustments } = useEditorStore.getState();
+ 
+     if (activeView === 'editor' && selectedImage) {
+       useLibraryStore.getState().setLibrary({
+@@ -274,17 +281,42 @@
+         libraryActivePath: selectedImage.path,
+         selectionAnchorPath: selectedImage.path,
+       });
+-    } else {
++      return true;
++    }
++    selectionPending.current = true;
++    const draft = JSON.stringify(adjustments);
++    const selection = () => {
++      const { multiSelectedPaths, libraryActivePath, selectionAnchorPath } = useLibraryStore.getState();
++      return JSON.stringify([multiSelectedPaths, libraryActivePath, selectionAnchorPath]);
++    };
++    const capturedSelection = selection();
++    try {
++      const acknowledged = beforeClearSelection ? await beforeClearSelection() : await debouncedSave.flush();
++      const latest = useEditorStore.getState();
++      if (acknowledged === false || latest.selectedImage?.path !== selectedImage?.path ||
++          JSON.stringify(latest.adjustments) !== draft || useUIStore.getState().activeView !== activeView ||
++          selection() !== capturedSelection) return false;
++      debouncedSave.cancel();
++      debouncedSetHistory.cancel();
++      // A restored cache entry may hold an already-revoked preview after subsequent edits.
++      // Invalidate only this document, and only after its metadata acknowledgement.
++      if (selectedImage) globalImageCache.delete(selectedImage.path);
+       clearLibrarySelection();
++      return true;
++    } catch (error) {
++      console.error('Selection metadata acknowledgement failed:', error);
++      return false;
++    } finally {
++      selectionPending.current = false;
+     }
+-  }, []);
++  }, [beforeClearSelection]);
+ 
+   const handleMultiSelectClick = useCallback(
+     (
+       path: string,
+       event: any,
+       options: {
+-        onSimpleClick(p: string, isAlreadySelected: boolean): void;
++        onSimpleClick(p: string, isAlreadySelected: boolean): void | Promise<boolean>;
+         updateLibraryActivePath: boolean;
+         shiftAnchor: string | null;
+         visibleImagePaths?: string[];
+@@ -333,30 +365,38 @@
+           else setLibrary({ libraryActivePath: null });
+         }
+       } else {
+-        onSimpleClick(path, isAlreadySelected);
++        return onSimpleClick(path, isAlreadySelected);
+       }
+     },
+     [],
+   );
+ 
+   const handleLibraryImageSingleClick = useCallback(
+-    (path: string, event: any, visibleImagePaths?: string[]) => {
+-      const { selectionAnchorPath, libraryActivePath, setLibrary } = useLibraryStore.getState();
+-      handleMultiSelectClick(path, event, {
+-        shiftAnchor: selectionAnchorPath ?? libraryActivePath,
+-        updateLibraryActivePath: true,
+-        visibleImagePaths,
+-        onSimpleClick: (p: string, isAlreadySelected: boolean) => {
+-          if (isAlreadySelected) {
+-            setLibrary({ libraryActivePath: p, selectionAnchorPath: p });
+-          } else {
+-            setLibrary({ multiSelectedPaths: [p], libraryActivePath: p, selectionAnchorPath: p });
+-          }
+-          if (handleImageSelect) {
+-            handleImageSelect(p, false);
+-          }
+-        },
+-      });
++    async (path: string, event: any, visibleImagePaths?: string[]) => {
++      if (selectionPending.current) return false;
++      selectionPending.current = true;
++      try {
++        const { selectionAnchorPath, libraryActivePath, setLibrary } = useLibraryStore.getState();
++        return await handleMultiSelectClick(path, event, {
++          shiftAnchor: selectionAnchorPath ?? libraryActivePath,
++          updateLibraryActivePath: true,
++          visibleImagePaths,
++          onSimpleClick: async (p: string, isAlreadySelected: boolean) => {
++            if (handleImageSelect && (await handleImageSelect(p, false)) === false) return false;
++            if (isAlreadySelected) {
++              setLibrary({ libraryActivePath: p, selectionAnchorPath: p });
++            } else {
++              setLibrary({ multiSelectedPaths: [p], libraryActivePath: p, selectionAnchorPath: p });
++            }
++            return true;
++          },
++        });
++      } catch (error) {
++        console.error('Selection metadata acknowledgement failed:', error);
++        return false;
++      } finally {
++        selectionPending.current = false;
++      }
+     },
+     [handleMultiSelectClick, handleImageSelect],
+   );
+--- a/src/hooks/useAppNavigation.ts
++++ b/src/hooks/useAppNavigation.ts
+@@ -308,6 +308,8 @@
+         return;
+       }
+ 
++      // A fresh load, including the same path after clear, establishes a new autosave baseline.
++      prevAdjustmentsRef.current = null;
+       isBackendReadyRef.current = true;
+ 
+       const imageFile = useLibraryStore.getState().imageList.find((img) => img.path === path);
