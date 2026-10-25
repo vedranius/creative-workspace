@@ -1,3 +1,7 @@
+# Alpha.72 immutable Actions draft assets verified — 2026-10-25
+
+Tag/source/draft423412681, Checks40191331091 and all25 Build40191331082 jobs are verified. All24 freshly downloaded assets/12 checksum pairs, twelve engine binaries, three Node runtimes and eight original UI manifests/167 files pass independent read-only inspection. [Complete evidence](evidence/creative-workspace-alpha72-release.md). This remains a draft prototype/prerelease with full original tools/providers/real OS/all13 acceptance open. Install verified Actions assets into a fresh root; preserve live installations and unsaved documents. No existing tag/release/asset or product version was changed by this evidence-only step. Alpha71/70/69 gates were also completed; the candidate entries below retain their earlier implementation checkpoints.
+
 # Alpha.70 original Insert Footnote candidate — 2026-10-25
 
 `0.2.0-alpha.72` connects the original Go to Footnote Reference command with canonical selection/page ACK and held body typing. It preserves document content, dirty/name and Undo history. [Evidence](evidence/designcraft-footnote-reference.md). Keep draft/prerelease until this exact source's Actions checks, immutable tag/draft and downloaded assets/checksums pass. Full tools/providers/real OS/all13 acceptance remains open; local binaries are QA only.

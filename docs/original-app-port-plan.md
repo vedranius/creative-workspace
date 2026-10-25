@@ -1,3 +1,9 @@
+# PAR-03 alpha.72 — immutable Actions draft assets verified (2026-10-25)
+
+Checks40191331091 and all25 Build/release40191331082 jobs passed for4ea574e. Immutable tag v0.2.0-alpha.72 and draft prerelease423412681 resolve to that source. All24 downloaded assets/12 SHA256 pairs, three Node runtimes,12 engine binaries, startup/licenses/source manifests and eight UI manifests/167 files verify. DesignCraft patch10ddd4ca matches packaged provenance; independent Actions WASM d4ea3e03 measured. [Release evidence and limits](evidence/creative-workspace-alpha72-release.md) · [Go to Footnote Reference proof](evidence/designcraft-footnote-reference.md).
+
+Evidence-only: alpha72 stays draft/prototype and DesignCraft planned. Full tools/providers/real OS/all13 acceptance remain open. No product version/build/tag/release/asset/main-B merge/private-photo/live-studio/demo change. Next B fromff0e4b7: explicit confirmed recovery discard with fresh identity/bytes and stale veto; original-root File/Exposure/JPEG/recovery copy are complete. Next A: original Type > Insert Endnote native/UI/selection/ACK. Alpha72/71/70/69 gates are complete; no repeat audits/builds as progress. SAME MAIN/one writer; preserve FilmCraft/originals.
+
 # PAR-03 alpha.72 — original Go to Footnote Reference candidate (2026-10-25)
 
 Original Type > Go to Footnote Reference now uses the unchanged command through native selection/page composition and matching canonical ACK. Empty parameters only; invalid note selection is rejected before mutation. Navigation preserves content, dirty/name and Undo history; held body typing reaches the body after ACK. [Native/browser reports and original UI screenshots](evidence/designcraft-footnote-reference.md).
