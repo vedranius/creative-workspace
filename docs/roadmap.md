@@ -1,3 +1,9 @@
+# RWASM-03 — original App JPEG export ACK (2026-10-25)
+
+Actual App/ExportPanel now uses the existing worker/destination through original JPEG/Cancel handlers and terminal events. Native-exact full JPEG, held/failed/mismatched write ACK, separate retention, retained recovery and reload without replay pass 18 browser assertions; 96 host tests/check pass. Last-used preferences wait for the file ACK. [Evidence and continuation](rapidraw-wasm-app-export-handoff.md).
+
+Experimental B: root single-JPEG slice only; OS chooser prompt/user recovery UI/full App/tools/providers remain open. Native/runtime/WASM unchanged; no product release/main/demo/private input change. Next A: alpha72 immutable Actions assets gate then Insert Endnote. Next B: original-root explicit recovery actions with new destination ACK. SAME MAIN only.
+
 # RWASM-03 — original App single RAW File (2026-10-25)
 
 Actual AppWrapper/App now connects one explicit browser File to original navigation, image managers, EditorView and Exposure. Native-exact RGBA/JPEG, held/uncertain/newer-draft Back/Close and content-bound close/reopen pass16 browser assertions;96 host/check pass. An in-flight autosave is joined before transition, avoiding a duplicate write. [Evidence and continuation](rapidraw-wasm-app-file-handoff.md).

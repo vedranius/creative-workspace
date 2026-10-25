@@ -837,5 +837,41 @@
       "experiments/rapidraw-react-proof/app-file-main.tsx": "0c3dae029f90ec42a3b7df054cf32aee2634d2859a4d691a82052425e92f7d32"
     },
     "scope": "Actual original App root with one explicitly selected browser RAW File, original navigation/managers/EditorView/Controls and existing content-bound metadata ACK. Root export/folders/general settings/native desktop/full App/provider acceptance remain unavailable. Existing native algorithms/renderer/WASM/resource limits unchanged; unfinished independent port experiment."
+  },
+  "appExport": {
+    "basePatch": {
+      "path": "patches/rapidraw/b39884b3/app-file-v1.patch",
+      "sha256": "95dadc02741085287322311569345c121268b7d67c83175499de5da24b3e5275",
+      "patchedFiles": {
+        "src/App.tsx": "9b2345eb0c83a43970d049474e52e26bbab353f4e030f249ef61ba10e2e032ce",
+        "src/hooks/useTauriListeners.ts": "2a5fd7718badd21ce0062b88d1599a481b91070dbd4e3a87f7b0d2f0f834a994"
+      }
+    },
+    "lastUsedPatch": {
+      "path": "patches/rapidraw/b39884b3/export-last-used-ack-v1.patch",
+      "sha256": "5fb47ff640f284d81f31b9f9709ae9aef243b4e6d07f0cae98be009c34828ee4",
+      "patchedFiles": {
+        "src/components/panel/right/ExportPanel.tsx": "3ea8fa7d8632e935dd9ece814077993d6a42d663da3c7c12492661a6e2da8bb5"
+      },
+      "nativeContract": {
+        "src-tauri/src/export_processing.rs": "1393afa5760c14822344e6a8744b9dfc1591d52716b321916e80b2b3d7d82aa0",
+        "src/hooks/useTauriListeners.ts": "55b05c8f37bf4d9ad7ec6b9db4f212d06dcbd77569dcb5d1cb63666d9c10e536"
+      },
+      "scope": "Original terminal export event gates last-used preference write; awaited settings callback failure is separate from file success, no destination path persistence."
+    },
+    "sourceFiles": {
+      "src/App.tsx": "a68247133c1796b6b29b7772f2a3efe2dab4ca3ea4faef860cd9d1877f9abdf2"
+    },
+    "sourcePatch": {
+      "path": "patches/rapidraw/b39884b3/app-export-v1.patch",
+      "sha256": "39a3060bdfa839bec033d3282a36ecd059e0a732b9dd1d2ecf80f39407cf3318",
+      "patchedFiles": {
+        "src/App.tsx": "75959b387411e210bb3d3bbd717d58f3e3715f278b2452cb21915a60818524fa"
+      }
+    },
+    "bootstrapFiles": {
+      "experiments/rapidraw-react-proof/app-export-main.tsx": "0920d89f469bebfd28559e55345f4df471e571d70ad9de937e28c3f845dfa4b8"
+    },
+    "scope": "Actual original App File/ExportPanel, single bounded JPEG via explicit browser destination and separate retention, write/readback ACK and retained uncertain output. Browser OPFS QA chooser is distinct from OS picker acceptance. Recovery inventory/readback are backend evidence, not a complete user recovery UI. Full App/folders/native desktop/provider/OS acceptance remain open; unchanged original native/runtime/WASM."
   }
 }
