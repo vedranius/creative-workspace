@@ -1,3 +1,9 @@
+# RWASM-03 — original editor Filmstrip click ACK (2026-10-25)
+
+Original EditorView/BottomBar/Filmstrip now uses the original action hook with metadata ACK before selection/cache changes. Held/failed/newer drafts preserve the editor; cached A/B frames and reload restore independent metadata without writes.92 host tests/check and16 actual browser assertions/native-exact RGBA/JPEG frames pass with zero unexpected errors. [Evidence and continuation](rapidraw-wasm-metadata-filmstrip-handoff.md).
+
+Experimental B: one stacked source-handler patch, unchanged original components/runtime/native/WASM, explicit Files and existing resource limits. No product release/main/demo/private input change. Modifier/bulk/full App/real OS/provider/zoomed ROI remain open. Alpha70 still built original-designcraft at entry (23 jobs passed); next A is its gate then FootnoteOptions. Next B: original BottomBar single-File Copy/Paste. MAIN only.
+
 # RWASM-03 — original library single-click and clear ACK (2026-10-25)
 
 Original LibraryGrid ordinary clicks and clear-selection now wait for matching metadata ACK. Held/failed/newer drafts preserve File/selection/cache; successful clear invalidates only its stale frontend entry, and same-path reload restores metadata without autosave replay. Native cancellation strings match the original source hook.92 host tests/check,18 original browser assertions and native-exact RGBA/JPEG frames pass with zero unexpected errors. [Evidence and continuation](rapidraw-wasm-metadata-selection-handoff.md).

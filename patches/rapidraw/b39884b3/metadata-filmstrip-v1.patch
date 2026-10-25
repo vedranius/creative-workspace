@@ -1,0 +1,52 @@
+--- a/src/hooks/useLibraryActions.ts
++++ b/src/hooks/useLibraryActions.ts
+@@ -402,23 +402,33 @@
+   );
+ 
+   const handleImageClick = useCallback(
+-    (path: string, event: any, visibleImagePaths?: string[]) => {
+-      const { selectionAnchorPath, libraryActivePath, setLibrary } = useLibraryStore.getState();
+-      const { selectedImage } = useEditorStore.getState();
+-      const inEditor = !!selectedImage;
++    async (path: string, event: any, visibleImagePaths?: string[]) => {
++      if (selectionPending.current) return false;
++      selectionPending.current = true;
++      try {
++        const { selectionAnchorPath, libraryActivePath, setLibrary } = useLibraryStore.getState();
++        const { selectedImage } = useEditorStore.getState();
++        const inEditor = !!selectedImage;
+ 
+-      handleMultiSelectClick(path, event, {
+-        shiftAnchor: selectionAnchorPath ?? (inEditor ? selectedImage.path : libraryActivePath),
+-        updateLibraryActivePath: !inEditor,
+-        visibleImagePaths,
+-        onSimpleClick: (p: string, isAlreadySelected: boolean) => {
+-          if (!isAlreadySelected) {
+-            setLibrary({ multiSelectedPaths: [p] });
+-          }
+-          if (handleImageSelect) handleImageSelect(p);
+-          setLibrary({ selectionAnchorPath: p });
+-        },
+-      });
++        return await handleMultiSelectClick(path, event, {
++          shiftAnchor: selectionAnchorPath ?? (inEditor ? selectedImage.path : libraryActivePath),
++          updateLibraryActivePath: !inEditor,
++          visibleImagePaths,
++          onSimpleClick: async (p: string, isAlreadySelected: boolean) => {
++            if (handleImageSelect && (await handleImageSelect(p)) === false) return false;
++            if (!isAlreadySelected) {
++              setLibrary({ multiSelectedPaths: [p] });
++            }
++            setLibrary({ selectionAnchorPath: p });
++            return true;
++          },
++        });
++      } catch (error) {
++        console.error('Selection metadata acknowledgement failed:', error);
++        return false;
++      } finally {
++        selectionPending.current = false;
++      }
+     },
+     [handleMultiSelectClick, handleImageSelect],
+   );

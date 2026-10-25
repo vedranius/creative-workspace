@@ -42,6 +42,8 @@ const rendererTransport=createReactTransport({metadataHost,settingsHost,wasm,dev
 const transport=(globalThis as any).wrapRapidRawTransport?.(rendererTransport)??rendererTransport;
 const metadataUnsubscribe=metadataHost?useEditorStore.subscribe((state)=>{if(state.selectedImage?.isReady)metadataHost.observe((globalThis as any).rapidRawMetadataFile,state.adjustments);}):()=>{};
 const LibraryComponent=(globalThis as any).rapidRawLibraryComponent;
+const EditorComponent=(globalThis as any).rapidRawEditorComponent??Editor;
+const LibraryActionsHook=(globalThis as any).rapidRawUseLibraryActions;
 const MetadataControls=(globalThis as any).rapidRawMetadataControls;
 const metadataTransition=(globalThis as any).rapidRawMetadataTransition;
 const PresetPanel=(globalThis as any).rapidRawPresetPanel;
@@ -58,6 +60,7 @@ function Proof(){
  useTauriListeners({refreshAllFolderTrees(){},handleSelectSubfolder(){},refreshImageList(){},markGenerated(){}});
  const navigationRefs={transformWrapperRef:transform,cachedEditStateRef:cached,preloadedDataRef:useRef(null),selectedImagePathRef:useRef(null),isBackendReadyRef:useRef(true),latestRenderedJobIdRef:rendered,previewJobIdRef:job,currentResRef:resolution,prevAdjustmentsRef:prev};
  const navigation=(globalThis as any).rapidRawUseMetadataNavigation?.(navigationRefs);
+ const libraryActions=LibraryActionsHook?.(navigation);
  const activeView=useUIStore(s=>s.activeView);
  const adjustments=useEditorStore(s=>s.adjustments),selectedImage=useEditorStore(s=>s.selectedImage);
  const exportState=useProcessStore(s=>s.exportState),appSettings=useSettingsStore(s=>s.appSettings);
@@ -79,8 +82,8 @@ function Proof(){
    useEditorStore.getState().setEditor({selectedImage:{path,width:0,height:0,exif:{},isRaw:false,thumbnailUrl:'',isReady:false} as any,finalPreviewUrl:null,interactivePatch:null});
    }catch(error){setOpenError(String((error as any).message??error));}
   }}/>{openError&&<span role="alert">{openError}</span>}{navigation&&<><span aria-label="Original navigation view">{activeView}</span><button onClick={()=>navigation.handleImageSelect(useEditorStore.getState().selectedImage?.path)}>QA resume cached editor</button><button onClick={()=>{void (globalThis as any).rapidRawNavigation.closeDocument();}}>QA close acknowledged document</button></>}</header><main style={{display:'flex',height:'calc(100vh - 70px)',background:'#171717',color:'white'}}>
-  {LibraryComponent&&<LibraryComponent navigation={navigation}/>}
-  <section style={{flex:1,minWidth:0,display:navigation&&activeView!=='editor'?'none':'flex'}}><Editor transformWrapperRef={transform} onBackToLibrary={navigation?.handleBackToLibrary??(()=>{})} onContextMenu={e=>e.preventDefault()}/></section>
+  {LibraryComponent&&<LibraryComponent navigation={navigation} libraryActions={libraryActions}/>}
+  <section style={{flex:1,minWidth:0,display:navigation&&activeView!=='editor'?'none':'flex'}}><EditorComponent navigation={navigation} libraryActions={libraryActions} transformWrapperRef={transform} onBackToLibrary={navigation?.handleBackToLibrary??(()=>{})} onContextMenu={e=>e.preventDefault()}/></section>
   <aside aria-label="Original Basic panel" style={{width:300,padding:16,overflow:'auto'}}><PanelSwitcher region="rightTop" side="right" placement="top"/>{MetadataControls?<MetadataControls/>:<Basic adjustments={adjustments} appSettings={settings}
    setAdjustments={(update:any)=>useEditorStore.getState().setEditor(state=>({adjustments:typeof update==='function'?update(state.adjustments):{...state.adjustments,...update}}))}
    onDragStateChange={isSliderDragging=>useEditorStore.getState().setEditor({isSliderDragging})}/>}

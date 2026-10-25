@@ -642,5 +642,29 @@
     "nativeContract": {
       "src-tauri/src/lib.rs": "ce69ae5e06b5c5f0eb7b6592d981c727c1be07e7787000a41e50ed77618b2606"
     }
+  },
+  "metadataFilmstrip": {
+    "basePatch": {
+      "path": "patches/rapidraw/b39884b3/metadata-selection-v1.patch",
+      "sha256": "4dfcf530adeb775cf4fe7cb4676b1e76e5b5d31cf99b03398a6ed832fa28f9f1",
+      "patchedFiles": {
+        "src/hooks/useLibraryActions.ts": "bdb673e4e2de8f0da6f7623958547878d4297d907d66ae2342898d4b439df1d1",
+        "src/hooks/useAppNavigation.ts": "b298a3aee89427bc47453aac257120afc9452409d975e0a717c84fa6a22830e8"
+      }
+    },
+    "sourceFiles": {
+      "src/hooks/useLibraryActions.ts": "d43ee4e0eac16f4501442e1f1e24cf141ec40b69246794e43014dac0a4262917",
+      "src/components/views/EditorView.tsx": "80c2ef1fc54e27e82f3b247e09256bdc85f91290f78f6e151be8c87860752480",
+      "src/components/panel/BottomBar.tsx": "bbd8f58e894460469a35f7286885ab3e4b2cff07e588705f7c9d812ef6ca3952",
+      "src/components/panel/Filmstrip.tsx": "f873c52b4d4bddcccd4f8e37478150c678040a34361ade81ad2c3009015b901b"
+    },
+    "sourcePatch": {
+      "path": "patches/rapidraw/b39884b3/metadata-filmstrip-v1.patch",
+      "sha256": "c320b33156d2ca4d2a6cd410aeb7d8916662820490f6d6813474f55140b105df",
+      "patchedFiles": {
+        "src/hooks/useLibraryActions.ts": "e2611a48d4ffc2d3aa497c2fd1cc1b609a0ff73aa65359f1187f91b6be20bcf4"
+      }
+    },
+    "scope": "Original EditorView/BottomBar/Filmstrip ordinary pointer click with useLibraryActions.handleImageClick waits for matching metadata ACK before selection and cache mutations. Existing shared ordinary-click/clear latch, original controls/algorithms, explicit registered Files and native-exact Exposure frames. Modifier/bulk/full App/OS/provider/zoomed ROI acceptance remains open; isolated QA composition only."
   }
 }
