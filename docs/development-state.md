@@ -1,3 +1,11 @@
+# PAR-03 alpha.71 — original Document Footnote Options candidate (2026-10-25)
+
+Original Type > Document Footnote Options now routes its unchanged command through bounded gateway/native validation and matching canonical ACK. The original dialog retains drafts on failure/pending and closes only after valid ACK. Actual browser testing exposed and fixed server canvas Escape leaking beneath a modal. Original composition stays unchanged. [Contract, native/browser reports and screenshots](evidence/designcraft-footnote-options.md).
+
+12 native / 165 UI + 1 ignored / 35 gateway / 93 repository tests, check/release/YAML and actual original dialog held-ACK/cancellation/failure/UndoRedo/server PNG/native Save Copy/fresh-reopen pass. A new alpha71 Actions/tag/draft/downloaded-assets gate remains required; alpha70/69 gates are complete and immutable. DesignCraft stays planned; full tools/providers/real OS/all 13 acceptance stays open. Local binaries/WASM are QA-only.
+
+Next B in this SAME MAIN from `cb693a1`: original full useAppInitialization browser capability/readiness boundary; failed/stale startup must not enable persistence or write unsupported workspace/language/filter settings. The bounded source settings loader/None/migration is complete. Next A: exact alpha71 source CI/tag/draft/downloaded asset gate, then original footnote.goToReference selection/ACK contract. No new writer/chat/main-B merge, private-photo, live studio or demo changes. Preserve FilmCraft and originals.
+
 # PAR-03 alpha.70 — immutable Actions draft assets verified (2026-10-25)
 
 Checks40155555976 and all25 Build/release40155555942 jobs passed for `c60686f7`. Tag v0.2.0-alpha.70 and draft prerelease423133154 resolve to the exact source. All24 downloaded assets/12 SHA256 pairs, three Node runtimes,12 engine binaries, startup/licenses/source manifests and eight UI manifests/167 files verify. DesignCraft patch6c873683 matches source and packaged provenance; Actions WASM7517f8e9 was measured independently. [Release evidence and limits](evidence/creative-workspace-alpha70-release.md) · [Insert Footnote native/browser proof](evidence/designcraft-footnote-insert.md).

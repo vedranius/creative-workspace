@@ -31,6 +31,7 @@ const COMMANDS: &[&str] = &[
     "text.select",
     "text.insert",
     "footnote.insert",
+    "footnote.options",
     "text.delete",
     "type.char",
     "edit.clear",
@@ -252,7 +253,47 @@ fn footnote_insert_budget(h: &Headless, p: &Value) -> Result<(), Box<dyn std::er
     let doc=&candidate.active().ok_or("No candidate document")?.doc;
     budget(doc)?;canonical_snapshot(doc)?;Ok(())
 }
+// Original composition increments once even after the final reference. Keep
+// document-wide numbering and that increment inside u32 before original layout.
+fn footnote_number_budget(d:&Document,start:u64)->Result<(),Box<dyn std::error::Error>> {
+    let steps=d.stories.values().try_fold(0u64,|total,s| total.checked_add(s.notes.len().max(s.text.matches(designcraft_doc::FOOTNOTE_REF).count()) as u64)).ok_or("Footnote count overflow")?;
+    if start.checked_add(steps).is_none_or(|n|n>u32::MAX as u64) {return Err("Footnote numbering exceeds the native u32 composition budget".into());}
+    Ok(())
+}
+// Validate an exact isolated original-command result before touching real history.
+fn footnote_options_budget(h: &Headless, p: &Value) -> Result<(), Box<dyn std::error::Error>> {
+    fn fields(p:&Value, rule:bool)->Result<(),Box<dyn std::error::Error>> {
+        let bad="Invalid bounded footnote.options parameters";
+        let object=p.as_object().ok_or(bad)?;
+        for (k,v) in object {
+            let key=k.as_str();
+            let allowed=if rule { match key {
+                "on"=>v.is_boolean(), "color"=>v.as_str().is_some_and(|s|s.len()<=256),
+                "weight"|"width"=>v.as_f64().is_some_and(|n|n.is_finite()&&(0.0..=10000.0).contains(&n)),
+                "offset"|"leftIndent"=>v.as_f64().is_some_and(|n|n.is_finite()&&n.abs()<=10000.0),
+                "tint"=>v.as_f64().is_some_and(|n|n.is_finite()&&(0.0..=1.0).contains(&n)), _=>false,
+            }} else {match key {
+                "style"|"restart"|"affixIn"|"refPosition"|"firstBaseline"=>v.is_string(), // exact enums checked by original serde on candidate
+                "prefix"|"suffix"|"separator"|"refCharStyle"|"paraStyle"=>v.as_str().is_some_and(|s|s.len()<=256),
+                "startAt"=>v.as_u64().is_some_and(|n|n<=u32::MAX as u64),
+                "spaceBefore"|"spaceBetween"|"firstBaselineMin"=>v.as_f64().is_some_and(|n|n.is_finite()&&(0.0..=10000.0).contains(&n)),
+                "spanColumns"=>v.is_boolean(), "rule"=>{fields(v,true)?;true},_=>false,
+            }};
+            if !allowed{return Err(bad.into());}
+        } Ok(())
+    }
+    if serde_json::to_vec(p)?.len()>4096 {return Err("Footnote options exceed 4 KiB".into());}
+    fields(p,false)?;
+    let st=h.session.active().ok_or("No document")?;
+    footnote_number_budget(&st.doc,p.get("startAt").and_then(Value::as_u64).unwrap_or(st.doc.footnote_options.start_at as u64))?;
+    let mut candidate=designcraft_engine::Session::new();
+    let mut state=DocState::new((*st.doc).clone(),None);state.selection=st.selection.clone();candidate.add_document(state);
+    candidate.execute("footnote.options",p)?;
+    let doc=&candidate.active().ok_or("No candidate document")?.doc;
+    budget(doc)?;canonical_snapshot(doc)?;Ok(())
+}
 fn budget(d: &Document) -> Result<(), Box<dyn std::error::Error>> {
+    footnote_number_budget(d,d.footnote_options.start_at as u64)?;
     if d.stories.values().any(|s| s.notes.iter().any(|n| n.id == 0 || n.id > u32::MAX as u64)) {
         return Err("Footnote ID exceeds the canonical JSON / wasm32 address budget".into());
     }
@@ -427,6 +468,7 @@ fn answer(h: &mut Headless, saved: &mut Option<Arc<Document>>, read: &Path, writ
             if !COMMANDS.contains(&c) {
                 return Err("Unsupported workspace layout command".into());
             }
+            if c=="footnote.options" { footnote_options_budget(h,p.get("params").unwrap_or(&Value::Null))?; }
             if c=="footnote.insert" { footnote_insert_budget(h,p.get("params").unwrap_or(&Value::Null))?; }
             // Upstream records the old document with the post-edit selection.
             // For admitted note edits, pair that exact history entry with its
@@ -635,5 +677,36 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
   let prior=h.session.active().ok_or("No doc")?.doc.clone();canonical_snapshot(&prior)?;
   assert!(answer(&mut h,&mut saved,Path::new("."),Path::new("."),&json!({"method":"command","params":{"command":"footnote.insert","params":{}}})).is_err());
   assert!(Arc::ptr_eq(&prior,&h.session.active().ok_or("No doc")?.doc));Ok(())
+ }
+}
+
+#[cfg(test)] mod footnote_options_contract {
+ use super::*;
+ #[test] fn original_options_guard_history_render_and_save_reopen()->Result<(),Box<dyn std::error::Error>> {
+  let mut h=Headless::new();let mut saved=None;
+  h.call("engine.execute",json!({"command":"file.new","params":{"pages":3,"facingPages":true}}))?;
+  let px=h.session.active().ok_or("doc")?.doc.page(2).ok_or("page")?.bounds().x0;
+  let frame=h.call("engine.execute",json!({"command":"frame.create","params":{"spread":1,"rect":[px+60.0,80.0,px+360.0,320.0],"content":"text","caret":true}}))?;
+  h.call("engine.execute",json!({"command":"text.insert","params":{"text":"Body text"}}))?;
+  h.call("engine.execute",json!({"command":"footnote.insert","params":{"text":"Footnote text"}}))?;
+  let old=h.session.active().ok_or("doc")?.doc.clone();let original=canonical_snapshot(&old)?;
+  let selection=wire_selection(&h.session.active().ok_or("doc")?.selection)?;
+  let execute=|h:&mut Headless,saved:&mut Option<Arc<Document>>,p:Value|answer(h,saved,Path::new("."),Path::new("."),&json!({"method":"command","params":{"command":"footnote.options","params":p}}));
+  for p in [json!({"bogus":true}),json!({"style":"bogus"}),json!({"rule":{"width":10001}}),json!({"rule":{"tint":1.1}}),json!({"startAt":4294967296u64}),json!({"startAt":4294967295u64}),json!({"prefix":"é".repeat(129)}),json!({"spaceBetween":-1}),json!({"rule":[]}),Value::Null] {
+   assert!(execute(&mut h,&mut saved,p).is_err());assert!(Arc::ptr_eq(&old,&h.session.active().ok_or("doc")?.doc));
+  }
+  let params=json!({"style":"lowerRoman","startAt":3,"prefix":"[","suffix":"]","affixIn":"both","separator":" — ","spaceBefore":8.0,"spaceBetween":3.0,"firstBaseline":"leading","spanColumns":true,"rule":{"on":true,"weight":2.0,"width":100.0,"offset":4.0,"leftIndent":5.0,"tint":0.5}});
+  let result=execute(&mut h,&mut saved,params.clone())?;assert_eq!(result["startAt"],3);assert_eq!(result["rule"]["tint"],0.5);
+  let changed=h.session.active().ok_or("doc")?.doc.clone();let changed_json=canonical_snapshot(&changed)?;
+  assert_eq!(wire_selection(&h.session.active().ok_or("doc")?.selection)?,selection);
+  assert_ne!(changed_json,original);
+  for key in ["stories","spreads","parents"] {assert_eq!(changed_json[key],original[key]);}
+  h.call("engine.execute",json!({"command":"edit.undo","params":{}}))?;assert_eq!(canonical_snapshot(&h.session.active().ok_or("doc")?.doc)?,original);
+  h.call("engine.execute",json!({"command":"edit.redo","params":{}}))?;assert_eq!(canonical_snapshot(&h.session.active().ok_or("doc")?.doc)?,changed_json);
+  let reopened=designcraft_format::load(&designcraft_format::save(&changed)?)?;assert_eq!(canonical_snapshot(&reopened)?,changed_json);
+  if let Ok(out)=std::env::var("CW_FOOTNOTE_OUTPUT") {
+   let root=PathBuf::from(out);std::fs::write(root.join("options-fixture.designcraft"),designcraft_format::save(&old)?)?;
+   std::fs::write(root.join("options-native.json"),serde_json::to_vec_pretty(&json!({"params":params,"result":result,"sourceCommand":"footnote.options","frame":frame,"rejectedBeforeMutation":10,"selectionUnchanged":true,"storyAndPageUnchanged":true,"undoRedoCanonicalExact":true,"saveReopenCanonicalExact":true}))?)?;
+  }Ok(())
  }
 }

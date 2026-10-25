@@ -9,7 +9,7 @@ import {resolveWorkspace,isWithin} from './storage.js';
 import {importSegments,receiveFile} from './transfers.js';
 
 const nativeMethods=new Set(['__cw_identity','new','sample','open','state','render','command','export','save_copy','mark_saved']);
-const methods=new Set(['state','heartbeat','file.new','file.open','doc.new','doc.sample','doc.open','doc.save','file.saveACopy','page.select','frame.create','layout.pages.move','layout.pages.insert','layout.pages.duplicateSpread','layout.pages.delete','select.set','selection.set','select.all','select.none','edit.selectAll','edit.deselectAll','transform.move','transform.resize','object.fill','object.stroke','swatch.create','story.setText','type.char','text.placeCaret','text.select','text.insert','footnote.insert','text.delete','edit.clear','edit.undo','edit.redo']);
+const methods=new Set(['state','heartbeat','file.new','file.open','doc.new','doc.sample','doc.open','doc.save','file.saveACopy','page.select','frame.create','layout.pages.move','layout.pages.insert','layout.pages.duplicateSpread','layout.pages.delete','select.set','selection.set','select.all','select.none','edit.selectAll','edit.deselectAll','transform.move','transform.resize','object.fill','object.stroke','swatch.create','story.setText','type.char','text.placeCaret','text.select','text.insert','footnote.insert','footnote.options','text.delete','edit.clear','edit.undo','edit.redo']);
 const fail=(message,status=400,code)=>Object.assign(new Error(message),{status,...(code?{code}:{})});
 const relative=value=>{try{importSegments(value);return value;}catch{throw fail('Use a relative path inside this application workspace');}};
 const number=(value,min,max,label)=>{if(typeof value!=='number'||!Number.isFinite(value)||value<min||value>max)throw fail(`Invalid ${label}`);return value;};
@@ -73,6 +73,33 @@ function boundedCaret(value,document,page,canonical){
   return {page,frame:value.frame,story:value.story,points:value.points.map(p=>[...p]),...(cell===undefined?{}:{cell:{table:cell.table,row:cell.row,col:cell.col}}),...(note===undefined?{}:{note:{kind:'footnote',id:note.id}})};
 }
 
+// Bounded partial original FootnoteOptions DTO. The native worker independently
+// validates the same limits before executing the original merge command.
+function footnoteOptions(p){
+  const enums={style:['arabic','upperRoman','lowerRoman','upperLetters','lowerLetters','arabicLeadingZero','arabicThreeDigits','arabicFourDigits','symbols'],restart:['never','page','spread','section'],affixIn:['none','reference','text','both'],refPosition:['normal','superscript','subscript','otSuperscript','otSubscript','otNumerator','otDenominator'],firstBaseline:['ascent','capHeight','leading','xHeight','fixed']};
+  const strings=['prefix','suffix','refCharStyle','paraStyle','separator'];
+  const measures=['spaceBefore','spaceBetween','firstBaselineMin'];
+  const bad=()=>{throw fail('Invalid bounded footnote.options parameters');};
+  if(!p||typeof p!=='object'||Array.isArray(p)||Buffer.byteLength(JSON.stringify(p),'utf8')>4096)bad();
+  for(const [k,v] of Object.entries(p)){
+    if(Object.hasOwn(enums,k)){if(!enums[k].includes(v))bad();}
+    else if(strings.includes(k)){if(typeof v!=='string'||Buffer.byteLength(v,'utf8')>256)bad();}
+    else if(measures.includes(k)){number(v,0,10000,k);}
+    else if(k==='startAt'){if(!Number.isInteger(v)||v<0||v>4294967295)bad();}
+    else if(k==='spanColumns'){if(typeof v!=='boolean')bad();}
+    else if(k==='rule'){
+      if(!v||typeof v!=='object'||Array.isArray(v))bad();
+      for(const [rk,rv] of Object.entries(v)){
+        if(rk==='on'){if(typeof rv!=='boolean')bad();}
+        else if(rk==='color'){if(typeof rv!=='string'||Buffer.byteLength(rv,'utf8')>256)bad();}
+        else if(['weight','width','offset','leftIndent','tint'].includes(rk))number(rv,['offset','leftIndent'].includes(rk)?-10000:0,rk==='tint'?1:10000,rk);
+        else bad();
+      }
+    }else bad();
+  }
+  return structuredClone(p);
+}
+
 // Do not forward arbitrary engine parameters: some native commands accept filesystem paths.
 function commandParams(method,p){
   if(method==='edit.selectAll'&&Object.keys(p).length)throw fail('edit.selectAll takes no parameters');
@@ -88,6 +115,7 @@ function commandParams(method,p){
   if(method==='text.placeCaret'){if(!Number.isSafeInteger(p.frame)||p.frame<0||!Array.isArray(p.point)||p.point.length!==2||Object.keys(p).some(k=>!['frame','point'].includes(k)))throw fail('text.placeCaret requires a frame and a canvas point');return {frame:p.frame,point:p.point.map(v=>number(v,-100000,100000,'caret coordinate'))};}
   if(method==='text.select'){if(!Number.isSafeInteger(p.story)||p.story<0||!Number.isSafeInteger(p.anchor)||p.anchor<0||p.anchor>16*1024*1024||(p.focus!==undefined&&(!Number.isSafeInteger(p.focus)||p.focus<0||p.focus>16*1024*1024))||Object.keys(p).some(k=>!['story','anchor','focus'].includes(k)))throw fail('text.select requires bounded story and UTF-8 offsets');return {story:p.story,anchor:p.anchor,...(p.focus===undefined?{}:{focus:p.focus})};}
   if(method==='story.setText'){if(!Number.isSafeInteger(p.story)||p.story<0||typeof p.text!=='string'||p.text.length>20000)throw fail('Choose a story and text up to 20,000 characters');return {story:p.story,text:p.text};}
+  if(method==='footnote.options')return footnoteOptions(p);
   if(method==='footnote.insert'){if(Object.keys(p).some(k=>k!=='text')||(p.text!==undefined&&(typeof p.text!=='string'||Buffer.byteLength(p.text,'utf8')>4096)))throw fail('footnote.insert accepts only optional text up to 4 KiB');return p.text===undefined?{}:{text:p.text};}
   if(method==='text.insert'){if(typeof p.text!=='string'||Buffer.byteLength(p.text,'utf8')>4096||(p.raw!==undefined&&typeof p.raw!=='boolean')||Object.keys(p).some(k=>!['text','raw'].includes(k)))throw fail('text.insert accepts text up to 4 KiB and an optional raw flag');return {text:p.text,...(p.raw===undefined?{}:{raw:p.raw})};}
   if(method==='text.delete'){if(Object.keys(p).some(k=>!['forward','word'].includes(k))||(p.forward!==undefined&&typeof p.forward!=='boolean')||(p.word!==undefined&&typeof p.word!=='boolean'))throw fail('text.delete accepts optional forward and word flags');return {...(p.forward===undefined?{}:{forward:p.forward}),...(p.word===undefined?{}:{word:p.word})};}
@@ -184,7 +212,7 @@ export function createDesignCraft({binary=process.env.CW_DESIGNCRAFT_BINARY||pat
           if(s.laptopOutput){const targetFile=await destination(s.writeRoot,target);let handle;try{handle=await open(targetFile,'wx');await pipeline(createReadStream(source),handle.createWriteStream());}catch(e){if(e.code==='EEXIST')throw fail('Choose a new filename; this output already exists',409,'OUTPUT_EXISTS');throw e;}finally{await handle?.close().catch(()=>{});}await settleOutput(s.shareId,target);}
           else await receiveFile(createReadStream(source),s.writeRoot,target,maxFileBytes);
           s.outputs.add(target);if(format==='designcraft'){await s.engine.call('mark_saved');s.name=path.basename(target);}result={path:target,bytes:size,format,warnings:result.warnings||[],savedDocument:format==='designcraft'};await rm(exportRoot,{recursive:true,force:true}).catch(()=>{});
-        }else{const args=commandParams(method,params);if(method==='frame.create'){const doc=await s.engine.call('state'),spread=doc.spreads.find(sp=>sp.pages.some(p=>p.index===s.page)),page=spread.pages.find(p=>p.index===s.page);args.spread=spread.index;args.rect=[args.rect[0]+page.bounds[0],args.rect[1],args.rect[2]+page.bounds[0],args.rect[3]];}if(method==='layout.pages.move'){const doc=await s.engine.call('state');if(args.from>=doc.pageCount||args.to>=doc.pageCount)throw fail('Unknown page');}if(method==='layout.pages.insert'){const doc=await s.engine.call('state');if(args.after>=doc.pageCount)throw fail('Unknown page');if(doc.pageCount+args.count>64)throw fail('Inserting pages would exceed the 64-page server limit',413);}if(method==='layout.pages.duplicateSpread'){const doc=await s.engine.call('state'),spread=doc.spreads[args.spread];if(!spread)throw fail('Unknown spread');if(doc.pageCount+spread.pages.length>64)throw fail('Duplicating this spread would exceed the 64-page server limit',413);}if(method==='layout.pages.delete'){const doc=await s.engine.call('state');if(args.pages.some(page=>page>=doc.pageCount))throw fail('Unknown page');if(args.pages.length>=doc.pageCount)throw fail('The last page cannot be deleted',409);}result=await s.engine.call('command',{command:({'select.set':'selection.set','select.all':'edit.selectAll','select.none':'edit.deselectAll'})[method]||method,params:args});s.version++;if(!method.startsWith('select.')&&!['selection.set','edit.selectAll','edit.deselectAll','text.select','text.placeCaret'].includes(method))s.dirty=true;if(method==='frame.create'||method==='layout.pages.move'||method==='layout.pages.insert'||method==='layout.pages.duplicateSpread'||method==='layout.pages.delete'||method==='selection.set'||method==='select.set'||method==='edit.selectAll'||method==='edit.deselectAll'||method==='edit.clear'||method==='edit.undo'||method==='edit.redo'||method==='text.placeCaret'||method==='text.select'||method==='footnote.insert'||method==='text.insert'||method==='text.delete')result={...result,commandId:method};}
+        }else{const args=commandParams(method,params);if(method==='frame.create'){const doc=await s.engine.call('state'),spread=doc.spreads.find(sp=>sp.pages.some(p=>p.index===s.page)),page=spread.pages.find(p=>p.index===s.page);args.spread=spread.index;args.rect=[args.rect[0]+page.bounds[0],args.rect[1],args.rect[2]+page.bounds[0],args.rect[3]];}if(method==='layout.pages.move'){const doc=await s.engine.call('state');if(args.from>=doc.pageCount||args.to>=doc.pageCount)throw fail('Unknown page');}if(method==='layout.pages.insert'){const doc=await s.engine.call('state');if(args.after>=doc.pageCount)throw fail('Unknown page');if(doc.pageCount+args.count>64)throw fail('Inserting pages would exceed the 64-page server limit',413);}if(method==='layout.pages.duplicateSpread'){const doc=await s.engine.call('state'),spread=doc.spreads[args.spread];if(!spread)throw fail('Unknown spread');if(doc.pageCount+spread.pages.length>64)throw fail('Duplicating this spread would exceed the 64-page server limit',413);}if(method==='layout.pages.delete'){const doc=await s.engine.call('state');if(args.pages.some(page=>page>=doc.pageCount))throw fail('Unknown page');if(args.pages.length>=doc.pageCount)throw fail('The last page cannot be deleted',409);}result=await s.engine.call('command',{command:({'select.set':'selection.set','select.all':'edit.selectAll','select.none':'edit.deselectAll'})[method]||method,params:args});s.version++;if(!method.startsWith('select.')&&!['selection.set','edit.selectAll','edit.deselectAll','text.select','text.placeCaret'].includes(method))s.dirty=true;if(method==='frame.create'||method==='layout.pages.move'||method==='layout.pages.insert'||method==='layout.pages.duplicateSpread'||method==='layout.pages.delete'||method==='selection.set'||method==='select.set'||method==='edit.selectAll'||method==='edit.deselectAll'||method==='edit.clear'||method==='edit.undo'||method==='edit.redo'||method==='text.placeCaret'||method==='text.select'||method==='footnote.insert'||method==='footnote.options'||method==='text.insert'||method==='text.delete')result={...result,commandId:method};}
       }
       return {result,...await snapshot(s)};
     });s.queue=task.catch(()=>{});const entry={signature,task,pending:true};s.requests.set(requestId,entry);task.finally(()=>{entry.pending=false;s.lastUsed=Date.now();}).catch(()=>{});if(s.requests.size>100)for(const [key,value]of s.requests){if(!value.pending)s.requests.delete(key);if(s.requests.size<=100)break;}return task;

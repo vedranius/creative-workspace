@@ -442,3 +442,18 @@ test('Original Insert Footnote keeps its command ID and only advances after the 
   await assert.rejects(call(session.id,'footnote.insert',{}, {expectedVersion:1}),e=>e.code==='STATE_VERSION_CONFLICT');
   await design.close(session.id,{discard:true});
 });
+
+
+test('Original Footnote Options validates partial DTO and waits for worker ACK without advancing on failure',async t=>{
+  const {project,design,engines,call}=await fixture(t),session=await design.create(project);
+  await call(session.id,'file.new',{preset:'A4'});const worker=engines.find(e=>!e.closed),command=worker.call.bind(worker);
+  for(const p of [{constructor:1},{toString:1},{bogus:true},{style:'bad'},{rule:{width:10001}},{rule:{color:'é'.repeat(129)}},{startAt:4294967296},{spaceBefore:-1},{prefix:7},{rule:[]},{spanColumns:1},{rule:{tint:1.1}}])await assert.rejects(call(session.id,'footnote.options',p,{expectedVersion:1}),/Invalid/);
+  assert.deepEqual(worker.commands,[]);
+  worker.call=async(m,p)=>{if(m==='command'&&p.command==='footnote.options')throw Error('native options refused');return command(m,p);};
+  await assert.rejects(call(session.id,'footnote.options',{startAt:3},{expectedVersion:1}),/native options refused/);assert.equal((await call(session.id,'state')).stateVersion,1);
+  let release,entered;const gate=new Promise(r=>release=r),started=new Promise(r=>entered=r);
+  worker.call=async(m,p)=>{if(m==='command'&&p.command==='footnote.options'){entered();await gate;}return command(m,p);};
+  const params={style:'lowerRoman',startAt:3,rule:{width:100,tint:0.5}},pending=call(session.id,'footnote.options',params,{expectedVersion:1});await started;assert.deepEqual(worker.commands,[]);release();
+  const ack=await pending;assert.equal(ack.stateVersion,2);assert.equal(ack.result.commandId,'footnote.options');assert.deepEqual(worker.commandParams,[params]);
+  await assert.rejects(call(session.id,'footnote.options',params,{expectedVersion:1}),e=>e.code==='STATE_VERSION_CONFLICT');await design.close(session.id,{discard:true});
+});

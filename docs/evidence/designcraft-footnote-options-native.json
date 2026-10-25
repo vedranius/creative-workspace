@@ -1,0 +1,58 @@
+{
+  "frame": {
+    "id": 11,
+    "story": 12
+  },
+  "params": {
+    "affixIn": "both",
+    "firstBaseline": "leading",
+    "prefix": "[",
+    "rule": {
+      "leftIndent": 5.0,
+      "offset": 4.0,
+      "on": true,
+      "tint": 0.5,
+      "weight": 2.0,
+      "width": 100.0
+    },
+    "separator": " — ",
+    "spaceBefore": 8.0,
+    "spaceBetween": 3.0,
+    "spanColumns": true,
+    "startAt": 3,
+    "style": "lowerRoman",
+    "suffix": "]"
+  },
+  "rejectedBeforeMutation": 10,
+  "result": {
+    "affixIn": "both",
+    "firstBaseline": "leading",
+    "firstBaselineMin": 0.0,
+    "paraStyle": "[Basic Paragraph]",
+    "prefix": "[",
+    "refCharStyle": "[None]",
+    "refPosition": "superscript",
+    "restart": "never",
+    "rule": {
+      "color": "[Black]",
+      "leftIndent": 5.0,
+      "offset": 4.0,
+      "on": true,
+      "tint": 0.5,
+      "weight": 2.0,
+      "width": 100.0
+    },
+    "separator": " — ",
+    "spaceBefore": 8.0,
+    "spaceBetween": 3.0,
+    "spanColumns": true,
+    "startAt": 3,
+    "style": "lowerRoman",
+    "suffix": "]"
+  },
+  "saveReopenCanonicalExact": true,
+  "selectionUnchanged": true,
+  "sourceCommand": "footnote.options",
+  "storyAndPageUnchanged": true,
+  "undoRedoCanonicalExact": true
+}

@@ -1,0 +1,68 @@
+{
+  "status": "original-Document-Footnote-Options-ack-failure-cancel-undo-save-reopen-passed",
+  "workerSha256": "fd14bbf0c26f7bcdc6a04d58ac8d246762af0b4e6da5b36f3a750d0133c680c0",
+  "uiWasm": {
+    "path": "designcraft-web-5e2254596613653f_bg.wasm",
+    "size": 40351791,
+    "sha256": "118f0a779814b1aabca234f3edfddf8895621de3bb8fa58d1105218c0bd00a9b"
+  },
+  "sourcePin": "a127c6d5c3576972bbd60445f26d893db071eef3",
+  "sourcePatchSha256": "2504cf665ab05be5187efd23db60d6ddfa526617f36a399ccc321de34ec3fdf8",
+  "fixture": {
+    "generatedNative": true,
+    "sha256": "bc32e388abe81eefb555e2566462d37283f96ddebe6e22e5ba38376315e3f677"
+  },
+  "originalMenu": {
+    "optionsItem": [
+      295,
+      951.5
+    ],
+    "commandId": "footnote.options",
+    "params": {
+      "affixIn": "none",
+      "firstBaseline": "leading",
+      "firstBaselineMin": 0,
+      "paraStyle": "[Basic Paragraph]",
+      "prefix": "[",
+      "refCharStyle": "[None]",
+      "refPosition": "superscript",
+      "restart": "never",
+      "rule": {
+        "color": "[Black]",
+        "leftIndent": 0,
+        "offset": 0,
+        "on": true,
+        "weight": 1,
+        "width": 72
+      },
+      "separator": " — ",
+      "spaceBefore": 0,
+      "spaceBetween": 0,
+      "spanColumns": false,
+      "startAt": 3,
+      "style": "arabic",
+      "suffix": "]"
+    }
+  },
+  "cancelNoSubmit": true,
+  "rejectedDraftPreserved": true,
+  "heldOptionsAck": {
+    "priorRevision": 3,
+    "acceptedRevision": 4,
+    "dialogRetained": true,
+    "duplicateEnterEscapeAndTypingBlocked": true
+  },
+  "canonicalStoryPageSelectionUnchanged": true,
+  "nativeNumberingPixelsChanged": {
+    "before": "b211ba4d48606305c97a7423d5dd5e50d39bba00ac2702f1943a2117f525a8ee",
+    "after": "48e7674bfc2cccc5a89aee5c7a795f1c17dbb7c27e3620c3b9fc9e651c0904d1"
+  },
+  "canonicalAndPngUndoRedoExact": true,
+  "nativeSaveFreshReopenCanonicalAndPngExact": true,
+  "originalInputUnchanged": true,
+  "expectedPreMutationRejections": 1,
+  "errors": [],
+  "failedResponses": [],
+  "requestFailures": [],
+  "permission": "Synthetic browser folder plus owned on-demand helper; actual original Open/Type menu/Document Footnote Options fields/Cancel/OK and Undo/Redo. Save a Copy/fresh reopen through real owned gateway/native worker. Real OS permission and full provider/tools parity remain unaccepted."
+}

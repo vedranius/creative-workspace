@@ -1,3 +1,9 @@
+## [0.2.0-alpha.71] - 2026-10-25
+
+- Connect the original DesignCraft Document Footnote Options dialog and unchanged `footnote.options` command to the owned worker, with bounded partial parameters and exact isolated original candidate validation before mutation/history.
+- Keep edited fields through pending/failure; block duplicate OK/Enter/Cancel/Escape while pending and close only after matching canonical ACK. Preserve original story/page/selection and native Undo/Redo/save-reopen behavior.
+- Prototype draft candidate; full original/provider/OS/all13 acceptance remains open. Release assets are built only by Actions and need independent checksum verification.
+
 ## [0.2.0-alpha.70] - 2026-10-25
 
 - Connect the original Type > Insert Footnote action and unchanged `footnote.insert` command to the owned server. Default empty insertion enters the note only after matching ACK; original queued typing follows that ACK.

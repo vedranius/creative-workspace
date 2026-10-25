@@ -2,7 +2,7 @@
 
 # Creative Workspace
 
-**Version: 0.2.0-alpha.70** — prototype/prerelease draft candidate. Original DesignCraft Type > Insert Footnote now reaches the owned server with matching ACK before original queued note typing. Existing lossless note selection/caret/range and native save/reopen remain. Footnote options, full tools/providers/real OS/all13 acceptance stay open; DesignCraft stays planned. Fresh Actions/tag/draft/downloaded asset checks remain required. Preserve live work and install only into a fresh root. [Insertion proof](docs/evidence/designcraft-footnote-insert.md), [prior verified alpha69 assets](docs/evidence/creative-workspace-alpha69-release.md), [release limits](docs/releases.md).
+**Version: 0.2.0-alpha.71** — prototype/prerelease draft candidate. Original DesignCraft Type > Document Footnote Options now applies bounded original numbering, formatting and layout through the owned worker. Its dialog preserves the draft through failure/pending and closes only after matching canonical ACK. Local native/browser Undo/Redo and retained Save a Copy/reopen pass; this source still needs its own Actions/tag/draft/downloaded asset gate. Full tools/providers/real OS/all13 acceptance stay open; DesignCraft stays planned. Install Actions-built assets only into a fresh root. [Options evidence](docs/evidence/designcraft-footnote-options.md), [verified alpha70 assets](docs/evidence/creative-workspace-alpha70-release.md), [release limits](docs/releases.md).
 
 Bring your creative tools together in one browser studio. Choose an application, select your files, and access your own server from a lightweight laptop. The goal is **the original application interfaces and tools in the browser, with the server doing the heavy work**: photography, image editing, illustration, PDF, publishing, video, motion graphics, office documents, spreadsheets, presentations, CAD, interface design and audio. Browser controls run locally; document commands, data and previews travel to the server. No VNC or remote desktop is involved.
 
@@ -13,6 +13,8 @@ Bring your creative tools together in one browser studio. Choose an application,
 Alpha.24 adds an original Open-dialog candidate for a selected laptop `.designcraft` file: streaming copy-first upload is acknowledged in the same isolated session before the native server opens it and returns original UI state/server preview. Alpha.26 adds the original File → Save a Copy… candidate for an explicit new server-workspace path with workspace retention; native and atomic write ACKs precede success, the source stays dirty under its original name, and an existing path is never overwritten. Laptop output is refused until browser write ACK exists. This remains an isolated review candidate; catalog and full parity stay planned. [Open and Save Copy scope](docs/designcraft-host-canvas.md).
 
 ## What is new
+
+- **DesignCraft Document Footnote Options (alpha.71 candidate):** original dialog and command, bounded server processing, retained draft until ACK, original numbering pixels and native save/reopen. [Evidence](docs/evidence/designcraft-footnote-options.md).
 
 - **DesignCraft cell caret (alpha.68 candidate):** original server-composed cell endpoints and black UI blink use the matching canonical ACK; range/sibling transitions clear the caret. [Evidence](docs/evidence/designcraft-cell-caret.md).
 - **DesignCraft cell text range (alpha.67 candidate):** original translucent blue highlights are composed on the server. Actual original chooser/cell click/Ctrl+A/typing and native save/reopen pass. Cell caret was added in alpha.68 and bounded footnotes in alpha.69; whole-cell selection remains open. [Evidence](docs/evidence/designcraft-cell-text-selection.md).
@@ -193,6 +195,8 @@ Historical screenshot of the earlier eight-project catalog, with original-author
 [Original project](https://github.com/storytold/effectcraft) · [Original UI build and GPU limitations](docs/effectcraft-original-ui-preview.md). A rendered demo does not establish complete GPU-worker or server-render acceptance.
 
 ## Installation
+
+Alpha.71 is a draft prototype candidate. Use its own verified Actions assets and a fresh install/UI package root; retain prior installs and open documents. No locally built binary is a release asset.
 
 ### Portable prototype downloads
 
