@@ -1,3 +1,11 @@
+# PAR-03 alpha.74 — original Endnote Options candidate (2026-10-25)
+
+Original Document Endnote Options now uses its registered Quick Apply entry and generic source form with bounded merged-native preflight and matching canonical ACK. Pending/failure retain the draft. Original native listing, body/page/selection, Undo/Redo and retained Save Copy/fresh reopen pass. [Native/browser evidence and screenshots](evidence/designcraft-endnote-options.md).
+
+18 native /170 UI+1 ignored /38 gateway /96 repo tests, check/release/YAML and actual original Quick Apply/fields/Cancel/422/held ACK/native pixels/UndoRedo/save/reopen pass. Alpha74 requires its own exact-source Actions/tag/draft/downloaded asset gate. Alpha73/72/71/70/69 gates are complete. Full tools/providers/real OS/all13 acceptance remains open; DesignCraft stays planned and local artifacts are QA only.
+
+Next B frombb40f4d in SAME MAIN: actual original context-menu selected .rrpreset Export/ACK with existing chooser/destination/retention/recovery and cancel/denied/stale/changed-file guards. Actual-root Create/import/card/name Configure/metadata/CopyPaste/File/JPEG/recovery are complete. Next A: exact alpha74 release gate. No new writer/chat/main-B merge/private-photo/live-studio/demo changes; preserve FilmCraft/originals.
+
 # PAR-03 alpha.73 — immutable Actions draft assets verified (2026-10-25)
 
 Checks40216440029 and all 25 Build/release40216440223 jobs passed for 1404baf. Immutable tag v0.2.0-alpha.73 and draft prerelease423581988 resolve to that source. All 24 freshly downloaded assets/12 SHA256 pairs, three Node runtimes, 12 engine binaries, startup/licenses/source manifests and eight UI manifests/167 files verify. DesignCraft patch fe3cec7b matches packaged provenance; independently measured Actions WASM is 4d2ec429. [Release evidence and limits](evidence/creative-workspace-alpha73-release.md) · [Insert Endnote proof](evidence/designcraft-endnote-insert.md).

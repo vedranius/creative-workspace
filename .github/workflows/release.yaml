@@ -13,6 +13,7 @@ on:
       - 'scripts/verify-designcraft-footnote-contract.mjs'
       - 'scripts/smoke-designcraft-footnote-contract.mjs'
       - 'scripts/smoke-designcraft-endnote-insert-browser.mjs'
+      - 'scripts/smoke-designcraft-endnote-options-browser.mjs'
       - '.github/workflows/release.yaml'
       - '.github/workflows/artcraft-demo.yaml'
   workflow_dispatch:
@@ -243,7 +244,7 @@ jobs:
           cargo test --manifest-path build/original-ui/source-designcraft/Cargo.toml -p designcraft-ui-egui footnote
           cargo test --manifest-path build/original-ui/source-designcraft/Cargo.toml -p designcraft-ui-egui endnote
           mkdir -p build/designcraft-par03-evidence
-          CW_ENDNOTE_OUTPUT="$PWD/build/designcraft-par03-evidence" CW_FOOTNOTE_OUTPUT="$PWD/build/designcraft-par03-evidence" CW_DESIGNCRAFT_CELL_FIXTURE="$PWD/build/designcraft-par03-evidence/cell-fixture.designcraft" cargo test --manifest-path build/original-ui/source-designcraft/Cargo.toml -p cw-designcraft-engine
+          CW_ENDNOTE_OPTIONS_OUTPUT="$PWD/build/designcraft-par03-evidence" CW_ENDNOTE_OUTPUT="$PWD/build/designcraft-par03-evidence" CW_FOOTNOTE_OUTPUT="$PWD/build/designcraft-par03-evidence" CW_DESIGNCRAFT_CELL_FIXTURE="$PWD/build/designcraft-par03-evidence/cell-fixture.designcraft" cargo test --manifest-path build/original-ui/source-designcraft/Cargo.toml -p cw-designcraft-engine
       - name: Verify the original UI against the owned server worker
         env:
           CW_DESIGNCRAFT_BINARY: ${{ github.workspace }}/build/staged/designcraft/cw-designcraft-engine
@@ -304,6 +305,7 @@ jobs:
           CW_PAR03_WORK_ROOT=build/host-tmp/designcraft-footnote-options CW_DESIGNCRAFT_FOOTNOTE_OPTIONS_FIXTURE=build/designcraft-par03-evidence/options-fixture.designcraft CW_PAR03_FOOTNOTE_REPORT=build/designcraft-par03-evidence/footnote-options-browser.json CW_PAR03_FOOTNOTE_SCREENSHOT=build/designcraft-par03-evidence/footnote-options-browser.png node scripts/smoke-designcraft-footnote-options-browser.mjs
           CW_PAR03_WORK_ROOT=build/host-tmp/designcraft-footnote-reference CW_DESIGNCRAFT_FOOTNOTE_REFERENCE_FIXTURE=build/designcraft-par03-evidence/reference-fixture.designcraft CW_PAR03_FOOTNOTE_REPORT=build/designcraft-par03-evidence/footnote-reference-browser.json CW_PAR03_FOOTNOTE_SCREENSHOT=build/designcraft-par03-evidence/footnote-reference-browser.png node scripts/smoke-designcraft-footnote-reference-browser.mjs
           CW_PAR03_WORK_ROOT=build/host-tmp/designcraft-endnote-insert CW_DESIGNCRAFT_ENDNOTE_FIXTURE=build/designcraft-par03-evidence/endnote-body.designcraft CW_PAR03_ENDNOTE_REPORT=build/designcraft-par03-evidence/endnote-browser.json CW_PAR03_ENDNOTE_SCREENSHOT=build/designcraft-par03-evidence/endnote-browser.png node scripts/smoke-designcraft-endnote-insert-browser.mjs
+          CW_PAR03_WORK_ROOT=build/host-tmp/designcraft-endnote-options CW_DESIGNCRAFT_ENDNOTE_OPTIONS_FIXTURE=build/designcraft-par03-evidence/endnote-options-fixture.designcraft CW_PAR03_ENDNOTE_OPTIONS_REPORT=build/designcraft-par03-evidence/endnote-options-browser.json CW_PAR03_ENDNOTE_OPTIONS_SCREENSHOT=build/designcraft-par03-evidence/endnote-options-browser.png node scripts/smoke-designcraft-endnote-options-browser.mjs
       - name: Build and prove the original preset/server-canvas candidate
         env:
           CW_DESIGNCRAFT_BINARY: ${{ github.workspace }}/build/staged/designcraft/cw-designcraft-engine

@@ -2,7 +2,7 @@
 
 # Creative Workspace
 
-**Version: 0.2.0-alpha.73** — prototype/prerelease draft candidate. Original DesignCraft Type > Insert Endnote uses server-owned original composition, creates its listing on a new last page when needed, and keeps queued typing in the body only after canonical ACK. Native/browser Undo/Redo and retained Save Copy/reopen are locally verified; this source needs its own Actions/tag/draft/downloaded assets gate. Full tools/providers/real OS/all13 acceptance remains open; DesignCraft stays planned. Install only verified Actions assets into a fresh root. [Endnote evidence](docs/evidence/designcraft-endnote-insert.md), [verified alpha72 assets](docs/evidence/creative-workspace-alpha72-release.md), [release limits](docs/releases.md).
+**Version: 0.2.0-alpha.74** — prototype/prerelease draft candidate. Original DesignCraft Document Endnote Options uses its existing Quick Apply/generic command form with server-owned native composition, bounded merged-options preflight and matching canonical ACK. Pending/failed drafts are retained. Native/browser listing/UndoRedo and retained Save Copy/reopen are locally verified; this exact source still needs its Actions/tag/draft/downloaded asset gate. Full tools/providers/real OS/all13 acceptance remains open; DesignCraft stays planned. Install only independently verified Actions assets into a fresh root. [Endnote Options evidence](docs/evidence/designcraft-endnote-options.md), [verified alpha73 assets](docs/evidence/creative-workspace-alpha73-release.md), [release limits](docs/releases.md).
 
 Bring your creative tools together in one browser studio. Choose an application, select your files, and access your own server from a lightweight laptop. The goal is **the original application interfaces and tools in the browser, with the server doing the heavy work**: photography, image editing, illustration, PDF, publishing, video, motion graphics, office documents, spreadsheets, presentations, CAD, interface design and audio. Browser controls run locally; document commands, data and previews travel to the server. No VNC or remote desktop is involved.
 
@@ -14,6 +14,7 @@ Alpha.24 adds an original Open-dialog candidate for a selected laptop `.designcr
 
 ## What is new
 
+- **DesignCraft Endnote Options (alpha.74 candidate):** original Quick Apply/generic form, bounded original native options/listing and matching ACK. [Evidence](docs/evidence/designcraft-endnote-options.md).
 - **DesignCraft Insert Endnote (alpha.73 candidate):** original command, native new-last-page/listing and body-caret behavior, matching ACK and queued body typing. [Evidence](docs/evidence/designcraft-endnote-insert.md).
 - **DesignCraft Go to Footnote Reference (alpha.72 candidate):** original Type command, native reference-page/caret composition, canonical ACK and held body typing without changing note content. [Evidence](docs/evidence/designcraft-footnote-reference.md).
 

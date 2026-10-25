@@ -32,6 +32,7 @@ const COMMANDS: &[&str] = &[
     "text.insert",
     "footnote.insert",
     "endnote.insert",
+    "endnote.options",
     "footnote.options",
     "footnote.goToReference",
     "text.delete",
@@ -281,6 +282,29 @@ fn endnote_insert_budget(h:&Headless,p:&Value)->Result<(),Box<dyn std::error::Er
  let mut candidate=designcraft_engine::Session::new();let mut state=DocState::new((*st.doc).clone(),None);state.selection=st.selection.clone();candidate.add_document(state);
  candidate.execute("endnote.insert",p)?;let doc=&candidate.active().ok_or("No endnote candidate")?.doc;budget(doc)?;canonical_snapshot(doc)?;Ok(())
 }
+// Preflight merged native EndnoteOptions BEFORE original edit regenerates the
+// listing: its final increment and aggregate generated text must remain bounded.
+fn endnote_options_budget(h:&Headless,p:&Value)->Result<(),Box<dyn std::error::Error>> {
+ let bad="Invalid bounded endnote.options parameters";
+ let object=p.as_object().ok_or(bad)?;
+ if serde_json::to_vec(p)?.len()>4096 {return Err(bad.into());}
+ for (k,v) in object {
+  let allowed=match k.as_str(){
+   "style"=>v.is_string(), // exact native NumberStyle serde below
+   "startAt"=>v.as_u64().is_some_and(|n|n<=u32::MAX as u64),
+   "prefix"|"suffix"|"heading"|"headingStyle"|"paraStyle"|"separator"=>v.as_str().is_some_and(|s|s.len()<=256),
+   _=>false,
+  };if !allowed {return Err(bad.into());}
+ }
+ let st=h.session.active().ok_or("No document")?;
+ let mut merged=serde_json::to_value(&st.doc.endnote_options)?;
+ for(k,v)in object {merged[k]=v.clone();}
+ let mut proposed=(*st.doc).clone();proposed.endnote_options=serde_json::from_value(merged)?;
+ endnote_content_budget(&proposed,None)?;
+ let mut candidate=designcraft_engine::Session::new();let mut state=DocState::new((*st.doc).clone(),None);state.selection=st.selection.clone();candidate.add_document(state);
+ candidate.execute("endnote.options",p)?;let doc=&candidate.active().ok_or("No endnote options candidate")?.doc;
+ budget(doc)?;canonical_snapshot(doc)?;Ok(())
+}
 // Original composition increments once even after the final reference. Keep
 // document-wide numbering and that increment inside u32 before original layout.
 fn footnote_number_budget(d:&Document,start:u64)->Result<(),Box<dyn std::error::Error>> {
@@ -512,6 +536,7 @@ fn answer(h: &mut Headless, saved: &mut Option<Arc<Document>>, read: &Path, writ
             }
             if c=="footnote.options" { footnote_options_budget(h,p.get("params").unwrap_or(&Value::Null))?; }
             if c=="footnote.insert" { footnote_insert_budget(h,p.get("params").unwrap_or(&Value::Null))?; }
+            if c=="endnote.options" { endnote_options_budget(h,p.get("params").unwrap_or(&Value::Null))?; }
             if c=="endnote.insert" { endnote_insert_budget(h,p.get("params").unwrap_or(&Value::Null))?; }
             // Upstream records the old document with the post-edit selection.
             // For admitted note edits, pair that exact history entry with its
@@ -821,5 +846,38 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
  #[test] fn first_endnote_respects_page_limit_and_existing_frame_is_reused()->Result<(),Box<dyn std::error::Error>>{
   let(mut h,mut saved,_)=body(64)?;let prior=h.session.active().ok_or("No doc")?.doc.clone();assert!(insert(&mut h,&mut saved,json!({})).is_err());assert!(Arc::ptr_eq(&prior,&h.session.active().ok_or("No doc")?.doc));
   let(mut h,mut saved,_)=body(63)?;let first=insert(&mut h,&mut saved,json!({"text":"First"}))?;assert!(first["frame"].is_u64());let second=insert(&mut h,&mut saved,json!({"text":"Second"}))?;assert!(second["frame"].is_null());assert_eq!(h.session.active().ok_or("No doc")?.doc.page_count(),64);Ok(())
+ }
+}
+
+#[cfg(test)] mod endnote_options_contract {
+ use super::*;
+ #[test] fn original_endnote_options_preflight_listing_history_and_save_reopen()->Result<(),Box<dyn std::error::Error>> {
+  let mut h=Headless::new();let mut saved=None;
+  h.call("engine.execute",json!({"command":"file.new","params":{"pages":2,"facingPages":true}}))?;
+  let st=h.session.active().ok_or("doc")?;let(si,_)=st.doc.page_loc(1).ok_or("body page")?;let px=st.doc.page(1).ok_or("page")?.bounds().x0;
+  let frame=h.call("engine.execute",json!({"command":"frame.create","params":{"spread":si,"rect":[px+60.0,80.0,px+360.0,320.0],"content":"text","caret":true}}))?;
+  h.call("engine.execute",json!({"command":"text.insert","params":{"text":"Body text"}}))?;
+  h.call("engine.execute",json!({"command":"endnote.insert","params":{"text":"Endnote text"}}))?;
+  let old=h.session.active().ok_or("doc")?.doc.clone();let original=canonical_snapshot(&old)?;let listing=old.endnote_story.ok_or("listing")?;
+  let selection=wire_selection(&h.session.active().ok_or("doc")?.selection)?;
+  let execute=|h:&mut Headless,saved:&mut Option<Arc<Document>>,p:Value|answer(h,saved,Path::new("."),Path::new("."),&json!({"method":"command","params":{"command":"endnote.options","params":p}}));
+  let invalid=vec![json!({"bogus":true}),json!({"style":"bogus"}),json!({"rule":{}}),json!({"heading":7}),json!({"prefix":"é".repeat(129)}),json!({"headingStyle":"x".repeat(257)}),json!({"startAt":4294967296u64}),json!({"startAt":4294967295u64}),json!({"startAt":-1}),json!({"style":1}),json!([]),Value::Null];
+  for params in &invalid {assert!(execute(&mut h,&mut saved,params.clone()).is_err());assert!(Arc::ptr_eq(&old,&h.session.active().ok_or("doc")?.doc));assert_eq!(wire_selection(&h.session.active().ok_or("doc")?.selection)?,selection);}
+  let params=json!({"style":"lowerRoman","startAt":3,"prefix":"[","suffix":"]","heading":"Sources","separator":"—"});
+  let result=execute(&mut h,&mut saved,params.clone())?;assert_eq!(result["startAt"],3);
+  let changed=h.session.active().ok_or("doc")?.doc.clone();let changed_json=canonical_snapshot(&changed)?;
+  assert_eq!(changed.page_count(),3);assert_eq!(changed.endnote_story,Some(listing));assert_eq!(changed.story(listing).ok_or("listing")?.text,"Sources\n[iii]—Endnote text");
+  for(id,story)in &old.stories {if *id!=listing {assert_eq!(serde_json::to_value(story)?,serde_json::to_value(changed.story(*id).ok_or("body")?)?);}}
+  assert_eq!(wire_selection(&h.session.active().ok_or("doc")?.selection)?,selection);
+  h.call("engine.execute",json!({"command":"edit.undo","params":{}}))?;assert_eq!(canonical_snapshot(&h.session.active().ok_or("doc")?.doc)?,original);
+  h.call("engine.execute",json!({"command":"edit.redo","params":{}}))?;assert_eq!(canonical_snapshot(&h.session.active().ok_or("doc")?.doc)?,changed_json);
+  let reopened=designcraft_format::load(&designcraft_format::save(&changed)?)?;assert_eq!(canonical_snapshot(&reopened)?,changed_json);
+  if let Ok(out)=std::env::var("CW_ENDNOTE_OPTIONS_OUTPUT") {let root=Path::new(&out);std::fs::write(root.join("endnote-options-fixture.designcraft"),designcraft_format::save(&old)?)?;std::fs::write(root.join("endnote-options-native.json"),serde_json::to_vec_pretty(&json!({"sourceCommand":"endnote.options","params":params,"result":result,"frame":frame,"listingStory":listing,"rejectedBeforeMutation":invalid.len(),"bodyPageSelectionUnchanged":true,"originalListingRegenerated":true,"undoRedoCanonicalExact":true,"saveReopenCanonicalExact":true}))?)?;}
+  Ok(())
+ }
+ #[test] fn empty_document_partial_endnote_options_remain_original()->Result<(),Box<dyn std::error::Error>> {
+  let mut h=Headless::new();let mut saved=None;h.call("engine.execute",json!({"command":"file.new","params":{}}))?;
+  let result=answer(&mut h,&mut saved,Path::new("."),Path::new("."),&json!({"method":"command","params":{"command":"endnote.options","params":{"startAt":4294967295u64,"style":"symbols"}}}))?;
+  assert_eq!(result["startAt"],4294967295u64);assert_eq!(result["heading"],"Endnotes");Ok(())
  }
 }

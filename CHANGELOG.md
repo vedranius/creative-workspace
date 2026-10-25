@@ -1,3 +1,9 @@
+## [0.2.0-alpha.74] - 2026-10-25
+
+- Connect original Document Endnote Options through original Quick Apply and its generic command form to the owned native document, retaining pending/failed drafts until matching canonical ACK.
+- Validate exact partial options, numbering/listing budgets and an isolated original result before mutation; preserve body/selection and original native listing/UndoRedo/Save Copy/reopen behavior.
+- Prototype draft candidate; local QA artifacts are not release assets. Exact-source Actions checks, immutable tag/draft and independently downloaded assets/checksums remain required. Full tools/providers/OS/all13 acceptance is open.
+
 ## [0.2.0-alpha.73] - 2026-10-25
 
 - Connect original DesignCraft `endnote.insert` through the owned worker with canonical ACK before creating the browser mirror's endnote frame/page or advancing its body caret.

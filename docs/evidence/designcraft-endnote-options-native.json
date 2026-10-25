@@ -1,0 +1,31 @@
+{
+  "bodyPageSelectionUnchanged": true,
+  "frame": {
+    "id": 10,
+    "story": 11
+  },
+  "listingStory": 17,
+  "originalListingRegenerated": true,
+  "params": {
+    "heading": "Sources",
+    "prefix": "[",
+    "separator": "—",
+    "startAt": 3,
+    "style": "lowerRoman",
+    "suffix": "]"
+  },
+  "rejectedBeforeMutation": 12,
+  "result": {
+    "heading": "Sources",
+    "headingStyle": "[Basic Paragraph]",
+    "paraStyle": "[Basic Paragraph]",
+    "prefix": "[",
+    "separator": "—",
+    "startAt": 3,
+    "style": "lowerRoman",
+    "suffix": "]"
+  },
+  "saveReopenCanonicalExact": true,
+  "sourceCommand": "endnote.options",
+  "undoRedoCanonicalExact": true
+}

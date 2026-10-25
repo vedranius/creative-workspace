@@ -479,3 +479,18 @@ test('Original endnote insertion is bounded, ACK-gated and preserves its source 
  const pending=call(session.id,'endnote.insert',{text:'Source'}, {expectedVersion:1});await started;assert.deepEqual(worker.commands,[]);release();const ack=await pending;assert.equal(ack.stateVersion,2);assert.equal(ack.result.commandId,'endnote.insert');assert.deepEqual(worker.commandParams,[{text:'Source'}]);assert.equal(ack.document.dirty,true);
  await assert.rejects(call(session.id,'endnote.insert',{}, {expectedVersion:1}),e=>e.code==='STATE_VERSION_CONFLICT');await design.close(session.id,{discard:true});
 });
+
+
+test('Original Endnote Options validates its partial native DTO and waits for ACK',async t=>{
+ const {project,design,engines,call}=await fixture(t),session=await design.create(project);
+ await call(session.id,'file.new',{preset:'A4'});const worker=engines.find(e=>!e.closed),command=worker.call.bind(worker);
+ for(const p of [{constructor:1},{toString:1},{bogus:true},{style:'bad'},{heading:7},{prefix:'é'.repeat(129)},{headingStyle:'x'.repeat(257)},{rule:{}},{startAt:4294967296},{startAt:-1}])await assert.rejects(call(session.id,'endnote.options',p,{expectedVersion:1}),/Invalid/);
+ assert.deepEqual(worker.commands,[]);
+ worker.call=async(m,p)=>{if(m==='command'&&p.command==='endnote.options')throw Error('native options refused');return command(m,p);};
+ await assert.rejects(call(session.id,'endnote.options',{startAt:3},{expectedVersion:1}),/native options refused/);assert.equal((await call(session.id,'state')).stateVersion,1);
+ let release,entered;const gate=new Promise(r=>release=r),started=new Promise(r=>entered=r);
+ worker.call=async(m,p)=>{if(m==='command'&&p.command==='endnote.options'){entered();await gate;}return command(m,p);};
+ const params={style:'lowerRoman',startAt:3,heading:'Sources',separator:'—'},pending=call(session.id,'endnote.options',params,{expectedVersion:1});await started;assert.deepEqual(worker.commands,[]);release();
+ const ack=await pending;assert.equal(ack.stateVersion,2);assert.equal(ack.result.commandId,'endnote.options');assert.deepEqual(worker.commandParams,[params]);
+ await assert.rejects(call(session.id,'endnote.options',params,{expectedVersion:1}),e=>e.code==='STATE_VERSION_CONFLICT');await design.close(session.id,{discard:true});
+});
