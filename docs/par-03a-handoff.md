@@ -1,3 +1,9 @@
+# PAR-03 alpha.71 — immutable Actions draft assets verified (2026-10-25)
+
+Checks40172373909 and all25 Build/release40172373905 jobs passed for `81705bf`. Immutable v0.2.0-alpha.71 tag and draft prerelease423262136 resolve to that source. All24 downloaded assets/12 SHA256 pairs, three Node runtimes,12 engine binaries, startup/licenses/source manifests and eight UI manifests/167 files verify. DesignCraft patch2504cf66 matches source/packaged provenance; Actions WASM a71b3485 was measured independently. [Release evidence and limits](evidence/creative-workspace-alpha71-release.md) · [Footnote Options native/browser proof](evidence/designcraft-footnote-options.md).
+
+Evidence-only: alpha71 stays a draft prototype and DesignCraft planned. Full tools/providers/real OS/all13 acceptance remain open. No product version/build/tag/release/asset/main-B merge/private-photo/live-studio/demo changes. Next B fromb8c8188 in SAME MAIN: original App root bootstrap/startup-cleanup and original layout with proven full-hook browser readiness; existing loader/modal/Paste/late ACK are complete. Next A: original footnote.goToReference selection/canonical ACK. Alpha71/70/69 release gates and Footnote Options are complete; do not repeat. Preserve FilmCraft and originals; no new writer/chat.
+
 # PAR-03 alpha.71 — original Document Footnote Options candidate (2026-10-25)
 
 Original Type > Document Footnote Options now routes its unchanged command through bounded gateway/native validation and matching canonical ACK. The original dialog retains drafts on failure/pending and closes only after valid ACK. Actual browser testing exposed and fixed server canvas Escape leaking beneath a modal. Original composition stays unchanged. [Contract, native/browser reports and screenshots](evidence/designcraft-footnote-options.md).
