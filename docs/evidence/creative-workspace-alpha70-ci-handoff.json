@@ -1,0 +1,29 @@
+{
+  "sourceCommit": "6a9814cdfe803dc6b243d9b81750318dd7e4ed08",
+  "checks": {
+    "id": 40139960947,
+    "conclusion": "success"
+  },
+  "build": {
+    "id": 40139960991,
+    "conclusion": "failure",
+    "successfulJobs": 23,
+    "failedJob": 121012230373,
+    "failedJobName": "original-designcraft",
+    "publish": "skipped"
+  },
+  "failure": {
+    "script": "scripts/smoke-designcraft-delete-page-browser.mjs",
+    "line": 69,
+    "expected": "layout.pages.duplicateSpread",
+    "actual": "undefined",
+    "cause": "UI revision hydration can precede completion of the independent asynchronous QA response.json listener; positional ACK slot read raced."
+  },
+  "qaOnlyCorrection": "Await exact revision and command ID without relaxing request, canonical page count, dirty or PNG assertions; report only the registry-selected package with exact patch hash.",
+  "localBrowser": "passed with current optimized UI/owned native worker; zero browser/HTTP/request errors",
+  "productVersion": "0.2.0-alpha.70",
+  "releaseAssetsVerified": false,
+  "tagOrReleaseRewritten": false,
+  "ciRerunOrCancellation": false,
+  "next": "Fresh normal push triggers a new run; inspect its exact source/tag/draft/24 assets/12 checksum pairs after success. Local QA is not a release asset."
+}

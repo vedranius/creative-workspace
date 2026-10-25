@@ -4,6 +4,8 @@
 
 Build/checks, immutable tag/draft/source and independently downloaded Actions assets/checksums remain required for this new version. Preserve older tags/assets and running installations. Use a fresh install root; local QA binaries/WASM are not release assets. Alpha69 below remains the prior verified draft. The public demo is unchanged.
 
+Initial alpha70 Checks40139960947 passed, but Build40139960991 stopped in the older Delete Page QA ACK-reader race (23 successful jobs; publish skipped). A QA-only follow-up awaits the exact command/revision and passed with the existing worker/UI. [Failure and continuation](evidence/creative-workspace-alpha70-ci-handoff.json). Fresh-push Actions/tag/draft/assets remain unverified; no rerun/cancel/tag rewrite.
+
 # Alpha.69 Actions assets verified (2026-10-24)
 
 Immutable `v0.2.0-alpha.69` and draft prerelease 422929719 resolve to `8b7f54885ae950487fbe72276ab0b58054877121`. Checks and all 25 Build/release jobs passed. All 24 downloaded assets/12 SHA256 pairs, three Node runtimes, 12 engine binaries, source/license/startup manifests and eight UI manifests/167 files verify. Both DesignCraft packaged patch provenances match the release source. [Full verification](evidence/creative-workspace-alpha69-release.md) · [Lossless footnote wire/caret/range proof](evidence/designcraft-footnote-wire.md).

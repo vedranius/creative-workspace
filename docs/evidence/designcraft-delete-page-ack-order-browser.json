@@ -1,0 +1,32 @@
+{
+  "status": "original-delete-page-server-ack-browser-proof",
+  "browser": "Chromium",
+  "sourcePin": "a127c6d5c3576972bbd60445f26d893db071eef3",
+  "sourcePatch": "par-03-pages-insert-v1",
+  "workerSha256": "69d2c65712ed785605eb0923d5209c378640d6dcec2eb9f2beee71c80d0a2245",
+  "uiPackage": "a127c6d5c3576972bbd60445f26d893db071eef3-6c873683d47a",
+  "setup": {
+    "engineMethod": "layout.pages.duplicateSpread",
+    "revision": 2,
+    "pageCount": 2
+  },
+  "action": {
+    "originalMenu": "Layout > Pages > Delete Page",
+    "engineMethod": "layout.pages.delete",
+    "params": {
+      "pages": [
+        0
+      ]
+    },
+    "ackCommandId": "layout.pages.delete",
+    "revision": 3,
+    "pageCount": 1,
+    "dirty": true,
+    "render": "/api/designcraft/sessions/b9b197f665dd2cff2fbccca1f2ac5a9bc273905052530596/preview.png?v=3",
+    "renderStatus": 200
+  },
+  "permission": "synthetic connected-folder chooser fixture; not real OS permission evidence",
+  "browserErrors": [],
+  "failedResponses": [],
+  "requestFailures": []
+}

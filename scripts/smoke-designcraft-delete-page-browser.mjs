@@ -5,6 +5,7 @@ import {createHash} from 'node:crypto';
 import {pathToFileURL} from 'node:url';
 import {Readable} from 'node:stream';
 import {createWorkspaceServer} from '../src/server.js';
+import {originalUiPackageId,originalUiPatches} from '../src/original-ui.js';
 
 const runRoot=path.resolve(process.env.CW_PAR03_WORK_ROOT||'build/host-tmp/par03-delete-page-20261017');
 await mkdir(runRoot,{recursive:true});
@@ -44,6 +45,17 @@ try{
   page.on('request',request=>{const match=request.url().match(/\/api\/designcraft\/sessions\/([a-f0-9]{48})\/rpc$/);if(match){sessionId=match[1];requests.push(request.postDataJSON());}});
   page.on('requestfailed',request=>requestFailures.push({url:request.url(),error:request.failure()?.errorText}));
   page.on('response',async response=>{if(response.status()>=400)failedResponses.push({status:response.status(),url:response.url(),body:(await response.text()).slice(0,400)});if(response.url().endsWith('/rpc'))acks.push(await response.json());});
+  // UI hydration and Playwright's async response.json() listener finish independently.
+  // Wait for this exact ACK, rather than assuming its array slot is already filled.
+  const matchingAck=async(revision,command)=>{
+    const deadline=Date.now()+10000;
+    while(Date.now()<deadline){
+      const value=acks.find(a=>a.stateVersion===revision&&a.result?.commandId===command);
+      if(value)return value;
+      await page.waitForTimeout(20);
+    }
+    throw Error(`Missing response ACK for ${command} at revision ${revision}`);
+  };
   await page.goto(`${base}/original/designcraft/?webgl`,{waitUntil:'domcontentloaded'});
   const canvas=page.locator('#designcraft_canvas');
   try{await page.waitForFunction(()=>document.querySelector('#designcraft_canvas')?.hasAttribute('data-original-preset-a4'),null,{timeout:45000});}
@@ -55,15 +67,15 @@ try{
   const preset=JSON.parse(await canvas.getAttribute('data-original-preset-a4'));
   await page.mouse.click(...preset);
   await page.waitForFunction(()=>document.querySelector('#designcraft_canvas')?.getAttribute('data-server-revision')==='1',{},{timeout:30000});
-  assert.equal(acks[0]?.result?.commandId,'file.new');assert.equal(acks[0]?.stateVersion,1);
-  const before=acks[0];
+  const before=await matchingAck(1,'file.new');
+  assert.equal(before.result.commandId,'file.new');assert.equal(before.stateVersion,1);
   // Create a second page using the already-reviewed original command so Delete Page does not target the last page.
   await page.mouse.click(141,17);await page.waitForTimeout(100);
   await page.mouse.move(145,50);await page.waitForTimeout(300);
   const menuShot=process.env.CW_PAR03_DELETE_PAGE_MENU_SCREENSHOT?path.resolve(process.env.CW_PAR03_DELETE_PAGE_MENU_SCREENSHOT):path.join(scratch,'layout-pages-menu.png');await page.screenshot({path:menuShot});
   await page.mouse.click(435,90);
   await page.waitForFunction(()=>document.querySelector('#designcraft_canvas')?.getAttribute('data-server-revision')==='2',{},{timeout:30000});
-  const duplicate=acks[1];
+  const duplicate=await matchingAck(2,'layout.pages.duplicateSpread');
   assert.equal(requests[1]?.method,'layout.pages.duplicateSpread');
   assert.deepEqual(requests[1]?.params,{spread:0});
   assert.equal(duplicate?.result?.commandId,'layout.pages.duplicateSpread');
@@ -77,7 +89,7 @@ try{
   await page.mouse.move(145,50);await page.waitForTimeout(300);
   await page.mouse.click(435,112);
   await page.waitForFunction(()=>document.querySelector('#designcraft_canvas')?.getAttribute('data-server-revision')==='3',{},{timeout:30000});
-  const deletion=acks[2];
+  const deletion=await matchingAck(3,'layout.pages.delete');
   assert.equal(requests[2]?.method,'layout.pages.delete');
   assert.deepEqual(requests[2]?.params,{pages:[0]});
   assert.equal(deletion?.result?.commandId,'layout.pages.delete');
@@ -97,10 +109,9 @@ try{
 }
 
 async function readdirPackage(root){
-  const {readdir,readFile}=await import('node:fs/promises');
-  for(const entry of await readdir(path.join(root,'designcraft'))){
-    const manifest=JSON.parse(await readFile(path.join(root,'designcraft',entry,'creative-workspace-ui.json'),'utf8'));
-    if(manifest.sourcePatch?.id==='par-03-pages-insert-v1')return entry;
-  }
-  throw new Error('Registered Delete Page DesignCraft package is missing');
+  const entry=originalUiPackageId('designcraft');
+  const manifest=JSON.parse(await readFile(path.join(root,'designcraft',entry,'creative-workspace-ui.json'),'utf8'));
+  assert.equal(manifest.sourcePatch?.id,'par-03-pages-insert-v1');
+  assert.equal(manifest.sourcePatch?.sha256,originalUiPatches.designcraft.sha256);
+  return entry;
 }
