@@ -1,0 +1,488 @@
+--- a/src/App.tsx
++++ b/src/App.tsx
+@@ -75,6 +75,9 @@
+   ThumbnailAspectRatio,
+ } from './components/ui/AppProperties';
+ 
++import Button from './components/ui/Button';
++import {globalImageCache} from './utils/ImageLRUCache';
++import {clearLibrarySelection} from './hooks/useLibraryActions';
+ import ImageProcessingManager from './components/managers/ImageProcessingManager';
+ import ImageLoaderManager from './components/managers/ImageLoaderManager';
+ 
+@@ -138,9 +141,15 @@
+   );
+ }
+ 
+-interface BrowserAppProps { browserCapabilities?: BrowserInitializationCapabilities; browserStatus?: string; }
++export interface BrowserDocumentCapabilities {
++  open(file: File, navigate: (path: string) => Promise<any>): Promise<void>;
++  beforeLeave(nextPath?: string): Promise<boolean>;
++  acknowledge(): Promise<boolean>;
++  close(): Promise<void>;
++}
++interface BrowserAppProps { browserCapabilities?: BrowserInitializationCapabilities; browserStatus?: string; browserDocument?: BrowserDocumentCapabilities; }
+ 
+-function App({browserCapabilities, browserStatus}: BrowserAppProps) {
++function App({browserCapabilities, browserStatus, browserDocument}: BrowserAppProps) {
+   const [activeImageDragItem, setActiveImageDragItem] = useState<{ path: string; paths: string[] } | null>(null);
+ 
+   const { appSettings, theme, osPlatform, handleSettingsChange, browserSettingsReady } = useSettingsStore(
+@@ -251,7 +260,10 @@
+   const [thumbnailSize, setThumbnailSize] = useState(defaultThumbnailSize);
+   const [thumbnailAspectRatio, setThumbnailAspectRatio] = useState(ThumbnailAspectRatio.Contain);
+ 
+-  const { requestThumbnails, clearThumbnailQueue, markGenerated } = useThumbnails();
++  const { requestThumbnails: nativeRequestThumbnails, clearThumbnailQueue: nativeClearThumbnailQueue, markGenerated } = useThumbnails();
++  // Selected browser Files have no native folder thumbnail queue authority.
++  const requestThumbnails = useCallback((paths: string[]) => { if (!browserDocument) nativeRequestThumbnails(paths); }, [browserDocument, nativeRequestThumbnails]);
++  const clearThumbnailQueue = useCallback(() => { if (!browserDocument) nativeClearThumbnailQueue(); }, [browserDocument, nativeClearThumbnailQueue]);
+ 
+   const transformWrapperRef = useRef<any>(null);
+   const preloadedDataRef = useRef<{
+@@ -328,7 +340,10 @@
+   const compactEditorPanelCollapsedHeight = 96;
+ 
+   const { handleCopyAdjustments, handlePasteAdjustments, handleResetAdjustments, handleZoomChange } =
+-    useEditorActions();
++    useEditorActions(browserDocument ? {
++      beforePaste: browserDocument.acknowledge,
++      onPasteAcknowledged(path, adjustments) { prevAdjustmentsRef.current = {path, adjustments}; },
++    } : undefined);
+ 
+   const navigationRefs = useMemo(
+     () => ({
+@@ -358,6 +373,7 @@
+   } = useAppNavigation({
+     clearThumbnailQueue,
+     refs: navigationRefs,
++    beforeLeaveEditor: browserDocument?.beforeLeave,
+   });
+ 
+   const {
+@@ -376,7 +392,7 @@
+     handleTogglePinFolder,
+     handleCreateAlbumItem,
+     handleRenameAlbumItem,
+-  } = useLibraryActions(handleImageSelect);
++  } = useLibraryActions(handleImageSelect, browserDocument?.acknowledge);
+ 
+   useEffect(() => {
+     const { setImageSelectHandler } = useUIStore.getState();
+@@ -462,7 +478,8 @@
+   });
+ 
+   useTauriListeners({
+-    enabled: !browserCapabilities,
++    enabled: !browserCapabilities || !!browserDocument,
++    allowedEvents: browserDocument ? ['thumbnail-generated', 'image-metadata-loaded', 'analytics-update', 'preview-update-uncropped'] : undefined,
+     refreshAllFolderTrees,
+     handleSelectSubfolder,
+     refreshImageList: handleLibraryRefresh,
+@@ -719,6 +736,7 @@
+ 
+   const renderAppPanel = useCallback(
+     (panelId: Panel) => {
++      if (browserDocument && panelId !== Panel.Adjustments) return null;
+       switch (panelId) {
+         case Panel.FolderTree:
+           return (
+@@ -771,6 +789,7 @@
+       }
+     },
+     [
++      browserDocument,
+       isResizing,
+       handleFolderTreeContextMenu,
+       handleAlbumTreeContextMenu,
+@@ -860,6 +879,18 @@
+   const effectiveRightWidth = uiVisibility.rightPanel ? rightPanelWidth : useWidePanels ? 58 : 48;
+ 
+   // Browser root bootstrap admits no document or folder authority yet.
++  const browserFileInput = useRef<HTMLInputElement>(null);
++  const browserOperation = useRef(false);
++  const [browserFileBusy, setBrowserFileBusy] = useState(false);
++  const [browserFileError, setBrowserFileError] = useState('');
++  const browserFileAction = async (action: () => Promise<any>) => {
++    if (!browserDocument || browserOperation.current || !useSettingsStore.getState().browserSettingsReady) return;
++    browserOperation.current = true; setBrowserFileBusy(true); setBrowserFileError('');
++    try { await action(); }
++    catch (error) { if (useSettingsStore.getState().browserSettingsReady) setBrowserFileError(String(error)); }
++    finally { browserOperation.current = false; if (useSettingsStore.getState().browserSettingsReady) setBrowserFileBusy(false); }
++  };
++
+   if (browserCapabilities && (!browserSettingsReady || !appSettings)) return (
+     <div role={browserStatus === 'loading' ? 'status' : 'alert'} className="min-h-screen bg-bg-primary text-text-primary p-4">
+       {browserStatus === 'loading' ? 'Loading saved preferences…' : 'Settings could not be loaded. Your saved preferences are unchanged. Reload to read them again.'}
+@@ -868,7 +899,7 @@
+ 
+   return (
+     <>
+-      {!browserCapabilities && <>
++      {(!browserCapabilities || !!browserDocument) && <>
+       <ImageProcessingManager
+         transformWrapperRef={transformWrapperRef}
+         prevAdjustmentsRef={prevAdjustmentsRef}
+@@ -885,6 +916,25 @@
+           isWgpuActive ? 'bg-transparent' : 'bg-bg-primary',
+         )}
+       >
++        {browserDocument && <div className="shrink-0 flex items-center gap-3 p-2 bg-bg-secondary" aria-label="Browser RAW document">
++          <input ref={browserFileInput} type="file" accept=".dng,.raf" aria-label="Open RAW File" className="hidden" disabled={browserFileBusy || !!selectedImage}
++            onChange={event => { const file = event.target.files?.[0]; event.target.value = ''; if (file) void browserFileAction(() => browserDocument.open(file, handleImageSelect)); }}/>
++          <Button size="sm" disabled={browserFileBusy || !!selectedImage} onClick={() => browserFileInput.current?.click()}>Open RAW</Button>
++          {selectedImage && <>
++            {activeView !== 'editor' && <Button size="sm" disabled={browserFileBusy} onClick={() => void browserFileAction(() => handleImageSelect(selectedImage.path))}>Resume RAW</Button>}
++            <Button size="sm" disabled={browserFileBusy} onClick={() => void browserFileAction(async () => {
++              await browserDocument.close();
++              if (!useSettingsStore.getState().browserSettingsReady) return;
++              globalImageCache.clear(); clearLibrarySelection(); cachedEditStateRef.current = null;
++              preloadedDataRef.current = null; selectedImagePathRef.current = null; prevAdjustmentsRef.current = null;
++              setLibrary({imageList: [], isViewLoading: false});
++              useProcessStore.getState().setProcess({thumbnails: {}, mediumThumbnails: {}});
++              setUI({activeView: 'library'});
++            })}>Close RAW</Button>
++          </>}
++          {browserFileBusy && <span role="status">Saving changes…</span>}
++          {browserFileError && <span role="alert">{browserFileError}</span>}
++        </div>}
+         {!browserCapabilities && !isAndroid && (
+           <div
+             className={clsx(
+@@ -915,7 +965,7 @@
+             }}
+           >
+             <div className="flex flex-row grow h-full min-h-0">
+-              {!shouldHideFolderTree && hasMainContent && (
++              {!browserDocument && !shouldHideFolderTree && hasMainContent && (
+                 <SidePanelArea
+                   side="left"
+                   width={effectiveLeftWidth}
+@@ -1089,7 +1139,7 @@
+   );
+ }
+ 
+-const AppWrapper = ({browserCapabilities}: BrowserAppProps = {}) => {
++const AppWrapper = ({browserCapabilities, browserDocument}: BrowserAppProps = {}) => {
+   const [browserStatus, setBrowserStatus] = useState('loading');
+   const capabilities = useMemo(() => browserCapabilities ? {...browserCapabilities, onState: (state: Parameters<BrowserInitializationCapabilities['onState']>[0]) => {
+     setBrowserStatus(state.status);
+@@ -1102,7 +1152,7 @@
+ 
+   return (
+     <ContextMenuProvider>
+-      <App browserCapabilities={capabilities} browserStatus={browserStatus} />
++      <App browserCapabilities={capabilities} browserStatus={browserStatus} browserDocument={browserDocument} />
+       <GlobalTooltip />
+     </ContextMenuProvider>
+   );
+--- a/src/hooks/useTauriListeners.ts
++++ b/src/hooks/useTauriListeners.ts
+@@ -9,6 +9,7 @@
+ 
+ interface TauriListenerProps {
+   enabled?: boolean;
++  allowedEvents?: string[];
+   refreshAllFolderTrees: () => void;
+   handleSelectSubfolder: (path: string, isNewRoot?: boolean, preloadedImages?: any[], expandParents?: boolean) => void;
+   refreshImageList: () => void;
+@@ -17,6 +18,7 @@
+ 
+ export function useTauriListeners({
+   enabled = true,
++  allowedEvents,
+   refreshAllFolderTrees,
+   handleSelectSubfolder,
+   refreshImageList,
+@@ -77,11 +79,15 @@
+       flushHandle.current = requestAnimationFrame(flushThumbnailBatch);
+     };
+ 
++    const subscribe: typeof listen = (event, handler, options) => {
++      if (allowedEvents && !allowedEvents.includes(event)) return Promise.resolve(() => {});
++      return listen(event, handler, options);
++    };
+     const listeners = [
+-      listen('preview-update-uncropped', (event: any) => {
++      subscribe('preview-update-uncropped', (event: any) => {
+         if (isEffectActive) useEditorStore.getState().setEditor({ uncroppedAdjustedPreviewUrl: event.payload });
+       }),
+-      listen('analytics-update', (event: any) => {
++      subscribe('analytics-update', (event: any) => {
+         if (isEffectActive && event.payload.path === useEditorStore.getState().selectedImage?.path) {
+           const update: { histogram?: any; waveform?: any } = {};
+           if (event.payload.histogram != null) update.histogram = event.payload.histogram;
+@@ -89,22 +95,22 @@
+           useEditorStore.getState().setEditor(update);
+         }
+       }),
+-      listen('open-with-file', (event: any) => {
++      subscribe('open-with-file', (event: any) => {
+         if (isEffectActive) useProcessStore.getState().setProcess({ initialFileToOpen: event.payload as string });
+       }),
+-      listen('external-edit-session', (event: any) => {
++      subscribe('external-edit-session', (event: any) => {
+         if (isEffectActive) useProcessStore.getState().setProcess({ externalEditSession: event.payload });
+       }),
+-      listen('thumbnail-progress', (event: any) => {
++      subscribe('thumbnail-progress', (event: any) => {
+         if (isEffectActive)
+           useProcessStore
+             .getState()
+             .setProcess({ thumbnailProgress: { current: event.payload.current, total: event.payload.total } });
+       }),
+-      listen('thumbnail-generation-complete', () => {
++      subscribe('thumbnail-generation-complete', () => {
+         if (isEffectActive) useProcessStore.getState().setProcess({ thumbnailProgress: { current: 0, total: 0 } });
+       }),
+-      listen('thumbnail-generated', (event: any) => {
++      subscribe('thumbnail-generated', (event: any) => {
+         if (!isEffectActive) return;
+         const { path, thumbnailPath, previewPath, rating, is_edited, data } = event.payload;
+ 
+@@ -127,7 +133,7 @@
+           scheduleFlush();
+         }
+       }),
+-      listen('image-metadata-loaded', (event: any) => {
++      subscribe('image-metadata-loaded', (event: any) => {
+         if (!isEffectActive) return;
+         const { path, rating, flag, is_edited, tags } = event.payload;
+ 
+@@ -138,20 +144,20 @@
+           ),
+         }));
+       }),
+-      listen('ai-model-download-start', (event: any) => {
++      subscribe('ai-model-download-start', (event: any) => {
+         if (isEffectActive) useProcessStore.getState().setProcess({ aiModelDownloadStatus: event.payload });
+       }),
+-      listen('ai-model-download-finish', () => {
++      subscribe('ai-model-download-finish', () => {
+         if (isEffectActive) useProcessStore.getState().setProcess({ aiModelDownloadStatus: null });
+       }),
+-      listen('indexing-started', () => {
++      subscribe('indexing-started', () => {
+         if (isEffectActive)
+           useProcessStore.getState().setProcess({ isIndexing: true, indexingProgress: { current: 0, total: 0 } });
+       }),
+-      listen('indexing-progress', (event: any) => {
++      subscribe('indexing-progress', (event: any) => {
+         if (isEffectActive) useProcessStore.getState().setProcess({ indexingProgress: event.payload });
+       }),
+-      listen('indexing-finished', () => {
++      subscribe('indexing-finished', () => {
+         if (isEffectActive) {
+           useProcessStore.getState().setProcess({ isIndexing: false, indexingProgress: { current: 0, total: 0 } });
+           const currentPath = useLibraryStore.getState().currentFolderPath;
+@@ -160,26 +166,26 @@
+           }
+         }
+       }),
+-      listen('batch-export-progress', (event: any) => {
++      subscribe('batch-export-progress', (event: any) => {
+         if (isEffectActive) useProcessStore.getState().setExportState({ progress: event.payload });
+       }),
+-      listen('export-complete', () => {
++      subscribe('export-complete', () => {
+         if (isEffectActive) useProcessStore.getState().setExportState({ status: Status.Success });
+       }),
+-      listen('export-error', (event: any) => {
++      subscribe('export-error', (event: any) => {
+         if (isEffectActive)
+           useProcessStore.getState().setExportState({
+             status: Status.Error,
+             errorMessage: typeof event.payload === 'string' ? event.payload : 'Unknown error',
+           });
+       }),
+-      listen('export-cancelling', () => {
++      subscribe('export-cancelling', () => {
+         if (isEffectActive) useProcessStore.getState().setExportState({ status: Status.Cancelling });
+       }),
+-      listen('export-cancelled', () => {
++      subscribe('export-cancelled', () => {
+         if (isEffectActive) useProcessStore.getState().setExportState({ status: Status.Cancelled });
+       }),
+-      listen('import-start', (event: any) => {
++      subscribe('import-start', (event: any) => {
+         if (isEffectActive)
+           useProcessStore.getState().setImportState({
+             errorMessage: '',
+@@ -188,14 +194,14 @@
+             status: Status.Importing,
+           });
+       }),
+-      listen('import-progress', (event: any) => {
++      subscribe('import-progress', (event: any) => {
+         if (isEffectActive)
+           useProcessStore.getState().setImportState({
+             path: event.payload.path,
+             progress: { current: event.payload.current, total: event.payload.total },
+           });
+       }),
+-      listen('import-complete', () => {
++      subscribe('import-complete', () => {
+         if (isEffectActive) {
+           useProcessStore.getState().setImportState({ status: Status.Success });
+           refs.current.refreshAllFolderTrees();
+@@ -205,20 +211,20 @@
+           }
+         }
+       }),
+-      listen('import-error', (event: any) => {
++      subscribe('import-error', (event: any) => {
+         if (isEffectActive)
+           useProcessStore.getState().setImportState({
+             status: Status.Error,
+             errorMessage: typeof event.payload === 'string' ? event.payload : 'Unknown error',
+           });
+       }),
+-      listen('denoise-progress', (event: any) => {
++      subscribe('denoise-progress', (event: any) => {
+         if (isEffectActive)
+           useUIStore.getState().setUI((state) => ({
+             denoiseModalState: { ...state.denoiseModalState, progressMessage: event.payload as string },
+           }));
+       }),
+-      listen('denoise-complete', (event: any) => {
++      subscribe('denoise-complete', (event: any) => {
+         if (isEffectActive) {
+           const payload = event.payload;
+           const isObject = typeof payload === 'object' && payload !== null;
+@@ -233,7 +239,7 @@
+           }));
+         }
+       }),
+-      listen('denoise-error', (event: any) => {
++      subscribe('denoise-error', (event: any) => {
+         if (isEffectActive) {
+           useUIStore.getState().setUI((state) => ({
+             denoiseModalState: {
+@@ -245,12 +251,12 @@
+           }));
+         }
+       }),
+-      listen('wgpu-frame-ready', (event: any) => {
++      subscribe('wgpu-frame-ready', (event: any) => {
+         if (isEffectActive && event.payload?.path === useEditorStore.getState().selectedImage?.path) {
+           useEditorStore.getState().setEditor({ hasRenderedFirstFrame: true });
+         }
+       }),
+-      listen('panorama-progress', (event: any) => {
++      subscribe('panorama-progress', (event: any) => {
+         if (isEffectActive) {
+           useUIStore.getState().setUI((state) => {
+             if (state.panoramaModalState.finalImageBase64 || state.panoramaModalState.error) return state;
+@@ -258,7 +264,7 @@
+           });
+         }
+       }),
+-      listen('panorama-complete', (event: any) => {
++      subscribe('panorama-complete', (event: any) => {
+         if (isEffectActive) {
+           useUIStore.getState().setUI((state) => ({
+             panoramaModalState: {
+@@ -271,7 +277,7 @@
+           }));
+         }
+       }),
+-      listen('panorama-error', (event: any) => {
++      subscribe('panorama-error', (event: any) => {
+         if (isEffectActive) {
+           useUIStore.getState().setUI((state) => ({
+             panoramaModalState: {
+@@ -284,7 +290,7 @@
+           }));
+         }
+       }),
+-      listen('hdr-progress', (event: any) => {
++      subscribe('hdr-progress', (event: any) => {
+         if (isEffectActive) {
+           useUIStore.getState().setUI((state) => ({
+             hdrModalState: {
+@@ -297,7 +303,7 @@
+           }));
+         }
+       }),
+-      listen('hdr-complete', (event: any) => {
++      subscribe('hdr-complete', (event: any) => {
+         if (isEffectActive) {
+           useUIStore.getState().setUI((state) => ({
+             hdrModalState: {
+@@ -310,7 +316,7 @@
+           }));
+         }
+       }),
+-      listen('hdr-error', (event: any) => {
++      subscribe('hdr-error', (event: any) => {
+         if (isEffectActive) {
+           useUIStore.getState().setUI((state) => ({
+             hdrModalState: {
+@@ -323,7 +329,7 @@
+           }));
+         }
+       }),
+-      listen('focus-stack-progress', (event: any) => {
++      subscribe('focus-stack-progress', (event: any) => {
+         if (isEffectActive) {
+           useUIStore.getState().setUI((state) => {
+             if (state.focusStackModalState.finalImageBase64 || state.focusStackModalState.error) return state;
+@@ -331,7 +337,7 @@
+           });
+         }
+       }),
+-      listen('focus-stack-complete', (event: any) => {
++      subscribe('focus-stack-complete', (event: any) => {
+         if (isEffectActive) {
+           useUIStore.getState().setUI((state) => ({
+             focusStackModalState: {
+@@ -345,7 +351,7 @@
+           }));
+         }
+       }),
+-      listen('focus-stack-error', (event: any) => {
++      subscribe('focus-stack-error', (event: any) => {
+         if (isEffectActive) {
+           useUIStore.getState().setUI((state) => ({
+             focusStackModalState: {
+@@ -359,7 +365,7 @@
+           }));
+         }
+       }),
+-      listen('culling-start', (event: any) => {
++      subscribe('culling-start', (event: any) => {
+         if (isEffectActive) {
+           useUIStore.getState().setUI((state) => ({
+             cullingModalState: {
+@@ -372,21 +378,21 @@
+           }));
+         }
+       }),
+-      listen('culling-progress', (event: any) => {
++      subscribe('culling-progress', (event: any) => {
+         if (isEffectActive) {
+           useUIStore
+             .getState()
+             .setUI((state) => ({ cullingModalState: { ...state.cullingModalState, progress: event.payload } }));
+         }
+       }),
+-      listen('culling-complete', (event: any) => {
++      subscribe('culling-complete', (event: any) => {
+         if (isEffectActive) {
+           useUIStore.getState().setUI((state) => ({
+             cullingModalState: { ...state.cullingModalState, progress: null, suggestions: event.payload },
+           }));
+         }
+       }),
+-      listen('culling-error', (event: any) => {
++      subscribe('culling-error', (event: any) => {
+         if (isEffectActive) {
+           useUIStore.getState().setUI((state) => ({
+             cullingModalState: { ...state.cullingModalState, progress: null, error: String(event.payload) },
+@@ -405,5 +411,5 @@
+       ratingBuffer.current = {};
+       listeners.forEach((p) => p.then((unlisten) => unlisten()));
+     };
+-  }, [enabled]);
++  }, [enabled, allowedEvents?.join('|')]);
+ }

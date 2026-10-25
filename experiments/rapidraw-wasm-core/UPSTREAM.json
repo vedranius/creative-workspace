@@ -808,5 +808,34 @@
       "experiments/rapidraw-react-proof/app-root-main.tsx": "5b8f9dad6269326f096c7f41abc4cea267debeb93ff3cf5cea2cd9263efee58d",
       "experiments/rapidraw-react-proof/app-root-native.js": "99ae6d6c42e2a3e6213c581f8d0580f692d26f37f47248dbbc5990f4fa56ae45"
     }
+  },
+  "appFile": {
+    "basePatch": {
+      "path": "patches/rapidraw/b39884b3/app-root-v1.patch",
+      "sha256": "94fbc77106d6b95085a6f527dc345d38dd750118057ca067ea49265aa50bd8a2",
+      "patchedFiles": {
+        "src/App.tsx": "9cf77b8f981df28a726ea66292feb22fd1c70632fd67242a087ea15b6699e011",
+        "src/hooks/useTauriListeners.ts": "f45dc53a4b7cc6185474be9c375281353d8c518acffb2ee84d24d167432edd42",
+        "src/hooks/useExternalEditSession.ts": "d92648bcadb4e1535c5827cd932ac8c4147bbccede2786d7ba31b023da4b71b3",
+        "src/hooks/useKeyboardShortcuts.ts": "26c6aae0a9c497cc229b89e47f85816a02c497ed090a0f255f77be4c1d066e15",
+        "src/components/panel/MainLibrary.tsx": "dbcb7b30487bacb7e4d1f3192049c70c96e50e6a5593dafafc18ccdd9e431e11"
+      }
+    },
+    "sourceFiles": {
+      "src/App.tsx": "a68247133c1796b6b29b7772f2a3efe2dab4ca3ea4faef860cd9d1877f9abdf2",
+      "src/hooks/useTauriListeners.ts": "55b05c8f37bf4d9ad7ec6b9db4f212d06dcbd77569dcb5d1cb63666d9c10e536"
+    },
+    "sourcePatch": {
+      "path": "patches/rapidraw/b39884b3/app-file-v1.patch",
+      "sha256": "95dadc02741085287322311569345c121268b7d67c83175499de5da24b3e5275",
+      "patchedFiles": {
+        "src/App.tsx": "9b2345eb0c83a43970d049474e52e26bbab353f4e030f249ef61ba10e2e032ce",
+        "src/hooks/useTauriListeners.ts": "2a5fd7718badd21ce0062b88d1599a481b91070dbd4e3a87f7b0d2f0f834a994"
+      }
+    },
+    "bootstrapFiles": {
+      "experiments/rapidraw-react-proof/app-file-main.tsx": "0c3dae029f90ec42a3b7df054cf32aee2634d2859a4d691a82052425e92f7d32"
+    },
+    "scope": "Actual original App root with one explicitly selected browser RAW File, original navigation/managers/EditorView/Controls and existing content-bound metadata ACK. Root export/folders/general settings/native desktop/full App/provider acceptance remain unavailable. Existing native algorithms/renderer/WASM/resource limits unchanged; unfinished independent port experiment."
   }
 }

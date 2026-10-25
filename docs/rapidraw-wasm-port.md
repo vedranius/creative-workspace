@@ -1,3 +1,9 @@
+# RWASM-03 — original App single RAW File (2026-10-25)
+
+Actual AppWrapper/App now connects one explicit browser File to original navigation, image managers, EditorView and Exposure. Native-exact RGBA/JPEG, held/uncertain/newer-draft Back/Close and content-bound close/reopen pass16 browser assertions;96 host/check pass. An in-flight autosave is joined before transition, avoiding a duplicate write. [Evidence and continuation](rapidraw-wasm-app-file-handoff.md).
+
+Experimental B: root File/Exposure slice only; root export/full App/folders/desktop/provider remain unaccepted. Native/runtime/WASM unchanged; no product release/main/demo/private input change. Next A: alpha72 immutable Actions assets gate, then Insert Endnote. Next B: original root ExportPanel/destination/write-ACK/recovery composition. SAME MAIN only.
+
 # RWASM-03 — actual original App root startup/layout (2026-10-25)
 
 Original AppWrapper/App now mount the original LibraryView/MainLibrary responsive startup layout through real IDB readiness. Native auth/window/AI/version/listener/shortcut/external-edit effects are inactive; failed/held/closed entry cannot mount controls or write. 96 host/check and17 positive browser assertions pass with zero unexpected errors/IPC/workers/automatic writes. [Evidence and continuation](rapidraw-wasm-app-root-handoff.md).
