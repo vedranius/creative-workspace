@@ -1,3 +1,9 @@
+# PAR-03 alpha.73 — immutable Actions draft assets verified (2026-10-25)
+
+Checks40216440029 and all 25 Build/release40216440223 jobs passed for 1404baf. Immutable tag v0.2.0-alpha.73 and draft prerelease423581988 resolve to that source. All 24 freshly downloaded assets/12 SHA256 pairs, three Node runtimes, 12 engine binaries, startup/licenses/source manifests and eight UI manifests/167 files verify. DesignCraft patch fe3cec7b matches packaged provenance; independently measured Actions WASM is 4d2ec429. [Release evidence and limits](evidence/creative-workspace-alpha73-release.md) · [Insert Endnote proof](evidence/designcraft-endnote-insert.md).
+
+Evidence-only: alpha73 stays draft/prototype and DesignCraft planned. Full tools/providers/real OS/all13 acceptance remain open. No product version/build/tag/release/asset/main-B merge/private-photo/live-studio/demo change. Next B from57112bc: actual-root bounded Exposure Tool preset Configure/rename with durable ACK; actual-root Create/import/card/metadata/CopyPaste/File/JPEG/recovery are complete. Next A: original Document Endnote Options command/dialog/canonical ACK. Alpha73/72/71/70/69 gates are complete; do not repeat audits/builds. SAME MAIN/one writer; preserve FilmCraft/originals.
+
 # PAR-03 alpha.73 — original Insert Endnote candidate (2026-10-25)
 
 Original Type > Insert Endnote now reaches the owned server with exact original candidate validation and matching canonical ACK. Its first insertion adds the original endnote frame on a new last page; queued typing stays in the body after ACK. [Native/browser evidence and original UI screenshots](evidence/designcraft-endnote-insert.md).

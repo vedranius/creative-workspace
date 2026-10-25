@@ -1,3 +1,7 @@
+# Alpha73 Actions assets verified (2026-10-25)
+
+Immutable v0.2.0-alpha.73 and draft prerelease423581988 resolve to 1404baf. Checks and all 25 build/release jobs passed. All 24 downloaded assets/12 checksum pairs and embedded source/runtime/engine/UI manifests verify; independent Actions PAR-03 WASM SHA256 is 4d2ec42934308cd2da932e2548205ef86f5b6285953e7b90084e08c5e32bf344. [Evidence and installation limits](evidence/creative-workspace-alpha73-release.md). Draft prototype remains; full tools/providers/OS/all13 acceptance stays open. No assets or immutable metadata changed.
+
 # Alpha.73 original Insert Endnote candidate — 2026-10-25
 
 `0.2.0-alpha.73` connects original endnote.insert to the owned worker with pre-mutation native candidate/page/text/ID checks, matching canonical ACK and queued body typing. Original new-last-page/listing, Undo/Redo and retained Save Copy/reopen pass locally. [Evidence](evidence/designcraft-endnote-insert.md). Keep draft/prerelease until this exact source passes Actions checks, immutable tag/draft and independently downloaded assets/checksums. Full tools/providers/real OS/all13 acceptance remains open; local binaries are QA only. Alpha72/71/70/69 immutable gates are complete.
