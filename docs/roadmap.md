@@ -1,3 +1,9 @@
+# RWASM-03 — actual App Configure Preset name ACK (2026-10-25)
+
+The original App context menu/Configure dialog now renames one bounded Exposure tool preset only after durable library ACK. Old card/draft retention, duplicate Save, real abort, stale-tab preservation, uncertain reload, unchanged IDs/values and native-exact application pass13 browser assertions;111 host/check/YAML pass. [Evidence and continuation](rapidraw-wasm-app-preset-configure-handoff.md).
+
+Experimental B; general preset editing/full App/OS/providers remain open. Existing reviewed Configure patch and WASM reused; no product release/main/demo/private input change. Alpha73 immutable Actions assets gate is COMPLETE. Next A: original Document Endnote Options. Next B: actual-root selected .rrpreset Export/ACK with existing destination/retention/recovery gates. SAME MAIN only.
+
 # RWASM-03 — actual App Create Preset ACK (2026-10-25)
 
 The original App Create Preset dialog now saves one bounded Exposure tool preset through the existing durable library host. Held write/readback, duplicate Save, abort, stale-tab preservation, uncertain reload and native-exact application pass12 browser assertions;111 host/check/YAML pass. [Evidence and continuation](rapidraw-wasm-app-preset-create-handoff.md).
