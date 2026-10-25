@@ -469,3 +469,13 @@ test('Original footnote reference navigation is empty-parameter, ACK/page-bound 
  const pending=call(session.id,'footnote.goToReference',{}, {expectedVersion:1});await started;assert.deepEqual(worker.commands,[]);release();const ack=await pending;assert.equal(ack.stateVersion,2);assert.equal(ack.result.commandId,'footnote.goToReference');assert.equal(ack.page,0);assert.equal(ack.document.dirty,false);assert.deepEqual(worker.commands,['footnote.goToReference']);assert.deepEqual(worker.commandParams,[{}]);
  await assert.rejects(call(session.id,'footnote.goToReference',{}, {expectedVersion:1}),e=>e.code==='STATE_VERSION_CONFLICT');
 });
+
+test('Original endnote insertion is bounded, ACK-gated and preserves its source command and params',async t=>{
+ const {project,design,engines,call}=await fixture(t),session=await design.create(project);await call(session.id,'doc.new',{width:800,height:600,pages:1});const worker=engines.find(e=>!e.closed),base=worker.call.bind(worker);
+ for(const p of [{path:'/private'},{text:7},{text:'é'.repeat(2049)}])await assert.rejects(call(session.id,'endnote.insert',p,{expectedVersion:1}),/optional text|4 KiB/);
+ let release,entered,reject=true;const gate=new Promise(r=>release=r),started=new Promise(r=>entered=r);
+ worker.call=async(m,p)=>{if(m==='command'&&p.command==='endnote.insert'){if(reject)throw Error('not in body text');entered();await gate;}return base(m,p);};
+ await assert.rejects(call(session.id,'endnote.insert',{}, {expectedVersion:1}),/body text/);assert.equal((await call(session.id,'state')).stateVersion,1);reject=false;
+ const pending=call(session.id,'endnote.insert',{text:'Source'}, {expectedVersion:1});await started;assert.deepEqual(worker.commands,[]);release();const ack=await pending;assert.equal(ack.stateVersion,2);assert.equal(ack.result.commandId,'endnote.insert');assert.deepEqual(worker.commandParams,[{text:'Source'}]);assert.equal(ack.document.dirty,true);
+ await assert.rejects(call(session.id,'endnote.insert',{}, {expectedVersion:1}),e=>e.code==='STATE_VERSION_CONFLICT');await design.close(session.id,{discard:true});
+});

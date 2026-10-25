@@ -1,3 +1,9 @@
+## [0.2.0-alpha.73] - 2026-10-25
+
+- Connect original DesignCraft `endnote.insert` through the owned worker with canonical ACK before creating the browser mirror's endnote frame/page or advancing its body caret.
+- Preserve original new-last-page/listing/body-reference behavior, bounded queued body typing and native Undo/Redo/Save Copy/reopen. Validate optional text, numbering/IDs, generated text, first-note page and exact original candidate before real mutation.
+- Draft prototype candidate; full original tools/providers/real OS/all13 acceptance remains open. Release assets are Actions-built and require independent immutable tag/draft/checksum verification.
+
 ## [0.2.0-alpha.72] - 2026-10-25
 
 - Connect original DesignCraft `footnote.goToReference` through the owned worker and matching canonical ACK, using the original UTF-8 reference position and native visible body-caret page.

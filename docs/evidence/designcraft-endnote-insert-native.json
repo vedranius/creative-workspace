@@ -1,0 +1,21 @@
+{
+  "bodyCaretStaysInBody": true,
+  "command": "endnote.insert",
+  "listingStory": 19,
+  "listingText": "Endnotes\n1\t",
+  "nativeSaveReopenCanonicalExact": true,
+  "originalUtf8BodyCaret": 12,
+  "pagesAfter": 4,
+  "pagesBefore": 3,
+  "result": {
+    "frame": 18,
+    "id": 1,
+    "story": 12
+  },
+  "undoRedoCanonicalAndCaretExact": true,
+  "sourcePin": "a127c6d5c3576972bbd60445f26d893db071eef3",
+  "sourcePatchSha256": "fe3cec7bc135831fa796614a0730fa8097d52d187e5b9619ebd6c5b10262b883",
+  "nativeTestsPassed": 16,
+  "preMutationParamsFormatListingAndPageLimits": true,
+  "workerSha256": "4ae2485555f3dace0381795565c4ff52a9d8ff47970275f0c3c5c30adc53ddaf"
+}

@@ -1,0 +1,66 @@
+{
+  "status": "original-Type-Insert-Endnote-ack-fifo-undo-save-reopen-passed",
+  "workerSha256": "4ae2485555f3dace0381795565c4ff52a9d8ff47970275f0c3c5c30adc53ddaf",
+  "uiWasm": {
+    "path": "designcraft-web-152c041c80d137a2_bg.wasm",
+    "size": 40362970,
+    "sha256": "6a9f9a2a26797d29b4a75edf25a519b1af668ce5740765810916957fd0aa9ed6"
+  },
+  "sourcePin": "a127c6d5c3576972bbd60445f26d893db071eef3",
+  "sourcePatchSha256": "fe3cec7bc135831fa796614a0730fa8097d52d187e5b9619ebd6c5b10262b883",
+  "fixture": {
+    "generatedNative": true,
+    "sha256": "c31f062776c77b81cb47b39200d259dd7d46b8f175f5227cb1c209e1341c91fb"
+  },
+  "originalMenu": {
+    "typeMenu": [
+      188.390625,
+      17.5
+    ],
+    "insertItem": [
+      295,
+      751.5
+    ],
+    "commandId": "endnote.insert",
+    "params": {}
+  },
+  "heldInsertAck": {
+    "priorRevision": 4,
+    "acceptedRevision": 5,
+    "bodyCaretHeld": true,
+    "typingQueuedUntilAck": true
+  },
+  "typedBody": {
+    "text": "Body textN",
+    "revision": 6,
+    "caret": {
+      "page": 2,
+      "frame": 11,
+      "story": 12,
+      "points": [
+        [
+          734.3100000000001,
+          80
+        ],
+        [
+          734.3100000000001,
+          96.452
+        ]
+      ]
+    }
+  },
+  "newEndnotePage": {
+    "index": 3,
+    "pngSha256": "2c169aadb3c9f77101aa93f07b10b046160c551cde3abd5a2e31523700f572c9"
+  },
+  "endnoteTextRemainsEmpty": true,
+  "bodyReferenceOnly": true,
+  "expectedPreMutationFailure": 1,
+  "canonicalAndPngUndoRedoExact": true,
+  "nativeSaveFreshReopenCanonicalExact": true,
+  "originalInputUnchanged": true,
+  "errors": [],
+  "failedResponses": [],
+  "requestFailures": [],
+  "permission": "Synthetic browser folder plus owned on-demand helper; actual original Open/Type menu/Insert Endnote and typing/Undo/Redo. Real OS permission and full provider/tools parity remain unaccepted."
+}

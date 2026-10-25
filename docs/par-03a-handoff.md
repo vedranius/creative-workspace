@@ -1,3 +1,11 @@
+# PAR-03 alpha.73 — original Insert Endnote candidate (2026-10-25)
+
+Original Type > Insert Endnote now reaches the owned server with exact original candidate validation and matching canonical ACK. Its first insertion adds the original endnote frame on a new last page; queued typing stays in the body after ACK. [Native/browser evidence and original UI screenshots](evidence/designcraft-endnote-insert.md).
+
+16 native /168 UI +1 ignored /37 gateway /95 repo tests, check/release/YAML and actual original menu failure/held ACK/body FIFO/new page/UndoRedo/retained Save Copy/fresh reopen pass. Alpha73 needs its own Actions/tag/draft/downloaded-assets gate. Alpha72/71/70/69 gates are complete. Full tools/providers/real OS/all13 acceptance remains open; DesignCraft stays planned and local binaries/WASM are QA only.
+
+Next B from61777d3 in SAME MAIN: actual original App CopyPasteSettingsModal/settings+metadata ACK integration. Root File/Exposure/JPEG/recovery-copy/removal and isolated modal are complete. Next A: exact alpha73 release gate, then original Document Endnote Options. No new writer/chat/main-B merge/private-photo/live-studio/demo changes; preserve FilmCraft/originals.
+
 # PAR-03 alpha.72 — immutable Actions draft assets verified (2026-10-25)
 
 Checks40191331091 and all25 Build/release40191331082 jobs passed for4ea574e. Immutable tag v0.2.0-alpha.72 and draft prerelease423412681 resolve to that source. All24 downloaded assets/12 SHA256 pairs, three Node runtimes,12 engine binaries, startup/licenses/source manifests and eight UI manifests/167 files verify. DesignCraft patch10ddd4ca matches packaged provenance; independent Actions WASM d4ea3e03 measured. [Release evidence and limits](evidence/creative-workspace-alpha72-release.md) · [Go to Footnote Reference proof](evidence/designcraft-footnote-reference.md).

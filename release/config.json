@@ -13,6 +13,7 @@
     "darwin-arm64"
   ],
   "limitations": [
+    "Alpha.73 connects original Type > Insert Endnote with bounded original native candidate/page/text/ID checks, canonical ACK, body typing FIFO and original Undo/Redo/Save Copy/reopen. Full tools/providers/real OS/all13 acceptance remains open; draft prototype and only independently verified Actions-built assets.",
     "Alpha.72 adds original Go to Footnote Reference with bounded empty parameters, original body-caret page composition, canonical ACK and pending body typing. Full original tools/providers/real OS/all13 acceptance remains incomplete; prototype draft and only independently verified Actions assets.",
     "Alpha.71 connects original DesignCraft Document Footnote Options with bounded parameters, native original candidate validation, canonical ACK and retained dialog drafts. Full original tools/providers/real OS/all13 acceptance remains incomplete. Prototype draft candidate; distribute only independently verified Actions-built assets.",
     "Alpha.70 connects only the original Type > Insert Footnote action to the owned server with matching ACK and queued note typing. Optional text is bounded to4KiB; native note count/wasm32 ID, story and canonical JSON limits are checked before editing. Footnote options, whole-cell/multi-cell tools, full original/provider/real OS and all13 server acceptance remain incomplete. Prototype draft candidate; only verified Actions-built assets are release assets.",

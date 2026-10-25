@@ -31,6 +31,7 @@ const COMMANDS: &[&str] = &[
     "text.select",
     "text.insert",
     "footnote.insert",
+    "endnote.insert",
     "footnote.options",
     "footnote.goToReference",
     "text.delete",
@@ -254,6 +255,32 @@ fn footnote_insert_budget(h: &Headless, p: &Value) -> Result<(), Box<dyn std::er
     let doc=&candidate.active().ok_or("No candidate document")?.doc;
     budget(doc)?;canonical_snapshot(doc)?;Ok(())
 }
+// Original endnote listing is regenerated into its own story after edits.
+fn endnote_content_budget(d:&Document,extra:Option<&str>)->Result<(),Box<dyn std::error::Error>> {
+ let count=d.stories.values().map(|s|s.endnotes.len()).sum::<usize>()+usize::from(extra.is_some());
+ if count>1024 || (d.endnote_options.start_at as u64).checked_add(count as u64).is_none_or(|n|n>u32::MAX as u64) {return Err("Endnotes exceed the count or numbering budget".into());}
+ let o=&d.endnote_options;
+ if [&o.prefix,&o.suffix,&o.heading,&o.heading_style,&o.para_style,&o.separator].iter().any(|v|v.len()>4096) {return Err("Endnote formatting exceeds 4 KiB per field".into());}
+ if d.stories.values().any(|s|s.endnotes.iter().any(|n|n.id==0||n.id>u32::MAX as u64)) {return Err("Endnote ID exceeds the canonical JSON budget".into());}
+ let mut bytes=o.heading.len();let mut number=o.start_at as u64;
+ for text in d.stories.values().flat_map(|s|s.endnotes.iter().map(|n|n.text.text.as_str())).chain(extra) {
+  bytes=bytes.saturating_add(o.label(number as u32).len()).saturating_add(o.separator.len()+1).saturating_add(text.len());number+=1;
+  if bytes>1024*1024 {return Err("Composed endnote text exceeds 1 MiB".into());}
+ }
+ Ok(())
+}
+fn endnote_insert_budget(h:&Headless,p:&Value)->Result<(),Box<dyn std::error::Error>> {
+ let params=p.as_object().ok_or("endnote.insert requires an object")?;
+ if params.keys().any(|k|k!="text")||params.get("text").is_some_and(|v|!v.is_string()||v.as_str().is_some_and(|s|s.len()>4096)) {return Err("endnote.insert accepts only optional text up to 4 KiB".into());}
+ let st=h.session.active().ok_or("No document")?;let ts=st.selection.text.ok_or("endnote.insert requires a body insertion point")?;
+ if ts.cell.is_some()||st.doc.endnote_story==Some(ts.story) {return Err("Endnotes require body text, not cells, notes or the endnote listing".into());}
+ let story=st.doc.story(ts.story).ok_or("Unknown endnote story")?;
+ if story.endnotes.iter().any(|n|n.id>=u32::MAX as u64)||story.len().saturating_add(designcraft_doc::ENDNOTE_REF.len_utf8())>1024*1024 {return Err("Endnote insertion exceeds the story or ID budget".into());}
+ if st.doc.endnote_story.is_none()&&st.doc.page_count()>=64 {return Err("The first endnote would exceed the 64-page limit".into());}
+ budget(&st.doc)?;endnote_content_budget(&st.doc,Some(params.get("text").and_then(Value::as_str).unwrap_or("")))?;
+ let mut candidate=designcraft_engine::Session::new();let mut state=DocState::new((*st.doc).clone(),None);state.selection=st.selection.clone();candidate.add_document(state);
+ candidate.execute("endnote.insert",p)?;let doc=&candidate.active().ok_or("No endnote candidate")?.doc;budget(doc)?;canonical_snapshot(doc)?;Ok(())
+}
 // Original composition increments once even after the final reference. Keep
 // document-wide numbering and that increment inside u32 before original layout.
 fn footnote_number_budget(d:&Document,start:u64)->Result<(),Box<dyn std::error::Error>> {
@@ -295,6 +322,7 @@ fn footnote_options_budget(h: &Headless, p: &Value) -> Result<(), Box<dyn std::e
 }
 fn budget(d: &Document) -> Result<(), Box<dyn std::error::Error>> {
     footnote_number_budget(d,d.footnote_options.start_at as u64)?;
+    endnote_content_budget(d,None)?;
     if d.stories.values().any(|s| s.notes.iter().any(|n| n.id == 0 || n.id > u32::MAX as u64)) {
         return Err("Footnote ID exceeds the canonical JSON / wasm32 address budget".into());
     }
@@ -484,12 +512,13 @@ fn answer(h: &mut Headless, saved: &mut Option<Arc<Document>>, read: &Path, writ
             }
             if c=="footnote.options" { footnote_options_budget(h,p.get("params").unwrap_or(&Value::Null))?; }
             if c=="footnote.insert" { footnote_insert_budget(h,p.get("params").unwrap_or(&Value::Null))?; }
+            if c=="endnote.insert" { endnote_insert_budget(h,p.get("params").unwrap_or(&Value::Null))?; }
             // Upstream records the old document with the post-edit selection.
             // For admitted note edits, pair that exact history entry with its
             // pre-edit selection, so Undo cannot point beyond an empty/deleted note.
-            let note_history = h.session.active().filter(|st| c=="footnote.insert"
+            let note_history = h.session.active().filter(|st| matches!(c,"footnote.insert" | "endnote.insert")
                 || (matches!(c,"text.insert" | "text.delete" | "edit.clear")
-                    && st.selection.text.and_then(|t|t.cell).and_then(|cell|cell.footnote_id()).is_some()))
+                    && st.selection.text.is_some_and(|t|t.cell.and_then(|cell|cell.footnote_id()).is_some()||st.doc.story(t.story).is_some_and(|story|!story.endnotes.is_empty()))))
                 .map(|st|(st.doc.clone(),st.selection.clone()));
             let reference_page=if c=="footnote.goToReference" {Some(footnote_reference_page(h,p.get("params").unwrap_or(&Value::Null))?)} else {None};
             let mut result = h.call("engine.execute", p)?;
@@ -749,5 +778,48 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
   let state=answer(&mut h,&mut saved,Path::new("."),Path::new("."),&json!({"method":"state"}))?;assert_eq!(state["dirty"],false);assert_eq!(state["documentSnapshot"],canonical);assert!(state["selection"]["text"].get("note").is_none());assert!(state["selection"]["text"]["cell"].is_null());assert_eq!(state["selection"]["text"]["focus"],10);assert_eq!(state["history"],history);assert!(Arc::ptr_eq(&doc,&h.session.active().ok_or("doc")?.doc));assert!(caret_geometry(&h,2).is_some());assert!(caret_geometry(&h,1).is_none());
   let old=wire_selection(&h.session.active().ok_or("doc")?.selection)?;assert!(execute(&mut h,&mut saved,json!({})).is_err());assert_eq!(wire_selection(&h.session.active().ok_or("doc")?.selection)?,old);
   if let Ok(root)=std::env::var("CW_FOOTNOTE_OUTPUT") {std::fs::write(Path::new(&root).join("reference-native.json"),serde_json::to_vec_pretty(&json!({"command":"footnote.goToReference","params":{},"result":result,"noteSelectionBefore":selection,"bodySelectionAfter":old,"canonicalDocumentExact":true,"arcIdentityPreserved":true,"dirtyAfter":state["dirty"],"historyExact":true,"invalidParamsAndBodySelectionRejectedBeforeMutation":true,"originalUtf8ReferencePos":10,"originalCaretPage":2,"nonReferencePageHasNoCaret":true}))?)?;}Ok(())
+ }
+}
+
+#[cfg(test)] mod endnote_insert_contract {
+ use super::*;
+ fn body(pages:u64)->Result<(Headless,Option<Arc<Document>>,Value),Box<dyn std::error::Error>>{
+  let mut h=Headless::new();h.call("engine.execute",json!({"command":"file.new","params":{"pages":pages,"facingPages":true}}))?;
+  let px=h.session.active().and_then(|s|s.doc.page(2)).ok_or("No page")?.bounds().x0;
+  let frame=h.call("engine.execute",json!({"command":"frame.create","params":{"spread":1,"rect":[px+60.0,80.0,px+360.0,320.0],"content":"text","caret":true}}))?;
+  h.call("engine.execute",json!({"command":"text.insert","params":{"text":"Body text"}}))?;Ok((h,None,frame))
+ }
+ fn insert(h:&mut Headless,saved:&mut Option<Arc<Document>>,p:Value)->Result<Value,Box<dyn std::error::Error>>{
+  answer(h,saved,Path::new("."),Path::new("."),&json!({"method":"command","params":{"command":"endnote.insert","params":p}}))
+ }
+ #[test] fn original_endnote_page_body_caret_undo_and_save_reopen()->Result<(),Box<dyn std::error::Error>>{
+  let(mut h,mut saved,frame)=body(3)?;let prior=h.session.active().ok_or("No doc")?.doc.clone();let original=canonical_snapshot(&prior)?;
+  let caret=caret_geometry(&h,2).ok_or("No body caret")?;
+  if let Ok(root)=std::env::var("CW_ENDNOTE_OUTPUT") {let root=Path::new(&root);std::fs::write(root.join("endnote-body.designcraft"),designcraft_format::save(&prior)?)?;std::fs::write(root.join("endnote-body.designcraft.json"),serde_json::to_vec_pretty(&json!({"page":2,"story":frame["story"],"frame":frame["id"],"point":[caret["points"][0][0],(caret["points"][0][1].as_f64().ok_or("No y")?+caret["points"][1][1].as_f64().ok_or("No y")?)/2.0]}))?)?;}
+  let result=insert(&mut h,&mut saved,json!({}))?;assert_eq!(result["id"],1);assert!(result["frame"].is_u64());
+  let st=h.session.active().ok_or("No inserted doc")?;let ts=st.selection.text.ok_or("No body selection")?;assert!(ts.cell.is_none());assert_eq!(ts.focus,12);assert_eq!(st.doc.page_count(),4);
+  let story=st.doc.story(ts.story).ok_or("No story")?;assert_eq!(story.text,format!("Body text{}",designcraft_doc::ENDNOTE_REF));assert!(story.endnotes[0].text.text.is_empty());
+  let listing=st.doc.endnote_story.ok_or("No listing")?;assert_ne!(listing,ts.story);let listing_text=st.doc.story(listing).ok_or("No listing story")?.text.clone();assert!(listing_text.contains("Endnotes"));
+  assert!(caret_geometry(&h,2).is_some());assert!(caret_geometry(&h,3).is_none());
+  answer(&mut h,&mut saved,Path::new("."),Path::new("."),&json!({"method":"command","params":{"command":"text.insert","params":{"text":"N"}}}))?;
+  let edited=h.session.active().ok_or("No edited doc")?.doc.clone();let canonical=canonical_snapshot(&edited)?;let bytes=designcraft_format::save(&edited)?;assert_eq!(canonical_snapshot(&designcraft_format::load(&bytes)?)?,canonical);
+  h.call("engine.execute",json!({"command":"edit.undo","params":{}}))?;assert_eq!(h.session.active().and_then(|s|s.selection.text).ok_or("No undo caret")?.focus,12);
+  h.call("engine.execute",json!({"command":"edit.undo","params":{}}))?;assert_eq!(canonical_snapshot(&h.session.active().ok_or("No undo doc")?.doc)?,original);assert_eq!(h.session.active().and_then(|s|s.selection.text).ok_or("No body")?.focus,9);
+  h.call("engine.execute",json!({"command":"edit.redo","params":{}}))?;h.call("engine.execute",json!({"command":"edit.redo","params":{}}))?;assert_eq!(canonical_snapshot(&h.session.active().ok_or("No redo doc")?.doc)?,canonical);
+  if let Ok(root)=std::env::var("CW_ENDNOTE_OUTPUT") {std::fs::write(Path::new(&root).join("endnote-native.json"),serde_json::to_vec_pretty(&json!({"command":"endnote.insert","result":result,"pagesBefore":3,"pagesAfter":4,"originalUtf8BodyCaret":12,"listingStory":listing,"listingText":listing_text,"bodyCaretStaysInBody":true,"undoRedoCanonicalAndCaretExact":true,"nativeSaveReopenCanonicalExact":true}))?)?;}
+  Ok(())
+ }
+ #[test] fn endnote_preflight_rejects_bad_params_nested_listing_and_format_before_mutation()->Result<(),Box<dyn std::error::Error>>{
+  let(mut h,mut saved,_)=body(3)?;let prior=h.session.active().ok_or("No doc")?.doc.clone();
+  for p in [Value::Null,json!({"path":"outside"}),json!({"text":7}),json!({"text":"é".repeat(2049)})] {assert!(insert(&mut h,&mut saved,p).is_err());assert!(Arc::ptr_eq(&prior,&h.session.active().ok_or("No doc")?.doc));}
+  {let st=h.session.active_mut().ok_or("No doc")?;Arc::make_mut(&mut st.doc).endnote_options.separator="x".repeat(4097);}
+  let prior=h.session.active().ok_or("No doc")?.doc.clone();assert!(insert(&mut h,&mut saved,json!({})).is_err());assert!(Arc::ptr_eq(&prior,&h.session.active().ok_or("No doc")?.doc));
+  {let st=h.session.active_mut().ok_or("No doc")?;Arc::make_mut(&mut st.doc).endnote_options.separator="\t".into();}
+  insert(&mut h,&mut saved,json!({"text":"Source"}))?;let listing=h.session.active().ok_or("No doc")?.doc.endnote_story.ok_or("No listing")?;
+  h.call("engine.execute",json!({"command":"text.select","params":{"story":listing,"anchor":0,"focus":0}}))?;let prior=h.session.active().ok_or("No doc")?.doc.clone();assert!(insert(&mut h,&mut saved,json!({})).is_err());assert!(Arc::ptr_eq(&prior,&h.session.active().ok_or("No doc")?.doc));Ok(())
+ }
+ #[test] fn first_endnote_respects_page_limit_and_existing_frame_is_reused()->Result<(),Box<dyn std::error::Error>>{
+  let(mut h,mut saved,_)=body(64)?;let prior=h.session.active().ok_or("No doc")?.doc.clone();assert!(insert(&mut h,&mut saved,json!({})).is_err());assert!(Arc::ptr_eq(&prior,&h.session.active().ok_or("No doc")?.doc));
+  let(mut h,mut saved,_)=body(63)?;let first=insert(&mut h,&mut saved,json!({"text":"First"}))?;assert!(first["frame"].is_u64());let second=insert(&mut h,&mut saved,json!({"text":"Second"}))?;assert!(second["frame"].is_null());assert_eq!(h.session.active().ok_or("No doc")?.doc.page_count(),64);Ok(())
  }
 }
