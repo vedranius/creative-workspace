@@ -873,5 +873,31 @@
       "experiments/rapidraw-react-proof/app-export-main.tsx": "0920d89f469bebfd28559e55345f4df471e571d70ad9de937e28c3f845dfa4b8"
     },
     "scope": "Actual original App File/ExportPanel, single bounded JPEG via explicit browser destination and separate retention, write/readback ACK and retained uncertain output. Browser OPFS QA chooser is distinct from OS picker acceptance. Recovery inventory/readback are backend evidence, not a complete user recovery UI. Full App/folders/native desktop/provider/OS acceptance remain open; unchanged original native/runtime/WASM."
+  },
+  "appRecovery": {
+    "basePatch": {
+      "path": "patches/rapidraw/b39884b3/app-export-v1.patch",
+      "sha256": "39a3060bdfa839bec033d3282a36ecd059e0a732b9dd1d2ecf80f39407cf3318",
+      "patchedFiles": {
+        "src/App.tsx": "75959b387411e210bb3d3bbd717d58f3e3715f278b2452cb21915a60818524fa"
+      }
+    },
+    "sourceFiles": {
+      "src/App.tsx": "a68247133c1796b6b29b7772f2a3efe2dab4ca3ea4faef860cd9d1877f9abdf2",
+      "src/components/ui/Button.tsx": "e6b6606fc8a35b7219367c57cd6d22d6c422c1f112534da3602d2e7f02aec2a8",
+      "src/components/ui/Text.tsx": "8dafde628501f507f5c04f312f961d6835920411966bfb60d6fe887e63cdbe0d"
+    },
+    "sourcePatch": {
+      "path": "patches/rapidraw/b39884b3/app-recovery-v1.patch",
+      "sha256": "fe0fb12cf6433290ebb0c4ad34987cfdb96207c257081404cfe04eb67c0e41c9",
+      "patchedFiles": {
+        "src/App.tsx": "28b8fd8974c371a2d10d46dcc9ec3d67d4202fb41f2a9ac47130fe84e8b3057c"
+      }
+    },
+    "bootstrapFiles": {
+      "experiments/rapidraw-react-proof/app-recovery-main.tsx": "f66ee4a13089ea449d9eda52ca44ccfc0121af97e9e513cf74ca83cde317de64",
+      "experiments/rapidraw-react-proof/RecoveryPanel.tsx": "15720c39b538de8410c7e040f96b83fe916be1aaaf2d454cb97817bfc9e59f04"
+    },
+    "scope": "Experimental original App root recovery inventory, explicit verified JPEG preparation and NEW empty-file destination/write ACK. Original retained entry preserved; no RAW decode/export replay. Real OPFS in QA; OS permission prompt/full App/provider acceptance remain open."
   }
 }

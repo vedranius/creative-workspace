@@ -1,0 +1,50 @@
+--- a/src/App.tsx
++++ b/src/App.tsx
+@@ -148,9 +148,10 @@
+   close(): Promise<void>;
+ }
+ export interface BrowserExportCapabilities { getRetention(): string; setRetention(value: string): void; }
+-interface BrowserAppProps { browserExport?: BrowserExportCapabilities; browserCapabilities?: BrowserInitializationCapabilities; browserStatus?: string; browserDocument?: BrowserDocumentCapabilities; }
+-
+-function App({browserCapabilities, browserStatus, browserDocument, browserExport}: BrowserAppProps) {
++interface BrowserAppProps { browserRecovery?: React.ComponentType<{onClose:()=>void}>; browserExport?: BrowserExportCapabilities; browserCapabilities?: BrowserInitializationCapabilities; browserStatus?: string; browserDocument?: BrowserDocumentCapabilities; }
++
++function App({browserCapabilities, browserStatus, browserDocument, browserExport, browserRecovery: BrowserRecovery}: BrowserAppProps) {
++  const [recoveryOpen, setRecoveryOpen] = useState(false);
+   const [activeImageDragItem, setActiveImageDragItem] = useState<{ path: string; paths: string[] } | null>(null);
+ 
+   const { appSettings, theme, osPlatform, handleSettingsChange, browserSettingsReady } = useSettingsStore(
+@@ -934,6 +935,7 @@
+               setUI({activeView: 'library'});
+             })}>Close RAW</Button>
+           </>}
++          {BrowserRecovery && <Button disabled={browserFileBusy || [Status.Exporting, Status.Cancelling].includes(exportState.status)} onClick={() => setRecoveryOpen(true)}>Recovery copies</Button>}
+           {browserExport && <label className="text-sm">Recovery copy <select aria-label="Recovery copy retention" defaultValue={browserExport.getRetention()}
+             disabled={[Status.Exporting, Status.Cancelling].includes(exportState.status)} onChange={event => browserExport.setRetention(event.target.value)}>
+             <option value="until-ack">Until file is saved</option><option value="keep">Keep recovery copy</option>
+@@ -1098,6 +1100,7 @@
+             </DragOverlay>
+           </DndContext>
+         </div>
++        {recoveryOpen && BrowserRecovery && <BrowserRecovery onClose={() => setRecoveryOpen(false)} />}
+         {!browserCapabilities && <AppModals
+           handleImageSelect={handleImageSelect}
+           handleSavePanorama={handleSavePanorama}
+@@ -1145,7 +1148,7 @@
+   );
+ }
+ 
+-const AppWrapper = ({browserCapabilities, browserDocument, browserExport}: BrowserAppProps = {}) => {
++const AppWrapper = ({browserCapabilities, browserDocument, browserExport, browserRecovery}: BrowserAppProps = {}) => {
+   const [browserStatus, setBrowserStatus] = useState('loading');
+   const capabilities = useMemo(() => browserCapabilities ? {...browserCapabilities, onState: (state: Parameters<BrowserInitializationCapabilities['onState']>[0]) => {
+     setBrowserStatus(state.status);
+@@ -1158,7 +1161,7 @@
+ 
+   return (
+     <ContextMenuProvider>
+-      <App browserCapabilities={capabilities} browserStatus={browserStatus} browserDocument={browserDocument} browserExport={browserExport} />
++      <App browserCapabilities={capabilities} browserStatus={browserStatus} browserDocument={browserDocument} browserExport={browserExport} browserRecovery={browserRecovery} />
+       <GlobalTooltip />
+     </ContextMenuProvider>
+   );

@@ -1,3 +1,9 @@
+# RWASM-03 — original-root explicit recovery copy (2026-10-25)
+
+Original App now opens retained recovery copies after reload without a RAW, verifies one JPEG and saves it to a new empty destination with close/readback ACK. Separate retention, cancel/denied/changed-file refusal, preserved original entry and no replay pass16 browser assertions;102 host/check pass. [Evidence and continuation](rapidraw-wasm-app-recovery-handoff.md).
+
+Experimental B; actual OPFS chooser boundary, OS permission prompt/full App/providers/discard remain open. Native/runtime/WASM unchanged; no product release/main/demo/private input change. Next A: alpha72 immutable Actions assets gate then Insert Endnote. Next B: explicit verified recovery discard with confirmation/stale veto. SAME MAIN only.
+
 # RWASM-03 — original App JPEG export ACK (2026-10-25)
 
 Actual App/ExportPanel now uses the existing worker/destination through original JPEG/Cancel handlers and terminal events. Native-exact full JPEG, held/failed/mismatched write ACK, separate retention, retained recovery and reload without replay pass 18 browser assertions; 96 host tests/check pass. Last-used preferences wait for the file ACK. [Evidence and continuation](rapidraw-wasm-app-export-handoff.md).
