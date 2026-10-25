@@ -35,6 +35,7 @@ on:
       - 'scripts/smoke-rapidraw-app-export.mjs'
       - 'scripts/smoke-rapidraw-app-recovery.mjs'
       - 'scripts/smoke-rapidraw-app-recovery-discard.mjs'
+      - 'scripts/smoke-rapidraw-app-copy-paste.mjs'
       - 'scripts/verify-rapidraw-copy-paste-native.mjs'
       - 'scripts/verify-rapidraw-preset-create-native.mjs'
       - 'scripts/verify-rapidraw-preset-preview-native.mjs'
@@ -89,6 +90,7 @@ on:
       - 'scripts/smoke-rapidraw-app-export.mjs'
       - 'scripts/smoke-rapidraw-app-recovery.mjs'
       - 'scripts/smoke-rapidraw-app-recovery-discard.mjs'
+      - 'scripts/smoke-rapidraw-app-copy-paste.mjs'
       - 'scripts/verify-rapidraw-copy-paste-native.mjs'
       - 'scripts/verify-rapidraw-preset-create-native.mjs'
       - 'scripts/verify-rapidraw-preset-preview-native.mjs'
@@ -140,6 +142,7 @@ jobs:
           node --check scripts/smoke-rapidraw-app-export.mjs
           node --check scripts/smoke-rapidraw-app-recovery.mjs
           node --check scripts/smoke-rapidraw-app-recovery-discard.mjs
+          node --check scripts/smoke-rapidraw-app-copy-paste.mjs
           node --check scripts/smoke-rapidraw-copy-paste-settings.mjs
           node --check scripts/smoke-rapidraw-metadata-copy-paste.mjs
           node --check scripts/verify-rapidraw-copy-paste-native.mjs

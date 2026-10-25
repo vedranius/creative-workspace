@@ -1,0 +1,53 @@
+--- a/src/App.tsx
++++ b/src/App.tsx
+@@ -1,3 +1,4 @@
++import CopyPasteSettingsModal from './components/modals/CopyPasteSettingsModal';
+ import { type PointerEvent as ReactPointerEvent, useState, useEffect, useCallback, useRef, useMemo } from 'react';
+ import { invoke } from '@tauri-apps/api/core';
+ import { listen } from '@tauri-apps/api/event';
+@@ -148,9 +149,10 @@
+   close(): Promise<void>;
+ }
+ export interface BrowserExportCapabilities { getRetention(): string; setRetention(value: string): void; }
+-interface BrowserAppProps { browserRecovery?: React.ComponentType<{onClose:()=>void}>; browserExport?: BrowserExportCapabilities; browserCapabilities?: BrowserInitializationCapabilities; browserStatus?: string; browserDocument?: BrowserDocumentCapabilities; }
+-
+-function App({browserCapabilities, browserStatus, browserDocument, browserExport, browserRecovery: BrowserRecovery}: BrowserAppProps) {
++interface BrowserAppProps { browserCopyPaste?: boolean; browserRecovery?: React.ComponentType<{onClose:()=>void}>; browserExport?: BrowserExportCapabilities; browserCapabilities?: BrowserInitializationCapabilities; browserStatus?: string; browserDocument?: BrowserDocumentCapabilities; }
++
++function App({browserCapabilities, browserStatus, browserDocument, browserExport, browserRecovery: BrowserRecovery, browserCopyPaste}: BrowserAppProps) {
++  const copyPasteOpen = useUIStore(state => state.isCopyPasteSettingsModalOpen);
+   const [recoveryOpen, setRecoveryOpen] = useState(false);
+   const [activeImageDragItem, setActiveImageDragItem] = useState<{ path: string; paths: string[] } | null>(null);
+ 
+@@ -1101,6 +1103,13 @@
+           </DndContext>
+         </div>
+         {recoveryOpen && BrowserRecovery && <BrowserRecovery onClose={() => setRecoveryOpen(false)} />}
++        {browserCopyPaste && browserCapabilities && appSettings?.copyPasteSettings && <CopyPasteSettingsModal
++          isOpen={copyPasteOpen}
++          onClose={() => setUI({isCopyPasteSettingsModalOpen:false})}
++          settings={appSettings.copyPasteSettings}
++          supportedAdjustments={browserCapabilities.supportedAdjustments}
++          onSave={copyPasteSettings => handleSettingsChange({...useSettingsStore.getState().appSettings!, copyPasteSettings})}
++        />}
+         {!browserCapabilities && <AppModals
+           handleImageSelect={handleImageSelect}
+           handleSavePanorama={handleSavePanorama}
+@@ -1148,7 +1157,7 @@
+   );
+ }
+ 
+-const AppWrapper = ({browserCapabilities, browserDocument, browserExport, browserRecovery}: BrowserAppProps = {}) => {
++const AppWrapper = ({browserCapabilities, browserDocument, browserExport, browserRecovery, browserCopyPaste}: BrowserAppProps = {}) => {
+   const [browserStatus, setBrowserStatus] = useState('loading');
+   const capabilities = useMemo(() => browserCapabilities ? {...browserCapabilities, onState: (state: Parameters<BrowserInitializationCapabilities['onState']>[0]) => {
+     setBrowserStatus(state.status);
+@@ -1161,7 +1170,7 @@
+ 
+   return (
+     <ContextMenuProvider>
+-      <App browserCapabilities={capabilities} browserStatus={browserStatus} browserDocument={browserDocument} browserExport={browserExport} browserRecovery={browserRecovery} />
++      <App browserCapabilities={capabilities} browserStatus={browserStatus} browserDocument={browserDocument} browserExport={browserExport} browserRecovery={browserRecovery} browserCopyPaste={browserCopyPaste} />
+       <GlobalTooltip />
+     </ContextMenuProvider>
+   );

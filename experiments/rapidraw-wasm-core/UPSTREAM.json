@@ -920,5 +920,25 @@
         "src/App.tsx": "28b8fd8974c371a2d10d46dcc9ec3d67d4202fb41f2a9ac47130fe84e8b3057c"
       }
     }
+  },
+  "appCopyPaste": {
+    "basePatch": {
+      "path": "patches/rapidraw/b39884b3/app-recovery-v1.patch",
+      "sha256": "fe0fb12cf6433290ebb0c4ad34987cfdb96207c257081404cfe04eb67c0e41c9",
+      "patchedFiles": {
+        "src/App.tsx": "28b8fd8974c371a2d10d46dcc9ec3d67d4202fb41f2a9ac47130fe84e8b3057c"
+      }
+    },
+    "sourcePatch": {
+      "path": "patches/rapidraw/b39884b3/app-copy-paste-v1.patch",
+      "sha256": "88bd5efe2b960b757692fc37cff455aa9c53c090b347a5dba676a648c7187a28",
+      "patchedFiles": {
+        "src/App.tsx": "4381ffadadc9e6d15cdff8dedb2a06fff1c0d98a4d7f899b9389a3ed5a054e8e"
+      }
+    },
+    "bootstrapFiles": {
+      "experiments/rapidraw-react-proof/app-copy-paste-main.tsx": "d56f6dc17ab6ad5eb3f29971cdabf76e6cd00d6c0b895d66abdd5bcf7f941aa7"
+    },
+    "scope": "Experimental original App root CopyPasteSettingsModal with explicit browser capability, original BottomBar/Copy/Paste and bounded Exposure-only durable preference and metadata ACK. Existing original processing/WASM unchanged. OS/full App/tools/providers remain unaccepted."
   }
 }

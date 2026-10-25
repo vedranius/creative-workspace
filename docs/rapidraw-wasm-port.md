@@ -1,3 +1,9 @@
+# RWASM-03 — actual App Copy/Paste Settings (2026-10-25)
+
+Original App now composes its source CopyPasteSettingsModal with existing durable settings/metadata ACK. Held/failed ACK, None/Exposure Paste, stale-tab/newer-draft veto and native-exact frame pass20 actual-root browser assertions;111 host/check pass. [Evidence and continuation](rapidraw-wasm-app-copy-paste-handoff.md).
+
+Experimental B; full App/tools/OS/providers remain open. Native processing/renderer/WASM unchanged; no product release/main/demo/private input change. Alpha73 Actions was running at entry; alpha72/71/70/69 gates complete. Next A: exact alpha73 release gate then Endnote Options. Next B: original-root single Exposure PresetsPanel/ACK. SAME MAIN only.
+
 # RWASM-03 — original-root confirmed recovery removal (2026-10-25)
 
 A verified retained JPEG can now be removed only after explicit confirmation, fresh identity/byte checks and actual absence ACK. Coordinated Web Locks block active/late writes; legacy entries remain copyable. Actual OPFS/cross-tab/held-removal/reload proof passes24 browser assertions;111 host/check pass. [Evidence and continuation](rapidraw-wasm-recovery-discard-handoff.md).
