@@ -1,3 +1,9 @@
+# RWASM-03 — original-root confirmed recovery removal (2026-10-25)
+
+A verified retained JPEG can now be removed only after explicit confirmation, fresh identity/byte checks and actual absence ACK. Coordinated Web Locks block active/late writes; legacy entries remain copyable. Actual OPFS/cross-tab/held-removal/reload proof passes24 browser assertions;111 host/check pass. [Evidence and continuation](rapidraw-wasm-recovery-discard-handoff.md).
+
+Experimental B; OS picker/full App/providers/legacy removal remain open. Native decode/render/WASM unchanged; no product release/main/demo/private input change. Alpha72 release gate is complete. Next A: Insert Endnote. Next B: actual original App CopyPasteSettingsModal/ACK integration. SAME MAIN only.
+
 # RWASM-03 — original-root explicit recovery copy (2026-10-25)
 
 Original App now opens retained recovery copies after reload without a RAW, verifies one JPEG and saves it to a new empty destination with close/readback ACK. Separate retention, cancel/denied/changed-file refusal, preserved original entry and no replay pass16 browser assertions;102 host/check pass. [Evidence and continuation](rapidraw-wasm-app-recovery-handoff.md).

@@ -4,7 +4,7 @@ const uuid=/^[a-f0-9]{8}-(?:[a-f0-9]{4}-){3}[a-f0-9]{12}$/;
 const hash=async bytes=>Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',bytes)),n=>n.toString(16).padStart(2,'0')).join('');
 function admitted(r){
  if(!r||r.schema!==1||!uuid.test(r.id)||!['uncertain','acknowledged','complete'].includes(r.state)||r.destination!=='laptop'||!['until-ack','keep'].includes(r.retention)||!Number.isSafeInteger(r.bytes)||r.bytes<4||r.bytes>LIMIT||!Number.isFinite(r.createdAt)||r.createdAt<=0||!/^[a-f0-9]{64}$/.test(r.sha256)||typeof r.name!=='string'||r.name.length>240||/[\\/\x00-\x1f\x7f]/.test(r.name)||!/\.jpe?g$/i.test(r.name))throw Error('Recovery record is unavailable or incomplete');
- return {schema:r.schema,id:r.id,state:r.state,name:r.name,sha256:r.sha256,bytes:r.bytes,destination:r.destination,retention:r.retention,createdAt:r.createdAt};
+ return {schema:r.schema,id:r.id,state:r.state,name:r.name,sha256:r.sha256,bytes:r.bytes,destination:r.destination,retention:r.retention,createdAt:r.createdAt,...(r.coordination?{coordination:r.coordination}:{})};
 }
 const same=(a,b)=>JSON.stringify(a)===JSON.stringify(b);
 export function createRecoverySession({journal,destination}){
@@ -40,7 +40,7 @@ export function createRecoverySession({journal,destination}){
     check(expected);await current(record);check(expected);
     // This File contains the actual verified JPEG, not a synthetic RAW document.
     prepared={record,bytes,document:{path:'browser-recovery:'+id,generation:expected,ready:true,file:new File([bytes],record.name,{type:'image/jpeg'})}};
-    return {id:record.id,name:record.name,bytes:record.bytes,sha256:record.sha256};
+    return {id:record.id,name:record.name,bytes:record.bytes,sha256:record.sha256,canDiscard:record.coordination==='web-lock-v1'};
    }finally{busy=false;}
   },
   async savePrepared(){
@@ -57,6 +57,17 @@ export function createRecoverySession({journal,destination}){
     if(ack?.writeAcknowledged!==true||ack.sha256!==selected.record.sha256||ack.bytes!==selected.record.bytes)throw Error('Recovery copy was not acknowledged');
     const result=await destination.complete(ack);ensure();
     return {writeAcknowledged:true,sha256:ack.sha256,bytes:ack.bytes,retention:result.retention,recoveryId:result.recoveryId};
+   }finally{busy=false;}
+  },
+  async discardPrepared(confirmation){
+   if(closed||busy||!prepared)throw Error('Verify a recovery copy before confirming discard');
+   if(confirmation!==prepared.record.id)throw Error('Explicit recovery confirmation is required');
+   busy=true;const selected=prepared,expected=version;prepared=null;
+   try{
+    await current(selected.record);check(expected);
+    const result=await journal.discardRecovery(selected.record,()=>check(expected));check(expected);
+    if(result?.discardAcknowledged!==true||result.id!==selected.record.id)throw Error('Recovery removal was not acknowledged');
+    inventory.delete(selected.record.id);return result;
    }finally{busy=false;}
   },
   cancelPrepared(){if(busy)throw Error('Wait for the current recovery action');prepared=null;version++;},

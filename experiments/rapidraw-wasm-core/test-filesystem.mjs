@@ -15,7 +15,7 @@ export class MemoryFile{
 }
 export class MemoryDirectory{
  constructor(){this.kind='directory';this.children=new Map();this.failRemove=false;}
- async getDirectoryHandle(name,{create=false}={}){if(!this.children.has(name)&&create)this.children.set(name,new MemoryDirectory());const value=this.children.get(name);if(!value||value.kind!=='directory')throw Error('Directory not found');return value;}
+ async getDirectoryHandle(name,{create=false}={}){if(!this.children.has(name)&&create)this.children.set(name,new MemoryDirectory());const value=this.children.get(name);if(!value||value.kind!=='directory')throw new DOMException('Directory not found','NotFoundError');return value;}
  async getFileHandle(name,{create=false}={}){if(!this.children.has(name)&&create)this.children.set(name,new MemoryFile(name));const value=this.children.get(name);if(!value||value.kind!=='file')throw Error('File not found');return value;}
  async *entries(){yield* this.children.entries();}
  async removeEntry(id){if(this.failRemove)throw Error('Storage cleanup failed');this.children.delete(id);}

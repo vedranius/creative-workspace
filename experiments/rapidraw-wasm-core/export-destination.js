@@ -2,7 +2,7 @@
 // Never replay: each empty-file lease is single-use and tied to its document generation.
 const MAX_BYTES=64*1024*1024;
 const hash=async bytes=>Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',bytes)),n=>n.toString(16).padStart(2,'0')).join('');
-export function createExportDestination({pickFile=o=>globalThis.showSaveFilePicker(o),getRetention=()=> 'until-ack',getRoot=()=>navigator.storage.getDirectory(),ioTimeoutMs=30000,format='jpeg'}={}){
+export function createExportDestination({pickFile=o=>globalThis.showSaveFilePicker(o),getRetention=()=> 'until-ack',getRoot=()=>navigator.storage.getDirectory(),ioTimeoutMs=30000,format='jpeg',coordinateRecovery=false,getLocks=()=>globalThis.navigator?.locks}={}){
  const preset=format==='rrpreset';if(!preset&&format!=='jpeg')throw Error('Unsupported output format');
  const maxBytes=preset?64*1024:MAX_BYTES,recoveryName=preset?'output.rrpreset':'output.jpg';
  if(!Number.isSafeInteger(ioTimeoutMs)||ioTimeoutMs<1||ioTimeoutMs>30000)throw Error('Invalid output deadline');
@@ -17,6 +17,21 @@ export function createExportDestination({pickFile=o=>globalThis.showSaveFilePick
    promise.then(value=>{if(expired&&onLate)Promise.resolve().then(()=>onLate(value)).catch(()=>{});},()=>{});
    try{return await Promise.race([promise,new Promise((_,reject)=>{timer=setTimeout(()=>{expired=true;reject(Error(label+' timed out'));},remaining);})]);}finally{clearTimeout(timer);}
   };
+ };
+ // Opt-in protocol: old uncoordinated entries are copyable, never discardable.
+ // Return a timed-out result promptly, but retain the origin-wide lock until late I/O drains.
+ const guarded=operation=>{
+  if(!coordinateRecovery)return operation();
+  const locks=getLocks();if(typeof locks?.request!=='function')throw Error('Coordinated recovery requires Web Locks');
+  return new Promise((resolve,reject)=>{
+   const settle=result=>result.ok?resolve(result.value):reject(result.error);
+   Promise.resolve(locks.request('cw-rapidraw-journal:'+(preset?'preset':'jpeg'),{mode:'exclusive',ifAvailable:true},async lock=>{
+    if(!lock)return {ok:false,error:Error('Recovery journal busy; wait for active output I/O')};
+    let result;try{result={ok:true,value:await operation()};}catch(error){result={ok:false,error};}
+    if(pending.size){settle(result);while(pending.size)await Promise.allSettled([...pending]);}
+    return result;
+   })).then(settle,reject);
+  });
  };
  const journal=async run=>(await run(getRoot,'Open recovery storage')).getDirectoryHandle(preset?'cw-rapidraw-preset-recovery':'cw-rapidraw-export-recovery',{create:true});
  async function metadata(run,dir,value){
@@ -59,12 +74,13 @@ export function createExportDestination({pickFile=o=>globalThis.showSaveFilePick
    if(!taken.delete(lease))throw Error('Invalid or consumed output capability');
    if(busy||pending.size)throw Error('Previous output I/O still active');
    if(!(bytes instanceof Uint8Array)||bytes.length<1||bytes.length>maxBytes)throw Error('Invalid bounded output');
+   return guarded(async()=>{
    busy=true;const run=budget();let writer,dir,root,record,durable=false;
    try{
     check();const inventory=await records(run);root=inventory.root;
     if(inventory.items.length>=63)throw Error('Recovery inventory full; review retained outputs');
     const id=crypto.randomUUID();dir=await run(()=>root.getDirectoryHandle(id,{create:true}),'Create recovery entry');
-    record={schema:1,id,state:'preparing',name:lease.handle.name,sha256:await run(()=>hash(bytes),'Hash JPEG'),bytes:bytes.length,destination:'laptop',retention:lease.retention,createdAt:Date.now()};
+    record={schema:1,id,state:'preparing',name:lease.handle.name,sha256:await run(()=>hash(bytes),'Hash JPEG'),bytes:bytes.length,destination:'laptop',retention:lease.retention,createdAt:Date.now(),...(coordinateRecovery?{coordination:'web-lock-v1'}:{})};
     await metadata(run,dir,record);
     const copy=await run(()=>dir.getFileHandle(recoveryName,{create:true}),'Open recovery JPEG');
     const copyWriter=await run(()=>copy.createWritable(),'Open recovery stream',w=>abort(w));
@@ -91,14 +107,38 @@ export function createExportDestination({pickFile=o=>globalThis.showSaveFilePick
     const error=Error((durable?'Export output retained for recovery ('+record.id+'): ':'Recovery journal incomplete; destination untouched: ')+(e.message??e));
     error.recoveryId=record?.id??null;error.outputRetained=durable;throw error;
    }finally{busy=false;}
+   });
   },
   // Only after the host synchronously accepts the ACK for this generation.
   // Cleanup failure retains a complete record and cannot undo a true write ACK.
   async complete(ack){
    const receipt=receipts.get(ack);if(!receipt)throw Error('Unknown output receipt');receipts.delete(ack);
    const run=budget(),{dir,root,record}=receipt;
-   try{await metadata(run,dir,{...record,state:'complete'});if(record.retention==='until-ack'){await run(()=>root.removeEntry(record.id,{recursive:true}),'Release acknowledged recovery');return {...ack,recoveryId:null};}return ack;}
+   try{return await guarded(async()=>{await metadata(run,dir,{...record,state:'complete'});if(record.retention==='until-ack'){await run(()=>root.removeEntry(record.id,{recursive:true}),'Release acknowledged recovery');return {...ack,recoveryId:null};}return ack;});}
    catch{return {...ack,retentionCleanupPending:true};}
+  },
+  async discardRecovery(expected,check){
+   if(!coordinateRecovery||preset||expected?.coordination!=='web-lock-v1')throw Error('Older recovery copies can be saved; discard requires a coordinated record');
+   if(expected.schema!==1||!['uncertain','acknowledged','complete'].includes(expected.state)||!/^[a-f0-9]{8}-(?:[a-f0-9]{4}-){3}[a-f0-9]{12}$/.test(expected.id)||!Number.isSafeInteger(expected.bytes)||expected.bytes<4||expected.bytes>MAX_BYTES||!/^[a-f0-9]{64}$/.test(expected.sha256)||typeof check!=='function')throw Error('Invalid recovery discard identity');
+   return guarded(async()=>{
+    if(busy||pending.size)throw Error('Recovery journal has active I/O');
+    const run=budget();check();const root=await journal(run),dir=await run(()=>root.getDirectoryHandle(expected.id),'Find discard entry');
+    const matches=async()=>{
+     const file=await run(async()=>(await dir.getFileHandle('record.json')).getFile(),'Read discard identity');
+     if(file.size>4096)throw Error('Oversize discard identity');
+     const record=JSON.parse(await run(()=>file.text(),'Decode discard identity'));
+     if(JSON.stringify(record)!==JSON.stringify(expected))throw Error('Recovery record changed; verify again');
+    };
+    await matches();check();
+    const file=await run(async()=>(await dir.getFileHandle(recoveryName)).getFile(),'Read discard JPEG');
+    if(file.size!==expected.bytes||file.size>MAX_BYTES)throw Error('Recovery bytes changed; verify again');
+    const bytes=new Uint8Array(await run(()=>file.arrayBuffer(),'Verify discard bytes'));
+    if(bytes[0]!==255||bytes[1]!==216||bytes.at(-2)!==255||bytes.at(-1)!==217||await run(()=>hash(bytes),'Hash discard JPEG')!==expected.sha256)throw Error('Recovery bytes changed; verify again');
+    await matches();check();
+    await run(()=>root.removeEntry(expected.id,{recursive:true}),'Discard recovery copy');check();
+    try{await run(()=>root.getDirectoryHandle(expected.id),'Confirm discard');}catch(error){if(error.name==='NotFoundError'){check();return {discardAcknowledged:true,id:expected.id};}throw error;}
+    throw Error('Recovery removal was not acknowledged; refresh to reconcile');
+   });
   },
   async listRecovery(){
    const run=budget(),{items}=await records(run),result=[];
