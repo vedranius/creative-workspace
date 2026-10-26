@@ -52,6 +52,15 @@ export function createPresetLibrary({backend=createPresetLibraryDatabase(),pickF
   if(removed.length!==1||removed[0].preset?.presetType!=='tool'||JSON.stringify(prior.filter(item=>item!==removed[0]))!==JSON.stringify(presets))fail('Only one existing Exposure Tool preset can be deleted; preserve every other item');
   return persist(presets);
  };
+ const duplicateCandidate=presets=>{
+  const prior=current.presets,ids=new Set(prior.map(item=>(item.preset??item.folder).id));
+  if(presets.length!==prior.length+1)return false;
+  const added=presets.flatMap((item,i)=>!ids.has((item.preset??item.folder).id)?[i]:[]);
+  if(added.length!==1||added[0]===0)return false;
+  const index=added[0],clone=presets[index]?.preset,source=prior[index-1]?.preset;
+  return !!source&&source.presetType==='tool'&&!!clone&&/^[a-f0-9]{8}-(?:[a-f0-9]{4}-){3}[a-f0-9]{12}$/.test(clone.id)&&clone.name===source.name+' Copy'&&JSON.stringify({...clone,id:source.id,name:source.name})===JSON.stringify(source)&&JSON.stringify(presets.filter((_,i)=>i!==index))===JSON.stringify(prior);
+ };
+ const saveDuplicated=async items=>{ready();const presets=boundedLibrary(items);if(!duplicateCandidate(presets))fail('Duplicate one existing top-level Exposure Tool with a fresh ID, original Copy name and unchanged siblings');return persist(presets);};
  return {
   async load(){if(closed||busy)fail('Preset library busy or closed');uncertain=true;current=record(await io(()=>backend.read()));check();uncertain=false;return structuredClone(current.presets);},
   async choose(){
@@ -65,8 +74,10 @@ export function createPresetLibrary({backend=createPresetLibraryDatabase(),pickF
    return selected.map(l=>{const token='browser-preset-input:'+crypto.randomUUID();leases.set(token,l);return token;});
   },
   saveCreated,
-  async savePresets(items,{allowRename=false,allowDelete=false}={}){
+  saveDuplicated,
+  async savePresets(items,{allowRename=false,allowDelete=false,allowDuplicate=false}={}){
    ready();const presets=boundedLibrary(items);
+   if(allowDuplicate&&duplicateCandidate(presets))return saveDuplicated(presets);
    if(allowDelete&&presets.length===current.presets.length-1)return saveDeleted(presets);
    return allowRename&&presets.length===current.presets.length?saveRenamed(presets):saveCreated(presets);
   },

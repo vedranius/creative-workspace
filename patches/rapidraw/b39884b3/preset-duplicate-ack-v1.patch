@@ -1,0 +1,74 @@
+diff --git a/src/hooks/usePresets.ts b/src/hooks/usePresets.ts
+--- a/src/hooks/usePresets.ts
++++ b/src/hooks/usePresets.ts
+@@ -394,7 +394,8 @@
+   };
+ 
+   const duplicatePreset = useCallback(
+-    (presetId: string | null) => {
++    async (presetId: string | null) => {
++      if (isLoading || createPending.current) throw new Error('Preset library is busy');
+       let presetToDuplicate: Preset | null = null;
+       let sourceFolderId = null;
+ 
+@@ -413,8 +414,8 @@
+         }
+       }
+ 
+-      if (!presetToDuplicate) {
+-        return null;
++      if (!presetToDuplicate || sourceFolderId || presetToDuplicate.presetType !== 'tool') {
++        throw new Error('Only an existing top-level Exposure Tool preset can be duplicated');
+       }
+ 
+       const newPreset: Preset = {
+@@ -443,11 +444,18 @@
+         updatedPresets.splice(originalIndex + 1, 0, { preset: newPreset });
+       }
+ 
+-      setPresets(updatedPresets);
+-      savePresetsToBackend(updatedPresets);
+-      return newPreset;
++      createPending.current = true;
++      setIsLoading(true);
++      try {
++        await invoke(Invokes.SavePresets, { presets: updatedPresets });
++        setPresets(updatedPresets);
++        return newPreset;
++      } finally {
++        createPending.current = false;
++        setIsLoading(false);
++      }
+     },
+-    [presets, savePresetsToBackend],
++    [presets, isLoading],
+   );
+ 
+   const movePreset = useCallback(
+diff --git a/src/components/panel/right/PresetsPanel.tsx b/src/components/panel/right/PresetsPanel.tsx
+--- a/src/components/panel/right/PresetsPanel.tsx
++++ b/src/components/panel/right/PresetsPanel.tsx
+@@ -1152,10 +1152,20 @@
+           icon: CopyPlus,
+           label: t('editor.presets.menu.duplicatePreset'),
+           onClick: async () => {
+-            const duplicated = duplicatePreset(data?.id ?? null);
+-            if (duplicated) {
+-              await generateSinglePreview(duplicated);
++            if (isLoading || deletePending.current) return;
++            deletePending.current = true;
++            setDeleteBusy(true);
++            setDeleteError('');
++            let duplicated: Preset | null = null;
++            try {
++              duplicated = await duplicatePreset(data?.id ?? null);
++            } catch (error) {
++              setDeleteError(error instanceof Error ? error.message : String(error));
++            } finally {
++              deletePending.current = false;
++              setDeleteBusy(false);
+             }
++            if (duplicated) await generateSinglePreview(duplicated);
+           },
+         },
+         {

@@ -1,3 +1,9 @@
+# RWASM-03 — original App Duplicate Preset ACK (2026-10-26)
+
+Original Duplicate Preset now publishes one top-level Exposure Tool clone/card/preview only after durable library commit/readback. Fresh UUID, original Copy name/insertion/values, held ACK, duplicate gesture, actual abort/stale peer/uncertain reload and native-exact clone application pass18 browser assertions/142 host cases/check/provenance. [Evidence and continuation](rapidraw-wasm-app-preset-duplicate-handoff.md).
+
+Experimental B; original processing/renderer/WASM unchanged, no product release/main/demo/private input change. Alpha75 immutable Actions assets gate is complete in main8a7d3cd. Next A: original registered endnote.delete bounded native/ACK. Next B: original Overwrite Preset for one existing Exposure Tool through durable ACK. SAME MAIN only.
+
 # RWASM-03 — original App Delete Preset ACK (2026-10-26)
 
 Original PresetsPanel Delete Preset now removes one top-level Exposure Tool only after durable library commit/readback. Held ACK, duplicate gestures, actual transaction abort, stale peer, uncertain reload and newer editor selection pass17 browser assertions/137 host cases/check/source pins. [Evidence and continuation](rapidraw-wasm-app-preset-delete-handoff.md).
