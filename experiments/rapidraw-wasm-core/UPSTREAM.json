@@ -1437,5 +1437,35 @@
       "experiments/rapidraw-react-proof/app-tool-move-main.tsx": "ad8597332fb883001d3c817c019445f6b7bf808cd868d0c5020f72f6051654ee"
     },
     "scope": "Experimental original pointer drag of one existing top-level Exposure Tool into an existing empty folder; original removal/append algorithm, source IDs/values/flags and other order preserved. Await durable CAS/commit/readback before position, expansion and preview publication; abort/stale/uncertain reload without replay. No arbitrary reorder, folder/child/cross-folder/nonempty moves, general presets, providers, OS or full App acceptance."
+  },
+  "appChildRoot": {
+    "basePatch": {
+      "path": "patches/rapidraw/b39884b3/tool-move-folder-ack-v1.patch",
+      "sha256": "96e683847c710b24946b6ed690e087ee25db68fef4b434c6ce72d2c2a5290493",
+      "patchedFiles": {
+        "src/hooks/usePresets.ts": "8d7e7b73bbd93a2da2df9975d48ab1e4aef8a878f0623a65e5dfc4c1f2055f70",
+        "src/components/panel/right/PresetsPanel.tsx": "9406efe207242ccb43a3e74cd18d83010a9ec4be888dd8ad7600581e2f522885"
+      }
+    },
+    "sourceFiles": {
+      "src/hooks/usePresets.ts": "0b545710738a886df5a6946723e0e4e580027d98cc7a92f9bacd777bc7cf6258",
+      "src/components/panel/right/PresetsPanel.tsx": "f91a154e80a92c8692c625a9a43e1be06534024b78d79ce0052176d25ecf2949",
+      "src/components/modals/ConfigurePresetModal.tsx": "090545bc74c1c75342a958b503e26d64ad890024e14f3a722f2ceb176fdfdf8b",
+      "src-tauri/src/file_management.rs": "3f639e11c2f8a74baa31285b2aa9456516e5c71b6c8e4d78a42dbe61f5c4a219",
+      "src/components/modals/CreateFolderModal.tsx": "ff16869f30d45b6e0c96dc647314027a5828814ce0d62d0fc90840ecfd07a29a",
+      "src/components/modals/RenameFolderModal.tsx": "623d7854c69ade59dec72b4640e87cc6f053ccedbcc6e99510dfaa86c422636d"
+    },
+    "sourcePatch": {
+      "path": "patches/rapidraw/b39884b3/child-root-move-ack-v1.patch",
+      "sha256": "d4d307e838a0f4bb2222b2ebaaa4bad8327e1ca9e6d88e6465e126e46fc1f69c",
+      "patchedFiles": {
+        "src/hooks/usePresets.ts": "b3eae5dea45cc588ce9e28c539ef380b936dd9701cb51f16d386cb378e8ec42b",
+        "src/components/panel/right/PresetsPanel.tsx": "795f7c8a8588ad935d02311504794a2b8e727e018e7655533c36999f019428e4"
+      }
+    },
+    "bootstrapFiles": {
+      "experiments/rapidraw-react-proof/app-child-root-main.tsx": "1f3ad6ae5dab9d040aa54f1aeceaa25ef5a32e0860dd35f9658cd4fad5a17e3b"
+    },
+    "scope": "Experimental original pointer drag of one existing Exposure Tool child before an existing top-level Tool; original remove-child/root-insert algorithm, exact child/parent IDs/values/flags/other order, parent retained even when empty. Await durable CAS/commit/readback before position publication; abort/stale/uncertain reload without replay. No arbitrary reorder, cross-folder/folder moves, root append, general presets/providers/OS/full App acceptance."
   }
 }

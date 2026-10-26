@@ -1,3 +1,9 @@
+# RWASM-03 — original App child-to-root Tool drag ACK (2026-10-26)
+
+Original pointer drag returns one existing Tool child before an existing top-level Tool only after durable commit/readback; the exact parent remains even when empty. IDs/values/flags/other order, held positions/counts, actual abort/stale/uncertain/reload without replay and native moved-root pixels pass21 browser/199 serial host/84 repo/check. [Evidence and next step](rapidraw-wasm-app-child-root-handoff.md).
+
+Experimental B; original remove-child/root-insert algorithm/cache/WASM reused, no product release/main/demo/private input change. Next A: corrected alpha77 exact successful CI/immutable assets gate. Next B if A still waits: original root Tool reorder through durable ACK, preserving folders and all records. SAME MAIN only.
+
 # RWASM-03 — original App Tool drag into empty folder ACK (2026-10-26)
 
 Original pointer drag now moves one existing top-level Tool into an existing empty folder only after durable commit/readback. Same ID/value/flags and other record order survive; position/expansion wait for ACK. Actual abort, stale peer, uncertain position/reload without replay and native moved-child pixels pass20 browser/194 serial host/84 repo/check. [Evidence and next step](rapidraw-wasm-app-tool-move-handoff.md).
