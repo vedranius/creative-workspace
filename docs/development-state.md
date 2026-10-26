@@ -1,3 +1,9 @@
+# RWASM-03 — original App Duplicate Preset child ACK (2026-10-26)
+
+Original Duplicate Preset now copies one existing Tool child with a fresh UUID/Copy name immediately after it inside its folder. Separate default-off capability, exact parent/values/flags/siblings/order, commit/readback before card publication, held/abort/stale/uncertain reload/no replay/native clone application pass19 browser/179 serial host/84 repo/check. [Evidence and next step](rapidraw-wasm-app-child-duplicate-handoff.md).
+
+Experimental B only; cached Vite/source/WASM reused, no product release/main/demo/private input change. Next A: corrected alpha77 Checks40360529789/Build40360529983 and immutable assets gate after success. Next B: original child Overwrite Preset through durable value ACK. SAME MAIN only.
+
 # RWASM-03 — original App Configure Preset child-name ACK (2026-10-26)
 
 The original Configure Preset modal now changes one existing Tool child's name through a separate default-off capability. Parent/child IDs, values, flags, order and siblings remain exact; card/modal publication waits for commit/readback. Retained drafts, pending exclusion, abort/stale/uncertain reload/no replay and native child reapplication pass 19 browser assertions, 174 serial host cases, 84 repo tests and check. [Evidence and continuation](rapidraw-wasm-app-child-configure-handoff.md).

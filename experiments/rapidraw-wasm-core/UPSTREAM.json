@@ -1323,5 +1323,34 @@
       "experiments/rapidraw-react-proof/app-child-configure-main.tsx": "78a9f03ea7a13ef616d3575709699375fbdc0accd0c4504ea4c0942dae71e847"
     },
     "scope": "Experimental original Configure Preset: one existing Exposure Tool child name only, exact parent/child IDs/values/flags/order/siblings, durable library CAS/commit/readback before original modal/card publication. Original source handler/modal ACK patches reused, draft/pending/failure/uncertain/reload/native editor preserved. No general child/folder/OS/provider/full App acceptance."
+  },
+  "appChildDuplicate": {
+    "basePatch": {
+      "path": "patches/rapidraw/b39884b3/folder-delete-ack-v1.patch",
+      "sha256": "a366225baa9d43432beeff9fd198d79f785109a1a04d0eeb70a3d84fd652313b",
+      "patchedFiles": {
+        "src/hooks/usePresets.ts": "6208fa3112ffb37d0d3aa66c80a214f7f551be9f980a6a8d17e821306334bc2c",
+        "src/components/panel/right/PresetsPanel.tsx": "6efc1ae02b475fadfd476c25d8aaa91c4abd776d5c491044f9bdfefd541d9c19"
+      }
+    },
+    "sourceFiles": {
+      "src/hooks/usePresets.ts": "0b545710738a886df5a6946723e0e4e580027d98cc7a92f9bacd777bc7cf6258",
+      "src/components/panel/right/PresetsPanel.tsx": "f91a154e80a92c8692c625a9a43e1be06534024b78d79ce0052176d25ecf2949",
+      "src/components/modals/ConfigurePresetModal.tsx": "090545bc74c1c75342a958b503e26d64ad890024e14f3a722f2ceb176fdfdf8b",
+      "src-tauri/src/file_management.rs": "3f639e11c2f8a74baa31285b2aa9456516e5c71b6c8e4d78a42dbe61f5c4a219",
+      "src/components/modals/CreateFolderModal.tsx": "ff16869f30d45b6e0c96dc647314027a5828814ce0d62d0fc90840ecfd07a29a",
+      "src/components/modals/RenameFolderModal.tsx": "623d7854c69ade59dec72b4640e87cc6f053ccedbcc6e99510dfaa86c422636d"
+    },
+    "sourcePatch": {
+      "path": "patches/rapidraw/b39884b3/child-duplicate-ack-v1.patch",
+      "sha256": "66398228728e8640bf022f0b2fefe3fb99ea77e8ab553aa0262d5ae67e26dc40",
+      "patchedFiles": {
+        "src/hooks/usePresets.ts": "42f36742294bbb53d1bdfb36991c9b292dace9b2a6a685514c92990a1d85a497"
+      }
+    },
+    "bootstrapFiles": {
+      "experiments/rapidraw-react-proof/app-child-duplicate-main.tsx": "24adb3df52c1b05f81736c0bd5e209305cd04332669111fa4d61b9ab9ac38ae7"
+    },
+    "scope": "Experimental original Duplicate Preset for one existing Exposure Tool child: fresh UUID/original Copy name/same-folder next position, exact parent/siblings/values/flags/order, durable CAS/commit/readback before original card publication; abort/stale/uncertain no replay/native clone evidence. No arbitrary child creation/movement/general presets/provider/OS/full App acceptance."
   }
 }

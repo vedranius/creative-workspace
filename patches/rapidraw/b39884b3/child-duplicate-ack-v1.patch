@@ -1,0 +1,13 @@
+--- a/src/hooks/usePresets.ts
++++ b/src/hooks/usePresets.ts
+@@ -428,8 +428,8 @@
+         }
+       }
+ 
+-      if (!presetToDuplicate || sourceFolderId || presetToDuplicate.presetType !== 'tool') {
+-        throw new Error('Only an existing top-level Exposure Tool preset can be duplicated');
++      if (!presetToDuplicate || presetToDuplicate.presetType !== 'tool') {
++        throw new Error('Only an existing Exposure Tool preset can be duplicated');
+       }
+ 
+       const newPreset: Preset = {

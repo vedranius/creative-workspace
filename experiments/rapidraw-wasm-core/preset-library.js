@@ -72,6 +72,18 @@ export function createPresetLibrary({backend=createPresetLibraryDatabase(),pickF
   const index=added[0],clone=presets[index]?.preset,source=prior[index-1]?.preset;
   return !!source&&source.presetType==='tool'&&!!clone&&/^[a-f0-9]{8}-(?:[a-f0-9]{4}-){3}[a-f0-9]{12}$/.test(clone.id)&&clone.name===source.name+' Copy'&&JSON.stringify({...clone,id:source.id,name:source.name})===JSON.stringify(source)&&JSON.stringify(presets.filter((_,i)=>i!==index))===JSON.stringify(prior);
  };
+ const childDuplicateCandidate=presets=>{
+  const prior=current.presets;if(presets.length!==prior.length)return false;
+  const changed=presets.flatMap((item,i)=>JSON.stringify(item)!==JSON.stringify(prior[i])?[i]:[]);
+  if(changed.length!==1)return false;
+  const i=changed[0],before=prior[i]?.folder,after=presets[i]?.folder;
+  if(!before||!after||after.children.length!==before.children.length+1||JSON.stringify({...after,children:before.children})!==JSON.stringify(before))return false;
+  const ids=new Set(before.children.map(p=>p.id)),added=after.children.flatMap((p,j)=>!ids.has(p.id)?[j]:[]);
+  if(added.length!==1||added[0]===0)return false;
+  const j=added[0],source=before.children[j-1],clone=after.children[j];
+  return !!source&&source.presetType==='tool'&&/^[a-f0-9]{8}-(?:[a-f0-9]{4}-){3}[a-f0-9]{12}$/.test(clone.id)&&clone.name===source.name+' Copy'&&JSON.stringify({...clone,id:source.id,name:source.name})===JSON.stringify(source)&&JSON.stringify(after.children.filter((_,k)=>k!==j))===JSON.stringify(before.children);
+ };
+ const saveChildDuplicated=async items=>{ready();const presets=boundedLibrary(items);if(!childDuplicateCandidate(presets))fail('Duplicate one existing Exposure Tool child with fresh UUID and original Copy name immediately after it; preserve parent, values, flags, order and siblings');return persist(presets);};
  const saveDuplicated=async items=>{ready();const presets=boundedLibrary(items);if(!duplicateCandidate(presets))fail('Duplicate one existing top-level Exposure Tool with a fresh ID, original Copy name and unchanged siblings');return persist(presets);};
  const overwriteCandidate=presets=>{
   const prior=current.presets;if(presets.length!==prior.length)return false;
@@ -120,8 +132,10 @@ export function createPresetLibrary({backend=createPresetLibraryDatabase(),pickF
   saveFolderRenamed,
   saveFolderDeleted,
   saveChildRenamed,
-  async savePresets(items,{allowRename=false,allowDelete=false,allowDuplicate=false,allowOverwrite=false,allowCreateFolder=false,allowRenameFolder=false,allowDeleteFolder=false,allowRenameChild=false}={}){
+  saveChildDuplicated,
+  async savePresets(items,{allowRename=false,allowDelete=false,allowDuplicate=false,allowOverwrite=false,allowCreateFolder=false,allowRenameFolder=false,allowDeleteFolder=false,allowRenameChild=false,allowDuplicateChild=false}={}){
    ready();const presets=boundedLibrary(items);
+   if(allowDuplicateChild&&childDuplicateCandidate(presets))return saveChildDuplicated(presets);
    if(allowRenameChild&&childRenameCandidate(presets))return saveChildRenamed(presets);
    if(allowDeleteFolder&&folderDeleteCandidate(presets))return saveFolderDeleted(presets);
    if(allowRenameFolder&&folderRenameCandidate(presets))return saveFolderRenamed(presets);
