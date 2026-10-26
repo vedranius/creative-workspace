@@ -1,0 +1,49 @@
+{
+  "status": "original-Quick-Apply-Delete-Endnote-ack-failure-cancel-undo-save-reopen-passed",
+  "workerSha256": "f91a6b73038a76a55c866bedf5d7c5b5f3712523b0468cf0b2f3bf383623e9b1",
+  "uiWasm": {
+    "path": "designcraft-web-646af20ef269dada_bg.wasm",
+    "size": 40348897,
+    "sha256": "80569bac154b49ed7dd4ad9fef7466392e84015a1088e327b0ad2ee081cdb60f"
+  },
+  "sourcePin": "a127c6d5c3576972bbd60445f26d893db071eef3",
+  "sourcePatchSha256": "5243209726af965d77117c3dd7fe6483296e260168febcac3cdbd88397987802",
+  "fixture": {
+    "generatedNative": true,
+    "sha256": "def97533c6536b614e0625d750adff694bd5fd4ace0af7f6269d1b07972250d1"
+  },
+  "originalQuickApply": {
+    "optionsItem": {
+      "source": "original Quick Apply",
+      "command": "endnote.delete"
+    },
+    "commandId": "endnote.delete",
+    "params": {
+      "id": 1,
+      "story": 11
+    }
+  },
+  "cancelNoSubmit": true,
+  "rejectedDraftPreserved": true,
+  "heldDeleteAck": {
+    "priorRevision": 3,
+    "acceptedRevision": 4,
+    "dialogRetained": true,
+    "duplicateEnterEscapeAndTypingBlocked": true
+  },
+  "exactOriginalNativeDeleteCandidate": true,
+  "oneBodyReferenceAndTargetRemovedRemainingNotePreserved": true,
+  "pagesListingIdentityAndSelectionPreserved": true,
+  "nativeDeletedNotePixelsChanged": {
+    "before": "0f8bfe4d974c74735e5934904ae7ba4b6a1b74b7dec172def73196205f650fe7",
+    "after": "49e3d5a99fa36a9a68a5f313ca76fba40dc86c1bac499c0a2bc26bbc2937c5a9"
+  },
+  "canonicalAndPngUndoRedoExact": true,
+  "nativeSaveFreshReopenCanonicalAndPngExact": true,
+  "originalInputUnchanged": true,
+  "expectedPreMutationRejections": 1,
+  "errors": [],
+  "failedResponses": [],
+  "requestFailures": [],
+  "permission": "Synthetic browser folder plus owned on-demand helper; actual original Open/Quick Apply/Delete Endnote fields/Cancel/OK and Undo/Redo. Save a Copy/fresh reopen through real owned gateway/native worker. Real OS permission and full provider/tools parity remain unaccepted."
+}

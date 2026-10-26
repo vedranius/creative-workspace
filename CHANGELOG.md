@@ -1,3 +1,9 @@
+## [0.2.0-alpha.76] - 2026-10-26
+
+- Connect original registered DesignCraft `endnote.delete` through hosted Quick Apply and its original generic story/id form to the owned native engine. Validate target/reference, document/listing budgets and an isolated original candidate before changing live document/history.
+- Retain pending/failed drafts until matching canonical ACK; preserve other notes, pages and original selection. 22 native /174 UI+1 existing ignored /40 gateway /98 repo tests, npm check/release/YAML and actual original browser Cancel/failure/held ACK/exact native candidate/UndoRedo/PNG/retained Save Copy/fresh reopen pass.
+- Draft prototype candidate; exact-source Actions/tag/draft/downloaded-assets gate pending. Full tools/providers/real OS/all13 acceptance remains open. Local QA binaries are not release assets.
+
 ## [0.2.0-alpha.75] - 2026-10-26
 
 - Connect original registered Edit Endnote and its existing Quick Apply/generic story/id/text form to the owned native worker. Retain pending and failed drafts until matching canonical ACK.

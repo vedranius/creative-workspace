@@ -1,0 +1,1020 @@
+{
+  "expectedCanonical": {
+    "assets": {},
+    "created": 1792997007,
+    "endnoteOptions": {
+      "heading": "Endnotes",
+      "headingStyle": "[Basic Paragraph]",
+      "paraStyle": "[Basic Paragraph]",
+      "prefix": "",
+      "separator": "\t",
+      "startAt": 1,
+      "style": "arabic",
+      "suffix": ""
+    },
+    "endnoteStory": 17,
+    "footnoteOptions": {
+      "affixIn": "none",
+      "firstBaseline": "leading",
+      "firstBaselineMin": 0.0,
+      "paraStyle": "[Basic Paragraph]",
+      "prefix": "",
+      "refCharStyle": "[None]",
+      "refPosition": "superscript",
+      "restart": "never",
+      "rule": {
+        "color": "[Black]",
+        "leftIndent": 0.0,
+        "offset": 0.0,
+        "on": true,
+        "tint": 1.0,
+        "weight": 1.0,
+        "width": 72.0
+      },
+      "separator": "\t",
+      "spaceBefore": 0.0,
+      "spaceBetween": 0.0,
+      "spanColumns": false,
+      "startAt": 1,
+      "style": "arabic",
+      "suffix": ""
+    },
+    "layers": [
+      {
+        "color": [
+          43,
+          155,
+          255
+        ],
+        "id": 1,
+        "locked": false,
+        "name": "Layer 1",
+        "printable": true,
+        "showGuides": true,
+        "suppressWrapWhenHidden": false,
+        "visible": true
+      }
+    ],
+    "modified": 0,
+    "nextId": 17,
+    "parents": [
+      {
+        "allowShuffle": true,
+        "id": 4,
+        "items": [],
+        "pages": [
+          {
+            "columns": {
+              "count": 1,
+              "gutter": 12.0
+            },
+            "height": 792.0,
+            "id": 2,
+            "margins": {
+              "bottom": 36.0,
+              "inside": 36.0,
+              "outside": 36.0,
+              "top": 36.0
+            },
+            "showParentItems": true,
+            "side": "left",
+            "width": 612.0,
+            "x": 0.0
+          },
+          {
+            "columns": {
+              "count": 1,
+              "gutter": 12.0
+            },
+            "height": 792.0,
+            "id": 3,
+            "margins": {
+              "bottom": 36.0,
+              "inside": 36.0,
+              "outside": 36.0,
+              "top": 36.0
+            },
+            "showParentItems": true,
+            "side": "right",
+            "width": 612.0,
+            "x": 612.0
+          }
+        ],
+        "parent": {
+          "name": "Parent",
+          "prefix": "A"
+        }
+      }
+    ],
+    "sections": [
+      {
+        "includePrefix": false,
+        "start": 0,
+        "startNumber": 1,
+        "style": "arabic"
+      }
+    ],
+    "settings": {
+      "advancedType": {
+        "subscriptPosition": 33.3,
+        "subscriptSize": 58.3,
+        "superscriptPosition": 33.3,
+        "superscriptSize": 58.3
+      },
+      "baselineGrid": {
+        "color": [
+          140,
+          205,
+          230
+        ],
+        "increment": 12.0,
+        "relativeTo": "topOfPage",
+        "start": 36.0,
+        "viewThreshold": 0.75
+      },
+      "bleed": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "bleedColor": [
+        255,
+        72,
+        103
+      ],
+      "blendSpace": "cmyk",
+      "chapterNumber": 1,
+      "columnColor": [
+        166,
+        40,
+        255
+      ],
+      "facingPages": true,
+      "globalLight": 120.0,
+      "glyphFallback": false,
+      "grid": {
+        "color": [
+          200,
+          200,
+          200
+        ],
+        "horizontal": 72.0,
+        "inBack": true,
+        "subdivisions": 8,
+        "vertical": 72.0
+      },
+      "horizontalUnits": "picas",
+      "intent": "print",
+      "keyboardIncrement": 1.0,
+      "marginColor": [
+        255,
+        56,
+        255
+      ],
+      "overprintBlack": true,
+      "pageHeight": 792.0,
+      "pageWidth": 612.0,
+      "pasteboard": [
+        72.0,
+        72.0
+      ],
+      "primaryTextFrame": false,
+      "slug": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "slugColor": [
+        100,
+        188,
+        221
+      ],
+      "trackChanges": false,
+      "verticalUnits": "picas"
+    },
+    "spreads": [
+      {
+        "allowShuffle": true,
+        "id": 14,
+        "items": [],
+        "pages": [
+          {
+            "columns": {
+              "count": 1,
+              "gutter": 12.0
+            },
+            "height": 792.0,
+            "id": 5,
+            "margins": {
+              "bottom": 36.0,
+              "inside": 36.0,
+              "outside": 36.0,
+              "top": 36.0
+            },
+            "parent": 4,
+            "showParentItems": true,
+            "side": "right",
+            "width": 612.0,
+            "x": 0.0
+          }
+        ]
+      },
+      {
+        "allowShuffle": true,
+        "id": 15,
+        "items": [
+          {
+            "blend": "Normal",
+            "content": {
+              "options": {
+                "autoSize": "off",
+                "autoSizeRef": 1,
+                "balanceColumns": false,
+                "columnRule": false,
+                "columnRuleBottomInset": 0.0,
+                "columnRuleColor": "[Black]",
+                "columnRuleOffset": 0.0,
+                "columnRuleTint": 1.0,
+                "columnRuleTopInset": 0.0,
+                "columnRuleWeight": 1.0,
+                "columnWidth": 0.0,
+                "columns": 1,
+                "columnsKind": "fixedNumber",
+                "firstBaseline": "ascent",
+                "firstBaselineMin": 0.0,
+                "gutter": 12.0,
+                "ignoreWrap": false,
+                "inset": [
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0
+                ],
+                "verticalJustification": "top",
+                "vjParagraphSpacingLimit": 0.0
+              },
+              "story": 11,
+              "type": "text"
+            },
+            "corners": {
+              "corners": [
+                {
+                  "shape": "none",
+                  "size": 0.0
+                },
+                {
+                  "shape": "none",
+                  "size": 0.0
+                },
+                {
+                  "shape": "none",
+                  "size": 0.0
+                },
+                {
+                  "shape": "none",
+                  "size": 0.0
+                }
+              ]
+            },
+            "effects": {
+              "dropShadow": {
+                "angle": 135.0,
+                "color": "[Black]",
+                "distance": 7.0,
+                "on": false,
+                "opacity": 0.75,
+                "size": 5.0,
+                "spread": 0.0
+              },
+              "feather": 0.0
+            },
+            "fill": {
+              "overprint": false,
+              "swatch": "[None]",
+              "tint": 1.0
+            },
+            "hidden": false,
+            "id": 10,
+            "layer": 1,
+            "locked": false,
+            "nonprinting": false,
+            "objectStyle": "[Basic Text Frame]",
+            "opacity": 1.0,
+            "path": {
+              "subpaths": [
+                {
+                  "anchors": [
+                    {
+                      "p": [
+                        60.0,
+                        80.0
+                      ]
+                    },
+                    {
+                      "p": [
+                        360.0,
+                        80.0
+                      ]
+                    },
+                    {
+                      "p": [
+                        360.0,
+                        320.0
+                      ]
+                    },
+                    {
+                      "p": [
+                        60.0,
+                        320.0
+                      ]
+                    }
+                  ],
+                  "closed": true
+                }
+              ]
+            },
+            "shape": "rectangle",
+            "stroke": {
+              "align": "center",
+              "cap": "butt",
+              "end": "none",
+              "gapSwatch": "[None]",
+              "gapTint": 1.0,
+              "join": "miter",
+              "miterLimit": 4.0,
+              "overprint": false,
+              "start": "none",
+              "swatch": "[None]",
+              "tint": 1.0,
+              "type": {
+                "kind": "solid"
+              },
+              "weight": 1.0
+            },
+            "wrap": {
+              "invert": false,
+              "mode": "none",
+              "offsets": [
+                0.0,
+                0.0,
+                0.0,
+                0.0
+              ],
+              "side": "bothSides"
+            },
+            "xf": [
+              1.0,
+              0.0,
+              0.0,
+              1.0,
+              0.0,
+              0.0
+            ]
+          },
+          {
+            "blend": "Normal",
+            "content": {
+              "options": {
+                "autoSize": "off",
+                "autoSizeRef": 1,
+                "balanceColumns": false,
+                "columnRule": false,
+                "columnRuleBottomInset": 0.0,
+                "columnRuleColor": "[Black]",
+                "columnRuleOffset": 0.0,
+                "columnRuleTint": 1.0,
+                "columnRuleTopInset": 0.0,
+                "columnRuleWeight": 1.0,
+                "columnWidth": 0.0,
+                "columns": 1,
+                "columnsKind": "fixedNumber",
+                "firstBaseline": "ascent",
+                "firstBaselineMin": 0.0,
+                "gutter": 12.0,
+                "ignoreWrap": false,
+                "inset": [
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0
+                ],
+                "verticalJustification": "top",
+                "vjParagraphSpacingLimit": 0.0
+              },
+              "story": 17,
+              "type": "text"
+            },
+            "corners": {
+              "corners": [
+                {
+                  "shape": "none",
+                  "size": 0.0
+                },
+                {
+                  "shape": "none",
+                  "size": 0.0
+                },
+                {
+                  "shape": "none",
+                  "size": 0.0
+                },
+                {
+                  "shape": "none",
+                  "size": 0.0
+                }
+              ]
+            },
+            "effects": {
+              "dropShadow": {
+                "angle": 135.0,
+                "color": "[Black]",
+                "distance": 7.0,
+                "on": false,
+                "opacity": 0.75,
+                "size": 5.0,
+                "spread": 0.0
+              },
+              "feather": 0.0
+            },
+            "fill": {
+              "overprint": false,
+              "swatch": "[None]",
+              "tint": 1.0
+            },
+            "hidden": false,
+            "id": 16,
+            "layer": 1,
+            "locked": false,
+            "nonprinting": false,
+            "objectStyle": "[Basic Text Frame]",
+            "opacity": 1.0,
+            "path": {
+              "subpaths": [
+                {
+                  "anchors": [
+                    {
+                      "p": [
+                        648.0,
+                        36.0
+                      ]
+                    },
+                    {
+                      "p": [
+                        1188.0,
+                        36.0
+                      ]
+                    },
+                    {
+                      "p": [
+                        1188.0,
+                        756.0
+                      ]
+                    },
+                    {
+                      "p": [
+                        648.0,
+                        756.0
+                      ]
+                    }
+                  ],
+                  "closed": true
+                }
+              ]
+            },
+            "shape": "rectangle",
+            "stroke": {
+              "align": "center",
+              "cap": "butt",
+              "end": "none",
+              "gapSwatch": "[None]",
+              "gapTint": 1.0,
+              "join": "miter",
+              "miterLimit": 4.0,
+              "overprint": false,
+              "start": "none",
+              "swatch": "[None]",
+              "tint": 1.0,
+              "type": {
+                "kind": "solid"
+              },
+              "weight": 1.0
+            },
+            "wrap": {
+              "invert": false,
+              "mode": "none",
+              "offsets": [
+                0.0,
+                0.0,
+                0.0,
+                0.0
+              ],
+              "side": "bothSides"
+            },
+            "xf": [
+              1.0,
+              0.0,
+              0.0,
+              1.0,
+              0.0,
+              0.0
+            ]
+          }
+        ],
+        "pages": [
+          {
+            "columns": {
+              "count": 1,
+              "gutter": 12.0
+            },
+            "height": 792.0,
+            "id": 6,
+            "margins": {
+              "bottom": 36.0,
+              "inside": 36.0,
+              "outside": 36.0,
+              "top": 36.0
+            },
+            "parent": 4,
+            "showParentItems": true,
+            "side": "left",
+            "width": 612.0,
+            "x": 0.0
+          },
+          {
+            "columns": {
+              "count": 1,
+              "gutter": 12.0
+            },
+            "height": 792.0,
+            "id": 12,
+            "margins": {
+              "bottom": 36.0,
+              "inside": 36.0,
+              "outside": 36.0,
+              "top": 36.0
+            },
+            "parent": 4,
+            "showParentItems": true,
+            "side": "right",
+            "width": 612.0,
+            "x": 612.0
+          }
+        ]
+      }
+    ],
+    "stories": {
+      "11": {
+        "chars": [
+          {
+            "len": 12,
+            "style": "[None]"
+          }
+        ],
+        "direction": "leftToRight",
+        "endnotes": [
+          {
+            "id": 2,
+            "text": {
+              "chars": [
+                {
+                  "len": 11,
+                  "style": "[None]"
+                }
+              ],
+              "direction": "leftToRight",
+              "frames": [],
+              "id": 0,
+              "paras": [
+                {
+                  "style": "[Basic Paragraph]"
+                }
+              ],
+              "rev": 1,
+              "text": "Second kept"
+            }
+          }
+        ],
+        "frames": [
+          10
+        ],
+        "id": 11,
+        "paras": [
+          {
+            "style": "[Basic Paragraph]"
+          }
+        ],
+        "rev": 4,
+        "text": "Body text"
+      },
+      "17": {
+        "chars": [
+          {
+            "len": 22,
+            "style": "[None]"
+          }
+        ],
+        "direction": "leftToRight",
+        "frames": [
+          16
+        ],
+        "id": 17,
+        "paras": [
+          {
+            "style": "[Basic Paragraph]"
+          },
+          {
+            "style": "[Basic Paragraph]"
+          }
+        ],
+        "rev": 3,
+        "text": "Endnotes\n1\tSecond kept"
+      }
+    },
+    "styles": {
+      "cell": [
+        {
+          "name": "[None]"
+        }
+      ],
+      "character": [
+        {
+          "chars": {},
+          "name": "[None]"
+        }
+      ],
+      "defaultCharacter": "[None]",
+      "defaultGraphicFrame": "[Basic Graphics Frame]",
+      "defaultParagraph": "[Basic Paragraph]",
+      "defaultTextFrame": "[Basic Text Frame]",
+      "object": [
+        {
+          "name": "[None]"
+        },
+        {
+          "name": "[Basic Graphics Frame]",
+          "stroke": {
+            "align": "center",
+            "cap": "butt",
+            "end": "none",
+            "gapSwatch": "[None]",
+            "gapTint": 1.0,
+            "join": "miter",
+            "miterLimit": 4.0,
+            "overprint": false,
+            "start": "none",
+            "swatch": "[Black]",
+            "tint": 1.0,
+            "type": {
+              "kind": "solid"
+            },
+            "weight": 1.0
+          }
+        },
+        {
+          "fill": {
+            "overprint": false,
+            "swatch": "[None]",
+            "tint": 1.0
+          },
+          "name": "[Basic Text Frame]",
+          "paragraphStyle": "[Basic Paragraph]",
+          "stroke": {
+            "align": "center",
+            "cap": "butt",
+            "end": "none",
+            "gapSwatch": "[None]",
+            "gapTint": 1.0,
+            "join": "miter",
+            "miterLimit": 4.0,
+            "overprint": false,
+            "start": "none",
+            "swatch": "[None]",
+            "tint": 1.0,
+            "type": {
+              "kind": "solid"
+            },
+            "weight": 1.0
+          }
+        }
+      ],
+      "paragraph": [
+        {
+          "chars": {},
+          "name": "[No Paragraph Style]",
+          "para": {}
+        },
+        {
+          "chars": {},
+          "name": "[Basic Paragraph]",
+          "nextStyle": "[Basic Paragraph]",
+          "para": {}
+        }
+      ],
+      "table": [
+        {
+          "name": "[Basic Table]"
+        }
+      ]
+    },
+    "swatches": [
+      {
+        "locked": true,
+        "name": "[None]",
+        "named": true,
+        "value": {
+          "kind": "none"
+        }
+      },
+      {
+        "locked": true,
+        "name": "[Registration]",
+        "named": true,
+        "value": {
+          "kind": "registration"
+        }
+      },
+      {
+        "locked": true,
+        "name": "[Paper]",
+        "named": true,
+        "value": {
+          "color": {
+            "b": 1.0,
+            "g": 1.0,
+            "model": "rgb",
+            "r": 1.0
+          },
+          "kind": "paper"
+        }
+      },
+      {
+        "locked": true,
+        "name": "[Black]",
+        "named": true,
+        "value": {
+          "color": {
+            "c": 0.0,
+            "k": 1.0,
+            "m": 0.0,
+            "model": "cmyk",
+            "y": 0.0
+          },
+          "color_type": "process",
+          "kind": "color"
+        }
+      },
+      {
+        "locked": false,
+        "name": "C=100 M=0 Y=0 K=0",
+        "named": false,
+        "value": {
+          "color": {
+            "c": 1.0,
+            "k": 0.0,
+            "m": 0.0,
+            "model": "cmyk",
+            "y": 0.0
+          },
+          "color_type": "process",
+          "kind": "color"
+        }
+      },
+      {
+        "locked": false,
+        "name": "C=0 M=100 Y=0 K=0",
+        "named": false,
+        "value": {
+          "color": {
+            "c": 0.0,
+            "k": 0.0,
+            "m": 1.0,
+            "model": "cmyk",
+            "y": 0.0
+          },
+          "color_type": "process",
+          "kind": "color"
+        }
+      },
+      {
+        "locked": false,
+        "name": "C=0 M=0 Y=100 K=0",
+        "named": false,
+        "value": {
+          "color": {
+            "c": 0.0,
+            "k": 0.0,
+            "m": 0.0,
+            "model": "cmyk",
+            "y": 1.0
+          },
+          "color_type": "process",
+          "kind": "color"
+        }
+      },
+      {
+        "locked": false,
+        "name": "C=0 M=100 Y=100 K=0",
+        "named": false,
+        "value": {
+          "color": {
+            "c": 0.0,
+            "k": 0.0,
+            "m": 1.0,
+            "model": "cmyk",
+            "y": 1.0
+          },
+          "color_type": "process",
+          "kind": "color"
+        }
+      },
+      {
+        "locked": false,
+        "name": "C=100 M=0 Y=100 K=0",
+        "named": false,
+        "value": {
+          "color": {
+            "c": 1.0,
+            "k": 0.0,
+            "m": 0.0,
+            "model": "cmyk",
+            "y": 1.0
+          },
+          "color_type": "process",
+          "kind": "color"
+        }
+      },
+      {
+        "locked": false,
+        "name": "C=100 M=100 Y=0 K=0",
+        "named": false,
+        "value": {
+          "color": {
+            "c": 1.0,
+            "k": 0.0,
+            "m": 1.0,
+            "model": "cmyk",
+            "y": 0.0
+          },
+          "color_type": "process",
+          "kind": "color"
+        }
+      },
+      {
+        "locked": false,
+        "name": "C=15 M=100 Y=100 K=0",
+        "named": false,
+        "value": {
+          "color": {
+            "c": 0.15000000596046448,
+            "k": 0.0,
+            "m": 1.0,
+            "model": "cmyk",
+            "y": 1.0
+          },
+          "color_type": "process",
+          "kind": "color"
+        }
+      },
+      {
+        "locked": false,
+        "name": "C=75 M=5 Y=100 K=0",
+        "named": false,
+        "value": {
+          "color": {
+            "c": 0.75,
+            "k": 0.0,
+            "m": 0.05000000074505806,
+            "model": "cmyk",
+            "y": 1.0
+          },
+          "color_type": "process",
+          "kind": "color"
+        }
+      },
+      {
+        "locked": false,
+        "name": "C=100 M=90 Y=10 K=0",
+        "named": false,
+        "value": {
+          "color": {
+            "c": 1.0,
+            "k": 0.0,
+            "m": 0.8999999761581421,
+            "model": "cmyk",
+            "y": 0.10000000149011612
+          },
+          "color_type": "process",
+          "kind": "color"
+        }
+      }
+    ],
+    "textVariables": [
+      {
+        "name": "Chapter Number",
+        "type": "chapterNumber"
+      },
+      {
+        "format": "MM/dd/yy",
+        "name": "Creation Date",
+        "type": "creationDate"
+      },
+      {
+        "extension": false,
+        "name": "File Name",
+        "type": "fileName"
+      },
+      {
+        "name": "Last Page Number",
+        "section": false,
+        "type": "lastPageNumber"
+      },
+      {
+        "format": "MMMM d, yyyy h:mm aa",
+        "name": "Modification Date",
+        "type": "modificationDate"
+      },
+      {
+        "format": "MM/dd/yy",
+        "name": "Output Date",
+        "type": "outputDate"
+      },
+      {
+        "character": false,
+        "name": "Running Header",
+        "style": "[Basic Paragraph]",
+        "type": "runningHeader",
+        "use": "firstOnPage"
+      }
+    ],
+    "title": "Untitled-1",
+    "xrefFormats": [
+      {
+        "definition": "\"<fullPara />\" on page <pageNum />",
+        "name": "Full Paragraph & Page Number"
+      },
+      {
+        "definition": "\"<fullPara />\"",
+        "name": "Full Paragraph"
+      },
+      {
+        "definition": "\"<paraText />\" on page <pageNum />",
+        "name": "Paragraph Text & Page Number"
+      },
+      {
+        "definition": "\"<paraText />\"",
+        "name": "Paragraph Text"
+      },
+      {
+        "definition": "<paraNum /> on page <pageNum />",
+        "name": "Paragraph Number & Page Number"
+      },
+      {
+        "definition": "<paraNum />",
+        "name": "Paragraph Number"
+      },
+      {
+        "definition": "\"<txtAnchrName />\" on page <pageNum />",
+        "name": "Text Anchor Name & Page Number"
+      },
+      {
+        "definition": "\"<txtAnchrName />\"",
+        "name": "Text Anchor Name"
+      },
+      {
+        "definition": "page <pageNum />",
+        "name": "Page Number"
+      },
+      {
+        "definition": "\"<partialPara delim=\":\" includeDelim=\"false\" />\" on page <pageNum />",
+        "name": "Partial Paragraph & Page Number"
+      },
+      {
+        "definition": "\"<partialPara delim=\":\" includeDelim=\"false\" />\"",
+        "name": "Partial Paragraph"
+      }
+    ]
+  },
+  "frame": {
+    "id": 10,
+    "story": 11
+  },
+  "listingStory": 17,
+  "oneBodyReferenceAndNoteRemoved": true,
+  "originalNativeCandidateExact": true,
+  "otherNotesPagesSelectionPreserved": true,
+  "params": {
+    "id": 1,
+    "story": 11
+  },
+  "rejectedBeforeMutation": 15,
+  "result": null,
+  "saveReopenCanonicalExact": true,
+  "sourceCommand": "endnote.delete",
+  "target": {
+    "id": 1,
+    "story": 11
+  },
+  "undoRedoCanonicalExact": true
+}

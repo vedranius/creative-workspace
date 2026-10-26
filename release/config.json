@@ -13,6 +13,7 @@
     "darwin-arm64"
   ],
   "limitations": [
+    "Alpha.76 connects original registered Delete Endnote through hosted Quick Apply/generic story-id form with bounded native target/reference/listing/candidate preflight and matching canonical ACK. Pending/failed drafts remain; full tools/providers/real OS/all13 acceptance stays open. Keep draft prototype until exact-source Actions/tag/draft/downloaded-assets gate; local worker/WASM are QA only.",
     "Alpha.75 connects original registered Edit Endnote through Quick Apply/generic story-id-text form with bounded native target/listing/candidate validation and matching canonical ACK. Held/failed drafts, UndoRedo and retained SaveCopy/reopen are locally tested; exact-source Actions/tag/draft/downloaded-assets gate remains required. Full tools/providers/real OS/all13 acceptance stays open.",
     "Alpha.74 connects original Document Endnote Options through original Quick Apply/generic command form, bounded merged-native preflight and matching canonical ACK. Pending/failure retain draft; native listing/UndoRedo/retained SaveCopy/reopen are QA evidence only until exact-source Actions/tag/draft/downloaded assets pass. Full tools/providers/real OS/all13 acceptance remains open.",
     "Alpha.73 connects original Type > Insert Endnote with bounded original native candidate/page/text/ID checks, canonical ACK, body typing FIFO and original Undo/Redo/Save Copy/reopen. Full tools/providers/real OS/all13 acceptance remains open; draft prototype and only independently verified Actions-built assets.",

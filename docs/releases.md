@@ -1,3 +1,9 @@
+# PAR-03 alpha.76 — original Delete Endnote candidate (2026-10-26)
+
+`0.2.0-alpha.76` connects the original registered Delete Endnote Quick Apply/generic story/id form to the owned native document, with bounded pre-mutation target/reference/listing/COW candidate checks and matching canonical ACK. [Native/browser evidence](evidence/designcraft-endnote-delete.md).
+
+Keep draft/prerelease until this exact source passes Actions, immutable new tag/draft and independently downloaded assets/checksums. Install only verified Actions assets in a fresh root; local worker/WASM are QA only. Full tools/providers/real OS/all13 acceptance remains open. Alpha75/74/73/72/71/70/69 immutable asset gates are complete and must not be repeated as new progress.
+
 # PAR-03 alpha.75 — immutable Actions draft assets verified (2026-10-26)
 
 Checks40264729282 and all25 Build/release40264729285 jobs passed for947aa443. Immutable tag v0.2.0-alpha.75 and draft prerelease423874195 resolve to that source. All24 fresh downloads/12 SHA256 pairs, three Node24 runtimes,12 engine binaries, startup/licenses/source manifests and eight UI manifests/167 files verify. DesignCraft patch19f8c75d matches packaged provenance; independently measured Actions WASM is2ccdbf15. [Release evidence and limits](evidence/creative-workspace-alpha75-release.md) · [Edit Endnote proof](evidence/designcraft-endnote-edit.md).

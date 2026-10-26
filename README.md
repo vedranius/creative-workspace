@@ -2,7 +2,7 @@
 
 # Creative Workspace
 
-**Version: 0.2.0-alpha.75** — prototype/prerelease draft candidate. Original DesignCraft Edit Endnote uses its registered Quick Apply/generic story/id/text form with bounded native target/listing validation and matching canonical ACK. Pending/failed drafts are retained. The goal remains all thirteen original interfaces with server-owned processing and common file-provider semantics; full tools/providers/real OS/all13 acceptance is open and DesignCraft stays planned. Install only independently verified Actions assets into a fresh root; this exact source passed its Actions/tag/draft/downloaded-asset gate and remains a draft. [Edit Endnote evidence](docs/evidence/designcraft-endnote-edit.md), [verified alpha75 assets](docs/evidence/creative-workspace-alpha75-release.md), [release limits](docs/releases.md).
+**Version: 0.2.0-alpha.76** — prototype/prerelease draft candidate. Original DesignCraft Delete Endnote uses its registered Quick Apply/generic story/id form with bounded native target/reference/candidate validation and matching canonical ACK. Pending/failed drafts are retained. The goal remains all thirteen original interfaces with server-owned processing and common file-provider semantics; full tools/providers/real OS/all13 acceptance is open and DesignCraft stays planned. Install only independently verified Actions assets into a fresh root; alpha76 requires its own exact-source Actions/tag/draft/downloaded-asset gate. [Delete Endnote evidence](docs/evidence/designcraft-endnote-delete.md), [previous verified alpha75 assets](docs/evidence/creative-workspace-alpha75-release.md), [release limits](docs/releases.md).
 
 Bring your creative tools together in one browser studio. Choose an application, select your files, and access your own server from a lightweight laptop. The goal is **the original application interfaces and tools in the browser, with the server doing the heavy work**: photography, image editing, illustration, PDF, publishing, video, motion graphics, office documents, spreadsheets, presentations, CAD, interface design and audio. Browser controls run locally; document commands, data and previews travel to the server. No VNC or remote desktop is involved.
 
@@ -14,6 +14,7 @@ Alpha.24 adds an original Open-dialog candidate for a selected laptop `.designcr
 
 ## What is new
 
+- **DesignCraft Delete Endnote (alpha.76 candidate):** original registered command/form, pre-mutation target/reference/candidate checks, original remaining note/listing/history and canonical ACK. [Evidence](docs/evidence/designcraft-endnote-delete.md).
 - **DesignCraft Edit Endnote (alpha.75 candidate):** original registered command/form, pre-mutation native target/text/candidate checks and matching ACK; retained draft and original native history/save/reopen. [Evidence](docs/evidence/designcraft-endnote-edit.md).
 
 - **DesignCraft Endnote Options (alpha.74 candidate):** original Quick Apply/generic form, bounded original native options/listing and matching ACK. [Evidence](docs/evidence/designcraft-endnote-options.md).

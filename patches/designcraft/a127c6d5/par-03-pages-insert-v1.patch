@@ -63,10 +63,10 @@ index 0000000000000000000000000000000000000000..781269bea303466ec799dde860f3e18d
 +image = { workspace = true }
 diff --git a/apps/cw-designcraft-engine/src/main.rs b/apps/cw-designcraft-engine/src/main.rs
 new file mode 100644
-index 0000000000000000000000000000000000000000..414ebe78e464efd71a6c6c735edf43fa42d77a02
+index 0000000000000000000000000000000000000000..720c71d8027854f6a3ce7d0890fd69f7ad27c978
 --- /dev/null
 +++ b/apps/cw-designcraft-engine/src/main.rs
-@@ -0,0 +1,941 @@
+@@ -0,0 +1,1003 @@
 +// Contributor-original MIT OR Apache-2.0 adapter. No desktop/MCP server.
 +#![forbid(unsafe_code)]
 +#![deny(clippy::unwrap_used, clippy::expect_used, clippy::panic, clippy::todo)]
@@ -103,6 +103,7 @@ index 0000000000000000000000000000000000000000..414ebe78e464efd71a6c6c735edf43fa
 +    "endnote.insert",
 +    "endnote.options",
 +    "endnote.edit",
++    "endnote.delete",
 +    "footnote.options",
 +    "footnote.goToReference",
 +    "text.delete",
@@ -369,6 +370,20 @@ index 0000000000000000000000000000000000000000..414ebe78e464efd71a6c6c735edf43fa
 + candidate.execute("endnote.edit",p)?;let doc=&candidate.active().ok_or("No endnote edit candidate")?.doc;
 + budget(doc)?;canonical_snapshot(doc)?;Ok(())
 +}
++// Resolve both the note and its original body-reference ordinal before real edit.
++fn endnote_delete_budget(h:&Headless,p:&Value)->Result<(),Box<dyn std::error::Error>> {
++ let bad="Invalid bounded endnote.delete parameters";let o=p.as_object().ok_or(bad)?;
++ if o.keys().any(|k|!matches!(k.as_str(),"story"|"id")){return Err(bad.into());}
++ let sid=o.get("story").and_then(Value::as_u64).filter(|n|*n>0&&*n<=u32::MAX as u64).ok_or(bad)?;
++ let id=o.get("id").and_then(Value::as_u64).filter(|n|*n>0&&*n<=u32::MAX as u64).ok_or(bad)?;
++ let st=h.session.active().ok_or("No document")?;budget(&st.doc)?;endnote_content_budget(&st.doc,None)?;
++ let story=st.doc.story(designcraft_doc::StoryId(sid)).ok_or("Unknown endnote target")?;
++ let ordinal=story.endnotes.iter().position(|n|n.id==id).ok_or("Unknown endnote target")?;
++ if story.text.match_indices(designcraft_doc::ENDNOTE_REF).nth(ordinal).is_none(){return Err("Endnote target has no body reference".into());}
++ let mut candidate=designcraft_engine::Session::new();let mut state=DocState::new((*st.doc).clone(),None);state.selection=st.selection.clone();candidate.add_document(state);
++ candidate.execute("endnote.delete",p)?;let doc=&candidate.active().ok_or("No endnote delete candidate")?.doc;
++ budget(doc)?;endnote_content_budget(doc,None)?;canonical_snapshot(doc)?;Ok(())
++}
 +// Preflight merged native EndnoteOptions BEFORE original edit regenerates the
 +// listing: its final increment and aggregate generated text must remain bounded.
 +fn endnote_options_budget(h:&Headless,p:&Value)->Result<(),Box<dyn std::error::Error>> {
@@ -623,6 +638,7 @@ index 0000000000000000000000000000000000000000..414ebe78e464efd71a6c6c735edf43fa
 +            }
 +            if c=="footnote.options" { footnote_options_budget(h,p.get("params").unwrap_or(&Value::Null))?; }
 +            if c=="footnote.insert" { footnote_insert_budget(h,p.get("params").unwrap_or(&Value::Null))?; }
++            if c=="endnote.delete" { endnote_delete_budget(h,p.get("params").unwrap_or(&Value::Null))?; }
 +            if c=="endnote.edit" { endnote_edit_budget(h,p.get("params").unwrap_or(&Value::Null))?; }
 +            if c=="endnote.options" { endnote_options_budget(h,p.get("params").unwrap_or(&Value::Null))?; }
 +            if c=="endnote.insert" { endnote_insert_budget(h,p.get("params").unwrap_or(&Value::Null))?; }
@@ -1008,6 +1024,52 @@ index 0000000000000000000000000000000000000000..414ebe78e464efd71a6c6c735edf43fa
 +  assert!(endnote_edit_budget(&h,&json!({"story":n["story"],"id":n["id"],"text":"new"})).is_err());assert!(Arc::ptr_eq(&before,&h.session.active().ok_or("doc")?.doc));assert_eq!(h.session.active().ok_or("doc")?.history.undo.len(),count);Ok(())
 + }
 +}
++
++#[cfg(test)] mod endnote_delete_contract {
++ use super::*;
++ #[test] fn original_reference_and_note_delete_are_bounded_and_roundtrip()->Result<(),Box<dyn std::error::Error>> {
++  let mut h=Headless::new();let mut saved=None;
++  h.call("engine.execute",json!({"command":"file.new","params":{"pages":2,"facingPages":true}}))?;
++  let st=h.session.active().ok_or("doc")?;let(si,_)=st.doc.page_loc(1).ok_or("page")?;let px=st.doc.page(1).ok_or("page")?.bounds().x0;
++  let frame=h.call("engine.execute",json!({"command":"frame.create","params":{"spread":si,"rect":[px+60.0,80.0,px+360.0,320.0],"content":"text","caret":true}}))?;
++  h.call("engine.execute",json!({"command":"text.insert","params":{"text":"Body text"}}))?;
++  let first=h.call("engine.execute",json!({"command":"endnote.insert","params":{"text":"First removed"}}))?;
++  let second=h.call("engine.execute",json!({"command":"endnote.insert","params":{"text":"Second kept"}}))?;
++  let sid=first["story"].as_u64().ok_or("story")?;let id=first["id"].as_u64().ok_or("id")?;let body=designcraft_doc::StoryId(sid);
++  // The native command preserves the source selection; exercise an object selection.
++  h.session.active_mut().ok_or("doc")?.selection.text=None;
++  let old=h.session.active().ok_or("doc")?.doc.clone();let initial=canonical_snapshot(&old)?;let listing=old.endnote_story.ok_or("listing")?;
++  let selection=wire_selection(&h.session.active().ok_or("doc")?.selection)?;let history=h.session.active().ok_or("doc")?.history.undo.len();
++  let execute=|h:&mut Headless,saved:&mut Option<Arc<Document>>,p:Value|answer(h,saved,Path::new("."),Path::new("."),&json!({"method":"command","params":{"command":"endnote.delete","params":p}}));
++  let invalid=vec![json!({}),json!({"story":sid}),json!({"story":0,"id":id}),json!({"story":sid,"id":0}),json!({"story":-1,"id":id}),json!({"story":"1","id":id}),json!({"story":4294967296u64,"id":id}),json!({"story":sid,"id":4294967296u64}),json!({"story":sid,"id":id,"text":"extra"}),json!({"story":sid,"id":id,"path":"private"}),json!({"story":9999,"id":id}),json!({"story":sid,"id":9999}),json!({"story":listing.0,"id":id}),Value::Null,json!([])];
++  for p in &invalid {assert!(execute(&mut h,&mut saved,p.clone()).is_err());let st=h.session.active().ok_or("doc")?;assert!(Arc::ptr_eq(&st.doc,&old));assert_eq!(wire_selection(&st.selection)?,selection);assert_eq!(st.history.undo.len(),history);}
++  let params=json!({"story":sid,"id":id});
++  let mut original=designcraft_engine::Session::new();let mut expected=DocState::new((*old).clone(),None);expected.selection=h.session.active().ok_or("doc")?.selection.clone();original.add_document(expected);original.execute("endnote.delete",&params)?;
++  let result=execute(&mut h,&mut saved,params.clone())?;let changed=h.session.active().ok_or("doc")?.doc.clone();let canonical=canonical_snapshot(&changed)?;
++  assert_eq!(canonical,canonical_snapshot(&original.active().ok_or("original")?.doc)?);assert_eq!(changed.page_count(),3);assert_eq!(changed.endnote_story,Some(listing));
++  let old_body=old.story(body).ok_or("body")?;let new_body=changed.story(body).ok_or("body")?;
++  assert_eq!(new_body.text,old_body.text.replacen(designcraft_doc::ENDNOTE_REF,"",1));assert_eq!(new_body.endnotes.len(),1);assert_eq!(new_body.endnotes[0].id,second["id"].as_u64().ok_or("second")?);assert_eq!(serde_json::to_value(&new_body.endnotes[0])?,serde_json::to_value(&old_body.endnotes[1])?);
++  assert!(!changed.story(listing).ok_or("listing")?.text.contains("First removed"));assert!(changed.story(listing).ok_or("listing")?.text.ends_with("Second kept"));
++  let mut remaining=canonical.clone();let mut prior=initial.clone();for key in [body.0.to_string(),listing.0.to_string()]{remaining["stories"].as_object_mut().ok_or("stories")?.remove(&key);prior["stories"].as_object_mut().ok_or("stories")?.remove(&key);}assert_eq!(remaining,prior);
++  assert_eq!(wire_selection(&h.session.active().ok_or("doc")?.selection)?,selection);
++  h.call("engine.execute",json!({"command":"edit.undo","params":{}}))?;assert_eq!(canonical_snapshot(&h.session.active().ok_or("doc")?.doc)?,initial);assert_eq!(wire_selection(&h.session.active().ok_or("doc")?.selection)?,selection);
++  h.call("engine.execute",json!({"command":"edit.redo","params":{}}))?;assert_eq!(canonical_snapshot(&h.session.active().ok_or("doc")?.doc)?,canonical);
++  assert_eq!(canonical_snapshot(&designcraft_format::load(&designcraft_format::save(&changed)?)?)?,canonical);
++  if let Ok(out)=std::env::var("CW_ENDNOTE_DELETE_OUTPUT"){let root=Path::new(&out);std::fs::write(root.join("endnote-delete-fixture.designcraft"),designcraft_format::save(&old)?)?;std::fs::write(root.join("endnote-delete-native.json"),serde_json::to_vec_pretty(&json!({"sourceCommand":"endnote.delete","target":{"story":sid,"id":id},"params":params,"result":result,"frame":frame,"listingStory":listing,"rejectedBeforeMutation":invalid.len(),"originalNativeCandidateExact":true,"oneBodyReferenceAndNoteRemoved":true,"otherNotesPagesSelectionPreserved":true,"undoRedoCanonicalExact":true,"saveReopenCanonicalExact":true,"expectedCanonical":canonical}))?)?;}
++  // Last-note behavior remains exactly the original engine result, without invented page cleanup.
++  execute(&mut h,&mut saved,json!({"story":sid,"id":second["id"]}))?;assert!(h.session.active().ok_or("doc")?.doc.story(body).ok_or("body")?.endnotes.is_empty());
++  Ok(())
++ }
++ #[test] fn missing_reference_or_excess_formatting_cannot_mutate_live_document_or_history()->Result<(),Box<dyn std::error::Error>> {
++  for fault in ["reference","format"] {
++   let mut h=Headless::new();h.call("engine.execute",json!({"command":"file.new","params":{}}))?;
++   h.call("engine.execute",json!({"command":"frame.create","params":{"rect":[60,80,360,320],"content":"text","caret":true}}))?;
++   let n=h.call("engine.execute",json!({"command":"endnote.insert","params":{"text":"old"}}))?;
++   {let st=h.session.active_mut().ok_or("doc")?;let doc=Arc::make_mut(&mut st.doc);if fault=="format"{doc.endnote_options.para_style="x".repeat(4097);}else{doc.story_mut(designcraft_doc::StoryId(n["story"].as_u64().ok_or("story")?)).ok_or("story")?.text.clear();}}
++   let before=h.session.active().ok_or("doc")?.doc.clone();let count=h.session.active().ok_or("doc")?.history.undo.len();assert!(endnote_delete_budget(&h,&json!({"story":n["story"],"id":n["id"]})).is_err());assert!(Arc::ptr_eq(&before,&h.session.active().ok_or("doc")?.doc));assert_eq!(h.session.active().ok_or("doc")?.history.undo.len(),count);
++  }Ok(())
++ }
++}
 diff --git a/apps/cw-designcraft-engine/src/text_selection.rs b/apps/cw-designcraft-engine/src/text_selection.rs
 new file mode 100644
 index 0000000000000000000000000000000000000000..cdf1874f01aa4b5be659120aed1fc06c2723401d
@@ -1278,7 +1340,7 @@ index 0000000000000000000000000000000000000000..bb2e0fb37de326f98eae7fac7d3afe74
 +  document.body.append(button);
 +}
 diff --git a/apps/designcraft-web/src/web.rs b/apps/designcraft-web/src/web.rs
-index fe7cca4ae5e51ab3101b9d0b73a543fde8beae16..50e42f4a309fba0b0986ca7d0319c99ffa25a5c2 100644
+index fe7cca4ae5e51ab3101b9d0b73a543fde8beae16..3da9e89bc0e2b39e4ca8ce5eced6965d7e844470 100644
 --- a/apps/designcraft-web/src/web.rs
 +++ b/apps/designcraft-web/src/web.rs
 @@ -2,31 +2,19 @@
@@ -1466,7 +1528,7 @@ index fe7cca4ae5e51ab3101b9d0b73a543fde8beae16..50e42f4a309fba0b0986ca7d0319c99f
 +            if let Some(r)=self.app.host_footnote_reference_rect {let _=canvas.set_attribute("data-original-footnote-reference",&serde_json::json!([r.center().x,r.center().y]).to_string());} else {let _=canvas.remove_attribute("data-original-footnote-reference");}
 +            if let Some(r)=self.app.host_footnote_options_rect {let _=canvas.set_attribute("data-original-footnote-options",&serde_json::json!([r.center().x,r.center().y]).to_string());} else {let _=canvas.remove_attribute("data-original-footnote-options");}
 +            if let Some(q)=self.app.ui.palette.as_ref() {let _=canvas.set_attribute("data-original-palette",q);} else {let _=canvas.remove_attribute("data-original-palette");}
-+            if self.app.ui.dialog.as_ref().is_some_and(|d|matches!(d.id.as_str(),"cmd:endnote.options"|"cmd:endnote.edit")) {
++            if self.app.ui.dialog.as_ref().is_some_and(|d|matches!(d.id.as_str(),"cmd:endnote.options"|"cmd:endnote.edit"|"cmd:endnote.delete")) {
 +                let mut fields=serde_json::Map::new();
 +                for key in ["startAt","prefix","suffix","heading","headingStyle","paraStyle","separator","story","id","text"] {
 +                    if let Some(r)=ui.ctx().data(|m|m.get_temp::<egui::Rect>(egui::Id::new(("host-endnote-field",key)))) {fields.insert(key.into(),serde_json::json!([r.center().x,r.center().y]));}
@@ -2041,7 +2103,7 @@ index 2896fcdc40e6ecccac2824fdb1e9bf093c93ffcd..5eda31a00b63a11e30c236d27aa7fe87
                      ui.painter().rect_filled(cr, 6.0, if hov { t.hover } else { t.panel });
                      let k = (80.0 / p.width.max(p.height)) as f32;
 diff --git a/crates/ui-egui/src/dialogs.rs b/crates/ui-egui/src/dialogs.rs
-index 2ab7a3bad2f589148296f0f06eb3f70c24768a7b..ed6a119f36f203e9afc3726bebfdef92c55937e2 100644
+index 2ab7a3bad2f589148296f0f06eb3f70c24768a7b..4e069a9a417ad1e006474c3a8826e64843b3aea8 100644
 --- a/crates/ui-egui/src/dialogs.rs
 +++ b/crates/ui-egui/src/dialogs.rs
 @@ -25,6 +25,7 @@ impl Dialog {
@@ -2075,7 +2137,7 @@ index 2ab7a3bad2f589148296f0f06eb3f70c24768a7b..ed6a119f36f203e9afc3726bebfdef92
          },
      };
      egui::Modal::new(egui::Id::new("dialog")).show(ctx, |ui| {
-+        let options_pending=matches!(d.id.as_str(),"footnoteOptions"|"cmd:endnote.options"|"cmd:endnote.edit") && app.services.host_action.is_some() && app.host_pending();
++        let options_pending=matches!(d.id.as_str(),"footnoteOptions"|"cmd:endnote.options"|"cmd:endnote.edit"|"cmd:endnote.delete") && app.services.host_action.is_some() && app.host_pending();
 +        if options_pending { ui.disable(); }
 +        if d.id=="footnoteOptions" && !d.s("status").is_empty() { crate::rtl::label(ui,d.s("status")); }
          let frame_margin = egui::Frame::popup(ui.style()).total_margin().sum();
@@ -2130,7 +2192,7 @@ index 2ab7a3bad2f589148296f0f06eb3f70c24768a7b..ed6a119f36f203e9afc3726bebfdef92
 -                {
 +                    );
 +                if d.id=="footnoteOptions" { ui.ctx().data_mut(|m|m.insert_temp(egui::Id::new("host-footnote-ok"),ok_response.rect)); }
-+                if matches!(d.id.as_str(),"cmd:endnote.options"|"cmd:endnote.edit") { ui.ctx().data_mut(|m|m.insert_temp(egui::Id::new("host-endnote-ok"),ok_response.rect)); }
++                if matches!(d.id.as_str(),"cmd:endnote.options"|"cmd:endnote.edit"|"cmd:endnote.delete") { ui.ctx().data_mut(|m|m.insert_temp(egui::Id::new("host-endnote-ok"),ok_response.rect)); }
 +                if !options_pending && (ok_response.clicked() || ui.input(|i| i.key_pressed(egui::Key::Enter))) {
                      result = Some(true);
                  }
@@ -2145,7 +2207,7 @@ index 2ab7a3bad2f589148296f0f06eb3f70c24768a7b..ed6a119f36f203e9afc3726bebfdef92
  
  /// Apply the open dialog.
  pub fn confirm(app: &mut DesignApp) -> Result<Value, String> {
-+    if app.services.host_action.is_some() && app.host_pending() && app.ui.dialog.as_ref().is_some_and(|d|matches!(d.id.as_str(),"footnoteOptions"|"cmd:endnote.options"|"cmd:endnote.edit")) {return Err("Document note options await server acknowledgement".into());}
++    if app.services.host_action.is_some() && app.host_pending() && app.ui.dialog.as_ref().is_some_and(|d|matches!(d.id.as_str(),"footnoteOptions"|"cmd:endnote.options"|"cmd:endnote.edit"|"cmd:endnote.delete")) {return Err("Document note options await server acknowledgement".into());}
      let Some(d) = app.ui.dialog.take() else { return Err("no dialog open".into()) };
      if d.id != "pdfImport" || !d.b("async") {
          app.cancel_pdf_import();
@@ -2176,7 +2238,7 @@ index 2ab7a3bad2f589148296f0f06eb3f70c24768a7b..ed6a119f36f203e9afc3726bebfdef92
              let r = app.run(cid, Value::Object(p));
 -            if let Err(e) = &r {
 -                // Keep the dialog open with the error.
-+            if r.is_err() || (matches!(cid,"endnote.options"|"endnote.edit") && app.services.host_action.is_some()) {
++            if r.is_err() || (matches!(cid,"endnote.options"|"endnote.edit"|"endnote.delete") && app.services.host_action.is_some()) {
 +                // A host command retains its original draft until matching ACK.
 +                let e=r.as_ref().err().cloned().unwrap_or_default();
                  let mut d = d.clone();
@@ -2188,7 +2250,7 @@ index 2ab7a3bad2f589148296f0f06eb3f70c24768a7b..ed6a119f36f203e9afc3726bebfdef92
                  let hint = if f.hint.is_empty() { String::new() } else { f.hint.clone() };
 -                if ui.add(egui::TextEdit::singleline(&mut s).hint_text(egui::RichText::new(hint).color(dim)).desired_width(240.0)).changed() {
 +                let response=ui.add(egui::TextEdit::singleline(&mut s).hint_text(egui::RichText::new(hint).color(dim)).desired_width(240.0));
-+                if matches!(d.id.as_str(),"cmd:endnote.options"|"cmd:endnote.edit") {ui.ctx().data_mut(|m|m.insert_temp(egui::Id::new(("host-endnote-field",f.key.as_str())),response.rect));}
++                if matches!(d.id.as_str(),"cmd:endnote.options"|"cmd:endnote.edit"|"cmd:endnote.delete") {ui.ctx().data_mut(|m|m.insert_temp(egui::Id::new(("host-endnote-field",f.key.as_str())),response.rect));}
 +                if response.changed() {
                      d.fields.insert(f.key.clone(), Value::String(s));
                  }
@@ -2206,7 +2268,7 @@ index fdf20e6c455a0c89e86ee54b25a209db177aa794..f0e439910964389724616e882e250683
                          ui.painter().rect_filled(r, 0.0, t.panel);
                      }
 diff --git a/crates/ui-egui/src/lib.rs b/crates/ui-egui/src/lib.rs
-index fb81e9c344d4390d2e3ff8a4d0d016ad563376fc..657ed6a65339e55c33897b4b456147c5004ea72d 100644
+index fb81e9c344d4390d2e3ff8a4d0d016ad563376fc..a449b91b263ca3ca7fda86b0afe08c8380e71bf7 100644
 --- a/crates/ui-egui/src/lib.rs
 +++ b/crates/ui-egui/src/lib.rs
 @@ -25,7 +25,7 @@ pub mod theme;
@@ -2398,7 +2460,7 @@ index fb81e9c344d4390d2e3ff8a4d0d016ad563376fc..657ed6a65339e55c33897b4b456147c5
 +                return Ok(json!({"pending": true, "queued": queued, "commandId": id}));
 +            }
 +            let allowed = (matches!(id, "file.new" | "file.open") && self.session.active().is_none())
-+                || (matches!(id, "page.select" | "frame.create" | "layout.pages.move" | "layout.pages.insert" | "layout.pages.duplicateSpread" | "layout.pages.delete" | "selection.set" | "edit.selectAll" | "edit.deselectAll" | "edit.clear" | "edit.undo" | "edit.redo" | "file.saveACopy" | "endnote.insert" | "footnote.insert" | "footnote.options" | "endnote.options" | "endnote.edit" | "footnote.goToReference" | "text.insert" | "text.delete" | "text.select" | "text.placeCaret") && self.session.active().is_some());
++                || (matches!(id, "page.select" | "frame.create" | "layout.pages.move" | "layout.pages.insert" | "layout.pages.duplicateSpread" | "layout.pages.delete" | "selection.set" | "edit.selectAll" | "edit.deselectAll" | "edit.clear" | "edit.undo" | "edit.redo" | "file.saveACopy" | "endnote.insert" | "footnote.insert" | "footnote.options" | "endnote.options" | "endnote.edit" | "endnote.delete" | "footnote.goToReference" | "text.insert" | "text.delete" | "text.select" | "text.placeCaret") && self.session.active().is_some());
 +            if !allowed {
 +                let error = "This original action is not connected to the server yet";
 +                self.status(error); return Err(error.into());
@@ -2434,7 +2496,7 @@ index fb81e9c344d4390d2e3ff8a4d0d016ad563376fc..657ed6a65339e55c33897b4b456147c5
 +            return Ok(());
 +        }
 +        let allowed = (matches!(id, "file.new" | "file.open") && self.session.active().is_none())
-+            || (matches!(id, "page.select" | "frame.create" | "layout.pages.move" | "layout.pages.insert" | "layout.pages.duplicateSpread" | "layout.pages.delete" | "selection.set" | "edit.selectAll" | "edit.deselectAll" | "edit.clear" | "text.placeCaret" | "text.select" | "edit.undo" | "edit.redo" | "file.saveACopy" | "endnote.insert" | "footnote.insert" | "footnote.options" | "endnote.options" | "endnote.edit" | "footnote.goToReference" | "text.insert" | "text.delete") && self.session.active().is_some());
++            || (matches!(id, "page.select" | "frame.create" | "layout.pages.move" | "layout.pages.insert" | "layout.pages.duplicateSpread" | "layout.pages.delete" | "selection.set" | "edit.selectAll" | "edit.deselectAll" | "edit.clear" | "text.placeCaret" | "text.select" | "edit.undo" | "edit.redo" | "file.saveACopy" | "endnote.insert" | "footnote.insert" | "footnote.options" | "endnote.options" | "endnote.edit" | "endnote.delete" | "footnote.goToReference" | "text.insert" | "text.delete") && self.session.active().is_some());
 +        if !allowed { return Err("This original action is not connected to the server yet".into()); }
 +        let Some(host_action) = self.services.host_action.as_mut() else { return Err("Server action host is unavailable".into()); };
 +        host_action(id, params)?;
@@ -2469,7 +2531,7 @@ index fb81e9c344d4390d2e3ff8a4d0d016ad563376fc..657ed6a65339e55c33897b4b456147c5
 +        }
 +        self.host_caret = ack.caret;
 +        self.host_page = ack.page; self.host_revision = ack.revision; self.host_pending = false; self.host_pending_command = None; self.host_preview = Some(ack.preview); self.host_texture = None;
-+        if self.ui.dialog.as_ref().is_some_and(|d|(ack.command_id=="footnote.options"&&d.id=="footnoteOptions")||(ack.command_id=="endnote.options"&&d.id=="cmd:endnote.options")||(ack.command_id=="endnote.edit"&&d.id=="cmd:endnote.edit")) { self.ui.dialog=None; }
++        if self.ui.dialog.as_ref().is_some_and(|d|(ack.command_id=="footnote.options"&&d.id=="footnoteOptions")||(ack.command_id=="endnote.options"&&d.id=="cmd:endnote.options")||(ack.command_id=="endnote.edit"&&d.id=="cmd:endnote.edit")||(ack.command_id=="endnote.delete"&&d.id=="cmd:endnote.delete")) { self.ui.dialog=None; }
 +        self.after_engine();
 +        if let Some((command_id, params)) = self.host_text_queue.pop_front() {
 +            self.host_text_queue_bytes = self.host_text_queue_bytes.saturating_sub(if command_id == "text.insert" { params.get("text").and_then(Value::as_str).map(str::len).unwrap_or(0) } else { serde_json::to_vec(&params).map(|value| value.len()).unwrap_or(0) });
@@ -2500,8 +2562,8 @@ index fb81e9c344d4390d2e3ff8a4d0d016ad563376fc..657ed6a65339e55c33897b4b456147c5
 +        }
 +    }
 +    pub fn host_action_error(&mut self, message: String) {
-+        if matches!(self.host_pending_command.as_deref(),Some("footnote.options"|"endnote.options"|"endnote.edit")) {
-+            if let Some(d)=self.ui.dialog.as_mut().filter(|d|matches!(d.id.as_str(),"footnoteOptions"|"cmd:endnote.options"|"cmd:endnote.edit")) { d.fields.insert("status".into(),json!(&message)); }
++        if matches!(self.host_pending_command.as_deref(),Some("footnote.options"|"endnote.options"|"endnote.edit"|"endnote.delete")) {
++            if let Some(d)=self.ui.dialog.as_mut().filter(|d|matches!(d.id.as_str(),"footnoteOptions"|"cmd:endnote.options"|"cmd:endnote.edit"|"cmd:endnote.delete")) { d.fields.insert("status".into(),json!(&message)); }
 +        }
 +        self.host_pending = false;
 +        self.host_pending_command = None;
@@ -2552,7 +2614,7 @@ index fb81e9c344d4390d2e3ff8a4d0d016ad563376fc..657ed6a65339e55c33897b4b456147c5
          let ctx = ui.ctx().clone();
          if !self.fonts_ready {
              ctx.request_repaint();
-@@ -1047,6 +1314,515 @@ pub fn drop_key_name_text(raw: &mut egui::RawInput, text_field_focused: bool) {
+@@ -1047,6 +1314,532 @@ pub fn drop_key_name_text(raw: &mut egui::RawInput, text_field_focused: bool) {
  mod tests {
      use super::*;
  
@@ -2701,6 +2763,23 @@ index fb81e9c344d4390d2e3ff8a4d0d016ad563376fc..657ed6a65339e55c33897b4b456147c5
 +        crate::dialogs::confirm(&mut app).unwrap();let ack=server_ack("endnote.edit",2);
 +        app.apply_host_action_ack(ack).unwrap();assert!(app.ui.dialog.is_none());assert_eq!(app.host_revision(),2);
 +        assert_eq!(actions.lock().unwrap_or_else(|e|e.into_inner()).iter().filter(|(id,_)|id=="endnote.edit").count(),2);
++    }
++
++    #[test]
++    fn original_endnote_delete_form_retains_target_until_matching_ack() {
++        let actions=std::sync::Arc::new(std::sync::Mutex::new(Vec::new()));let mut app=host_mirror_app(actions.clone());
++        app.run("file.new",json!({"preset":"A4"})).unwrap();app.apply_host_action_ack(server_ack("file.new",1)).unwrap();
++        crate::menus::activate(&mut app,"endnote.delete",&Value::Null);
++        assert_eq!(app.ui.dialog.as_ref().unwrap().id,"cmd:endnote.delete");
++        app.ui.dialog.as_mut().unwrap().fields.insert("story".into(),json!("1"));app.ui.dialog.as_mut().unwrap().fields.insert("id".into(),json!("2"));
++        let old=serde_json::to_value(&app.session.active().unwrap().doc).unwrap();
++        crate::dialogs::confirm(&mut app).unwrap();assert!(app.host_pending());assert!(app.ui.dialog.is_some());
++        assert!(crate::dialogs::confirm(&mut app).is_err());assert_eq!(serde_json::to_value(&app.session.active().unwrap().doc).unwrap(),old);
++        assert!(app.apply_host_action_ack(server_ack("footnote.options",2)).is_err());assert!(app.ui.dialog.is_some());
++        app.host_action_error("Options rejected".into());assert_eq!(app.ui.dialog.as_ref().unwrap().fields["story"],"1");assert_eq!(app.ui.dialog.as_ref().unwrap().fields["id"],"2");assert_eq!(app.ui.dialog.as_ref().unwrap().fields["status"],"Options rejected");
++        crate::dialogs::confirm(&mut app).unwrap();let ack=server_ack("endnote.delete",2);
++        app.apply_host_action_ack(ack).unwrap();assert!(app.ui.dialog.is_none());assert_eq!(app.host_revision(),2);
++        assert_eq!(actions.lock().unwrap_or_else(|e|e.into_inner()).iter().filter(|(id,_)|id=="endnote.delete").count(),2);
 +    }
 +
 +    #[test]
@@ -3069,7 +3148,7 @@ index fb81e9c344d4390d2e3ff8a4d0d016ad563376fc..657ed6a65339e55c33897b4b456147c5
      fn app_with_unsaved_document() -> DesignApp {
          let mut app = DesignApp::new(designcraft_engine::Session::new(), Services::default());
 diff --git a/crates/ui-egui/src/menus.rs b/crates/ui-egui/src/menus.rs
-index 94e5c097179c9c19e99fd2a4970e1d471d726ca7..b58f4257546d93f84dab3c80c2aa0e3448bdf0f2 100644
+index 94e5c097179c9c19e99fd2a4970e1d471d726ca7..ce5b0d24ba565469b1ab9b3947e37fb307fa1ed1 100644
 --- a/crates/ui-egui/src/menus.rs
 +++ b/crates/ui-egui/src/menus.rs
 @@ -1777,6 +1777,11 @@ pub fn checked(app: &DesignApp, id: &str, params: &Value) -> Option<bool> {
@@ -3131,25 +3210,28 @@ index 94e5c097179c9c19e99fd2a4970e1d471d726ca7..b58f4257546d93f84dab3c80c2aa0e34
      app.ui.palette = if close || run.is_some() { None } else { Some(q) };
      if let Some((id, params)) = run {
 -        let _ = app.run(&id, params);
-+        if matches!(id.as_str(),"endnote.options"|"endnote.edit") && app.services.host_action.is_some() {
++        if matches!(id.as_str(),"endnote.options"|"endnote.edit"|"endnote.delete") && app.services.host_action.is_some() {
 +            if !app.host_pending() && app.session.active().is_some() { activate(app,&id,&Value::Null); }
 +        } else { let _ = app.run(&id, params); }
      }
  }
  
-@@ -2200,6 +2214,20 @@ pub struct QuickItem {
+@@ -2200,6 +2214,23 @@ pub struct QuickItem {
      pub kind: &'static str,
  }
  
-+// Expose only this admitted registry command in the original hosted palette.
++// Expose only these admitted registry commands in the original hosted palette.
 +// Upstream excludes commands without a menu/shortcut; its standalone list stays unchanged.
 +fn hosted_quick_apply_items(app:&DesignApp,query:&str)->Vec<QuickItem> {
 +    let mut items=quick_apply_items(&app.session,query);
 +    let q=query.to_lowercase();
-+    if app.services.host_action.is_some() && app.session.active().is_some() && !app.host_pending() && !q.is_empty()
-+        && let Some(c)=designcraft_engine::find_command("endnote.edit")
-+        && (c.label.to_lowercase().contains(&q)||c.id.contains(&q)) {
-+        items.insert(0,QuickItem{label:c.label.into(),id:c.id.into(),params:json!({}),shortcut:c.shortcut.map(str::to_string),kind:""});
++    if app.services.host_action.is_some() && app.session.active().is_some() && !app.host_pending() && !q.is_empty() {
++        for id in ["endnote.edit","endnote.delete"] {
++            if let Some(c)=designcraft_engine::find_command(id)
++                && (c.label.to_lowercase().contains(&q)||c.id.contains(&q)) {
++                items.insert(0,QuickItem{label:c.label.into(),id:c.id.into(),params:json!({}),shortcut:c.shortcut.map(str::to_string),kind:""});
++            }
++        }
 +        items.truncate(14);
 +    }
 +    items
@@ -3158,7 +3240,7 @@ index 94e5c097179c9c19e99fd2a4970e1d471d726ca7..b58f4257546d93f84dab3c80c2aa0e34
  /// Quick Apply matches (styles first, as InDesign lists them), at most 14.
  pub fn quick_apply_items(session: &designcraft_engine::Session, query: &str) -> Vec<QuickItem> {
      let ql = query.to_lowercase();
-@@ -2254,6 +2282,20 @@ mod tests {
+@@ -2254,6 +2285,34 @@ mod tests {
      }
  
      /// Exercise the real dropdown, including clipping and wheel input, on a short viewport.
@@ -3174,6 +3256,20 @@ index 94e5c097179c9c19e99fd2a4970e1d471d726ca7..b58f4257546d93f84dab3c80c2aa0e34
 +        assert!(!hosted_quick_apply_items(&app,"unrelated query").iter().any(|i|i.id=="endnote.edit"));
 +        app.run("endnote.edit",json!({"story":1,"id":1,"text":"source"})).unwrap();assert!(app.host_pending());
 +        assert!(!hosted_quick_apply_items(&app,"Edit Endnote").iter().any(|i|i.id=="endnote.edit"));
++    }
++
++    #[test]
++    fn hosted_registered_endnote_delete_is_searchable_only_with_idle_document() {
++        let session=designcraft_engine::Session::new();
++        assert!(!quick_apply_items(&session,"Delete Endnote").iter().any(|i|i.id=="endnote.delete"));
++        let services=crate::Services{host_action:Some(Box::new(|_,_|Ok(()))),..Default::default()};
++        let mut app=DesignApp::new(session,services);
++        assert!(!hosted_quick_apply_items(&app,"Delete Endnote").iter().any(|i|i.id=="endnote.delete"));
++        app.session.execute("file.new",&json!({})).unwrap();
++        for query in ["Delete Endnote","endnote.delete"] {let items=hosted_quick_apply_items(&app,query);assert_eq!(items[0].id,"endnote.delete");assert_eq!(items[0].label,"Delete Endnote");}
++        assert!(!hosted_quick_apply_items(&app,"unrelated query").iter().any(|i|i.id=="endnote.delete"));
++        app.run("endnote.delete",json!({"story":1,"id":1})).unwrap();assert!(app.host_pending());
++        assert!(!hosted_quick_apply_items(&app,"Delete Endnote").iter().any(|i|i.id=="endnote.delete"));
 +    }
 +
      #[test]
