@@ -1,3 +1,9 @@
+# RWASM-03 — original App exported-folder import roundtrip (2026-10-26)
+
+The original Import Presets toolbar now has a folder-specific roundtrip proof: import the native-compatible exported file, assign fresh folder/child UUIDs and original collision name, await atomic library commit/readback, expand the imported folder and apply/toggle its child with native-identical pixels. Abort/stale peer/uncertain reload preserve acknowledged UI without replay. 19 browser assertions, cached original Rust merge parity, 164 host cases, 84 repo tests and check pass. [Evidence and continuation](rapidraw-wasm-app-folder-import-handoff.md).
+
+Experimental verification checkpoint; original App/runtime/processing/WASM reused unchanged, no release/main/demo/private input change. Next A: alpha77 immutable Actions asset gate after success. Next B: original bounded Export All Presets with explicit whole-library authority. SAME MAIN only.
+
 # RWASM-03 — original App Export Folder ACK (2026-10-26)
 
 Original Export Folder now admits one unambiguous bounded folder with Exposure Tool children through the existing destination/retention/write-close/readback ACK. Original selected IDs/names/order/values survive; cancel/denied/duplicate/newer-output/stale-peer/uncertain recovery/reload pass16 browser assertions/164 host cases/84 repo tests/check/provenance. The514-byte file exactly matches the cached source-pinned Rust parser/exporter. [Evidence and continuation](rapidraw-wasm-app-folder-export-handoff.md).

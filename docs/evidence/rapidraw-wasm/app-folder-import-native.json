@@ -1,0 +1,48 @@
+{
+  "nativeSource": "b39884b38d8f148caef6fd0d52afd264951be329",
+  "sourceSha256": "3f639e11c2f8a74baa31285b2aa9456516e5c71b6c8e4d78a42dbe61f5c4a219",
+  "extractedTypesSha256": "d79af0fe56706ff2b806331b708fee05d3fcf82e4a0099693cf733dc841034bb",
+  "extractedFunctionSha256": "7711eeed8b64f23be1d17acc48c0db0860f4ef4f30d56d80991b2a624e1d49bd",
+  "nativeMergeSha256": "37c708af66c72b569e0f08bcb69a3ecb2f4e525095d15c895386f20e143c3bf6",
+  "cachedReferenceBinarySha256": "beca2921947699dd67c3a944c0c838876ed44b862dab6dce85e985abfca96714",
+  "inputBytes": 514,
+  "inputSha256": "875eeb694c126d16ed3c1177f945fe28bb3ac02cb323c715f3bb4999df8f41e8",
+  "originalTargetPreserved": true,
+  "folderShapeNamesChildOrderValuesEqual": true,
+  "nativeAndBrowserFreshUniqueUUIDs": true,
+  "nativeFolder": {
+    "id": "c6eaa897-cb9a-4a8a-8fde-7c7493c208de",
+    "name": "Nonempty Fixture (1)",
+    "children": [
+      {
+        "id": "d6b4e3f9-8e3d-4a3e-88b4-223a9f13e949",
+        "name": "Nested retained",
+        "adjustments": {
+          "exposure": 0.8
+        },
+        "includeMasks": false,
+        "includeCropTransform": false,
+        "presetType": "tool"
+      }
+    ]
+  },
+  "browserFolder": {
+    "id": "07f1490c-d344-42cd-8223-cc56952e94ad",
+    "name": "Nonempty Fixture (1)",
+    "children": [
+      {
+        "id": "12e3c52f-3dec-4e0d-9863-69df952dfe78",
+        "name": "Nested retained",
+        "adjustments": {
+          "exposure": 0.8
+        },
+        "includeMasks": false,
+        "includeCropTransform": false,
+        "presetType": "tool"
+      }
+    ]
+  },
+  "nativeOutputSha256": "0a38b54e89bc6f4b78f8863ae06d63a101d36efa2c2521baead5b75e4dbea335",
+  "cachedReferenceReused": true,
+  "scope": "Pinned original Rust types/merge/serializer compared with actual original-App folder import; random IDs compared as fresh unique UUIDs, not equal bytes. Original full filesystem import command and OS picker not accepted; no native/WASM rebuild."
+}
