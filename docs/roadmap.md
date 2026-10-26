@@ -1,3 +1,9 @@
+# RWASM-03 — actual App preset recovery copy (2026-10-26)
+
+A separate preset recovery dialog now verifies one retained canonical Exposure Tool .rrpreset without RAW and copies it through a fresh destination/write-close-readback ACK. Cancel/denied/newer files, separate retention, late-I/O lock/abort and reload without replay preserve the original record/library.20 positive browser assertions/120 host/check/YAML pass;337 bytes/native reference and unchanged native pixels match. [Evidence and continuation](rapidraw-wasm-app-preset-recovery-handoff.md).
+
+Experimental B; preset discard/general files/full App/OS/providers remain open. Original source/WASM/cache reused; no product release/main/demo/private input change. A alpha74 immutable Actions assets gate is COMPLETE. Next A: original registered Edit Endnote command/form/ACK. Next B: explicitly confirmed verified coordinated preset recovery removal/absence ACK. SAME MAIN only.
+
 # RWASM-03 — actual App selected preset Export ACK (2026-10-25)
 
 Original PresetsPanel context-menu Export Preset now writes one selected Exposure Tool through fresh destination/close/readback ACK. Held ACK, cancel/denied, changed file, stale peer library, separate retention and reload without replay pass16 positive browser assertions;115 host/check/YAML pass. The337 bytes match pinned original Rust; reapplication remains native-exact. [Evidence and continuation](rapidraw-wasm-app-preset-export-handoff.md).

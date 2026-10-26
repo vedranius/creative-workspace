@@ -1047,5 +1047,21 @@
       "experiments/rapidraw-react-proof/app-preset-export-main.tsx": "77f3565dd6763a9feb1e3acb9f9c5f37f4494b7849864467f8bc430a8c312fc1"
     },
     "scope": "Experimental actual original App selected Exposure Tool preset export only. Existing native command/body and fresh empty destination/write/close/readback ACK, separate retention and retained uncertain output; bounded read verifies library revision/content at selection and immediately before export. Synthetic chooser evidence is not OS permission acceptance. General export-all/folders/full App/providers remain open."
+  },
+  "appPresetRecovery": {
+    "basePatch": {
+      "path": "patches/rapidraw/b39884b3/preset-configure-ack-v1.patch",
+      "sha256": "eb8d7ca24afe08d4d24ee0c84af351e69e50a69a074d02965e80704eb1b40276",
+      "patchedFiles": {
+        "src/hooks/usePresets.ts": "e1e52bd5fd9f489da5869f719792f9ca0039ad163847f52893f3e56a31d6e4c4",
+        "src/components/panel/right/PresetsPanel.tsx": "d13bb182a95ceca872ab357285324921c5924ab48e6e50ff309bb30c70b904de",
+        "src/components/modals/ConfigurePresetModal.tsx": "d04e5f0f1f5de5bae57af0739231f8b00204b3e47214f3ed743399c32c30b80d"
+      }
+    },
+    "bootstrapFiles": {
+      "experiments/rapidraw-react-proof/app-preset-recovery-main.tsx": "6235df58b19718fac7eda43f4d897d4086e89c70131331e34c8e207a43cb1de5",
+      "experiments/rapidraw-react-proof/PresetRecoveryPanel.tsx": "9550c96111e68117936ce8604c91f52343365c07846dca16bb21b977aa4055a1"
+    },
+    "scope": "Experimental actual App retained single canonical Exposure Tool .rrpreset recovery copy. Explicit list/format/hash verification without RAW, fresh empty destination/write-close-readback ACK, separate retention and preserved original record/library. No preset discard/general files/OS picker/common-provider/full App acceptance."
   }
 }
