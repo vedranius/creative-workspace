@@ -8,8 +8,23 @@ import {EngineProcess} from './photocraft.js';
 import {resolveWorkspace,isWithin} from './storage.js';
 import {importSegments,receiveFile} from './transfers.js';
 
-const nativeMethods=new Set(['__cw_identity','new','sample','open','state','render','command','export','save_copy','mark_saved']);
-const methods=new Set(['state','heartbeat','file.new','file.open','doc.new','doc.sample','doc.open','doc.save','file.saveACopy','page.select','frame.create','layout.pages.move','layout.pages.insert','layout.pages.duplicateSpread','layout.pages.delete','select.set','selection.set','select.all','select.none','edit.selectAll','edit.deselectAll','transform.move','transform.resize','object.fill','object.stroke','swatch.create','story.setText','type.char','text.placeCaret','text.select','text.insert','footnote.insert','endnote.insert','footnote.options','endnote.options','endnote.edit','endnote.delete','footnote.goToReference','text.delete','edit.clear','edit.undo','edit.redo']);
+function boundedEndnoteList(value,canonical){
+  const bad=()=>{throw fail('Invalid bounded endnote.list response',502);},expected=new Map();let bytes=0;
+  for(const [sid,story] of Object.entries(canonical.stories||{}))for(const note of story.endnotes||[]){
+    if(!/^[1-9][0-9]*$/.test(sid)||Number(sid)>4294967295||!Number.isSafeInteger(note.id)||note.id<1||note.id>4294967295||typeof note.text?.text!=='string')bad();
+    const key=sid+':'+note.id;if(expected.has(key))bad();expected.set(key,note.text.text);bytes+=Buffer.byteLength(note.text.text);
+  }
+  const first=canonical.endnoteOptions?.startAt??1;
+  if(!Array.isArray(value)||value.length!==expected.size||value.length>128||bytes>32768||Buffer.byteLength(JSON.stringify(value))>65536||!Number.isSafeInteger(first)||first<1)bad();
+  const seen=new Set();for(const [index,row]of value.entries()){
+    if(!row||typeof row!=='object'||Array.isArray(row)||Object.keys(row).sort().join(',')!=='id,number,story,text'||!['story','id','number'].every(k=>Number.isSafeInteger(row[k])&&row[k]>0&&row[k]<=4294967295)||row.number!==first+index)bad();
+    const key=row.story+':'+row.id;if(seen.has(key)||!expected.has(key)||row.text!==expected.get(key))bad();seen.add(key);
+  }
+  return value;
+}
+
+const nativeMethods=new Set(['__cw_identity','new','sample','open','state','render','command','query','export','save_copy','mark_saved']);
+const methods=new Set(['state','heartbeat','endnote.list','file.new','file.open','doc.new','doc.sample','doc.open','doc.save','file.saveACopy','page.select','frame.create','layout.pages.move','layout.pages.insert','layout.pages.duplicateSpread','layout.pages.delete','select.set','selection.set','select.all','select.none','edit.selectAll','edit.deselectAll','transform.move','transform.resize','object.fill','object.stroke','swatch.create','story.setText','type.char','text.placeCaret','text.select','text.insert','footnote.insert','endnote.insert','footnote.options','endnote.options','endnote.edit','endnote.delete','footnote.goToReference','text.delete','edit.clear','edit.undo','edit.redo']);
 const fail=(message,status=400,code)=>Object.assign(new Error(message),{status,...(code?{code}:{})});
 const relative=value=>{try{importSegments(value);return value;}catch{throw fail('Use a relative path inside this application workspace');}};
 const number=(value,min,max,label)=>{if(typeof value!=='number'||!Number.isFinite(value)||value<min||value>max)throw fail(`Invalid ${label}`);return value;};
@@ -186,7 +201,14 @@ export function createDesignCraft({binary=process.env.CW_DESIGNCRAFT_BINARY||pat
     const signature=JSON.stringify({method,params,expectedVersion}),old=s.requests.get(requestId);if(old){if(old.signature!==signature)throw fail('requestId was already used for a different operation',409);return old.task;}if([...s.requests.values()].filter(r=>r.pending).length>=32)throw fail('Too many queued operations',429);
     const task=s.queue.then(async()=>{
       if(expectedVersion!==undefined&&expectedVersion!==s.version)throw fail('Document changed. Refresh its state before applying this operation.',409,'STATE_VERSION_CONFLICT');
-      if(method==='heartbeat')return {alive:true};if(method==='state')return snapshot(s);let result={};
+      if(method==='heartbeat')return {alive:true};if(method==='state')return snapshot(s);
+      if(method==='endnote.list'){
+        if(Object.keys(params).length)throw fail('endnote.list requires empty parameters');
+        const current=await snapshot(s);if(!current.document)throw fail('Open a publication first');
+        const notes=boundedEndnoteList(await s.engine.call('query',{command:'endnote.list',params:{}}),current.documentSnapshot);
+        return {...current,result:{commandId:'endnote.list',notes},readOnly:true};
+      }
+      let result={};
       if(method==='file.new'||method==='file.open'||method==='doc.open'||method==='doc.new'||method==='doc.sample'){
         if(await s.engine.call('state'))throw fail('Save and close the current document before opening another',409);
         if(method==='file.new'){if(Object.keys(params).length!==1||typeof params.preset!=='string'||params.preset.length<1||params.preset.length>100)throw fail('Original file.new requires one known-size preset name');s.version++;result=await s.engine.call('new',{preset:params.preset});result={...result,commandId:'file.new'};}

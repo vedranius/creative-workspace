@@ -1,3 +1,9 @@
+## [0.2.0-alpha.77] - 2026-10-26
+
+- Add the original read-only DesignCraft `endnote.list` through a bounded owned native query and gateway. Run the source query on an isolated COW Session; preserve live document, selection, dirty/saved state, history and gateway version.
+- Limit results to 128 records, 32 KiB note text and 64 KiB JSON; validate returned IDs/text against the canonical document and numbering shape. Generated multi-story/native and actual original-browser-context RPC proof covers page-order numbering, held response, replay identity, invalid/stale requests and existing Edit Endnote form target compatibility/cancel.
+- 25 native /44 gateway /102 repository tests, npm check/release/YAML and actual original-browser-context query proof pass. This is a query foundation. Original Endnotes list presentation and automatic form target population remain open, alongside full original tools/providers/real OS/all13 acceptance. Keep the new release draft until exact-source Actions/tag/assets/checksums are independently verified; local worker/UI are QA artifacts.
+
 ## [0.2.0-alpha.76] - 2026-10-26
 
 - Connect original registered DesignCraft `endnote.delete` through hosted Quick Apply and its original generic story/id form to the owned native engine. Validate target/reference, document/listing budgets and an isolated original candidate before changing live document/history.

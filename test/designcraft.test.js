@@ -25,6 +25,33 @@ class DesignFixture{
 }
 async function fixture(t,extra={}){const root=await mkdtemp(path.join(os.tmpdir(),'cw-design-fixture-')),project=path.join(root,'project'),engines=[];await mkdir(project);const design=createDesignCraft({binary:process.execPath,stateDir:path.join(root,'sessions'),processFactory:()=>{const engine=new DesignFixture();engines.push(engine);return engine;},...extra});t.after(()=>design.shutdown());t.after(()=>rm(root,{recursive:true,force:true}));const call=(id,method,params={},extra={})=>design.execute(id,{method,params,requestId:crypto.randomUUID(),...extra});return {root,project,design,engines,call};}
 
+async function endnoteQueryFixture(t){
+ const f=await fixture(t),session=await f.design.create(f.project);await f.call(session.id,'file.new',{preset:'A4'});const worker=f.engines.find(e=>!e.closed);worker.doc.dirty=false;
+ const notes=[{story:11,id:1,number:3,text:'First č'},{story:12,id:1,number:4,text:'Second Ω'}];
+ worker.doc.documentSnapshot={...structuredClone(worker.doc),endnoteOptions:{startAt:3},stories:Object.fromEntries(notes.map(n=>[String(n.story),{id:n.story,endnotes:[{id:n.id,text:{text:n.text}}]}]))};
+ const base=worker.call.bind(worker);worker.queryCalls=0;worker.call=async(m,p)=>{if(m==='query'){worker.queryCalls++;assert.deepEqual(p,{command:'endnote.list',params:{}});return structuredClone(notes);}return base(m,p);};return {...f,session,worker,notes};
+}
+test('Read-only original endnote.list preserves version, document, dirty, history and selection with exact bounded targets',async t=>{
+ const {design,call,session,worker,notes}=await endnoteQueryFixture(t);const before=await call(session.id,'state'),requestId=crypto.randomUUID();
+ const query=await call(session.id,'endnote.list',{}, {expectedVersion:1,requestId});assert.deepEqual(query.result,{commandId:'endnote.list',notes});assert.equal(query.readOnly,true);assert.equal(query.stateVersion,1);for(const key of ['document','documentSnapshot','page','caret','textSelection'])assert.deepEqual(query[key],before[key]);assert.equal(worker.edits,0);
+ const again=await call(session.id,'endnote.list',{}, {expectedVersion:1,requestId});assert.deepEqual(again,query);assert.equal(worker.queryCalls,1);
+ for(const params of [{story:11},{path:'/private'},{id:1}])await assert.rejects(call(session.id,'endnote.list',params),/empty parameters/);await assert.rejects(call(session.id,'endnote.list',{}, {expectedVersion:0}),e=>e.code==='STATE_VERSION_CONFLICT');assert.equal(worker.queryCalls,1);await design.close(session.id);
+});
+test('endnote.list rejects malformed, duplicate, missing, misnumbered and canonical-mismatched native records',async t=>{
+ const {design,call,session,worker,notes}=await endnoteQueryFixture(t),base=worker.call.bind(worker),bad=[null,{},[],[...notes,notes[0]],notes.map((n,i)=>i?{...n,id:2}:n),notes.map(n=>({...n,number:n.number+1})),notes.map(n=>({...n,text:'Forged'})),notes.map(n=>({...n,extra:true})),notes.map(n=>({...n,story:4294967296})),[notes[0],notes[0]]];
+ for(const value of bad){worker.call=async(m,p)=>m==='query'?structuredClone(value):base(m,p);await assert.rejects(call(session.id,'endnote.list',{}, {expectedVersion:1}),e=>e.status===502);assert.equal((await call(session.id,'state')).stateVersion,1);assert.equal(worker.doc.dirty,false);assert.equal(worker.edits,0);}await design.close(session.id);
+});
+test('held read-only query serializes edits and preserves failure state without a revision or cached retry',async t=>{
+ const {design,call,session,worker}=await endnoteQueryFixture(t),base=worker.call.bind(worker);let release,entered;const held=new Promise(r=>release=r),started=new Promise(r=>entered=r);worker.call=async(m,p)=>{if(m==='query'){entered();await held;}return base(m,p);};
+ const pending=call(session.id,'endnote.list',{}, {expectedVersion:1});await started;const mutation=call(session.id,'edit.deselectAll',{}, {expectedVersion:1});assert.equal(worker.edits,0);release();assert.equal((await pending).stateVersion,1);assert.equal((await mutation).stateVersion,2);assert.deepEqual(worker.commands,['edit.deselectAll']);
+ worker.call=async(m,p)=>{if(m==='query')throw Error('Query unavailable');return base(m,p);};await assert.rejects(call(session.id,'endnote.list',{}, {expectedVersion:2}),/Query unavailable/);assert.equal((await call(session.id,'state')).stateVersion,2);assert.equal(worker.doc.dirty,false);await design.close(session.id);
+});
+test('endnote.list accepts empty original output and refuses oversized canonical text and record sets',async t=>{
+ const {design,call,session,worker}=await endnoteQueryFixture(t),base=worker.call.bind(worker);worker.doc.documentSnapshot.stories={};worker.call=async(m,p)=>m==='query'?[]:base(m,p);assert.deepEqual((await call(session.id,'endnote.list')).result.notes,[]);
+ for(const count of [1,129]){const notes=Array.from({length:count},(_,i)=>({story:11,id:i+1,number:i+1,text:count===1?'x'.repeat(32769):'x'}));worker.doc.documentSnapshot.endnoteOptions={startAt:1};worker.doc.documentSnapshot.stories={'11':{id:11,endnotes:notes.map(n=>({id:n.id,text:{text:n.text}}))}};worker.call=async(m,p)=>m==='query'?notes:base(m,p);await assert.rejects(call(session.id,'endnote.list'),e=>e.status===502);assert.equal(worker.edits,0);}
+ await design.close(session.id);
+});
+
 test('Design sample is created by the owned worker with the original command ID and a revisioned render',async t=>{
   const {project,design,engines,call}=await fixture(t),session=await design.create(project);
   const sampled=await call(session.id,'doc.sample');

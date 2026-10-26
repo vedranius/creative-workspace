@@ -272,6 +272,60 @@ fn endnote_content_budget(d:&Document,extra:Option<&str>)->Result<(),Box<dyn std
  }
  Ok(())
 }
+// Execute the registered source query on an isolated COW Session. The owned
+// live document, saved pointer, selection and history never enter this Session.
+fn endnote_list(h:&Headless,p:&Value)->Result<Value,Box<dyn std::error::Error>> {
+ let o=p.as_object().ok_or("Invalid bounded endnote.list query")?;
+ if o.len()!=2||o.get("command").and_then(Value::as_str)!=Some("endnote.list")||!o.get("params").and_then(Value::as_object).is_some_and(|p|p.is_empty()) {return Err("endnote.list requires only command and empty params".into());}
+ let st=h.session.active().ok_or("Open a publication first")?;let d=&st.doc;
+ budget(d)?;endnote_content_budget(d,None)?;canonical_snapshot(d)?;
+ let count=d.stories.values().map(|s|s.endnotes.len()).sum::<usize>();
+ let bytes=d.stories.values().flat_map(|s|&s.endnotes).map(|n|n.text.text.len()).sum::<usize>();
+ if count>128||bytes>32768 {return Err("Endnote query exceeds 128 records or 32 KiB text".into());}
+ let mut candidate=designcraft_engine::Session::new();candidate.add_document(DocState::new((**d).clone(),None));
+ let result=candidate.execute("endnote.list",&json!({}))?;
+ if serde_json::to_vec(&result)?.len()>65536 {return Err("Endnote query exceeds 64 KiB JSON".into());}
+ Ok(result)
+}
+#[cfg(test)] mod endnote_list_contract {
+ use super::*;
+ fn fixture()->Result<Headless,Box<dyn std::error::Error>> {
+  let mut h=Headless::new();h.call("engine.execute",json!({"command":"file.new","params":{"pages":2,"facingPages":false}}))?;
+  // Create page2's story first, so numbering order differs from story ID order.
+  for (page,text) in [(1,"Second page č"),(0,"First page Ω")] {
+   let doc=&h.session.active().ok_or("doc")?.doc;let(si,_)=doc.page_loc(page).ok_or("page")?;let px=doc.page(page).ok_or("page")?.bounds().x0;
+   h.call("engine.execute",json!({"command":"frame.create","params":{"spread":si,"rect":[px+60.0,80.0,px+360.0,320.0],"content":"text","caret":true}}))?;
+   h.call("engine.execute",json!({"command":"text.insert","params":{"text":"Body text"}}))?;
+   h.call("engine.execute",json!({"command":"endnote.insert","params":{"text":text}}))?;
+  }
+  Ok(h)
+ }
+ #[test]fn original_query_numbering_and_targets_are_exact_without_live_mutation()->Result<(),Box<dyn std::error::Error>> {
+  let mut h=fixture()?;let mut saved=Some(h.session.active().ok_or("doc")?.doc.clone());let before=answer(&mut h,&mut saved,Path::new("."),Path::new("."),&json!({"method":"state"}))?;
+  let live=h.session.active().ok_or("doc")?.doc.clone();let expected=h.call("engine.execute",json!({"command":"endnote.list","params":{}}))?;
+  assert_eq!(expected[0]["text"],"First page Ω");assert_eq!(expected[1]["text"],"Second page č");
+  let request=json!({"method":"query","params":{"command":"endnote.list","params":{}}});
+  for _ in 0..3 {assert_eq!(answer(&mut h,&mut saved,Path::new("."),Path::new("."),&request)?,expected);}
+  assert!(Arc::ptr_eq(&live,&h.session.active().ok_or("doc")?.doc));assert!(Arc::ptr_eq(&live,saved.as_ref().ok_or("saved")?));
+  let after=answer(&mut h,&mut saved,Path::new("."),Path::new("."),&json!({"method":"state"}))?;assert_eq!(before,after);
+  if let Ok(out)=std::env::var("CW_ENDNOTE_LIST_OUTPUT") {let root=Path::new(&out);std::fs::write(root.join("endnote-list-fixture.designcraft"),designcraft_format::save(&live)?)?;std::fs::write(root.join("endnote-list-native.json"),serde_json::to_vec_pretty(&json!({"commandId":"endnote.list","notes":expected,"originalQueryExact":true,"numberingUsesPageOrderNotStoryId":true,"repeatedQueriesPreserveCanonicalSelectionDirtyHistory":true,"savedPointerPreserved":true,"canonical":canonical_snapshot(&live)?}))?)?;}
+  Ok(())
+ }
+ #[test]fn empty_no_document_and_malformed_queries_are_bounded()->Result<(),Box<dyn std::error::Error>> {
+  let mut h=Headless::new();let good=json!({"command":"endnote.list","params":{}});assert!(endnote_list(&h,&good).is_err());h.call("engine.execute",json!({"command":"file.new","params":{}}))?;assert_eq!(endnote_list(&h,&good)?,json!([]));
+  for p in [Value::Null,json!([]),json!({}),json!({"command":"endnote.list","params":null}),json!({"command":"endnote.list","params":{"path":"private"}}),json!({"command":"endnote.list","params":{},"path":"private"}),json!({"command":"endnote.delete","params":{}})]{assert!(endnote_list(&h,&p).is_err());}
+  Ok(())
+ }
+ #[test]fn count_text_and_encoded_json_limits_refuse_without_live_mutation()->Result<(),Box<dyn std::error::Error>> {
+  for mode in [0,1,2] {
+   let mut h=fixture()?;let doc=Arc::make_mut(&mut h.session.active_mut().ok_or("doc")?.doc);let sid=doc.stories.values().find(|s|!s.endnotes.is_empty()).ok_or("story")?.id;let story=doc.story_mut(sid).ok_or("story")?;
+   if mode==0 {let note=story.endnotes[0].clone();story.endnotes=(1..130).map(|id|{let mut n=note.clone();Arc::make_mut(&mut n).id=id;n}).collect();}
+   else {Arc::make_mut(&mut story.endnotes[0]).text.text=if mode==1 {"x".repeat(32769)}else{"\u{0000}".repeat(12000)};}
+   let live=h.session.active().ok_or("doc")?.doc.clone();assert!(endnote_list(&h,&json!({"command":"endnote.list","params":{}})).is_err());assert!(Arc::ptr_eq(&live,&h.session.active().ok_or("doc")?.doc));
+  }
+  Ok(())
+ }
+}
 fn endnote_insert_budget(h:&Headless,p:&Value)->Result<(),Box<dyn std::error::Error>> {
  let params=p.as_object().ok_or("endnote.insert requires an object")?;
  if params.keys().any(|k|k!="text")||params.get("text").is_some_and(|v|!v.is_string()||v.as_str().is_some_and(|s|s.len()>4096)) {return Err("endnote.insert accepts only optional text up to 4 KiB".into());}
@@ -562,6 +616,7 @@ fn answer(h: &mut Headless, saved: &mut Option<Arc<Document>>, read: &Path, writ
             *saved = None;
             Ok(json!({"commandId":"file.newSample"}))
         }
+        "query" => endnote_list(h,&p),
         "command" => {
             let c = p.get("command").and_then(Value::as_str).ok_or("Missing command")?;
             if !COMMANDS.contains(&c) {
