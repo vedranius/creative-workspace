@@ -1,0 +1,94 @@
+--- a/src/hooks/usePresets.ts
++++ b/src/hooks/usePresets.ts
+@@ -570,47 +570,28 @@
+   );
+ 
+   const reorderItems = useCallback(
+-    (activeId: string, overId: string) => {
+-      setPresets((currentPresets: Array<UserPreset>) => {
+-        const getIndex = (arr: Array<UserPreset>, id: string) =>
+-          arr.findIndex((item: UserPreset) => item.preset?.id === id || item.folder?.id === id || item?.id === id);
+-
+-        const activeRootIndex = getIndex(currentPresets, activeId);
+-        const overRootIndex = getIndex(currentPresets, overId);
+-
+-        if (activeRootIndex !== -1 && overRootIndex !== -1) {
+-          const newPresets: Array<UserPreset> = arrayMove(currentPresets, activeRootIndex, overRootIndex);
+-          savePresetsToBackend(newPresets);
+-          return newPresets;
+-        }
+-
+-        for (const item of currentPresets) {
+-          if (item.folder) {
+-            const activeChildIndex = getIndex(item.folder.children, activeId);
+-            const overChildIndex = getIndex(item.folder.children, overId);
+-
+-            if (activeChildIndex !== -1 && overChildIndex !== -1) {
+-              const newPresets = currentPresets.map((p: UserPreset) => {
+-                if (p.folder?.id === item.folder?.id) {
+-                  return {
+-                    folder: {
+-                      ...p?.folder,
+-                      children: arrayMove(p.folder?.children, activeChildIndex, overChildIndex),
+-                    },
+-                  };
+-                }
+-                return p;
+-              });
+-              savePresetsToBackend(newPresets);
+-              return newPresets;
+-            }
+-          }
+-        }
+-
+-        return currentPresets;
+-      });
++    async (activeId: string, overId: string) => {
++      if (isLoading || createPending.current) throw new Error('Preset library is busy');
++      const currentPresets = presets;
++      const getIndex = (arr: Array<UserPreset>, id: string) =>
++        arr.findIndex((item: UserPreset) => item.preset?.id === id || item.folder?.id === id || item?.id === id);
++      const activeRootIndex = getIndex(currentPresets, activeId);
++      const overRootIndex = getIndex(currentPresets, overId);
++      if (activeRootIndex < 0 || overRootIndex < 0 || activeRootIndex === overRootIndex || !currentPresets.slice(Math.min(activeRootIndex, overRootIndex), Math.max(activeRootIndex, overRootIndex) + 1).every((item: UserPreset) => item.preset?.presetType === 'tool')) {
++        throw new Error('Reorder one existing top-level Exposure Tool within its Tool block');
++      }
++      const newPresets: Array<UserPreset> = arrayMove(currentPresets, activeRootIndex, overRootIndex);
++      createPending.current = true;
++      setIsLoading(true);
++      try {
++        await invoke(Invokes.SavePresets, { presets: newPresets });
++        setPresets(newPresets);
++      } finally {
++        createPending.current = false;
++        setIsLoading(false);
++      }
+     },
+-    [savePresetsToBackend],
++    [presets, isLoading],
+   );
+ 
+   const sortAllPresetsAlphabetically = useCallback(() => {
+--- a/src/components/panel/right/PresetsPanel.tsx
++++ b/src/components/panel/right/PresetsPanel.tsx
+@@ -993,7 +993,8 @@
+     const targetFolderId = overType === PresetListType.Folder ? overId : overParentId;
+     const intoEmptyFolder = activeParentId === null && !!targetFolderId && presets.some((item: UserPreset) => item.folder?.id === targetFolderId && item.folder.children.length === 0);
+     const childBeforeRootTool = !!activeParentId && !targetFolderId && overType === PresetListType.Preset && presets.some((item: UserPreset) => item.preset?.id === overId && item.preset.presetType === 'tool');
+-    if (activeType !== PresetListType.Preset || (!intoEmptyFolder && !childBeforeRootTool)) {
++    const rootToolReorder = activeParentId === null && overParentId === null && overType === PresetListType.Preset && presets.some((item: UserPreset) => item.preset?.id === activeId && item.preset.presetType === 'tool') && presets.some((item: UserPreset) => item.preset?.id === overId && item.preset.presetType === 'tool');
++    if (activeType !== PresetListType.Preset || (!intoEmptyFolder && !childBeforeRootTool && !rootToolReorder)) {
+       setDeleteError('Move one Exposure Tool into an empty folder or one child before an existing top-level Tool');
+       return;
+     }
+@@ -1001,7 +1002,9 @@
+     setDeleteBusy(true);
+     setDeleteError('');
+     try {
+-      if (childBeforeRootTool) {
++      if (rootToolReorder) {
++        await reorderItems(activeId, overId);
++      } else if (childBeforeRootTool) {
+         await movePreset(activeId, null, overId);
+       } else {
+         await movePreset(activeId, targetFolderId);

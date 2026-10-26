@@ -1467,5 +1467,35 @@
       "experiments/rapidraw-react-proof/app-child-root-main.tsx": "1f3ad6ae5dab9d040aa54f1aeceaa25ef5a32e0860dd35f9658cd4fad5a17e3b"
     },
     "scope": "Experimental original pointer drag of one existing Exposure Tool child before an existing top-level Tool; original remove-child/root-insert algorithm, exact child/parent IDs/values/flags/other order, parent retained even when empty. Await durable CAS/commit/readback before position publication; abort/stale/uncertain reload without replay. No arbitrary reorder, cross-folder/folder moves, root append, general presets/providers/OS/full App acceptance."
+  },
+  "appRootReorder": {
+    "basePatch": {
+      "path": "patches/rapidraw/b39884b3/child-root-move-ack-v1.patch",
+      "sha256": "d4d307e838a0f4bb2222b2ebaaa4bad8327e1ca9e6d88e6465e126e46fc1f69c",
+      "patchedFiles": {
+        "src/hooks/usePresets.ts": "b3eae5dea45cc588ce9e28c539ef380b936dd9701cb51f16d386cb378e8ec42b",
+        "src/components/panel/right/PresetsPanel.tsx": "795f7c8a8588ad935d02311504794a2b8e727e018e7655533c36999f019428e4"
+      }
+    },
+    "sourceFiles": {
+      "src/hooks/usePresets.ts": "0b545710738a886df5a6946723e0e4e580027d98cc7a92f9bacd777bc7cf6258",
+      "src/components/panel/right/PresetsPanel.tsx": "f91a154e80a92c8692c625a9a43e1be06534024b78d79ce0052176d25ecf2949",
+      "src/components/modals/ConfigurePresetModal.tsx": "090545bc74c1c75342a958b503e26d64ad890024e14f3a722f2ceb176fdfdf8b",
+      "src-tauri/src/file_management.rs": "3f639e11c2f8a74baa31285b2aa9456516e5c71b6c8e4d78a42dbe61f5c4a219",
+      "src/components/modals/CreateFolderModal.tsx": "ff16869f30d45b6e0c96dc647314027a5828814ce0d62d0fc90840ecfd07a29a",
+      "src/components/modals/RenameFolderModal.tsx": "623d7854c69ade59dec72b4640e87cc6f053ccedbcc6e99510dfaa86c422636d"
+    },
+    "sourcePatch": {
+      "path": "patches/rapidraw/b39884b3/root-tool-reorder-ack-v1.patch",
+      "sha256": "57bda92220f40cc5eda0a66d79ab818bd2dffc6e3f71d6476e43da9606fee002",
+      "patchedFiles": {
+        "src/hooks/usePresets.ts": "8d11669048154c71bb32b3d91786944b85704d14fa0be642805cea2403f23808",
+        "src/components/panel/right/PresetsPanel.tsx": "b66e95a4ff5f1c6a2f66e5dbd12a45a20cf1a3dbe361f0df6cefeb4ca2245cbe"
+      }
+    },
+    "bootstrapFiles": {
+      "experiments/rapidraw-react-proof/app-root-reorder-main.tsx": "ed0991ec58d0bd287483a914a85e451448522e1a73c531533410a84abf876f0b"
+    },
+    "scope": "Experimental original pointer reorder of one existing top-level Exposure Tool within a contiguous Tool block using original arrayMove; exact IDs/names/values/flags/other records, folder positions and children preserved. Await durable CAS/commit/readback before canonical order publication; abort/stale/uncertain reload without replay. No folder/child/Style reorder, crossing folder boundaries, general tree edits, providers/OS/full App acceptance."
   }
 }

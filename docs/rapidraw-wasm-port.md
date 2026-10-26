@@ -1,3 +1,9 @@
+# RWASM-03 — original App root Tool reorder ACK (2026-10-26)
+
+Original pointer drag reorders one existing top-level Exposure Tool inside a contiguous Tool block only after durable commit/readback, using original arrayMove. Exact IDs/names/values/flags/folders/children, held old order, actual abort/stale/uncertain/reload without replay, forward/backward moves and native pixels pass24 browser/204 serial host/84 repo/check. [Evidence and next step](rapidraw-wasm-app-root-reorder-handoff.md).
+
+Experimental B; original source/cache/WASM reused, no product release/main/demo/private input change. A alpha77 immutable asset gate is complete at b7b7032. Next A: original Endnotes result/target service seam. Next B: original nonempty-folder Rename ACK preserving children/order. SAME MAIN only.
+
 # RWASM-03 — original App child-to-root Tool drag ACK (2026-10-26)
 
 Original pointer drag returns one existing Tool child before an existing top-level Tool only after durable commit/readback; the exact parent remains even when empty. IDs/values/flags/other order, held positions/counts, actual abort/stale/uncertain/reload without replay and native moved-root pixels pass21 browser/199 serial host/84 repo/check. [Evidence and next step](rapidraw-wasm-app-child-root-handoff.md).
