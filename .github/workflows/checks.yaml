@@ -14,5 +14,9 @@ jobs:
         with:
           node-version: '24'
       - run: npm ci
+      - run: node --check scripts/verify-designcraft-endnote-target.mjs
+      - run: node scripts/verify-designcraft-endnote-target.mjs
+        env:
+          PROVENANCE_ONLY: '1'
       - run: npm run check
       - run: npm test

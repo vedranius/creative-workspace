@@ -17,6 +17,9 @@ on:
       - 'scripts/smoke-designcraft-endnote-edit-browser.mjs'
       - 'scripts/smoke-designcraft-endnote-delete-browser.mjs'
       - 'scripts/smoke-designcraft-endnote-list-browser.mjs'
+      - 'scripts/verify-designcraft-endnote-target.mjs'
+      - 'experiments/designcraft-endnote-target/**'
+      - '.github/workflows/checks.yaml'
       - '.github/workflows/release.yaml'
       - '.github/workflows/artcraft-demo.yaml'
   workflow_dispatch:

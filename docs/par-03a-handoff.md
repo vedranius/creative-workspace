@@ -1,3 +1,9 @@
+# PAR-03 — original Endnotes target service candidate (2026-10-26)
+
+A native-only candidate validates an explicit Endnotes result against its captured session/document UID/version/canonical selection and opens the original Edit Endnote form. Exact original query/page order, schema/budgets, stale/ABA/draft/busy protections and pending original confirmation pass 179 UI tests (1 existing ignored), 102 repo/check/release validation. [Evidence, limits and handoff](evidence/designcraft-endnote-target-service.md).
+
+Unfinished experiment: shipped UI/WASM/product version/release remain unchanged; browser delivery and original body-reference targeting remain open. Existing generated Endnotes listing is preserved. Next B from 45f2f35: nonempty-folder Rename ACK after one exact CI snapshot. Next A: original selected-body-reference async query/form integration. SAME MAIN only.
+
 # PAR-03 alpha.77 — corrected immutable Actions draft assets verified (2026-10-26)
 
 Checks 40360529789 and all 25 Build/release 40360529983 jobs passed for c6b45df. Immutable tag v0.2.0-alpha.77 and draft prerelease 424564329 resolve to this corrected source. All 24 fresh downloads/12 SHA256 pairs, three Node 24 runtimes, 12 engine binaries, startup/licenses/source manifests and eight UI manifests/167 files verify. DesignCraft patch 52432097 matches packaged provenance; independently measured Actions WASM is d0a51d4b. Failed predecessor 40318334340 remains preserved. [Release evidence and limits](evidence/creative-workspace-alpha77-release.md) · [Current-adapter CI correction](evidence/designcraft-endnote-list-ci.md).
