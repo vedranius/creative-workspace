@@ -1,3 +1,9 @@
+# RWASM-03 — original App Overwrite Preset child ACK (2026-10-26)
+
+Original Overwrite now changes only one existing Tool child Exposure value, preserving parent/IDs/names/flags/siblings/order. Separate default-off capability; card/preview wait for commit/readback; held/abort/stale/uncertain reload/no replay and native-0.8/+1.6 application pass19 browser/184 serial host/84 repo/check. [Evidence and next step](rapidraw-wasm-app-child-overwrite-handoff.md).
+
+Experimental B; cached original source/Vite/WASM reused, no product release/main/demo/private input change. Next A: corrected alpha77 exact CI/immutable asset gate after success. Next B: original child Delete Preset under separate durable-removal capability. SAME MAIN only.
+
 # RWASM-03 — original App Duplicate Preset child ACK (2026-10-26)
 
 Original Duplicate Preset now copies one existing Tool child with a fresh UUID/Copy name immediately after it inside its folder. Separate default-off capability, exact parent/values/flags/siblings/order, commit/readback before card publication, held/abort/stale/uncertain reload/no replay/native clone application pass19 browser/179 serial host/84 repo/check. [Evidence and next step](rapidraw-wasm-app-child-duplicate-handoff.md).

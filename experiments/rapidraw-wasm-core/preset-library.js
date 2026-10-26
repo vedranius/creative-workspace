@@ -85,6 +85,18 @@ export function createPresetLibrary({backend=createPresetLibraryDatabase(),pickF
  };
  const saveChildDuplicated=async items=>{ready();const presets=boundedLibrary(items);if(!childDuplicateCandidate(presets))fail('Duplicate one existing Exposure Tool child with fresh UUID and original Copy name immediately after it; preserve parent, values, flags, order and siblings');return persist(presets);};
  const saveDuplicated=async items=>{ready();const presets=boundedLibrary(items);if(!duplicateCandidate(presets))fail('Duplicate one existing top-level Exposure Tool with a fresh ID, original Copy name and unchanged siblings');return persist(presets);};
+ const childOverwriteCandidate=presets=>{
+  const prior=current.presets;if(presets.length!==prior.length)return false;
+  const changed=presets.flatMap((item,i)=>JSON.stringify(item)!==JSON.stringify(prior[i])?[i]:[]);
+  if(changed.length!==1)return false;
+  const i=changed[0],before=prior[i]?.folder,after=presets[i]?.folder;
+  if(!before||!after||after.children.length!==before.children.length||JSON.stringify({...after,children:before.children})!==JSON.stringify(before))return false;
+  const children=after.children.flatMap((p,j)=>JSON.stringify(p)!==JSON.stringify(before.children[j])?[j]:[]);
+  if(children.length!==1)return false;
+  const j=children[0],old=before.children[j],next=after.children[j];
+  return old.presetType==='tool'&&JSON.stringify({...next,adjustments:old.adjustments})===JSON.stringify(old)&&next.adjustments.exposure!==old.adjustments.exposure;
+ };
+ const saveChildOverwritten=async items=>{ready();const presets=boundedLibrary(items);if(!childOverwriteCandidate(presets))fail('Overwrite only one existing Exposure Tool child value; preserve parent, IDs, names, flags, order and siblings');return persist(presets);};
  const overwriteCandidate=presets=>{
   const prior=current.presets;if(presets.length!==prior.length)return false;
   const changed=presets.flatMap((item,i)=>JSON.stringify(item)!==JSON.stringify(prior[i])?[i]:[]);
@@ -133,8 +145,10 @@ export function createPresetLibrary({backend=createPresetLibraryDatabase(),pickF
   saveFolderDeleted,
   saveChildRenamed,
   saveChildDuplicated,
-  async savePresets(items,{allowRename=false,allowDelete=false,allowDuplicate=false,allowOverwrite=false,allowCreateFolder=false,allowRenameFolder=false,allowDeleteFolder=false,allowRenameChild=false,allowDuplicateChild=false}={}){
+  saveChildOverwritten,
+  async savePresets(items,{allowRename=false,allowDelete=false,allowDuplicate=false,allowOverwrite=false,allowCreateFolder=false,allowRenameFolder=false,allowDeleteFolder=false,allowRenameChild=false,allowDuplicateChild=false,allowOverwriteChild=false}={}){
    ready();const presets=boundedLibrary(items);
+   if(allowOverwriteChild&&childOverwriteCandidate(presets))return saveChildOverwritten(presets);
    if(allowDuplicateChild&&childDuplicateCandidate(presets))return saveChildDuplicated(presets);
    if(allowRenameChild&&childRenameCandidate(presets))return saveChildRenamed(presets);
    if(allowDeleteFolder&&folderDeleteCandidate(presets))return saveFolderDeleted(presets);

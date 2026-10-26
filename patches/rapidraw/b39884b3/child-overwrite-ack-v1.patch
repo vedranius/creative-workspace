@@ -1,0 +1,13 @@
+--- a/src/hooks/usePresets.ts
++++ b/src/hooks/usePresets.ts
+@@ -323,8 +323,8 @@
+       }
+     }
+ 
+-    if (!existingPreset || !presets.some(item => item.preset?.id === id) || existingPreset.presetType !== 'tool') {
+-      throw new Error('Only an existing top-level Exposure Tool preset can be overwritten');
++    if (!existingPreset || existingPreset.presetType !== 'tool') {
++      throw new Error('Only an existing Exposure Tool preset can be overwritten');
+     }
+ 
+     const GEOMETRY_KEYS = ADJUSTMENT_GROUPS.geometry.flatMap((group) => group.keys);

@@ -1352,5 +1352,33 @@
       "experiments/rapidraw-react-proof/app-child-duplicate-main.tsx": "24adb3df52c1b05f81736c0bd5e209305cd04332669111fa4d61b9ab9ac38ae7"
     },
     "scope": "Experimental original Duplicate Preset for one existing Exposure Tool child: fresh UUID/original Copy name/same-folder next position, exact parent/siblings/values/flags/order, durable CAS/commit/readback before original card publication; abort/stale/uncertain no replay/native clone evidence. No arbitrary child creation/movement/general presets/provider/OS/full App acceptance."
+  },
+  "appChildOverwrite": {
+    "basePatch": {
+      "path": "patches/rapidraw/b39884b3/child-duplicate-ack-v1.patch",
+      "sha256": "66398228728e8640bf022f0b2fefe3fb99ea77e8ab553aa0262d5ae67e26dc40",
+      "patchedFiles": {
+        "src/hooks/usePresets.ts": "42f36742294bbb53d1bdfb36991c9b292dace9b2a6a685514c92990a1d85a497"
+      }
+    },
+    "sourceFiles": {
+      "src/hooks/usePresets.ts": "0b545710738a886df5a6946723e0e4e580027d98cc7a92f9bacd777bc7cf6258",
+      "src/components/panel/right/PresetsPanel.tsx": "f91a154e80a92c8692c625a9a43e1be06534024b78d79ce0052176d25ecf2949",
+      "src/components/modals/ConfigurePresetModal.tsx": "090545bc74c1c75342a958b503e26d64ad890024e14f3a722f2ceb176fdfdf8b",
+      "src-tauri/src/file_management.rs": "3f639e11c2f8a74baa31285b2aa9456516e5c71b6c8e4d78a42dbe61f5c4a219",
+      "src/components/modals/CreateFolderModal.tsx": "ff16869f30d45b6e0c96dc647314027a5828814ce0d62d0fc90840ecfd07a29a",
+      "src/components/modals/RenameFolderModal.tsx": "623d7854c69ade59dec72b4640e87cc6f053ccedbcc6e99510dfaa86c422636d"
+    },
+    "sourcePatch": {
+      "path": "patches/rapidraw/b39884b3/child-overwrite-ack-v1.patch",
+      "sha256": "6071b707f2093a1d602679a3bb97a6f3e011c4a3ad074b42ff23bcc785c4910a",
+      "patchedFiles": {
+        "src/hooks/usePresets.ts": "3668d45ca0aed5c2d5f5434078b91401a512c808ec2bbd02ec46b93c5649d3ac"
+      }
+    },
+    "bootstrapFiles": {
+      "experiments/rapidraw-react-proof/app-child-overwrite-main.tsx": "67cae7bfd347b91f48d0a586b2e81f073b3be697133dbfef85cac2a1698c3da6"
+    },
+    "scope": "Experimental original Overwrite Preset for one existing Exposure Tool child only: bounded Exposure change with exact parent/IDs/names/flags/siblings/order, durable CAS/commit/readback before original card/preview publication, actual abort/stale/uncertain reload/no replay/native value proof. No arbitrary child edits/general presets/providers/OS/full App acceptance."
   }
 }
