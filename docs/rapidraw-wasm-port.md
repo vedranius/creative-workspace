@@ -1,3 +1,9 @@
+# RWASM-03 — original App Export Folder ACK (2026-10-26)
+
+Original Export Folder now admits one unambiguous bounded folder with Exposure Tool children through the existing destination/retention/write-close/readback ACK. Original selected IDs/names/order/values survive; cancel/denied/duplicate/newer-output/stale-peer/uncertain recovery/reload pass16 browser assertions/164 host cases/84 repo tests/check/provenance. The514-byte file exactly matches the cached source-pinned Rust parser/exporter. [Evidence and continuation](rapidraw-wasm-app-folder-export-handoff.md).
+
+Experimental B; original handler/processing/renderer/WASM unchanged, no product release/main/demo/private input change. Next A: alpha77 exact Actions/tag/draft/asset gate after success. Next B: original-App folder import roundtrip and visible child/native application through atomic library ACK. SAME MAIN only.
+
 # RWASM-03 — original App Delete Folder ACK (2026-10-26)
 
 Original Delete Folder removes one existing empty top-level folder after durable commit/readback. Escape/no IO, nonempty-child preservation, held ACK/duplicate gesture, newer editor selection, actual abort/stale peer/uncertain reload/no replay pass 20 browser assertions/160 host cases/84 repo tests/check/provenance. [Evidence and continuation](rapidraw-wasm-app-folder-delete-handoff.md).

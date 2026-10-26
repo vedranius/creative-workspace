@@ -1257,5 +1257,27 @@
       "experiments/rapidraw-react-proof/app-folder-delete-main.tsx": "cc7e9ca1418a277761ae288b3fefc741852a1b64c390394e6e7f5d330eb81fcd"
     },
     "scope": "Experimental original Delete Folder: remove one existing empty top-level folder only after durable CAS/commit/exact readback; retain original folder and siblings on pending/failure/uncertainty, no replay, native editor preserved. Original destructive context menu and acknowledged expansion cleanup. No nonempty/nested folder deletion or full App/OS/provider acceptance."
+  },
+  "appFolderExport": {
+    "basePatch": {
+      "path": "patches/rapidraw/b39884b3/folder-delete-ack-v1.patch",
+      "sha256": "a366225baa9d43432beeff9fd198d79f785109a1a04d0eeb70a3d84fd652313b",
+      "patchedFiles": {
+        "src/hooks/usePresets.ts": "6208fa3112ffb37d0d3aa66c80a214f7f551be9f980a6a8d17e821306334bc2c",
+        "src/components/panel/right/PresetsPanel.tsx": "6efc1ae02b475fadfd476c25d8aaa91c4abd776d5c491044f9bdfefd541d9c19"
+      }
+    },
+    "sourceFiles": {
+      "src/hooks/usePresets.ts": "0b545710738a886df5a6946723e0e4e580027d98cc7a92f9bacd777bc7cf6258",
+      "src/components/panel/right/PresetsPanel.tsx": "f91a154e80a92c8692c625a9a43e1be06534024b78d79ce0052176d25ecf2949",
+      "src/components/modals/ConfigurePresetModal.tsx": "090545bc74c1c75342a958b503e26d64ad890024e14f3a722f2ceb176fdfdf8b",
+      "src-tauri/src/file_management.rs": "3f639e11c2f8a74baa31285b2aa9456516e5c71b6c8e4d78a42dbe61f5c4a219",
+      "src/components/modals/CreateFolderModal.tsx": "ff16869f30d45b6e0c96dc647314027a5828814ce0d62d0fc90840ecfd07a29a",
+      "src/components/modals/RenameFolderModal.tsx": "623d7854c69ade59dec72b4640e87cc6f053ccedbcc6e99510dfaa86c422636d"
+    },
+    "bootstrapFiles": {
+      "experiments/rapidraw-react-proof/app-folder-export-main.tsx": "edd6699fe45a272d76c5fe80c38533f767304eebff9c2629222516a62b3f70af"
+    },
+    "scope": "Experimental original Export Folder: one existing unambiguous bounded folder with Exposure Tool children, exact original selected IDs/names/order/values and native .rrpreset bytes; fresh backend identity around chooser/write, destination/retention/recovery and actual close/readback ACK. Library/editor unchanged. Original source handler reused. No general tools/OS/common-provider/full App acceptance."
   }
 }

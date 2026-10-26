@@ -1,0 +1,23 @@
+{
+  "creator": "Anonymous",
+  "presets": [
+    {
+      "folder": {
+        "id": "d092e795-21bb-4641-a450-223ef66873fe",
+        "name": "Nonempty Fixture",
+        "children": [
+          {
+            "id": "6c822f4c-4997-43c7-bc43-f74f1f76cb84",
+            "name": "Nested retained",
+            "adjustments": {
+              "exposure": 0.8
+            },
+            "includeMasks": false,
+            "includeCropTransform": false,
+            "presetType": "tool"
+          }
+        ]
+      }
+    }
+  ]
+}
