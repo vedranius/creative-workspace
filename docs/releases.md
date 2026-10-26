@@ -1,3 +1,9 @@
+# PAR-03 alpha.74 — immutable Actions draft assets verified (2026-10-26)
+
+Checks40240573341 and all25 Build/release40240573378 jobs passed for fbc4165. Immutable tag v0.2.0-alpha.74 and draft prerelease423729356 resolve to that source. All24 freshly downloaded assets/12 SHA256 pairs, three Node24 runtimes,12 engine binaries, startup/licenses/source manifests and eight UI manifests/167 files verify. DesignCraft source patch66c92f6b matches packaged provenance; independently measured Actions WASM is9cf26317. [Release evidence and limits](evidence/creative-workspace-alpha74-release.md) · [Endnote Options proof](evidence/designcraft-endnote-options.md).
+
+Evidence-only: alpha74 remains draft/prototype and DesignCraft planned. Full tools/providers/real OS/all13 acceptance remains open. No version/build/tag/release/asset/main-B merge/private input/live studio/demo change. Next B from530a766: explicit retained .rrpreset recovery-copy UI with fresh destination ACK; selected preset Export is complete. Next A: original registered Edit Endnote command/form/native target-text validation and canonical ACK. Alpha74/73/72/71/70/69 gates are complete; no repeat audits/builds. SAME MAIN/one writer; preserve FilmCraft/originals.
+
 # Alpha74 original Endnote Options candidate (2026-10-25)
 
 `0.2.0-alpha.74` connects original Quick Apply/generic Document Endnote Options form to owned native composition with pre-mutation merged-options/numbering/listing checks and matching canonical ACK. Pending/failed drafts, original listing/UndoRedo and retained Save Copy/reopen pass locally. [Evidence](evidence/designcraft-endnote-options.md). Keep draft/prerelease until this exact source passes Actions, immutable tag/draft and independently downloaded assets/checksums. Full tools/providers/real OS/all13 acceptance remains open; local binaries are QA only. Alpha73/72/71/70/69 immutable gates are complete.
