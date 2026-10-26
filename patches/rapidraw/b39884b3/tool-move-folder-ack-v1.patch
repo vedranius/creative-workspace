@@ -1,0 +1,115 @@
+--- a/src/hooks/usePresets.ts
++++ b/src/hooks/usePresets.ts
+@@ -485,7 +485,8 @@
+   );
+ 
+   const movePreset = useCallback(
+-    (presetId: string, targetFolderId: string | null, overId = null) => {
++    async (presetId: string, targetFolderId: string | null, overId = null) => {
++      if (isLoading || createPending.current) throw new Error('Preset library is busy');
+       let presetToMove: Preset | null = null;
+       let sourceFolderId = null;
+ 
+@@ -504,8 +505,8 @@
+         }
+       }
+ 
+-      if (!presetToMove) {
+-        return;
++      if (!presetToMove || sourceFolderId || presetToMove.presetType !== 'tool' || !targetFolderId || overId !== null || !presets.some((item: UserPreset) => item.folder?.id === targetFolderId && item.folder.children.length === 0)) {
++        throw new Error('Move one existing top-level Exposure Tool into an empty folder');
+       }
+ 
+       let updatedPresets = [...presets];
+@@ -553,10 +554,17 @@
+         }
+       }
+ 
+-      setPresets(updatedPresets);
+-      savePresetsToBackend(updatedPresets);
++      createPending.current = true;
++      setIsLoading(true);
++      try {
++        await invoke(Invokes.SavePresets, { presets: updatedPresets });
++        setPresets(updatedPresets);
++      } finally {
++        createPending.current = false;
++        setIsLoading(false);
++      }
+     },
+-    [presets, savePresetsToBackend],
++    [presets, isLoading],
+   );
+ 
+   const reorderItems = useCallback(
+--- a/src/components/panel/right/PresetsPanel.tsx
++++ b/src/components/panel/right/PresetsPanel.tsx
+@@ -980,52 +980,33 @@
+     setActiveItem(allItemsMap.get(event.active.id) ?? null);
+   };
+ 
+-  const handleDragEnd = (event: any) => {
++  const handleDragEnd = async (event: any) => {
+     const { active, over } = event;
+     setActiveItem(null);
+-
++    if (isLoading || deletePending.current || !over || active.id === over.id) return;
+     const activeId = active.id;
+     const activeParentId = itemParentMap.get(activeId);
+     const activeType = active.data.current?.type;
+-
+-    if (!over) {
+-      if (activeParentId !== null) {
+-        movePreset(activeId, null, null);
+-      }
+-      return;
+-    }
+-
+-    if (active.id === over.id) {
+-      return;
+-    }
+-
+     const overId = over.id;
+     const overParentId = itemParentMap.get(overId);
+     const overType = over.data.current?.type;
+-
+     const targetFolderId = overType === PresetListType.Folder ? overId : overParentId;
+-
+-    if (activeType === PresetListType.Preset && targetFolderId) {
+-      if (activeParentId !== targetFolderId) {
+-        movePreset(activeId, targetFolderId);
+-        setExpandedFolders((prev: Set<string>) => new Set(prev).add(targetFolderId));
+-        if (!folderPreviewsGenerated.has(targetFolderId)) {
+-          generateFolderPreviews(targetFolderId);
+-        }
+-      } else {
+-        reorderItems(activeId, overId);
+-      }
++    if (activeType !== PresetListType.Preset || activeParentId !== null || !targetFolderId || !presets.some((item: UserPreset) => item.folder?.id === targetFolderId && item.folder.children.length === 0)) {
++      setDeleteError('Move one existing top-level Exposure Tool into an empty folder');
+       return;
+     }
+-
+-    if (activeParentId !== null && !targetFolderId) {
+-      movePreset(activeId, null, overId);
+-      return;
+-    }
+-
+-    if (activeParentId === null && !targetFolderId) {
+-      reorderItems(activeId, overId);
+-      return;
++    deletePending.current = true;
++    setDeleteBusy(true);
++    setDeleteError('');
++    try {
++      await movePreset(activeId, targetFolderId);
++      setExpandedFolders((prev: Set<string>) => new Set(prev).add(targetFolderId));
++      if (!folderPreviewsGenerated.has(targetFolderId)) generateFolderPreviews(targetFolderId);
++    } catch (error) {
++      setDeleteError('Preset move not acknowledged: ' + String(error));
++    } finally {
++      deletePending.current = false;
++      setDeleteBusy(false);
+     }
+   };
+ 

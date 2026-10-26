@@ -1,3 +1,9 @@
+# RWASM-03 — original App Tool drag into empty folder ACK (2026-10-26)
+
+Original pointer drag now moves one existing top-level Tool into an existing empty folder only after durable commit/readback. Same ID/value/flags and other record order survive; position/expansion wait for ACK. Actual abort, stale peer, uncertain position/reload without replay and native moved-child pixels pass20 browser/194 serial host/84 repo/check. [Evidence and next step](rapidraw-wasm-app-tool-move-handoff.md).
+
+Experimental B; original removal/append algorithm/cache/WASM reused, no product release/main/demo/private input change. Next A: corrected alpha77 exact CI/immutable assets gate after success. Next B: original Tool child drag back to top level through durable ACK, retaining empty parent. SAME MAIN only.
+
 # RWASM-03 — original App Delete Preset child ACK (2026-10-26)
 
 Original Delete Preset now removes exactly one existing Tool child through a separate default-off capability and awaited commit/readback. Parent survives last-child removal; IDs/values/flags/siblings/order, old card on held/abort/stale/uncertain output, reload without replay and native sibling/editor proof pass21 browser/189 serial host/84 repo/check. [Evidence and next step](rapidraw-wasm-app-child-delete-handoff.md).
