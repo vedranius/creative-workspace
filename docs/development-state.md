@@ -1,3 +1,9 @@
+# RWASM-03 — original App Configure Preset child-name ACK (2026-10-26)
+
+The original Configure Preset modal now changes one existing Tool child's name through a separate default-off capability. Parent/child IDs, values, flags, order and siblings remain exact; card/modal publication waits for commit/readback. Retained drafts, pending exclusion, abort/stale/uncertain reload/no replay and native child reapplication pass 19 browser assertions, 174 serial host cases, 84 repo tests and check. [Evidence and continuation](rapidraw-wasm-app-child-configure-handoff.md).
+
+Experimental B; existing original hook/modal ACK patches and WASM reused, no product release/main/demo/private input change. Next A: alpha77 immutable Actions asset gate after success. Next B: original Duplicate Preset for one folder child through durable library ACK. SAME MAIN only.
+
 # RWASM-03 — original App Export All Presets ACK (2026-10-26)
 
 The original Export All Presets toolbar now admits one exact bounded acknowledged library through a separate default-off opt-in. Whole-library filename collisions refuse destination authority; selected Tool/folder boundaries remain. All 2,331 exported bytes match the cached original Rust serializer. Actual close/readback ACK, stale/newer output, retention/recovery/no replay and unchanged library/editor pass 16 browser assertions, 169 host cases, 84 repo tests and check. [Evidence and continuation](rapidraw-wasm-app-export-all-handoff.md).

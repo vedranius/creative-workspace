@@ -45,6 +45,18 @@ export function createPresetLibrary({backend=createPresetLibraryDatabase(),pickF
   if(!before||!after||before.presetType!=='tool'||after.presetType!=='tool'||JSON.stringify({...after,name:before.name})!==JSON.stringify(before))fail('Only the name may change; preset IDs, values and other fields must be preserved');
   return persist(presets);
  };
+ const childRenameCandidate=presets=>{
+  const prior=current.presets;if(presets.length!==prior.length)return false;
+  const changed=presets.flatMap((item,i)=>JSON.stringify(item)!==JSON.stringify(prior[i])?[i]:[]);
+  if(changed.length!==1)return false;
+  const i=changed[0],before=prior[i]?.folder,after=presets[i]?.folder;
+  if(!before||!after||before.children.length!==after.children.length||JSON.stringify({...after,children:before.children})!==JSON.stringify(before))return false;
+  const children=after.children.flatMap((p,j)=>JSON.stringify(p)!==JSON.stringify(before.children[j])?[j]:[]);
+  if(children.length!==1)return false;
+  const j=children[0],old=before.children[j],next=after.children[j];
+  return old.presetType==='tool'&&next.presetType==='tool'&&old.name!==next.name&&JSON.stringify({...next,name:old.name})===JSON.stringify(old);
+ };
+ const saveChildRenamed=async items=>{ready();const presets=boundedLibrary(items);if(!childRenameCandidate(presets))fail('Rename only one existing Exposure Tool child; preserve parent, IDs, values, flags, order and siblings');return persist(presets);};
  const saveDeleted=async items=>{
   ready();const presets=boundedLibrary(items),prior=current.presets;
   if(presets.length!==prior.length-1)fail('Remove exactly one existing Exposure Tool preset');
@@ -107,8 +119,10 @@ export function createPresetLibrary({backend=createPresetLibraryDatabase(),pickF
   saveFolderCreated,
   saveFolderRenamed,
   saveFolderDeleted,
-  async savePresets(items,{allowRename=false,allowDelete=false,allowDuplicate=false,allowOverwrite=false,allowCreateFolder=false,allowRenameFolder=false,allowDeleteFolder=false}={}){
+  saveChildRenamed,
+  async savePresets(items,{allowRename=false,allowDelete=false,allowDuplicate=false,allowOverwrite=false,allowCreateFolder=false,allowRenameFolder=false,allowDeleteFolder=false,allowRenameChild=false}={}){
    ready();const presets=boundedLibrary(items);
+   if(allowRenameChild&&childRenameCandidate(presets))return saveChildRenamed(presets);
    if(allowDeleteFolder&&folderDeleteCandidate(presets))return saveFolderDeleted(presets);
    if(allowRenameFolder&&folderRenameCandidate(presets))return saveFolderRenamed(presets);
    if(allowCreateFolder&&folderCandidate(presets))return saveFolderCreated(presets);
