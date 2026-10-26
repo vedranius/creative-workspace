@@ -1079,5 +1079,34 @@
       "experiments/rapidraw-react-proof/DiscardPresetRecoveryPanel.tsx": "3371794813e4c754ffaf596027c9ba15e5bbe2592946cbcc75414760a5bfa433"
     },
     "scope": "Experimental actual original App: explicitly confirmed removal of one freshly verified canonical coordinated Exposure Tool preset recovery record under the origin journal lock, with absence ACK. Legacy copies remain copyable. No library/RAW/saved-file mutation, full App/OS/provider acceptance or release."
+  },
+  "appPresetDelete": {
+    "basePatch": {
+      "path": "patches/rapidraw/b39884b3/preset-configure-ack-v1.patch",
+      "sha256": "eb8d7ca24afe08d4d24ee0c84af351e69e50a69a074d02965e80704eb1b40276",
+      "patchedFiles": {
+        "src/hooks/usePresets.ts": "e1e52bd5fd9f489da5869f719792f9ca0039ad163847f52893f3e56a31d6e4c4",
+        "src/components/panel/right/PresetsPanel.tsx": "d13bb182a95ceca872ab357285324921c5924ab48e6e50ff309bb30c70b904de",
+        "src/components/modals/ConfigurePresetModal.tsx": "d04e5f0f1f5de5bae57af0739231f8b00204b3e47214f3ed743399c32c30b80d"
+      }
+    },
+    "sourcePatch": {
+      "path": "patches/rapidraw/b39884b3/preset-delete-ack-v1.patch",
+      "sha256": "315a4901322a3698234eb8de869252bad91055a08eaf8c98acfe5c0342ebba8d",
+      "patchedFiles": {
+        "src/hooks/usePresets.ts": "ca0c9a23440eff80ce9182c0ba759a42d076024e7e5b7504ad2b3662060b8886",
+        "src/components/panel/right/PresetsPanel.tsx": "8a9ebf2ed31ef08123829bed5957f5e56eda208d1331a0654e274fedbedaf67c"
+      }
+    },
+    "sourceFiles": {
+      "src/hooks/usePresets.ts": "0b545710738a886df5a6946723e0e4e580027d98cc7a92f9bacd777bc7cf6258",
+      "src/components/panel/right/PresetsPanel.tsx": "f91a154e80a92c8692c625a9a43e1be06534024b78d79ce0052176d25ecf2949",
+      "src/components/modals/ConfigurePresetModal.tsx": "090545bc74c1c75342a958b503e26d64ad890024e14f3a722f2ceb176fdfdf8b",
+      "src-tauri/src/file_management.rs": "3f639e11c2f8a74baa31285b2aa9456516e5c71b6c8e4d78a42dbe61f5c4a219"
+    },
+    "bootstrapFiles": {
+      "experiments/rapidraw-react-proof/app-preset-delete-main.tsx": "9e4e1101bf8fe1165b02b3d35914b2853275a1b3ac2bfd5c953830f888d84ffe"
+    },
+    "scope": "Experimental actual original App Delete Preset: one existing top-level Exposure Tool removed only after durable library CAS/commit/readback ACK; pending/failed/stale mutations keep card and newer editor state. No folder/general preset editing/full App/OS/provider acceptance."
   }
 }

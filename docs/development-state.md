@@ -1,3 +1,9 @@
+# RWASM-03 — original App Delete Preset ACK (2026-10-26)
+
+Original PresetsPanel Delete Preset now removes one top-level Exposure Tool only after durable library commit/readback. Held ACK, duplicate gestures, actual transaction abort, stale peer, uncertain reload and newer editor selection pass17 browser assertions/137 host cases/check/source pins. [Evidence and continuation](rapidraw-wasm-app-preset-delete-handoff.md).
+
+Experimental B; original processing/renderer/WASM unchanged, no product release/main/demo/private input change. Next A: alpha75 exact Build40264729285/tag/draft/24 Actions assets gate, then original endnote.delete. If waiting, next B: original Duplicate Preset durable ACK with fresh ID and unchanged siblings. SAME MAIN only.
+
 # RWASM-03 — actual App confirmed preset recovery removal (2026-10-26)
 
 A separate opt-in original-App composition now removes one verified canonical Exposure Tool recovery record only after explicit checkbox confirmation, fresh locked identity/byte/format checks and actual absence ACK. Cross-tab writes, changed records, failed removal and late I/O refuse false success; legacy copies, saved output and library remain preserved.21 actual-browser assertions/132 host cases/check/source pins pass. [Evidence and continuation](rapidraw-wasm-app-preset-recovery-discard-handoff.md).

@@ -45,6 +45,13 @@ export function createPresetLibrary({backend=createPresetLibraryDatabase(),pickF
   if(!before||!after||before.presetType!=='tool'||after.presetType!=='tool'||JSON.stringify({...after,name:before.name})!==JSON.stringify(before))fail('Only the name may change; preset IDs, values and other fields must be preserved');
   return persist(presets);
  };
+ const saveDeleted=async items=>{
+  ready();const presets=boundedLibrary(items),prior=current.presets;
+  if(presets.length!==prior.length-1)fail('Remove exactly one existing Exposure Tool preset');
+  const removed=prior.filter(item=>!presets.some(next=>(next.preset??next.folder).id===(item.preset??item.folder).id));
+  if(removed.length!==1||removed[0].preset?.presetType!=='tool'||JSON.stringify(prior.filter(item=>item!==removed[0]))!==JSON.stringify(presets))fail('Only one existing Exposure Tool preset can be deleted; preserve every other item');
+  return persist(presets);
+ };
  return {
   async load(){if(closed||busy)fail('Preset library busy or closed');uncertain=true;current=record(await io(()=>backend.read()));check();uncertain=false;return structuredClone(current.presets);},
   async choose(){
@@ -58,8 +65,9 @@ export function createPresetLibrary({backend=createPresetLibraryDatabase(),pickF
    return selected.map(l=>{const token='browser-preset-input:'+crypto.randomUUID();leases.set(token,l);return token;});
   },
   saveCreated,
-  async savePresets(items,{allowRename=false}={}){
+  async savePresets(items,{allowRename=false,allowDelete=false}={}){
    ready();const presets=boundedLibrary(items);
+   if(allowDelete&&presets.length===current.presets.length-1)return saveDeleted(presets);
    return allowRename&&presets.length===current.presets.length?saveRenamed(presets):saveCreated(presets);
   },
   async importFiles(tokens){

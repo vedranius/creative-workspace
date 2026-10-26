@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {createPresetLibrary,mergePresetItems} from './preset-library.js';
+import {createPresetLibrary,mergePresetItems,boundedLibrary} from './preset-library.js';
 const items=[{preset:{id:'original',name:'Exposure',adjustments:{exposure:0.8}}},{folder:{id:'folder',name:'Folder',children:[{id:'child',name:'Child',adjustments:{exposure:-0.5}}]}}];
 const ids=list=>list.flatMap(i=>i.preset?[i.preset.id]:[i.folder.id,...i.folder.children.map(p=>p.id)]);
 const gate=()=>{let resolve;return {promise:new Promise(r=>resolve=r),release:()=>resolve()};};
@@ -76,4 +76,25 @@ test('stale configure rename preserves newer peer names and requires reload',asy
 });
 test('successful rename invalidates earlier import choices without replay or extra commits',async()=>{
  const f=fixture();await f.host.load();await f.host.saveCreated([created()]);const before=await f.host.load(),tokens=await f.host.choose(),next=structuredClone(before);next[0].preset.name='Renamed';await f.host.savePresets(next,{allowRename:true});await assert.rejects(f.host.importFiles(tokens),/expired|changed/);assert.equal(f.state.commits,2);assert.equal(f.host.status().revision,2);
+});
+
+test('delete is opt-in and waits for exact library readback before publishing revision',async()=>{
+ const f=fixture();await f.host.load();await f.host.saveCreated([created('First')]);const first=await f.host.load();await f.host.saveCreated([...first,created('Second')]);const before=await f.host.load(),next=before.slice(1);await assert.rejects(f.host.savePresets(next,{allowRename:true}),/Only one new/);
+ f.state.readGate=gate();let resolved=false;const job=f.host.savePresets(next,{allowDelete:true}).then(v=>{resolved=true;return v;});await until(()=>f.state.reading);assert.equal(resolved,false);assert.equal(f.host.status().revision,2);assert.equal(f.state.record.revision,3);assert.deepEqual(f.state.record.presets,next);await assert.rejects(f.host.savePresets(next,{allowDelete:true}),/Reload/);f.state.readGate.release();assert.equal(await job,null);assert.equal(f.host.status().revision,3);assert.deepEqual(await f.host.load(),next);
+});
+test('delete refuses multiple/folder/nested targets and edited/reordered siblings before IO',async()=>{
+ const f=fixture();f.state.record={schema:1,revision:1,presets:boundedLibrary([created('First'),created('Second'),created('Third'),{folder:{id:'folder',name:'Folder',children:[{id:'nested',name:'Nested',presetType:'tool',adjustments:{exposure:0.8}}]}}])};const before=await f.host.load();
+ const changed=structuredClone(before.slice(1));changed[0].preset.name='Changed';const nested=structuredClone(before);nested[3].folder.children=[];
+ for(const value of [before,[],before.slice(0,3),[before[2],before[1],before[3]],changed,nested])await assert.rejects(f.host.savePresets(value,{allowDelete:true}));assert.equal(f.state.commits,0);assert.equal(f.host.status().uncertain,false);assert.deepEqual(await f.host.load(),before);
+});
+test('delete abort and stale CAS preserve durable content and prohibit automatic replay',async()=>{
+ for(const fault of ['abort','stale']){const f=fixture();await f.host.load();await f.host.saveCreated([created()]);const before=await f.host.load();if(fault==='abort')f.state.aborted=true;else f.state.record={...f.state.record,revision:2,presets:[...before,created('Peer')]};const durable=structuredClone(f.state.record);
+ await assert.rejects(f.host.savePresets([],{allowDelete:true}),fault==='abort'?/abort/:/another tab/);assert.deepEqual(f.state.record,durable);assert.equal(f.host.status().revision,1);assert.equal(f.host.status().uncertain,true);await assert.rejects(f.host.savePresets([],{allowDelete:true}),/Reload/);assert.equal(f.state.commits,1);f.state.aborted=false;await f.host.load();assert.deepEqual(f.state.record,durable);}
+});
+test('uncertain deletion reconciles absence only through explicit reload, with no second commit',async()=>{
+ const f=fixture();await f.host.load();await f.host.saveCreated([created()]);const before=structuredClone(f.state.record),read=f.backend.read;f.backend.read=async()=>before;
+ await assert.rejects(f.host.savePresets([],{allowDelete:true}),/readback/);assert.equal(f.state.record.revision,2);assert.deepEqual(f.state.record.presets,[]);assert.equal(f.host.status().revision,1);assert.equal(f.host.status().uncertain,true);await assert.rejects(f.host.savePresets([],{allowDelete:true}),/Reload/);f.backend.read=read;assert.deepEqual(await f.host.load(),[]);assert.equal(f.host.status().revision,2);assert.equal(f.state.commits,2);
+});
+test('timed-out deletion retains pending IO and blocks mutations until explicit reconciliation',async()=>{
+ const f=fixture({timeoutMs:50});await f.host.load();await f.host.saveCreated([created()]);f.state.readGate=gate();const job=f.host.savePresets([],{allowDelete:true});await until(()=>f.state.reading);await assert.rejects(job,/timed out/);assert.equal(f.host.status().pendingIO,true);assert.equal(f.host.status().revision,1);await assert.rejects(f.host.savePresets([],{allowDelete:true}),/Reload/);f.state.readGate.release();await until(()=>!f.host.status().pendingIO);assert.deepEqual(await f.host.load(),[]);assert.equal(f.host.status().revision,2);assert.equal(f.state.commits,2);
 });

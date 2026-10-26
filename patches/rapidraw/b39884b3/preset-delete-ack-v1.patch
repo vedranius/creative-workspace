@@ -1,0 +1,114 @@
+diff --git a/src/hooks/usePresets.ts b/src/hooks/usePresets.ts
+--- a/src/hooks/usePresets.ts
++++ b/src/hooks/usePresets.ts
+@@ -157,21 +157,20 @@
+     });
+   };
+ 
+-  const deleteItem = (id: string) => {
+-    let updatedPresets = presets.filter((item: UserPreset) => item.preset?.id !== id && item.folder?.id !== id);
+-    updatedPresets = updatedPresets.map((item: UserPreset) => {
+-      if (item.folder) {
+-        return {
+-          folder: {
+-            ...item.folder,
+-            children: item.folder.children.filter((child: any) => child.id !== id),
+-          },
+-        };
+-      }
+-      return item;
+-    });
+-    setPresets(updatedPresets);
+-    savePresetsToBackend(updatedPresets);
++  const deleteItem = async (id: string) => {
++    if (isLoading || createPending.current) throw new Error('Preset library is busy');
++    const target = presets.find((item: UserPreset) => item.preset?.id === id)?.preset;
++    if (!target || target.presetType !== 'tool') throw new Error('Only one existing Exposure Tool preset can be deleted');
++    const updatedPresets = presets.filter((item: UserPreset) => item.preset?.id !== id);
++    createPending.current = true;
++    setIsLoading(true);
++    try {
++      await invoke(Invokes.SavePresets, { presets: updatedPresets });
++      setPresets(updatedPresets);
++    } finally {
++      createPending.current = false;
++      setIsLoading(false);
++    }
+   };
+ 
+   const renameItem = (id: string | null, newName: string) => {
+diff --git a/src/components/panel/right/PresetsPanel.tsx b/src/components/panel/right/PresetsPanel.tsx
+--- a/src/components/panel/right/PresetsPanel.tsx
++++ b/src/components/panel/right/PresetsPanel.tsx
+@@ -578,7 +578,10 @@
+   const [expandedFolders, setExpandedFolders] = useState(new Set<string>());
+   const [activeItem, setActiveItem] = useState<any>(null);
+   const [folderPreviewsGenerated, setFolderPreviewsGenerated] = useState<Set<string>>(new Set());
+-  const [deletingItemId, setDeletingItemId] = useState<string | null>(null);
++  const deletingItemId = null;
++  const deletePending = useRef(false);
++  const [deleteBusy, setDeleteBusy] = useState(false);
++  const [deleteError, setDeleteError] = useState('');
+ 
+   const [activePresetId, setActivePresetId] = useState<string | null>(null);
+   const [presetIntensity, setPresetIntensity] = useState<number>(100);
+@@ -955,27 +958,20 @@
+     setRenameFolderState({ isOpen: false, folder: null });
+   };
+ 
+-  const handleDeleteItem = (id: string | null, isFolder = false) => {
+-    setDeletingItemId(id);
+-    if (!id) {
+-      return;
+-    }
+-
+-    setTimeout(() => {
+-      deleteItem(id);
+-      if (isFolder) {
+-        setExpandedFolders((prev: Set<string>) => {
+-          const newSet = new Set(prev);
+-          newSet.delete(id);
+-          return newSet;
+-        });
+-        setFolderPreviewsGenerated((prev: Set<string>) => {
+-          const newSet = new Set(prev);
+-          newSet.delete(id);
+-          return newSet;
+-        });
+-      }
+-    }, 300);
++  const handleDeleteItem = async (id: string | null, isFolder = false) => {
++    if (!id || isLoading || deletePending.current) return;
++    deletePending.current = true;
++    setDeleteBusy(true);
++    setDeleteError('');
++    try {
++      if (isFolder) throw new Error('Folder deletion is unavailable');
++      await deleteItem(id);
++    } catch (error) {
++      setDeleteError(error instanceof Error ? error.message : String(error));
++    } finally {
++      deletePending.current = false;
++      setDeleteBusy(false);
++    }
+   };
+ 
+   const handleDragStart = (event: any) => {
+@@ -1212,7 +1208,7 @@
+ 
+   return (
+     <DndContext id="presets-panel-dnd" sensors={sensors} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
+-      <div className="flex flex-col h-full">
++      <div className="flex flex-col h-full" role="region" aria-label="Original Presets panel" aria-busy={deleteBusy}>
+         <div className="p-3 flex justify-between items-center shrink-0 border-b border-surface">
+           <Text variant={TextVariants.title}>{t('editor.presets.title')}</Text>
+           <div className="flex items-center gap-1">
+@@ -1250,6 +1246,8 @@
+           </div>
+         </div>
+ 
++        {deleteBusy && <Text role="status">Waiting for preset library acknowledgement…</Text>}
++        {deleteError && <Text role="alert">{deleteError}</Text>}
+         <RootDroppableArea onContextMenu={handleBackgroundContextMenu}>
+           {!selectedImage ? (
+             <div className="flex items-center justify-center h-full">
