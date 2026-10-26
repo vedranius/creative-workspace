@@ -13,6 +13,7 @@
     "darwin-arm64"
   ],
   "limitations": [
+    "Alpha.75 connects original registered Edit Endnote through Quick Apply/generic story-id-text form with bounded native target/listing/candidate validation and matching canonical ACK. Held/failed drafts, UndoRedo and retained SaveCopy/reopen are locally tested; exact-source Actions/tag/draft/downloaded-assets gate remains required. Full tools/providers/real OS/all13 acceptance stays open.",
     "Alpha.74 connects original Document Endnote Options through original Quick Apply/generic command form, bounded merged-native preflight and matching canonical ACK. Pending/failure retain draft; native listing/UndoRedo/retained SaveCopy/reopen are QA evidence only until exact-source Actions/tag/draft/downloaded assets pass. Full tools/providers/real OS/all13 acceptance remains open.",
     "Alpha.73 connects original Type > Insert Endnote with bounded original native candidate/page/text/ID checks, canonical ACK, body typing FIFO and original Undo/Redo/Save Copy/reopen. Full tools/providers/real OS/all13 acceptance remains open; draft prototype and only independently verified Actions-built assets.",
     "Alpha.72 adds original Go to Footnote Reference with bounded empty parameters, original body-caret page composition, canonical ACK and pending body typing. Full original tools/providers/real OS/all13 acceptance remains incomplete; prototype draft and only independently verified Actions assets.",

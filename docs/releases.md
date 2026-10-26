@@ -1,3 +1,9 @@
+# PAR-03 alpha.75 — original Edit Endnote candidate (2026-10-26)
+
+`0.2.0-alpha.75` connects original registered Edit Endnote through original Quick Apply and its generic story/id/text form to the owned native document. Existing target, UTF-8 text, regenerated listing and exact COW candidate are validated before mutation. Pending/failure keep the draft until matching canonical ACK. [Native/browser evidence](evidence/designcraft-endnote-edit.md).
+
+Keep draft/prerelease until exact-source Actions, immutable new tag/draft and independently downloaded assets/checksums pass. Local worker/WASM are QA artifacts only; install only verified Actions assets in a fresh root. Full tools/providers/real OS/all13 acceptance remains open. Alpha74/73/72/71/70/69 gates are complete and immutable.
+
 # PAR-03 alpha.74 — immutable Actions draft assets verified (2026-10-26)
 
 Checks40240573341 and all25 Build/release40240573378 jobs passed for fbc4165. Immutable tag v0.2.0-alpha.74 and draft prerelease423729356 resolve to that source. All24 freshly downloaded assets/12 SHA256 pairs, three Node24 runtimes,12 engine binaries, startup/licenses/source manifests and eight UI manifests/167 files verify. DesignCraft source patch66c92f6b matches packaged provenance; independently measured Actions WASM is9cf26317. [Release evidence and limits](evidence/creative-workspace-alpha74-release.md) · [Endnote Options proof](evidence/designcraft-endnote-options.md).

@@ -1,3 +1,9 @@
+## [0.2.0-alpha.75] - 2026-10-26
+
+- Connect original registered Edit Endnote and its existing Quick Apply/generic story/id/text form to the owned native worker. Retain pending and failed drafts until matching canonical ACK.
+- Resolve the existing note and bound UTF-8 text, listing, document and exact original candidate before mutation/history. Preserve native body reference, selection, pages, Undo/Redo and retained Save Copy/fresh reopen.
+- Prototype draft candidate. Exact-source Actions, immutable tag/draft and independently downloaded assets/checksums are still required; local QA binaries are not release assets. Full tools/providers/real OS/all13 acceptance remains open.
+
 ## [0.2.0-alpha.74] - 2026-10-25
 
 - Connect original Document Endnote Options through original Quick Apply and its generic command form to the owned native document, retaining pending/failed drafts until matching canonical ACK.

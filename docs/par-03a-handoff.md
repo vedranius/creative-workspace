@@ -1,3 +1,11 @@
+# PAR-03 alpha.75 — original Edit Endnote locally verified (2026-10-26)
+
+Original registered `endnote.edit` is exposed in the original hosted Quick Apply search and uses its generic story/id/text form with bounded pre-mutation native target/listing/COW validation and matching canonical ACK. Failed/held drafts, edited native listing, preserved body reference/page/selection, UndoRedo and retained Save Copy/fresh reopen pass. [Evidence and original UI screenshots](evidence/designcraft-endnote-edit.md).
+
+20 native /172 UI+1 existing ignored /39 gateway /97 repo tests, check/release/YAML and actual original Cancel/422/held ACK/exact payload/UndoRedo/native PNG/save/reopen pass. Alpha75 requires its own exact-source Actions/tag/draft/downloaded asset gate. Alpha74/73/72/71/70/69 gates are complete. Full tools/providers/real OS/all13 acceptance stays open; DesignCraft remains planned and local binaries are QA only.
+
+Next B in SAME MAIN from85721c6: explicit confirmed removal of one freshly verified coordinated preset recovery record, lock held through late I/O and real absence ACK; preserve newer bytes, library/RAW/other records and refuse legacy uncoordinated removal. Actual-root preset recovery copy is complete. Next A: exact alpha75 Actions/tag/draft/24asset12sidecar gate, then original registered `endnote.delete` target/reference/listing/history contract. Reuse existing source/caches/artifacts; no new chat/writer/main-B merge/private photo/protected service/demo changes. Preserve FilmCraft/originals/target.
+
 # PAR-03 alpha.74 — immutable Actions draft assets verified (2026-10-26)
 
 Checks40240573341 and all25 Build/release40240573378 jobs passed for fbc4165. Immutable tag v0.2.0-alpha.74 and draft prerelease423729356 resolve to that source. All24 freshly downloaded assets/12 SHA256 pairs, three Node24 runtimes,12 engine binaries, startup/licenses/source manifests and eight UI manifests/167 files verify. DesignCraft source patch66c92f6b matches packaged provenance; independently measured Actions WASM is9cf26317. [Release evidence and limits](evidence/creative-workspace-alpha74-release.md) · [Endnote Options proof](evidence/designcraft-endnote-options.md).

@@ -494,3 +494,12 @@ test('Original Endnote Options validates its partial native DTO and waits for AC
  const ack=await pending;assert.equal(ack.stateVersion,2);assert.equal(ack.result.commandId,'endnote.options');assert.deepEqual(worker.commandParams,[params]);
  await assert.rejects(call(session.id,'endnote.options',params,{expectedVersion:1}),e=>e.code==='STATE_VERSION_CONFLICT');await design.close(session.id,{discard:true});
 });
+
+test('Original endnote.edit validates target and UTF8 text before forwarding and awaits exact worker ACK',async t=>{
+ const {project,design,engines,call}=await fixture(t),session=await design.create(project);await call(session.id,'file.new',{preset:'A4'});
+ const worker=engines.find(e=>!e.closed),base=worker.call.bind(worker);
+ for(const p of [{},{story:1},{story:0,id:1},{story:1,id:-1},{story:4294967296,id:1},{story:1,id:4294967296},{story:1,id:1,text:false},{story:1,id:1,text:'é'.repeat(2049)},{story:1,id:1,path:'/private'}])await assert.rejects(call(session.id,'endnote.edit',p,{expectedVersion:1}),/Invalid bounded/);
+ assert.deepEqual(worker.commands,[]);
+ worker.call=async(m,p)=>{if(m==='command'&&p.command==='endnote.edit')throw Error('unknown native target');return base(m,p);};await assert.rejects(call(session.id,'endnote.edit',{story:1,id:2,text:'Revised č source'},{expectedVersion:1}),/unknown native target/);assert.equal((await call(session.id,'state')).stateVersion,1);
+ let release,entered;const held=new Promise(r=>release=r),started=new Promise(r=>entered=r);worker.call=async(m,p)=>{if(m==='command'&&p.command==='endnote.edit'){entered();await held;}return base(m,p);};const params={story:1,id:2,text:'Revised č source'},pending=call(session.id,'endnote.edit',params,{expectedVersion:1});await started;assert.deepEqual(worker.commands,[]);release();const ack=await pending;assert.equal(ack.stateVersion,2);assert.equal(ack.result.commandId,'endnote.edit');assert.deepEqual(worker.commandParams,[params]);assert.equal(ack.document.dirty,true);await assert.rejects(call(session.id,'endnote.edit',params,{expectedVersion:1}),e=>e.code==='STATE_VERSION_CONFLICT');await design.close(session.id,{discard:true});
+});

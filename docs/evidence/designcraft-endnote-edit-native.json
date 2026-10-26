@@ -1,0 +1,24 @@
+{
+  "bodyReferencePageSelectionPreserved": true,
+  "frame": {
+    "id": 10,
+    "story": 11
+  },
+  "listingStory": 17,
+  "missingTextClearsOriginal": true,
+  "onlyTargetAndListingChange": true,
+  "params": {
+    "id": 1,
+    "story": 11,
+    "text": "Revised č source"
+  },
+  "rejectedBeforeMutation": 14,
+  "result": null,
+  "saveReopenCanonicalExact": true,
+  "sourceCommand": "endnote.edit",
+  "target": {
+    "id": 1,
+    "story": 11
+  },
+  "undoRedoCanonicalExact": true
+}

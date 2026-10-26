@@ -1,0 +1,48 @@
+{
+  "status": "original-Quick-Apply-Edit-Endnote-ack-failure-cancel-undo-save-reopen-passed",
+  "workerSha256": "3b691638fbe71a667b3989439dc577b2fa539f8a91e9e1fd3ea517898c5dce17",
+  "uiWasm": {
+    "path": "designcraft-web-648dd6cb2d338b23_bg.wasm",
+    "size": 40350712,
+    "sha256": "cdff8137dcc253a880f93d133596c4cf46b2f3dcf065a8e195d037eb0316b8af"
+  },
+  "sourcePin": "a127c6d5c3576972bbd60445f26d893db071eef3",
+  "sourcePatchSha256": "19f8c75d3c3245a826794c2a9145ffa2a11b77719193848d55490f426cec04d3",
+  "fixture": {
+    "generatedNative": true,
+    "sha256": "f27686e8a0ba2d6cbe644273d4f6e816d10a9e822e47ac8d60cc411f68c2eb56"
+  },
+  "originalQuickApply": {
+    "optionsItem": {
+      "source": "original Quick Apply",
+      "command": "endnote.edit"
+    },
+    "commandId": "endnote.edit",
+    "params": {
+      "id": 1,
+      "story": 11,
+      "text": "Revised č source"
+    }
+  },
+  "cancelNoSubmit": true,
+  "rejectedDraftPreserved": true,
+  "heldEditAck": {
+    "priorRevision": 3,
+    "acceptedRevision": 4,
+    "dialogRetained": true,
+    "duplicateEnterEscapeAndTypingBlocked": true
+  },
+  "bodyReferencePageSelectionPreservedOnlyTargetAndListingChange": true,
+  "nativeEditedNotePixelsChanged": {
+    "before": "57d4dd6072cd7d130048d528138d09e370e74d925ac3a1b163eb63a483563926",
+    "after": "abc1647b2247cb5564d11a996b689e89bcb5b3139116d85b81f6cc6322b00e54"
+  },
+  "canonicalAndPngUndoRedoExact": true,
+  "nativeSaveFreshReopenCanonicalAndPngExact": true,
+  "originalInputUnchanged": true,
+  "expectedPreMutationRejections": 1,
+  "errors": [],
+  "failedResponses": [],
+  "requestFailures": [],
+  "permission": "Synthetic browser folder plus owned on-demand helper; actual original Open/Quick Apply/Edit Endnote fields/Cancel/OK and Undo/Redo. Save a Copy/fresh reopen through real owned gateway/native worker. Real OS permission and full provider/tools parity remain unaccepted."
+}
