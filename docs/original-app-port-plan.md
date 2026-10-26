@@ -1,3 +1,9 @@
+# PAR-03 alpha.75 — immutable Actions draft assets verified (2026-10-26)
+
+Checks40264729282 and all25 Build/release40264729285 jobs passed for947aa443. Immutable tag v0.2.0-alpha.75 and draft prerelease423874195 resolve to that source. All24 fresh downloads/12 SHA256 pairs, three Node24 runtimes,12 engine binaries, startup/licenses/source manifests and eight UI manifests/167 files verify. DesignCraft patch19f8c75d matches packaged provenance; independently measured Actions WASM is2ccdbf15. [Release evidence and limits](evidence/creative-workspace-alpha75-release.md) · [Edit Endnote proof](evidence/designcraft-endnote-edit.md).
+
+Evidence-only: alpha75 remains draft/prototype and DesignCraft planned. Full tools/providers/real OS/all13 acceptance stays open. No version/build/tag/release/asset/main-B merge/private input/live studio/demo change. Next B from619f77b in SAME MAIN: original Duplicate Preset durable library ACK; Delete Preset and confirmed preset recovery removal are complete. Next A: original registered endnote.delete bounded target/reference/listing/history/ACK. No repeat alpha74/73 gates or completed previews; preserve FilmCraft/originals.
+
 # PAR-03 alpha.75 — original Edit Endnote locally verified (2026-10-26)
 
 Original registered `endnote.edit` is exposed in the original hosted Quick Apply search and uses its generic story/id/text form with bounded pre-mutation native target/listing/COW validation and matching canonical ACK. Failed/held drafts, edited native listing, preserved body reference/page/selection, UndoRedo and retained Save Copy/fresh reopen pass. [Evidence and original UI screenshots](evidence/designcraft-endnote-edit.md).
