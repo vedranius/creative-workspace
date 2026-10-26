@@ -1,0 +1,25 @@
+--- a/src/hooks/usePresets.ts
++++ b/src/hooks/usePresets.ts
+@@ -154,8 +154,20 @@
+   const deleteItem = async (id: string) => {
+     if (isLoading || createPending.current) throw new Error('Preset library is busy');
+     const target = presets.find((item: UserPreset) => (item.preset ?? item.folder)?.id === id);
+-    if (!target || (target.preset?.presetType !== 'tool' && (!target.folder || target.folder.children.length !== 0))) throw new Error('Delete one existing Exposure Tool or empty top-level folder');
+-    const updatedPresets = presets.filter((item: UserPreset) => (item.preset ?? item.folder)?.id !== id);
++    const child = presets.flatMap((item: UserPreset) => item.folder?.children ?? []).find((p: Preset) => p.id === id);
++    if ((!target || (target.preset?.presetType !== 'tool' && (!target.folder || target.folder.children.length !== 0))) && child?.presetType !== 'tool') throw new Error('Delete one existing Exposure Tool child/top-level preset or empty folder');
++    let updatedPresets = presets.filter((item: UserPreset) => item.preset?.id !== id && item.folder?.id !== id);
++    updatedPresets = updatedPresets.map((item: UserPreset) => {
++      if (item.folder) {
++        return {
++          folder: {
++            ...item.folder,
++            children: item.folder.children.filter((child: any) => child.id !== id),
++          },
++        };
++      }
++      return item;
++    });
+     createPending.current = true;
+     setIsLoading(true);
+     try {

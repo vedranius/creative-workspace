@@ -54,6 +54,7 @@ on:
       - 'scripts/smoke-rapidraw-app-child-configure.mjs'
       - 'scripts/smoke-rapidraw-app-child-duplicate.mjs'
       - 'scripts/smoke-rapidraw-app-child-overwrite.mjs'
+      - 'scripts/smoke-rapidraw-app-child-delete.mjs'
       - 'scripts/verify-rapidraw-copy-paste-native.mjs'
       - 'scripts/verify-rapidraw-preset-create-native.mjs'
       - 'scripts/verify-rapidraw-preset-preview-native.mjs'
@@ -127,6 +128,7 @@ on:
       - 'scripts/smoke-rapidraw-app-child-configure.mjs'
       - 'scripts/smoke-rapidraw-app-child-duplicate.mjs'
       - 'scripts/smoke-rapidraw-app-child-overwrite.mjs'
+      - 'scripts/smoke-rapidraw-app-child-delete.mjs'
       - 'scripts/verify-rapidraw-copy-paste-native.mjs'
       - 'scripts/verify-rapidraw-preset-create-native.mjs'
       - 'scripts/verify-rapidraw-preset-preview-native.mjs'
@@ -188,7 +190,7 @@ jobs:
           node --check scripts/smoke-rapidraw-app-preset-delete.mjs
           node --check scripts/smoke-rapidraw-app-preset-duplicate.mjs
           node --check scripts/smoke-rapidraw-app-preset-overwrite.mjs
-          node --check scripts/smoke-rapidraw-app-preset-folder.mjs && node --check scripts/smoke-rapidraw-app-folder-rename.mjs && node --check scripts/smoke-rapidraw-app-folder-delete.mjs && node --check scripts/smoke-rapidraw-app-folder-export.mjs && node --check scripts/smoke-rapidraw-app-folder-import.mjs && node --check scripts/smoke-rapidraw-app-export-all.mjs && node --check scripts/smoke-rapidraw-app-child-configure.mjs && node --check scripts/smoke-rapidraw-app-child-duplicate.mjs && node --check scripts/smoke-rapidraw-app-child-overwrite.mjs
+          node --check scripts/smoke-rapidraw-app-preset-folder.mjs && node --check scripts/smoke-rapidraw-app-folder-rename.mjs && node --check scripts/smoke-rapidraw-app-folder-delete.mjs && node --check scripts/smoke-rapidraw-app-folder-export.mjs && node --check scripts/smoke-rapidraw-app-folder-import.mjs && node --check scripts/smoke-rapidraw-app-export-all.mjs && node --check scripts/smoke-rapidraw-app-child-configure.mjs && node --check scripts/smoke-rapidraw-app-child-duplicate.mjs && node --check scripts/smoke-rapidraw-app-child-overwrite.mjs && node --check scripts/smoke-rapidraw-app-child-delete.mjs
           node --check scripts/smoke-rapidraw-copy-paste-settings.mjs
           node --check scripts/smoke-rapidraw-metadata-copy-paste.mjs
           node --check scripts/verify-rapidraw-copy-paste-native.mjs

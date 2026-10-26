@@ -1,3 +1,9 @@
+# RWASM-03 — original App Delete Preset child ACK (2026-10-26)
+
+Original Delete Preset now removes exactly one existing Tool child through a separate default-off capability and awaited commit/readback. Parent survives last-child removal; IDs/values/flags/siblings/order, old card on held/abort/stale/uncertain output, reload without replay and native sibling/editor proof pass21 browser/189 serial host/84 repo/check. [Evidence and next step](rapidraw-wasm-app-child-delete-handoff.md).
+
+Experimental B; original nested filter/source/cache/WASM reused, no product release/main/demo/private input change. Next A: corrected alpha77 exact CI/immutable assets gate after success. Next B: original drag of one top-level Tool into an existing empty folder through durable ACK. SAME MAIN only.
+
 # RWASM-03 — original App Overwrite Preset child ACK (2026-10-26)
 
 Original Overwrite now changes only one existing Tool child Exposure value, preserving parent/IDs/names/flags/siblings/order. Separate default-off capability; card/preview wait for commit/readback; held/abort/stale/uncertain reload/no replay and native-0.8/+1.6 application pass19 browser/184 serial host/84 repo/check. [Evidence and next step](rapidraw-wasm-app-child-overwrite-handoff.md).
