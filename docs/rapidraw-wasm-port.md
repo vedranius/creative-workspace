@@ -1,3 +1,9 @@
+# RWASM-03 — original App Rename Folder ACK (2026-10-26)
+
+Original Rename Folder keeps its name draft until durable commit/readback; only one existing empty top-level folder name changes. ID/children/order/siblings and native editor output survive held ACK, duplicate/keyboard gestures, actual abort/stale peer/uncertain reload with no replay. 20 positive browser assertions/156 host cases plus focused checks and source provenance. [Evidence and continuation](rapidraw-wasm-app-folder-rename-handoff.md).
+
+Experimental B; processing/renderer/WASM unchanged, no product release/main/demo/private input change. Alpha76 immutable Actions draft asset gate is complete in main786fc85. Next A: bounded endnote.list target discovery. Next B: original Delete Folder for one existing empty folder through durable ACK. SAME MAIN only.
+
 # RWASM-03 — original App New Folder ACK (2026-10-26)
 
 Original New Folder menu/modal now keeps its trimmed name draft until durable commit/readback, with a fresh UUID, empty children and original insertion before the first preset. Pending Enter/Escape/backdrop/typing/duplicate confirmation are excluded; errors retain the draft. Cancel/invalid name/held ACK/actual abort/stale peer/uncertain reload/native editor preservation pass19 browser assertions/152 host cases/check/provenance. [Evidence and continuation](rapidraw-wasm-app-preset-folder-handoff.md).

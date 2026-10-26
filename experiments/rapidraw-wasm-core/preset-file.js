@@ -32,7 +32,7 @@ export function serializePresetFile(items){
  if(bytes.length>PRESET_FILE_LIMIT)fail('Preset output exceeds 64 KiB');
  return bytes;
 }
-export function createPresetFileHost({items=[],destination=createExportDestination({format:'rrpreset'}),onTrace=()=>{},libraryHost,allowRename=false,allowDelete=false,allowDuplicate=false,allowOverwrite=false,allowCreateFolder=false}={}){
+export function createPresetFileHost({items=[],destination=createExportDestination({format:'rrpreset'}),onTrace=()=>{},libraryHost,allowRename=false,allowDelete=false,allowDuplicate=false,allowOverwrite=false,allowCreateFolder=false,allowRenameFolder=false}={}){
  let closed=false,busy=false;
  const library=items.length?JSON.parse(new TextDecoder().decode(serializePresetFile(items))).presets:[];
  const document={ready:true,file:{name:'preset-library'},path:'browser-preset-library:'+crypto.randomUUID(),generation:1};
@@ -44,7 +44,7 @@ export function createPresetFileHost({items=[],destination=createExportDestinati
   async invoke(command,args={}){
    check();onTrace({command,phase:'start'});
    if(command==='load_presets')return libraryHost?libraryHost.load():structuredClone(library);
-   if(command==='save_presets'&&libraryHost){if(Object.keys(args).join(',')!=='presets')fail('Invalid preset save arguments');return libraryHost.savePresets(args.presets,{allowRename,allowDelete,allowDuplicate,allowOverwrite,allowCreateFolder});}
+   if(command==='save_presets'&&libraryHost){if(Object.keys(args).join(',')!=='presets')fail('Invalid preset save arguments');return libraryHost.savePresets(args.presets,{allowRename,allowDelete,allowDuplicate,allowOverwrite,allowCreateFolder,allowRenameFolder});}
    if(command==='handle_import_presets_from_files'&&libraryHost){if(Object.keys(args).join(',')!=='filePaths')fail('Invalid import arguments');return libraryHost.importFiles(args.filePaths);}
    if(command!=='handle_export_presets_to_file')fail('Preset command unavailable: '+command);
    if(busy)fail('Preset export already active');busy=true;

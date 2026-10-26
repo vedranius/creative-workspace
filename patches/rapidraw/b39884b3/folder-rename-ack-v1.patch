@@ -1,0 +1,161 @@
+--- a/src/hooks/usePresets.ts
++++ b/src/hooks/usePresets.ts
+@@ -167,7 +167,10 @@
+     }
+   };
+ 
+-  const renameItem = (id: string | null, newName: string) => {
++  const renameItem = async (id: string | null, newName: string) => {
++    if (isLoading || createPending.current) throw new Error('Preset library is busy');
++    const target = presets.find((item: UserPreset) => item.folder?.id === id)?.folder;
++    if (!target || target.children.length !== 0) throw new Error('Rename one existing empty top-level folder');
+     const updatedPresets = presets.map((item: UserPreset) => {
+       if (item.preset?.id === id) {
+         return { preset: { ...item.preset, name: newName } };
+@@ -185,8 +188,15 @@
+       }
+       return item;
+     });
+-    setPresets(updatedPresets);
+-    savePresetsToBackend(updatedPresets);
++    createPending.current = true;
++    setIsLoading(true);
++    try {
++      await invoke(Invokes.SavePresets, { presets: updatedPresets });
++      setPresets(updatedPresets);
++    } finally {
++      createPending.current = false;
++      setIsLoading(false);
++    }
+   };
+ 
+   const configurePreset = async (
+--- a/src/components/panel/right/PresetsPanel.tsx
++++ b/src/components/panel/right/PresetsPanel.tsx
+@@ -951,9 +951,9 @@
+     setIsAddFolderModalOpen(false);
+   };
+ 
+-  const handleRenameFolderSave = (newName: string) => {
++  const handleRenameFolderSave = async (newName: string) => {
+     if (renameFolderState.folder) {
+-      renameItem(renameFolderState.folder.id, newName);
++      await renameItem(renameFolderState.folder.id, newName);
+     }
+     setRenameFolderState({ isOpen: false, folder: null });
+   };
+--- a/src/components/modals/RenameFolderModal.tsx
++++ b/src/components/modals/RenameFolderModal.tsx
+@@ -1,4 +1,4 @@
+-import { useState, useEffect, useCallback } from 'react';
++import { useState, useEffect, useCallback, useRef } from 'react';
+ import { useTranslation } from 'react-i18next';
+ import Text from '../ui/Text';
+ import { TextVariants } from '../../types/typography';
+@@ -7,7 +7,7 @@
+   currentName: string;
+   isOpen: boolean;
+   onClose(): void;
+-  onSave(name: string): void;
++  onSave(name: string): void | Promise<void>;
+   title?: string;
+   placeholder?: string;
+   buttonText?: string;
+@@ -24,6 +24,9 @@
+ }: RenameFolderModalProps) {
+   const { t } = useTranslation();
+   const [name, setName] = useState('');
++  const pending = useRef(false);
++  const [busy, setBusy] = useState(false);
++  const [error, setError] = useState('');
+   const [isMounted, setIsMounted] = useState(false);
+   const [show, setShow] = useState(false);
+ 
+@@ -38,21 +41,25 @@
+       const timer = setTimeout(() => {
+         setIsMounted(false);
+         setName('');
++        setError('');
+       }, 300);
+       return () => clearTimeout(timer);
+     }
+   }, [isOpen, currentName]);
+ 
+-  const handleSave = useCallback(() => {
++  const handleSave = useCallback(async () => {
++    if (pending.current) return;
+     const trimmed = name.trim();
+-    if (trimmed && trimmed !== currentName) {
+-      onSave(trimmed);
+-    }
+-    onClose();
++    if (!trimmed || trimmed === currentName) {onClose();return;}
++    pending.current = true;setBusy(true);setError('');
++    try {await onSave(trimmed);onClose();}
++    catch(e) {setError(e instanceof Error ? e.message : String(e));}
++    finally {pending.current=false;setBusy(false);}
+   }, [name, currentName, onSave, onClose]);
+ 
+   const handleKeyDown = useCallback(
+     (e: React.KeyboardEvent) => {
++      if (pending.current) {e.preventDefault();e.stopPropagation();return;}
+       if (e.key === 'Enter') {
+         e.preventDefault();
+         e.stopPropagation();
+@@ -66,6 +73,12 @@
+     [handleSave, onClose],
+   );
+ 
++  useEffect(() => {
++    const guard=(e: KeyboardEvent) => {if(pending.current){e.preventDefault();e.stopImmediatePropagation();}};
++    window.addEventListener('keydown',guard,true);
++    return () => window.removeEventListener('keydown',guard,true);
++  },[]);
++
+   if (!isMounted) {
+     return null;
+   }
+@@ -73,13 +86,14 @@
+   return (
+     <div
+       aria-modal="true"
++      aria-busy={busy}
+       className={`
+         fixed inset-0 flex items-center justify-center z-50
+         bg-black/30 backdrop-blur-xs
+         transition-opacity duration-300 ease-in-out
+         ${show ? 'opacity-100' : 'opacity-0'}
+       `}
+-      onClick={onClose}
++      onClick={() => {if(!pending.current)onClose();}}
+       role="dialog"
+     >
+       <div
+@@ -95,6 +109,7 @@
+         </Text>
+         <input
+           autoFocus
++          disabled={busy}
+           className="w-full bg-bg-primary text-text-primary border border-border rounded-md px-3 py-2 focus:outline-hidden focus:ring-2 focus:ring-accent"
+           onChange={(e: any) => setName(e.target.value)}
+           onKeyDown={handleKeyDown}
+@@ -103,16 +118,18 @@
+           type="text"
+           value={name}
+         />
++        {error && <Text role="alert">{error}</Text>}
+         <div className="flex justify-end gap-3 mt-5">
+           <button
+             className="px-4 py-2 rounded-md text-text-secondary hover:bg-surface transition-colors"
++            disabled={busy}
+             onClick={onClose}
+           >
+             {t('modals.renameFolder.cancel')}
+           </button>
+           <button
+             className="px-4 py-2 rounded-md bg-accent text-button-text font-semibold hover:bg-accent-hover disabled:bg-gray-500 disabled:text-white disabled:cursor-not-allowed transition-colors"
+-            disabled={!name.trim() || name.trim() === currentName}
++            disabled={busy || !name.trim() || name.trim() === currentName}
+             onClick={handleSave}
+           >
+             {buttonText || t('modals.renameFolder.save')}

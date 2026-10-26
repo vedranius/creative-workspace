@@ -75,6 +75,14 @@ export function createPresetLibrary({backend=createPresetLibraryDatabase(),pickF
   return !!folder&&/^[a-f0-9]{8}-(?:[a-f0-9]{4}-){3}[a-f0-9]{12}$/.test(folder.id)&&folder.children.length===0&&JSON.stringify(presets.filter((_,i)=>i!==index))===JSON.stringify(prior);
  };
  const saveFolderCreated=async items=>{ready();const presets=boundedLibrary(items);if(!folderCandidate(presets))fail('Create one empty folder with fresh UUID at the original position; preserve every existing item');return persist(presets);};
+ const folderRenameCandidate=presets=>{
+  const prior=current.presets;if(presets.length!==prior.length)return false;
+  const changed=presets.flatMap((item,i)=>JSON.stringify(item)!==JSON.stringify(prior[i])?[i]:[]);
+  if(changed.length!==1)return false;
+  const index=changed[0],before=prior[index]?.folder,after=presets[index]?.folder;
+  return !!before&&before.children.length===0&&!!after&&after.name!==before.name&&JSON.stringify({...after,name:before.name})===JSON.stringify(before);
+ };
+ const saveFolderRenamed=async items=>{ready();const presets=boundedLibrary(items);if(!folderRenameCandidate(presets))fail('Rename only one existing empty top-level folder; preserve ID, children, order and siblings');return persist(presets);};
  return {
   async load(){if(closed||busy)fail('Preset library busy or closed');uncertain=true;current=record(await io(()=>backend.read()));check();uncertain=false;return structuredClone(current.presets);},
   async choose(){
@@ -91,8 +99,10 @@ export function createPresetLibrary({backend=createPresetLibraryDatabase(),pickF
   saveDuplicated,
   saveOverwritten,
   saveFolderCreated,
-  async savePresets(items,{allowRename=false,allowDelete=false,allowDuplicate=false,allowOverwrite=false,allowCreateFolder=false}={}){
+  saveFolderRenamed,
+  async savePresets(items,{allowRename=false,allowDelete=false,allowDuplicate=false,allowOverwrite=false,allowCreateFolder=false,allowRenameFolder=false}={}){
    ready();const presets=boundedLibrary(items);
+   if(allowRenameFolder&&folderRenameCandidate(presets))return saveFolderRenamed(presets);
    if(allowCreateFolder&&folderCandidate(presets))return saveFolderCreated(presets);
    if(allowOverwrite&&overwriteCandidate(presets))return saveOverwritten(presets);
    if(allowDuplicate&&duplicateCandidate(presets))return saveDuplicated(presets);
