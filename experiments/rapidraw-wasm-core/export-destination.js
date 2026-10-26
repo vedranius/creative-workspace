@@ -2,7 +2,7 @@
 // Never replay: each empty-file lease is single-use and tied to its document generation.
 const MAX_BYTES=64*1024*1024;
 const hash=async bytes=>Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',bytes)),n=>n.toString(16).padStart(2,'0')).join('');
-export function createExportDestination({pickFile=o=>globalThis.showSaveFilePicker(o),getRetention=()=> 'until-ack',getRoot=()=>navigator.storage.getDirectory(),ioTimeoutMs=30000,format='jpeg',coordinateRecovery=false,getLocks=()=>globalThis.navigator?.locks}={}){
+export function createExportDestination({pickFile=o=>globalThis.showSaveFilePicker(o),getRetention=()=> 'until-ack',getRoot=()=>navigator.storage.getDirectory(),ioTimeoutMs=30000,format='jpeg',coordinateRecovery=false,verifyPresetBytes,getLocks=()=>globalThis.navigator?.locks}={}){
  const preset=format==='rrpreset';if(!preset&&format!=='jpeg')throw Error('Unsupported output format');
  const maxBytes=preset?64*1024:MAX_BYTES,recoveryName=preset?'output.rrpreset':'output.jpg';
  if(!Number.isSafeInteger(ioTimeoutMs)||ioTimeoutMs<1||ioTimeoutMs>30000)throw Error('Invalid output deadline');
@@ -118,8 +118,8 @@ export function createExportDestination({pickFile=o=>globalThis.showSaveFilePick
    catch{return {...ack,retentionCleanupPending:true};}
   },
   async discardRecovery(expected,check){
-   if(!coordinateRecovery||preset||expected?.coordination!=='web-lock-v1')throw Error('Older recovery copies can be saved; discard requires a coordinated record');
-   if(expected.schema!==1||!['uncertain','acknowledged','complete'].includes(expected.state)||!/^[a-f0-9]{8}-(?:[a-f0-9]{4}-){3}[a-f0-9]{12}$/.test(expected.id)||!Number.isSafeInteger(expected.bytes)||expected.bytes<4||expected.bytes>MAX_BYTES||!/^[a-f0-9]{64}$/.test(expected.sha256)||typeof check!=='function')throw Error('Invalid recovery discard identity');
+   if(!coordinateRecovery||preset&&typeof verifyPresetBytes!=='function'||expected?.coordination!=='web-lock-v1')throw Error('Older recovery copies can be saved; discard requires a coordinated record');
+   if(expected.schema!==1||!['uncertain','acknowledged','complete'].includes(expected.state)||!/^[a-f0-9]{8}-(?:[a-f0-9]{4}-){3}[a-f0-9]{12}$/.test(expected.id)||!Number.isSafeInteger(expected.bytes)||expected.bytes<(preset?1:4)||expected.bytes>maxBytes||!/^[a-f0-9]{64}$/.test(expected.sha256)||typeof check!=='function')throw Error('Invalid recovery discard identity');
    return guarded(async()=>{
     if(busy||pending.size)throw Error('Recovery journal has active I/O');
     const run=budget();check();const root=await journal(run),dir=await run(()=>root.getDirectoryHandle(expected.id),'Find discard entry');
@@ -130,10 +130,11 @@ export function createExportDestination({pickFile=o=>globalThis.showSaveFilePick
      if(JSON.stringify(record)!==JSON.stringify(expected))throw Error('Recovery record changed; verify again');
     };
     await matches();check();
-    const file=await run(async()=>(await dir.getFileHandle(recoveryName)).getFile(),'Read discard JPEG');
-    if(file.size!==expected.bytes||file.size>MAX_BYTES)throw Error('Recovery bytes changed; verify again');
+    const file=await run(async()=>(await dir.getFileHandle(recoveryName)).getFile(),'Read discard output');
+    if(file.size!==expected.bytes||file.size>maxBytes)throw Error('Recovery bytes changed; verify again');
     const bytes=new Uint8Array(await run(()=>file.arrayBuffer(),'Verify discard bytes'));
-    if(bytes[0]!==255||bytes[1]!==216||bytes.at(-2)!==255||bytes.at(-1)!==217||await run(()=>hash(bytes),'Hash discard JPEG')!==expected.sha256)throw Error('Recovery bytes changed; verify again');
+    if(await run(()=>hash(bytes),'Hash discard output')!==expected.sha256||!preset&&(bytes[0]!==255||bytes[1]!==216||bytes.at(-2)!==255||bytes.at(-1)!==217))throw Error('Recovery bytes changed; verify again');
+    if(preset)await run(()=>verifyPresetBytes(bytes),'Validate discard preset');
     await matches();check();
     await run(()=>root.removeEntry(expected.id,{recursive:true}),'Discard recovery copy');check();
     try{await run(()=>root.getDirectoryHandle(expected.id),'Confirm discard');}catch(error){if(error.name==='NotFoundError'){check();return {discardAcknowledged:true,id:expected.id};}throw error;}

@@ -1,3 +1,9 @@
+# RWASM-03 — actual App confirmed preset recovery removal (2026-10-26)
+
+A separate opt-in original-App composition now removes one verified canonical Exposure Tool recovery record only after explicit checkbox confirmation, fresh locked identity/byte/format checks and actual absence ACK. Cross-tab writes, changed records, failed removal and late I/O refuse false success; legacy copies, saved output and library remain preserved.21 actual-browser assertions/132 host cases/check/source pins pass. [Evidence and continuation](rapidraw-wasm-app-preset-recovery-discard-handoff.md).
+
+Experimental B; original source/renderer/WASM unchanged, no product release/main/demo/private input change. Next A: alpha75 Checks40264729282 succeeded; Build40264729285 was still running at entry, then exact immutable tag/draft/24 assets gate and original endnote.delete. Next B: original PresetsPanel Delete Preset durable ACK, preserving the card/selection on failed or stale-library mutation. SAME MAIN only.
+
 # RWASM-03 — Fine reset CI observer repair (2026-10-26)
 
 Exact pixel CI40261373234 failed at original Fine reset. Its harness captured the trace cursor after the action, which could discard an already completed render. The cursor now precedes the gesture; two actual browser observations of a completed reset share the original30s deadline. Original +5.3/-7.1 native RGBA/JPEG/adjustment/RGB/f16 comparisons remain strict. [Evidence and continuation](rapidraw-wasm-fine-reset-ci-handoff.md).

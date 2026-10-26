@@ -7,7 +7,7 @@ function admitted(r,preset=false){
  return {schema:r.schema,id:r.id,state:r.state,name:r.name,sha256:r.sha256,bytes:r.bytes,destination:r.destination,retention:r.retention,createdAt:r.createdAt,...(r.coordination?{coordination:r.coordination}:{})};
 }
 const same=(a,b)=>JSON.stringify(a)===JSON.stringify(b);
-export function createRecoverySession({journal,destination,format='jpeg',verifyPresetBytes}){
+export function createRecoverySession({journal,destination,format='jpeg',verifyPresetBytes,allowPresetDiscard=false}){
  const preset=format==='rrpreset';if(!preset&&format!=='jpeg'||preset&&typeof verifyPresetBytes!=='function')throw Error('Unsupported recovery format');
  const admit=r=>admitted(r,preset),limit=preset?(64*1024):LIMIT;
  const validate=async(bytes,record)=>{
@@ -47,7 +47,7 @@ export function createRecoverySession({journal,destination,format='jpeg',verifyP
     check(expected);await current(record);check(expected);
     // The File contains the verified output; no RAW source or old destination authority is restored.
     prepared={record,bytes,document:{path:'browser-recovery:'+id,generation:expected,ready:true,file:new File([bytes],record.name,{type:preset?'application/json':'image/jpeg'})}};
-    return {id:record.id,name:record.name,bytes:record.bytes,sha256:record.sha256,canDiscard:!preset&&record.coordination==='web-lock-v1'};
+    return {id:record.id,name:record.name,bytes:record.bytes,sha256:record.sha256,canDiscard:(!preset||allowPresetDiscard)&&record.coordination==='web-lock-v1'};
    }finally{busy=false;}
   },
   async savePrepared(){
@@ -68,7 +68,7 @@ export function createRecoverySession({journal,destination,format='jpeg',verifyP
    }finally{busy=false;}
   },
   async discardPrepared(confirmation){
-   if(preset)throw Error('Preset recovery removal is unavailable; keep the original entry');
+   if(preset&&!allowPresetDiscard)throw Error('Preset recovery removal is unavailable; keep the original entry');
    if(closed||busy||!prepared)throw Error('Verify a recovery copy before confirming discard');
    if(confirmation!==prepared.record.id)throw Error('Explicit recovery confirmation is required');
    busy=true;const selected=prepared,expected=version;prepared=null;
