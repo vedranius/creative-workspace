@@ -299,11 +299,24 @@ try{
      }
     }
 
-    await page.locator('[data-tab-id="layout-tab-crop"]').click();await page.getByLabel('Original geometry panel').locator('button[data-tooltip="Reset Fine Rotation"]').click();await page.waitForFunction(()=>proof.store.getState().adjustments.rotation===0);
+    await page.locator('[data-tab-id="layout-tab-crop"]').click();
+    // Capture the action boundary BEFORE the gesture. A fast render can finish
+    // during click()/the store wait; a cursor captured afterwards discards it.
     lastTraceIndex=await page.evaluate(()=>proof.trace.length-1);lastUrl=await page.evaluate(()=>proof.store.getState().finalPreviewUrl);
+    await page.getByLabel('Original geometry panel').locator('button[data-tooltip="Reset Fine Rotation"]').click();await page.waitForFunction(()=>proof.store.getState().adjustments.rotation===0);
     await page.locator('[data-tab-id="layout-tab-adjustments"]').click();
-    const reset=await page.evaluate(async previousIndex=>{const deadline=performance.now()+30000;while(performance.now()<deadline){const s=proof.store.getState(),frame=proof.trace.findLast((t,i)=>i>previousIndex&&t.command==='render-result'&&!t.interactive&&t.geometry.rotation===0),preview=proof.trace.findLast((t,i)=>i>previousIndex&&t.command==='preview-result'&&t.geometry.rotation===0);if(frame&&preview&&s.adjustments.rotation===0&&s.finalPreviewUrl){try{const b=await(await fetch(s.finalPreviewUrl)).arrayBuffer(),hash=[...new Uint8Array(await crypto.subtle.digest('SHA-256',b))].map(v=>v.toString(16).padStart(2,'0')).join('');if(hash===frame.jpegSha256&&JSON.stringify(preview.geometry)===JSON.stringify(frame.geometry))return{geometry:frame.geometry,frame,preview,jpegSha256:hash};}catch{/* Original hook may revoke a superseded URL. */}}await new Promise(r=>requestAnimationFrame(r));}throw Error('Fine reset did not publish a new zero-angle frame');},lastTraceIndex);
+    // Read a completed publication, then deliberately observe it again later.
+    // Both observers share the original 30-second deadline and pre-gesture cursor.
+    const resetDeadline=await page.evaluate(()=>performance.now()+30000);
+    const observeFineReset=()=>page.evaluate(async({previousIndex,deadline})=>{while(performance.now()<deadline){const s=proof.store.getState(),frame=proof.trace.findLast((t,i)=>i>previousIndex&&t.command==='render-result'&&!t.interactive&&t.geometry.rotation===0),preview=proof.trace.findLast((t,i)=>i>previousIndex&&t.command==='preview-result'&&t.geometry.rotation===0);if(frame&&preview&&s.adjustments.rotation===0&&s.finalPreviewUrl){try{const b=await(await fetch(s.finalPreviewUrl)).arrayBuffer(),hash=[...new Uint8Array(await crypto.subtle.digest('SHA-256',b))].map(v=>v.toString(16).padStart(2,'0')).join('');if(hash===frame.jpegSha256&&JSON.stringify(preview.geometry)===JSON.stringify(frame.geometry))return{geometry:frame.geometry,frame,preview,jpegSha256:hash,frameIndex:proof.trace.indexOf(frame),previewIndex:proof.trace.indexOf(preview),traceCursor:proof.trace.length-1};}catch{/* Original hook may revoke a superseded URL. */}}await new Promise(r=>requestAnimationFrame(r));}throw Error('Fine reset did not publish a new zero-angle frame');},{previousIndex:lastTraceIndex,deadline:resetDeadline});
+    const publishedReset=await observeFineReset();
+    const reset=await observeFineReset();
     assert.equal(reset.geometry.rotation,0);
+    for(const key of ['jpegSha256','rgbaSha256','adjustmentSha256','bytes'])assert.equal(reset.frame[key],publishedReset.frame[key],'late observer keeps the published reset '+key);
+    assert.ok(publishedReset.frameIndex>lastTraceIndex&&publishedReset.previewIndex>lastTraceIndex);
+    assert.ok(publishedReset.frameIndex<=publishedReset.traceCursor&&publishedReset.previewIndex<=publishedReset.traceCursor);
+    assert.ok(reset.frameIndex>lastTraceIndex&&reset.previewIndex>lastTraceIndex);
+    reset.observation={cursorBeforeGesture:lastTraceIndex,publication:{cursor:publishedReset.traceCursor,frameIndex:publishedReset.frameIndex,previewIndex:publishedReset.previewIndex},lateObserverAccepted:true};
     const nativeReset=await fineReference(reset.geometry,'reset-settled-'+angle);
     for(const key of ['jpegSha256','rgbaSha256','adjustmentSha256','bytes'])assert.equal(reset.frame[key],nativeReset[key],`Native fine reset ${angle} ${key}`);
     assert.equal(reset.preview.rgbSha256,nativeReset.rgbSha256);assert.equal(reset.preview.uploadSha256,nativeReset.inputRgbaF16Sha256);

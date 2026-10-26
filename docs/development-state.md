@@ -1,3 +1,9 @@
+# RWASM-03 — Fine reset CI observer repair (2026-10-26)
+
+Exact pixel CI40261373234 failed at original Fine reset. Its harness captured the trace cursor after the action, which could discard an already completed render. The cursor now precedes the gesture; two actual browser observations of a completed reset share the original30s deadline. Original +5.3/-7.1 native RGBA/JPEG/adjustment/RGB/f16 comparisons remain strict. [Evidence and continuation](rapidraw-wasm-fine-reset-ci-handoff.md).
+
+Experimental CI/test repair; no product release/native/WASM/algorithm/main/private input/demo change. Original preset recovery copy remains complete; confirmed preset recovery removal is still the next B feature. Next A: alpha75 exact source Checks40264729282/Build40264729285/tag/draft/downloaded-assets gate after success; if waiting, independent B removal remains ready. SAME MAIN only.
+
 # RWASM-03 — actual App preset recovery copy (2026-10-26)
 
 A separate preset recovery dialog now verifies one retained canonical Exposure Tool .rrpreset without RAW and copies it through a fresh destination/write-close-readback ACK. Cancel/denied/newer files, separate retention, late-I/O lock/abort and reload without replay preserve the original record/library.20 positive browser assertions/120 host/check/YAML pass;337 bytes/native reference and unchanged native pixels match. [Evidence and continuation](rapidraw-wasm-app-preset-recovery-handoff.md).
