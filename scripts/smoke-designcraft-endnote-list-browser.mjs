@@ -6,7 +6,7 @@ import {pathToFileURL} from 'node:url';
 import {createWorkspaceServer} from '../src/server.js';
 import {originalUiPatches,originalUiPackageId} from '../src/original-ui.js';
 const root=path.resolve(process.env.CW_PAR03_WORK_ROOT||'build/host-tmp/designcraft-endnote-list');await mkdir(root,{recursive:true});
-const fixturePath=process.env.CW_DESIGNCRAFT_ENDNOTE_LIST_FIXTURE;if(!fixturePath)throw Error('Set generated native endnote-delete fixture');
+const fixturePath=process.env.CW_DESIGNCRAFT_ENDNOTE_LIST_FIXTURE;if(!fixturePath)throw Error('Set generated native endnote-list fixture');
 const uiDirectory=path.join(process.env.CW_ORIGINAL_UI_DIR,'designcraft',originalUiPackageId('designcraft'));
 const uiManifest=JSON.parse(await readFile(path.join(uiDirectory,'creative-workspace-ui.json')));
 const fixture=await readFile(fixturePath),nativeReport=JSON.parse(await readFile(path.join(path.dirname(fixturePath),'endnote-list-native.json')));

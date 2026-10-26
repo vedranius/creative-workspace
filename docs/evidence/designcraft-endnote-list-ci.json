@@ -1,0 +1,58 @@
+{
+  "scope": "CI-only current native adapter fixture generation and exact original UI source restoration; no new product/UI behavior",
+  "failedSourceCommit": "85c64cba48ac3e98716c242651f7ba7dcacf2bb7",
+  "failedRun": {
+    "id": 40318334340,
+    "url": "https://github.com/vedranius/creative-workspace/actions/runs/40318334340",
+    "job": "original-designcraft",
+    "cause": "The reviewed UI patch embeds the older22-test adapter; testing it did not generate endnote-list-fixture.designcraft. Browser smoke failed ENOENT.",
+    "checksRun": 40318334230,
+    "checksConclusion": "success",
+    "successfulBuildJobs": 23,
+    "publish": "skipped"
+  },
+  "native": {
+    "adapterMainSha256": "67c1f2f334b9e05222b318c1d1937f6f1f720cff6a98ed36c686834461ac5aab",
+    "uiPatchSha256": "5243209726af965d77117c3dd7fe6483296e260168febcac3cdbd88397987802",
+    "reviewedUiSourceRestored": true,
+    "freshFixtures": [
+      "cell-fixture.designcraft",
+      "reference-fixture.designcraft",
+      "endnote-body.designcraft",
+      "endnote-options-fixture.designcraft",
+      "endnote-edit-fixture.designcraft",
+      "endnote-delete-fixture.designcraft",
+      "endnote-list-fixture.designcraft",
+      "endnote-list-native.json"
+    ],
+    "testsPassed": 25,
+    "freshReviewedCheckout": true
+  },
+  "negativeProof": {
+    "cargoFailureExit": 23,
+    "failedCargoRestoresExactUiSource": true,
+    "failedCargoNoSuccessReport": true,
+    "staleFixtureRefusedBeforeTests": true,
+    "temporaryBackupRemoved": true
+  },
+  "verification": {
+    "repositoryTests": 102,
+    "npmCheck": true,
+    "releaseValidation": true,
+    "workflowYaml": true,
+    "browserFreshFixture": true,
+    "screenshotsInspected": 2,
+    "unexpectedBrowserErrors": 0,
+    "expectedInvalidStaleResponses": 2,
+    "qaClosed": true,
+    "shortDiskTmpRemoved": true,
+    "originalUiWasmRebuilt": false,
+    "productWorkerRebuilt": false
+  },
+  "release": {
+    "version": "0.2.0-alpha.77",
+    "tagAndReleaseAbsentBeforeCorrection": true,
+    "immutableAssetsGatePending": true,
+    "priorRunNotRerunOrCancelled": true
+  }
+}

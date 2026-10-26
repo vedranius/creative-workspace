@@ -1,0 +1,44 @@
+{
+  "status": "bounded-original-endnote-list-native-gateway-browser-passed",
+  "workerSha256": "1d6f3a7839c80dc9e86b235912997eec1905e8428d6b73ed1e2782d466277dff",
+  "uiWasm": {
+    "path": "designcraft-web-646af20ef269dada_bg.wasm",
+    "size": 40348897,
+    "sha256": "80569bac154b49ed7dd4ad9fef7466392e84015a1088e327b0ad2ee081cdb60f"
+  },
+  "sourcePin": "a127c6d5c3576972bbd60445f26d893db071eef3",
+  "sourcePatchSha256": "5243209726af965d77117c3dd7fe6483296e260168febcac3cdbd88397987802",
+  "fixture": {
+    "generatedNative": true,
+    "sha256": "5390657a5cc6ca6bea310b16a324302372b7095c741f51ec6539b0ba846cbb8c"
+  },
+  "notes": [
+    {
+      "id": 1,
+      "number": 1,
+      "story": 19,
+      "text": "First page Ω"
+    },
+    {
+      "id": 1,
+      "number": 2,
+      "story": 10,
+      "text": "Second page č"
+    }
+  ],
+  "readOnly": true,
+  "originalQueryExact": true,
+  "numberingUsesOriginalPageOrder": true,
+  "heldResponseNoPrematureResult": true,
+  "unchangedStateVersion": 3,
+  "documentSelectionDirtyHistoryCanonicalAndPngPreserved": true,
+  "duplicateRequestExactCachedResponse": true,
+  "invalidParamsAndStaleVersionRejected": true,
+  "discoveredTargetCompatibleWithOriginalEditFormCancel": true,
+  "originalInputUnchanged": true,
+  "expectedPreMutationRejections": 2,
+  "errors": [],
+  "failedResponses": [],
+  "requestFailures": [],
+  "permission": "Synthetic browser folder plus owned on-demand helper; actual original Open/Pages/Edit Endnote form and cancel. Query RPC issued from browser context of original UI into real gateway/native worker. No Endnotes list presentation/automatic target population/full UI or real OS/provider acceptance; those remain separate."
+}

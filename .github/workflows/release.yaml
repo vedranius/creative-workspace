@@ -247,7 +247,7 @@ jobs:
           cargo test --manifest-path build/original-ui/source-designcraft/Cargo.toml -p designcraft-ui-egui footnote
           cargo test --manifest-path build/original-ui/source-designcraft/Cargo.toml -p designcraft-ui-egui endnote
           mkdir -p build/designcraft-par03-evidence
-          CW_ENDNOTE_LIST_OUTPUT="$PWD/build/designcraft-par03-evidence" CW_ENDNOTE_DELETE_OUTPUT="$PWD/build/designcraft-par03-evidence" CW_ENDNOTE_EDIT_OUTPUT="$PWD/build/designcraft-par03-evidence" CW_ENDNOTE_OPTIONS_OUTPUT="$PWD/build/designcraft-par03-evidence" CW_ENDNOTE_OUTPUT="$PWD/build/designcraft-par03-evidence" CW_FOOTNOTE_OUTPUT="$PWD/build/designcraft-par03-evidence" CW_DESIGNCRAFT_CELL_FIXTURE="$PWD/build/designcraft-par03-evidence/cell-fixture.designcraft" cargo test --manifest-path build/original-ui/source-designcraft/Cargo.toml -p cw-designcraft-engine
+          node scripts/verify-designcraft-native-contract.mjs build/original-ui/source-designcraft build/designcraft-par03-evidence
       - name: Verify the original UI against the owned server worker
         env:
           CW_DESIGNCRAFT_BINARY: ${{ github.workspace }}/build/staged/designcraft/cw-designcraft-engine
