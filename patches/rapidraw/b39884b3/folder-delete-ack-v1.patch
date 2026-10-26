@@ -1,0 +1,29 @@
+--- a/src/hooks/usePresets.ts
++++ b/src/hooks/usePresets.ts
+@@ -153,9 +153,9 @@
+ 
+   const deleteItem = async (id: string) => {
+     if (isLoading || createPending.current) throw new Error('Preset library is busy');
+-    const target = presets.find((item: UserPreset) => item.preset?.id === id)?.preset;
+-    if (!target || target.presetType !== 'tool') throw new Error('Only one existing Exposure Tool preset can be deleted');
+-    const updatedPresets = presets.filter((item: UserPreset) => item.preset?.id !== id);
++    const target = presets.find((item: UserPreset) => (item.preset ?? item.folder)?.id === id);
++    if (!target || (target.preset?.presetType !== 'tool' && (!target.folder || target.folder.children.length !== 0))) throw new Error('Delete one existing Exposure Tool or empty top-level folder');
++    const updatedPresets = presets.filter((item: UserPreset) => (item.preset ?? item.folder)?.id !== id);
+     createPending.current = true;
+     setIsLoading(true);
+     try {
+--- a/src/components/panel/right/PresetsPanel.tsx
++++ b/src/components/panel/right/PresetsPanel.tsx
+@@ -964,8 +964,10 @@
+     setDeleteBusy(true);
+     setDeleteError('');
+     try {
+-      if (isFolder) throw new Error('Folder deletion is unavailable');
+       await deleteItem(id);
++      if (isFolder) setExpandedFolders((prev: Set<string>) => {
++        const next = new Set(prev);next.delete(id);return next;
++      });
+     } catch (error) {
+       setDeleteError(error instanceof Error ? error.message : String(error));
+     } finally {

@@ -1,3 +1,9 @@
+# RWASM-03 — original App Delete Folder ACK (2026-10-26)
+
+Original Delete Folder removes one existing empty top-level folder after durable commit/readback. Escape/no IO, nonempty-child preservation, held ACK/duplicate gesture, newer editor selection, actual abort/stale peer/uncertain reload/no replay pass 20 browser assertions/160 host cases/84 repo tests/check/provenance. [Evidence and continuation](rapidraw-wasm-app-folder-delete-handoff.md).
+
+Experimental B; processing/renderer/WASM unchanged, no product release/main/demo/private input change. Next A: exact alpha77 Actions/tag/draft/downloaded-assets gate after success. Next B: original bounded Export Folder through existing destination/retention/write-ACK/recovery. SAME MAIN only.
+
 # RWASM-03 — original App Rename Folder ACK (2026-10-26)
 
 Original Rename Folder keeps its name draft until durable commit/readback; only one existing empty top-level folder name changes. ID/children/order/siblings and native editor output survive held ACK, duplicate/keyboard gestures, actual abort/stale peer/uncertain reload with no replay. 20 positive browser assertions/156 host cases plus focused checks and source provenance. [Evidence and continuation](rapidraw-wasm-app-folder-rename-handoff.md).
