@@ -1,0 +1,179 @@
+diff --git a/src/hooks/usePresets.ts b/src/hooks/usePresets.ts
+--- a/src/hooks/usePresets.ts
++++ b/src/hooks/usePresets.ts
+@@ -133,28 +133,22 @@
+     }
+   };
+ 
+-  const addFolder = (name: string) => {
+-    const newFolder = {
+-      folder: {
+-        id: crypto.randomUUID(),
+-        name,
+-        children: [],
+-      },
+-    };
+-
+-    setPresets((currentPresets: Array<any>) => {
+-      const updatedPresets = [...currentPresets];
+-      const firstPresetIndex = updatedPresets.findIndex((p: UserPreset) => p.preset);
+-
+-      if (firstPresetIndex === -1) {
+-        updatedPresets.push(newFolder);
+-      } else {
+-        updatedPresets.splice(firstPresetIndex, 0, newFolder);
+-      }
+-
+-      savePresetsToBackend(updatedPresets);
+-      return updatedPresets;
+-    });
++  const addFolder = async (name: string) => {
++    if (isLoading || createPending.current) throw new Error('Preset library is busy');
++    const newFolder = {folder:{id:crypto.randomUUID(),name,children:[]}};
++    const updatedPresets = [...presets];
++    const firstPresetIndex = updatedPresets.findIndex((p: UserPreset) => p.preset);
++    if (firstPresetIndex === -1) updatedPresets.push(newFolder);
++    else updatedPresets.splice(firstPresetIndex,0,newFolder);
++    createPending.current = true;
++    setIsLoading(true);
++    try {
++      await invoke(Invokes.SavePresets,{presets:updatedPresets});
++      setPresets(updatedPresets);
++    } finally {
++      createPending.current = false;
++      setIsLoading(false);
++    }
+   };
+ 
+   const deleteItem = async (id: string) => {
+diff --git a/src/components/panel/right/PresetsPanel.tsx b/src/components/panel/right/PresetsPanel.tsx
+--- a/src/components/panel/right/PresetsPanel.tsx
++++ b/src/components/panel/right/PresetsPanel.tsx
+@@ -946,8 +946,8 @@
+     setConfigureModalState({ isOpen: false, preset: null });
+   };
+ 
+-  const handleAddFolder = (name: string) => {
+-    addFolder(name);
++  const handleAddFolder = async (name: string) => {
++    await addFolder(name);
+     setIsAddFolderModalOpen(false);
+   };
+ 
+diff --git a/src/components/modals/CreateFolderModal.tsx b/src/components/modals/CreateFolderModal.tsx
+--- a/src/components/modals/CreateFolderModal.tsx
++++ b/src/components/modals/CreateFolderModal.tsx
+@@ -1,4 +1,4 @@
+-import { useState, useEffect, useCallback } from 'react';
++import { useState, useEffect, useCallback, useRef } from 'react';
+ import { useTranslation } from 'react-i18next';
+ import Text from '../ui/Text';
+ import { TextVariants } from '../../types/typography';
+@@ -6,7 +6,7 @@
+ interface FolderModalProps {
+   isOpen: boolean;
+   onClose(): void;
+-  onSave(name: string): void;
++  onSave(name: string): void | Promise<void>;
+   title?: string;
+   placeholder?: string;
+   buttonText?: string;
+@@ -22,6 +22,9 @@
+ }: FolderModalProps) {
+   const { t } = useTranslation();
+   const [name, setName] = useState('');
++  const pending = useRef(false);
++  const [busy,setBusy] = useState(false);
++  const [error,setError] = useState('');
+   const [isMounted, setIsMounted] = useState(false);
+   const [show, setShow] = useState(false);
+ 
+@@ -35,21 +38,25 @@
+       const timer = setTimeout(() => {
+         setIsMounted(false);
+         setName('');
++        setError('');
+       }, 300);
+       return () => clearTimeout(timer);
+     }
+   }, [isOpen]);
+ 
+-  const handleSave = useCallback(() => {
++  const handleSave = useCallback(async () => {
++    if (pending.current) return;
+     const trimmed = name.trim();
+-    if (trimmed) {
+-      onSave(trimmed);
+-      onClose();
+-    }
+-  }, [name, onSave, onClose]);
++    if (!trimmed) return;
++    pending.current = true;setBusy(true);setError('');
++    try { await onSave(trimmed);onClose(); }
++    catch(e) { setError(e instanceof Error ? e.message : String(e)); }
++    finally { pending.current=false;setBusy(false); }
++  },[name,onSave,onClose]);
+ 
+   const handleKeyDown = useCallback(
+     (e: React.KeyboardEvent) => {
++      if (pending.current) {e.preventDefault();e.stopPropagation();return;}
+       if (e.key === 'Enter') {
+         e.preventDefault();
+         e.stopPropagation();
+@@ -63,6 +70,12 @@
+     [handleSave, onClose],
+   );
+ 
++  useEffect(() => {
++    const guard=(e: KeyboardEvent) => {if(pending.current){e.preventDefault();e.stopImmediatePropagation();}};
++    window.addEventListener('keydown',guard,true);
++    return () => window.removeEventListener('keydown',guard,true);
++  },[]);
++
+   if (!isMounted) {
+     return null;
+   }
+@@ -70,13 +83,14 @@
+   return (
+     <div
+       aria-modal="true"
++      aria-busy={busy}
+       className={`
+         fixed inset-0 flex items-center justify-center z-50
+         bg-black/30 backdrop-blur-xs
+         transition-opacity duration-300 ease-in-out
+         ${show ? 'opacity-100' : 'opacity-0'}
+       `}
+-      onClick={onClose}
++      onClick={() => {if(!pending.current)onClose();}}
+       role="dialog"
+     >
+       <div
+@@ -92,6 +106,7 @@
+         </Text>
+         <input
+           autoFocus
++          disabled={busy}
+           className="w-full bg-bg-primary text-text-primary border border-border rounded-md px-3 py-2 focus:outline-hidden focus:ring-2 focus:ring-accent"
+           onChange={(e: any) => setName(e.target.value)}
+           onKeyDown={handleKeyDown}
+@@ -99,16 +114,18 @@
+           type="text"
+           value={name}
+         />
++        {error && <Text role="alert">{error}</Text>}
+         <div className="flex justify-end gap-3 mt-5">
+           <button
+             className="px-4 py-2 rounded-md text-text-secondary hover:bg-surface transition-colors"
++            disabled={busy}
+             onClick={onClose}
+           >
+             {t('modals.createFolder.cancel')}
+           </button>
+           <button
+             className="px-4 py-2 rounded-md bg-accent text-button-text font-semibold hover:bg-accent-hover disabled:bg-gray-500 disabled:text-white disabled:cursor-not-allowed transition-colors"
+-            disabled={!name.trim()}
++            disabled={busy || !name.trim()}
+             onClick={handleSave}
+           >
+             {buttonText || t('modals.createFolder.create')}

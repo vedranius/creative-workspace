@@ -69,6 +69,12 @@ export function createPresetLibrary({backend=createPresetLibraryDatabase(),pickF
   return !!before&&before.presetType==='tool'&&!!after&&JSON.stringify({...after,adjustments:before.adjustments})===JSON.stringify(before)&&after.adjustments.exposure!==before.adjustments.exposure;
  };
  const saveOverwritten=async items=>{ready();const presets=boundedLibrary(items);if(!overwriteCandidate(presets))fail('Overwrite only one existing top-level Exposure Tool value; preserve ID, name, flags, order and siblings');return persist(presets);};
+ const folderCandidate=presets=>{
+  const prior=current.presets;if(presets.length!==prior.length+1)return false;
+  const first=prior.findIndex(item=>item.preset),index=first===-1?prior.length:first,folder=presets[index]?.folder;
+  return !!folder&&/^[a-f0-9]{8}-(?:[a-f0-9]{4}-){3}[a-f0-9]{12}$/.test(folder.id)&&folder.children.length===0&&JSON.stringify(presets.filter((_,i)=>i!==index))===JSON.stringify(prior);
+ };
+ const saveFolderCreated=async items=>{ready();const presets=boundedLibrary(items);if(!folderCandidate(presets))fail('Create one empty folder with fresh UUID at the original position; preserve every existing item');return persist(presets);};
  return {
   async load(){if(closed||busy)fail('Preset library busy or closed');uncertain=true;current=record(await io(()=>backend.read()));check();uncertain=false;return structuredClone(current.presets);},
   async choose(){
@@ -84,8 +90,10 @@ export function createPresetLibrary({backend=createPresetLibraryDatabase(),pickF
   saveCreated,
   saveDuplicated,
   saveOverwritten,
-  async savePresets(items,{allowRename=false,allowDelete=false,allowDuplicate=false,allowOverwrite=false}={}){
+  saveFolderCreated,
+  async savePresets(items,{allowRename=false,allowDelete=false,allowDuplicate=false,allowOverwrite=false,allowCreateFolder=false}={}){
    ready();const presets=boundedLibrary(items);
+   if(allowCreateFolder&&folderCandidate(presets))return saveFolderCreated(presets);
    if(allowOverwrite&&overwriteCandidate(presets))return saveOverwritten(presets);
    if(allowDuplicate&&duplicateCandidate(presets))return saveDuplicated(presets);
    if(allowDelete&&presets.length===current.presets.length-1)return saveDeleted(presets);

@@ -1164,5 +1164,35 @@
       "experiments/rapidraw-react-proof/app-preset-overwrite-main.tsx": "33e2d5be4145dbeb1a3933d8e71a78967913b691ea4e53aed6accd19e166828e"
     },
     "scope": "Experimental actual original App Overwrite Preset: one existing top-level Exposure Tool current nonzero bounded Exposure, durable library CAS/commit/readback before card/preview; original ID/name/flags/order/siblings preserved. No folder/general editing/default-omission/full App/OS/provider acceptance."
+  },
+  "appPresetFolder": {
+    "basePatch": {
+      "path": "patches/rapidraw/b39884b3/preset-overwrite-ack-v1.patch",
+      "sha256": "fedab0cc887fac3e8e0bc000b2f6868f7c14b1251beb48f1670979eaf0d71ea0",
+      "patchedFiles": {
+        "src/hooks/usePresets.ts": "7c4a49ef0524da9d467a897201400d6e2e85ab8c68c203884bcda2ae2a9d7b35",
+        "src/components/panel/right/PresetsPanel.tsx": "08cd69707390dae7d32418308bd569add53722b63111c165864864f998500ff0"
+      }
+    },
+    "sourcePatch": {
+      "path": "patches/rapidraw/b39884b3/preset-folder-create-ack-v1.patch",
+      "sha256": "42eb20fa64fa84f3f7f96752c7e4aeb320d4244c749b7420e9eae9348494c48a",
+      "patchedFiles": {
+        "src/hooks/usePresets.ts": "173379f251296ecccb8bd688505a2522994fe4fa01130f7498bb3f2d733cabcb",
+        "src/components/panel/right/PresetsPanel.tsx": "8291813749fbf1317ae04100f6b07d01f42785c8741b3e8be997259be95b45d8",
+        "src/components/modals/CreateFolderModal.tsx": "299f88d25729884c9a10591e7fe5947f70bb94106a1eb111d2597ab790d13e4e"
+      }
+    },
+    "sourceFiles": {
+      "src/hooks/usePresets.ts": "0b545710738a886df5a6946723e0e4e580027d98cc7a92f9bacd777bc7cf6258",
+      "src/components/panel/right/PresetsPanel.tsx": "f91a154e80a92c8692c625a9a43e1be06534024b78d79ce0052176d25ecf2949",
+      "src/components/modals/ConfigurePresetModal.tsx": "090545bc74c1c75342a958b503e26d64ad890024e14f3a722f2ceb176fdfdf8b",
+      "src-tauri/src/file_management.rs": "3f639e11c2f8a74baa31285b2aa9456516e5c71b6c8e4d78a42dbe61f5c4a219",
+      "src/components/modals/CreateFolderModal.tsx": "ff16869f30d45b6e0c96dc647314027a5828814ce0d62d0fc90840ecfd07a29a"
+    },
+    "bootstrapFiles": {
+      "experiments/rapidraw-react-proof/app-preset-folder-main.tsx": "56e8fee6adee7198e79b24994a5965d93cf96aaa2062160af0a6ba1eeb3be56e"
+    },
+    "scope": "Experimental original New Folder: one fresh UUID/name/empty children at original insertion position; library CAS/commit/readback before list/modal closure; draft retained on failure, duplicate/Enter/Escape/backdrop excluded while pending. No folder contents/general editing/full App/OS/provider acceptance."
   }
 }

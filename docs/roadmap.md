@@ -1,3 +1,9 @@
+# RWASM-03 — original App New Folder ACK (2026-10-26)
+
+Original New Folder menu/modal now keeps its trimmed name draft until durable commit/readback, with a fresh UUID, empty children and original insertion before the first preset. Pending Enter/Escape/backdrop/typing/duplicate confirmation are excluded; errors retain the draft. Cancel/invalid name/held ACK/actual abort/stale peer/uncertain reload/native editor preservation pass19 browser assertions/152 host cases/check/provenance. [Evidence and continuation](rapidraw-wasm-app-preset-folder-handoff.md).
+
+Experimental B; original processing/renderer/WASM unchanged, no product release/main/demo/private input change. A alpha76 Checks succeeded and Build40283042172 was still running at entry; exact-source Actions/tag/draft/assets gate remains. Next A: that gate after success. Next B: original Rename Folder for one existing empty folder through durable ACK. SAME MAIN only.
+
 # RWASM-03 — original App Overwrite Preset ACK (2026-10-26)
 
 Original Overwrite menu now commits one changed top-level Exposure Tool value and verifies durable readback before updating its card/preview. ID/name/flags/order/siblings and newer editor selection survive. Held ACK, duplicate gesture, actual abort/stale peer/uncertain reload and native-exact −0.8/+1.6 application pass17 browser assertions/147 host cases/check/provenance. [Evidence and continuation](rapidraw-wasm-app-preset-overwrite-handoff.md).
