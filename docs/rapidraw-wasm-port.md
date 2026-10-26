@@ -1,3 +1,9 @@
+# RWASM-03 — original App Export All Presets ACK (2026-10-26)
+
+The original Export All Presets toolbar now admits one exact bounded acknowledged library through a separate default-off opt-in. Whole-library filename collisions refuse destination authority; selected Tool/folder boundaries remain. All 2,331 exported bytes match the cached original Rust serializer. Actual close/readback ACK, stale/newer output, retention/recovery/no replay and unchanged library/editor pass 16 browser assertions, 169 host cases, 84 repo tests and check. [Evidence and continuation](rapidraw-wasm-app-export-all-handoff.md).
+
+Experimental B; original handler/renderer/WASM unchanged, no product release/main/demo/private input change. Next A: alpha77 immutable Actions asset gate after success. Next B: original Configure Preset name for one folder child through durable library ACK. SAME MAIN only.
+
 # RWASM-03 — original App exported-folder import roundtrip (2026-10-26)
 
 The original Import Presets toolbar now has a folder-specific roundtrip proof: import the native-compatible exported file, assign fresh folder/child UUIDs and original collision name, await atomic library commit/readback, expand the imported folder and apply/toggle its child with native-identical pixels. Abort/stale peer/uncertain reload preserve acknowledged UI without replay. 19 browser assertions, cached original Rust merge parity, 164 host cases, 84 repo tests and check pass. [Evidence and continuation](rapidraw-wasm-app-folder-import-handoff.md).

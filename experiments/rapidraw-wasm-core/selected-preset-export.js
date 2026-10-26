@@ -1,6 +1,6 @@
 // Actual-root composition only. Existing native serializer/destination remain authoritative.
 import {serializePresetFile} from './preset-file.js';
-export function createSelectedPresetExport({host,library,backend,timeoutMs=10000,allowFolders=false}){
+export function createSelectedPresetExport({host,library,backend,timeoutMs=10000,allowFolders=false,allowAll=false}){
  if(!Number.isSafeInteger(timeoutMs)||timeoutMs<10||timeoutMs>30000)throw Error('Invalid preset export deadline');
  let busy=false,closed=false,stale=false,pending=false;const choices=new Map();
  const check=()=>{if(closed||stale||pending)throw Error('Reload preset export before continuing');};
@@ -19,11 +19,16 @@ export function createSelectedPresetExport({host,library,backend,timeoutMs=10000
    check();if(busy)throw Error('Preset export already active');busy=true;
    try{
     if(!options||Object.keys(options).some(k=>!['defaultPath','filters','title'].includes(k))||!options.filters?.some(f=>f.extensions?.length===1&&f.extensions[0]==='rrpreset'))throw Error('Only one preset output is available');
-    const record=await current(),selected=record.presets.filter(i=>{
+    const record=await current(),all=allowAll&&options.defaultPath==='all_presets.rrpreset';
+    const filename=i=>((i.preset??i.folder).name+'.rrpreset').replace(/[<>:"/\\|?*]/g,'_');
+    // The original all-library filename cannot also identify a selected item.
+    if(all&&record.presets.some(i=>filename(i)===options.defaultPath))throw Error('Ambiguous all-presets output name; rename the colliding item first');
+    const toolItem=i=>i.preset?.presetType==='tool'||!!i.folder&&i.folder.children.every(p=>p.presetType==='tool');
+    const selected=all?record.presets:record.presets.filter(i=>{
      const eligible=i.preset?.presetType==='tool'||allowFolders&&i.folder?.children.every(p=>p.presetType==='tool');
-     return eligible&&options.defaultPath===((i.preset??i.folder).name+'.rrpreset').replace(/[<>:"/\\|?*]/g,'_');
+     return eligible&&options.defaultPath===filename(i);
     });
-    if(selected.length!==1)throw Error('Choose one existing Exposure Tool preset or unambiguous Tool folder');
+    if(all?selected.length===0||!selected.every(toolItem):selected.length!==1)throw Error('Choose one existing Exposure Tool preset or unambiguous bounded Tool library');
     if(choices.size>=16)throw Error('Too many preset output choices');
     const token=await host.choose(options);if(!token)return null;
     const fresh=await current();if(JSON.stringify(fresh)!==JSON.stringify(record)){stale=true;throw Error('Preset library changed during output selection');}
@@ -38,7 +43,7 @@ export function createSelectedPresetExport({host,library,backend,timeoutMs=10000
     if(!choice)throw Error('Choose a fresh preset output');
     const record=await current();
     if(JSON.stringify(record)!==JSON.stringify(choice.record)){stale=true;throw Error('Preset library changed after output selection');}
-    if(JSON.stringify(args.presetsToExport)!==JSON.stringify(choice.selected))throw Error('Export the selected unchanged preset or bounded folder only');
+    if(JSON.stringify(args.presetsToExport)!==JSON.stringify(choice.selected))throw Error('Export the selected unchanged preset, folder or bounded library only');
     return await host.invoke(command,args);
    }finally{busy=false;}
   },

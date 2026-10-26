@@ -29,3 +29,24 @@ test('selected export handles held chooser duplicate, cancel, original body and 
 test('selected export timeout retains read lease and refuses later replay',async()=>{const s=setup();let release;s.backend.read=()=>new Promise(r=>release=r);const h=createSelectedPresetExport({...s,timeoutMs:10});await assert.rejects(h.choose(options),/timed out/);assert.equal(h.status().pendingIO,true);release({schema:1,revision:1,presets:[item]});await new Promise(r=>setImmediate(r));assert.equal(h.status().pendingIO,false);await assert.rejects(h.choose(options),/Reload/);assert.equal(s.calls,0);});
 
 test('selected chooser preserves original filename sanitization and rejects export-all before chooser',async()=>{const s=setup([{preset:{...item.preset,name:'Exposure > 0'}}]),h=createSelectedPresetExport(s);await assert.rejects(h.choose({...options,defaultPath:'all_presets.rrpreset'}),/one existing/);assert.equal(await h.choose({...options,defaultPath:'Exposure _ 0.rrpreset'}),'token');});
+
+const allOptions={...options,defaultPath:'all_presets.rrpreset'};
+test('whole library export is separately opt-in and awaits ACK with every Tool and folder child',async()=>{
+ const s=setup([item,folder]);let choices=0;s.host.choose=async()=>{choices++;return 'all-token';};await assert.rejects(createSelectedPresetExport({...s,allowFolders:true}).choose(allOptions),/one existing/);assert.equal(choices,0);
+ const h=createSelectedPresetExport({...s,allowAll:true}),filePath=await h.choose(allOptions);let release,body;s.host.invoke=async(c,a)=>{body=structuredClone(a.presetsToExport);await new Promise(r=>release=r);return null;};let resolved=false;const pending=h.invoke('handle_export_presets_to_file',{filePath,presetsToExport:[item,folder]}).then(()=>resolved=true);await new Promise(r=>setImmediate(r));assert.deepEqual(body,[item,folder]);assert.equal(resolved,false);assert.equal(h.status().busy,true);release();await pending;assert.equal(resolved,true);await assert.rejects(h.invoke('handle_export_presets_to_file',{filePath,presetsToExport:[item,folder]}),/fresh/);
+});
+test('whole export rejects partial reordered extended and mutated library bodies before write',async()=>{
+ const s=setup([item,folder]),h=createSelectedPresetExport({...s,allowAll:true});const changed=structuredClone(folder);changed.folder.children[0].adjustments.exposure=-0.8;
+ for(const presetsToExport of [[item],[folder],[folder,item],[item,folder,item],[item,changed]]){const filePath=await h.choose(allOptions);await assert.rejects(h.invoke('handle_export_presets_to_file',{filePath,presetsToExport}),/selected unchanged/);}assert.equal(s.calls,0);
+});
+test('whole library filename collisions and unsupported library content refuse chooser authority',async()=>{
+ const cases=[[{preset:{...item.preset,name:'all_presets'}}],[{folder:{...folder.folder,name:'all_presets'}}],[{preset:{...item.preset,presetType:'style'}}],[{folder:{...folder.folder,children:[{...item.preset,presetType:'style'}]}}],[],Array.from({length:33},(_,i)=>({preset:{...item.preset,id:'p'+i,name:'P'+i}}))];
+ for(const presets of cases){const s=setup(presets);let choices=0;s.host.choose=async()=>{choices++;return 'token';};await assert.rejects(createSelectedPresetExport({...s,allowAll:true}).choose(allOptions));assert.equal(choices,0);assert.equal(s.calls,0);}
+});
+test('whole library choice vetoes a newer backend both during chooser and before invoke',async()=>{
+ for(const phase of ['chooser','invoke']){const s=setup([item,folder]);let release;s.host.choose=()=>new Promise(r=>release=r);const h=createSelectedPresetExport({...s,allowAll:true}),choice=h.choose(allOptions);await new Promise(r=>setImmediate(r));if(phase==='chooser'){s.newer();release('token');await assert.rejects(choice,/library changed/);}else{release('token');const filePath=await choice;s.newer();await assert.rejects(h.invoke('handle_export_presets_to_file',{filePath,presetsToExport:[item,folder]}),/library changed/);}assert.equal(s.calls,0);assert.equal(h.status().stale,true);}
+});
+test('whole library opt-in preserves selected Tool and folder authority boundaries',async()=>{
+ const s=setup([item,folder]),h=createSelectedPresetExport({...s,allowAll:true});const filePath=await h.choose(options);await assert.rejects(h.invoke('handle_export_presets_to_file',{filePath,presetsToExport:[item,folder]}),/selected unchanged/);await assert.rejects(h.choose(folderOptions),/one existing/);assert.equal(s.calls,0);
+ const both=createSelectedPresetExport({...s,allowAll:true,allowFolders:true}),selected=await both.choose(folderOptions);await assert.rejects(both.invoke('handle_export_presets_to_file',{filePath:selected,presetsToExport:[item,folder]}),/selected unchanged/);assert.equal(s.calls,0);
+});
