@@ -159,9 +159,9 @@ export function createPresetLibrary({backend=createPresetLibraryDatabase(),pickF
   const changed=presets.flatMap((item,i)=>JSON.stringify(item)!==JSON.stringify(prior[i])?[i]:[]);
   if(changed.length!==1)return false;
   const index=changed[0],before=prior[index]?.folder,after=presets[index]?.folder;
-  return !!before&&before.children.length===0&&!!after&&after.name!==before.name&&JSON.stringify({...after,name:before.name})===JSON.stringify(before);
+  return !!before&&!!after&&after.name!==before.name&&JSON.stringify({...after,name:before.name})===JSON.stringify(before);
  };
- const saveFolderRenamed=async items=>{ready();const presets=boundedLibrary(items);if(!folderRenameCandidate(presets))fail('Rename only one existing empty top-level folder; preserve ID, children, order and siblings');return persist(presets);};
+ const saveFolderRenamed=async items=>{ready();const presets=boundedLibrary(items);if(!folderRenameCandidate(presets))fail('Rename only one existing top-level folder; preserve ID, all children, order and siblings');return persist(presets);};
  const folderDeleteCandidate=presets=>{
   const prior=current.presets;if(presets.length!==prior.length-1)return false;
   const removed=prior.filter(item=>!presets.some(next=>(next.preset??next.folder).id===(item.preset??item.folder).id));

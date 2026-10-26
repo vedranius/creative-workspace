@@ -1,0 +1,11 @@
+--- a/src/hooks/usePresets.ts
++++ b/src/hooks/usePresets.ts
+@@ -182,7 +182,7 @@
+   const renameItem = async (id: string | null, newName: string) => {
+     if (isLoading || createPending.current) throw new Error('Preset library is busy');
+     const target = presets.find((item: UserPreset) => item.folder?.id === id)?.folder;
+-    if (!target || target.children.length !== 0) throw new Error('Rename one existing empty top-level folder');
++    if (!target) throw new Error('Rename one existing top-level folder; preserve every child');
+     const updatedPresets = presets.map((item: UserPreset) => {
+       if (item.preset?.id === id) {
+         return { preset: { ...item.preset, name: newName } };

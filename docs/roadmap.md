@@ -1,3 +1,9 @@
+# RWASM-03 — original nonempty Folder Rename ACK (2026-10-26)
+
+Original Rename Folder now accepts a nonempty folder through the existing default-off rename capability and original awaited name-only map. Exact children/IDs/values/flags/order, selected native child pixels, held draft, actual abort/stale/uncertain/reload without replay pass 22 browser/209 serial host/84 repo/check. [Evidence and next step](rapidraw-wasm-app-nonempty-folder-rename-handoff.md).
+
+Experimental B; original source/cache/WASM reused, no product release/main/demo/private input change. Next A from 7559f78: original selected-body-reference async Endnotes query/form integration. Next B: original same-folder child Tool reorder ACK from the already acknowledged three-child fixture. SAME MAIN only.
+
 # RWASM-03 — original App root Tool reorder ACK (2026-10-26)
 
 Original pointer drag reorders one existing top-level Exposure Tool inside a contiguous Tool block only after durable commit/readback, using original arrayMove. Exact IDs/names/values/flags/folders/children, held old order, actual abort/stale/uncertain/reload without replay, forward/backward moves and native pixels pass24 browser/204 serial host/84 repo/check. [Evidence and next step](rapidraw-wasm-app-root-reorder-handoff.md).
