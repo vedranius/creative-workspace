@@ -1,3 +1,9 @@
+# RWASM-03 — original App Overwrite Preset ACK (2026-10-26)
+
+Original Overwrite menu now commits one changed top-level Exposure Tool value and verifies durable readback before updating its card/preview. ID/name/flags/order/siblings and newer editor selection survive. Held ACK, duplicate gesture, actual abort/stale peer/uncertain reload and native-exact −0.8/+1.6 application pass17 browser assertions/147 host cases/check/provenance. [Evidence and continuation](rapidraw-wasm-app-preset-overwrite-handoff.md).
+
+Experimental B; original processing/renderer/WASM unchanged, no product release/main/demo/private input change. Next A: alpha76 exact source ed5aae4 Checks40283042138/Build40283042172/tag/draft/downloaded-asset gate after success. Delete Endnote local acceptance and alpha75 immutable gate complete. Next B: original New Folder for one fresh empty top-level folder through durable ACK. SAME MAIN only.
+
 # RWASM-03 — original App Duplicate Preset ACK (2026-10-26)
 
 Original Duplicate Preset now publishes one top-level Exposure Tool clone/card/preview only after durable library commit/readback. Fresh UUID, original Copy name/insertion/values, held ACK, duplicate gesture, actual abort/stale peer/uncertain reload and native-exact clone application pass18 browser assertions/142 host cases/check/provenance. [Evidence and continuation](rapidraw-wasm-app-preset-duplicate-handoff.md).

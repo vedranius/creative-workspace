@@ -61,6 +61,14 @@ export function createPresetLibrary({backend=createPresetLibraryDatabase(),pickF
   return !!source&&source.presetType==='tool'&&!!clone&&/^[a-f0-9]{8}-(?:[a-f0-9]{4}-){3}[a-f0-9]{12}$/.test(clone.id)&&clone.name===source.name+' Copy'&&JSON.stringify({...clone,id:source.id,name:source.name})===JSON.stringify(source)&&JSON.stringify(presets.filter((_,i)=>i!==index))===JSON.stringify(prior);
  };
  const saveDuplicated=async items=>{ready();const presets=boundedLibrary(items);if(!duplicateCandidate(presets))fail('Duplicate one existing top-level Exposure Tool with a fresh ID, original Copy name and unchanged siblings');return persist(presets);};
+ const overwriteCandidate=presets=>{
+  const prior=current.presets;if(presets.length!==prior.length)return false;
+  const changed=presets.flatMap((item,i)=>JSON.stringify(item)!==JSON.stringify(prior[i])?[i]:[]);
+  if(changed.length!==1)return false;
+  const i=changed[0],before=prior[i]?.preset,after=presets[i]?.preset;
+  return !!before&&before.presetType==='tool'&&!!after&&JSON.stringify({...after,adjustments:before.adjustments})===JSON.stringify(before)&&after.adjustments.exposure!==before.adjustments.exposure;
+ };
+ const saveOverwritten=async items=>{ready();const presets=boundedLibrary(items);if(!overwriteCandidate(presets))fail('Overwrite only one existing top-level Exposure Tool value; preserve ID, name, flags, order and siblings');return persist(presets);};
  return {
   async load(){if(closed||busy)fail('Preset library busy or closed');uncertain=true;current=record(await io(()=>backend.read()));check();uncertain=false;return structuredClone(current.presets);},
   async choose(){
@@ -75,8 +83,10 @@ export function createPresetLibrary({backend=createPresetLibraryDatabase(),pickF
   },
   saveCreated,
   saveDuplicated,
-  async savePresets(items,{allowRename=false,allowDelete=false,allowDuplicate=false}={}){
+  saveOverwritten,
+  async savePresets(items,{allowRename=false,allowDelete=false,allowDuplicate=false,allowOverwrite=false}={}){
    ready();const presets=boundedLibrary(items);
+   if(allowOverwrite&&overwriteCandidate(presets))return saveOverwritten(presets);
    if(allowDuplicate&&duplicateCandidate(presets))return saveDuplicated(presets);
    if(allowDelete&&presets.length===current.presets.length-1)return saveDeleted(presets);
    return allowRename&&presets.length===current.presets.length?saveRenamed(presets):saveCreated(presets);

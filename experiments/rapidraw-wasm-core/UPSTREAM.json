@@ -1136,5 +1136,33 @@
       "experiments/rapidraw-react-proof/app-preset-duplicate-main.tsx": "8fb68f32c65bb9d869a6ae31508d3d4fb96ada653a54b1ff9284caec63161408"
     },
     "scope": "Experimental actual original App Duplicate Preset: one exact existing top-level Exposure Tool clone with fresh UUID, original Copy name and insertion after source, card/preview only after durable library CAS/commit/readback. Existing append-Create remains separately admitted by shared SavePresets. No folder/general editing/full App/OS/provider acceptance."
+  },
+  "appPresetOverwrite": {
+    "basePatch": {
+      "path": "patches/rapidraw/b39884b3/preset-duplicate-ack-v1.patch",
+      "sha256": "6f20dc75eeb539daf249be64a50b88d0b53ef892981887ef80f6cd03c4306299",
+      "patchedFiles": {
+        "src/hooks/usePresets.ts": "f35768b628d25f1dc02b4e451e17e256bb1f22b93eb83af124987290e3c767f8",
+        "src/components/panel/right/PresetsPanel.tsx": "353dbd216658dfbd0aeaf5cd2e58d3797f163ad4cfbf018f44d7fcbadedd3b1b"
+      }
+    },
+    "sourcePatch": {
+      "path": "patches/rapidraw/b39884b3/preset-overwrite-ack-v1.patch",
+      "sha256": "fedab0cc887fac3e8e0bc000b2f6868f7c14b1251beb48f1670979eaf0d71ea0",
+      "patchedFiles": {
+        "src/hooks/usePresets.ts": "7c4a49ef0524da9d467a897201400d6e2e85ab8c68c203884bcda2ae2a9d7b35",
+        "src/components/panel/right/PresetsPanel.tsx": "08cd69707390dae7d32418308bd569add53722b63111c165864864f998500ff0"
+      }
+    },
+    "sourceFiles": {
+      "src/hooks/usePresets.ts": "0b545710738a886df5a6946723e0e4e580027d98cc7a92f9bacd777bc7cf6258",
+      "src/components/panel/right/PresetsPanel.tsx": "f91a154e80a92c8692c625a9a43e1be06534024b78d79ce0052176d25ecf2949",
+      "src/components/modals/ConfigurePresetModal.tsx": "090545bc74c1c75342a958b503e26d64ad890024e14f3a722f2ceb176fdfdf8b",
+      "src-tauri/src/file_management.rs": "3f639e11c2f8a74baa31285b2aa9456516e5c71b6c8e4d78a42dbe61f5c4a219"
+    },
+    "bootstrapFiles": {
+      "experiments/rapidraw-react-proof/app-preset-overwrite-main.tsx": "33e2d5be4145dbeb1a3933d8e71a78967913b691ea4e53aed6accd19e166828e"
+    },
+    "scope": "Experimental actual original App Overwrite Preset: one existing top-level Exposure Tool current nonzero bounded Exposure, durable library CAS/commit/readback before card/preview; original ID/name/flags/order/siblings preserved. No folder/general editing/default-omission/full App/OS/provider acceptance."
   }
 }

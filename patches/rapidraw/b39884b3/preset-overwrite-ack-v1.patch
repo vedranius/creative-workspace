@@ -1,0 +1,71 @@
+diff --git a/src/hooks/usePresets.ts b/src/hooks/usePresets.ts
+--- a/src/hooks/usePresets.ts
++++ b/src/hooks/usePresets.ts
+@@ -301,7 +301,8 @@
+     }
+   };
+ 
+-  const overwritePreset = (id: string | null) => {
++  const overwritePreset = async (id: string | null) => {
++    if (isLoading || createPending.current) throw new Error('Preset library is busy');
+     let existingPreset: Preset | null = null;
+ 
+     for (const item of presets) {
+@@ -318,7 +319,9 @@
+       }
+     }
+ 
+-    if (!existingPreset) return null;
++    if (!existingPreset || !presets.some(item => item.preset?.id === id) || existingPreset.presetType !== 'tool') {
++      throw new Error('Only an existing top-level Exposure Tool preset can be overwritten');
++    }
+ 
+     const GEOMETRY_KEYS = ADJUSTMENT_GROUPS.geometry.flatMap((group) => group.keys);
+     const MASK_KEYS = ADJUSTMENT_GROUPS.masks.flatMap((group) => group.keys);
+@@ -388,9 +391,16 @@
+       return item;
+     });
+ 
+-    setPresets(updatedPresets);
+-    savePresetsToBackend(updatedPresets);
+-    return updatedPreset;
++    createPending.current = true;
++    setIsLoading(true);
++    try {
++      await invoke(Invokes.SavePresets, { presets: updatedPresets });
++      setPresets(updatedPresets);
++      return updatedPreset;
++    } finally {
++      createPending.current = false;
++      setIsLoading(false);
++    }
+   };
+ 
+   const duplicatePreset = useCallback(
+diff --git a/src/components/panel/right/PresetsPanel.tsx b/src/components/panel/right/PresetsPanel.tsx
+--- a/src/components/panel/right/PresetsPanel.tsx
++++ b/src/components/panel/right/PresetsPanel.tsx
+@@ -1136,10 +1136,20 @@
+           icon: Save,
+           label: t('editor.presets.menu.overwrite'),
+           onClick: async () => {
+-            const updated = overwritePreset(data?.id ?? null);
+-            if (updated) {
+-              await generateSinglePreview(updated);
++            if (isLoading || deletePending.current) return;
++            deletePending.current = true;
++            setDeleteBusy(true);
++            setDeleteError('');
++            let updated: Preset | null = null;
++            try {
++              updated = await overwritePreset(data?.id ?? null);
++            } catch (error) {
++              setDeleteError(error instanceof Error ? error.message : String(error));
++            } finally {
++              deletePending.current = false;
++              setDeleteBusy(false);
+             }
++            if (updated) await generateSinglePreview(updated);
+           },
+         },
+         {
