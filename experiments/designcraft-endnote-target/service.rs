@@ -20,6 +20,62 @@ fn typed_snapshot(value: &Value) -> Result<Value,String> {
     serde_json::to_value(document).map_err(|e|e.to_string())
 }
 
+// TextSel offsets are UTF-8 bytes. Do not let endnotes_before's intentional
+// floor-to-boundary behavior turn a partial character or nearby caret into a target.
+fn selected_body_reference(app: &DesignApp) -> Result<(u64, u64), String> {
+    use designcraft_doc::{Content, ENDNOTE_REF};
+    let state = app.session.active().ok_or("Open a publication first")?;
+    let selection = &state.selection;
+    let text = selection.text.ok_or("Select one body Endnote reference")?;
+    if text.cell.is_some() || selection.cells.is_some() || selection.content
+        || !selection.items.is_empty() || !selection.anchors.is_empty() || selection.key.is_some()
+        || state.doc.endnote_story == Some(text.story) {
+        return Err("Select one body Endnote reference, outside the generated listing or a cell".into());
+    }
+    let story = state.doc.stories.get(&text.story).ok_or("Missing body story")?;
+    if story.id != text.story || story.id.0 == 0 || story.id.0 > u32::MAX as u64 {
+        return Err("Invalid body story identity".into());
+    }
+    let valid_frame = |frame| story.frames.contains(&frame)
+        && state.doc.page_of_item(frame).is_some()
+        && state.doc.item(frame).is_some_and(|item| matches!(&item.content, Content::Text(t) if t.story == text.story));
+    if !story.frames.iter().copied().any(valid_frame) || text.frame.is_some_and(|f| !valid_frame(f)) {
+        return Err("Reference must belong to an original body text frame".into());
+    }
+    let range = text.range();
+    if !story.text.is_char_boundary(range.start) || !story.text.is_char_boundary(range.end)
+        || story.text.get(range.clone()) != Some(ENDNOTE_REF.to_string().as_str()) {
+        return Err("Select exactly one complete UTF-8 Endnote reference".into());
+    }
+    if story.text.matches(ENDNOTE_REF).count() != story.endnotes.len() {
+        return Err("Endnote reference order does not match the original story".into());
+    }
+    let note = story.endnotes.get(story.endnotes_before(range.start)).ok_or("Missing Endnote reference target")?;
+    if note.id == 0 || note.id > u32::MAX as u64 || story.endnotes.iter().filter(|n| n.id == note.id).count() != 1 {
+        return Err("Invalid or ambiguous Endnote identity".into());
+    }
+    Ok((story.id.0, note.id))
+}
+
+// This entry point captures the user's exact original selection, rather than
+// accepting story/id fields from a relay or choosing the first query result.
+pub struct SelectedEndnoteQuery {
+    context: EndnoteTargetQuery,
+    target: (u64, u64),
+}
+impl SelectedEndnoteQuery {
+    pub fn capture(app: &DesignApp, session: &str) -> Result<Self, String> {
+        Ok(Self {context: EndnoteTargetQuery::capture(app, session)?, target: selected_body_reference(app)?})
+    }
+    pub fn request(&self) -> Value { self.context.request() }
+    pub fn open(self, app: &mut DesignApp, session: &str, reply: &Value) -> Result<(), String> {
+        if selected_body_reference(app)? != self.target {
+            return Err("Selected Endnote reference changed; query again explicitly".into());
+        }
+        self.context.open(app, session, reply, self.target.0, self.target.1)
+    }
+}
+
 pub struct EndnoteTargetQuery {
     session: String,
     uid: u64,
@@ -99,8 +155,7 @@ mod tests {
     use super::*;
     use crate::{HostActionAck, Services};
     use std::sync::{Arc,Mutex};
-    fn fixture() -> (DesignApp, Value, Arc<Mutex<Vec<(String, Value)>>>) {
-        let reply: Value = serde_json::from_slice(&std::fs::read(std::env::var("CW_ENDNOTE_TARGET_REPLY").unwrap()).unwrap()).unwrap();
+    fn hydrate(reply: Value) -> (DesignApp, Value, Arc<Mutex<Vec<(String, Value)>>>) {
         let actions = Arc::new(Mutex::new(Vec::new())); let out = actions.clone();
         let mut session = Session::new(); session.set_server_mirror();
         let mut app = DesignApp::new(session, Services {host_action:Some(Box::new(move |id,p| {
@@ -113,6 +168,9 @@ mod tests {
             preview:egui::ColorImage::filled([1,1],egui::Color32::WHITE),dirty:reply["document"]["dirty"].as_bool().unwrap(),
             display_name:Some("fixture.designcraft".into())}).unwrap();
         actions.lock().unwrap().clear(); (app,reply,actions)
+    }
+    fn fixture() -> (DesignApp, Value, Arc<Mutex<Vec<(String, Value)>>>) {
+        hydrate(serde_json::from_slice(&std::fs::read(std::env::var("CW_ENDNOTE_TARGET_REPLY").unwrap()).unwrap()).unwrap())
     }
     fn choose(reply:&Value)->(u64,u64) {let n=&reply["result"]["notes"][0];(n["story"].as_u64().unwrap(),n["id"].as_u64().unwrap())}
     fn unchanged(app:&DesignApp, reply:&Value) {
@@ -196,5 +254,96 @@ mod tests {
         assert!(token.open(&mut app,"A",&json!({"error":"query failed"}),19,1).is_err());
         let token=EndnoteTargetQuery::capture(&app,"A").unwrap();assert!(token.open(&mut app,"A",&reply,999,1).is_err());
         assert!(app.ui.dialog.is_none());unchanged(&app,&reply);assert!(actions.lock().unwrap().is_empty());
+    }
+    fn reference_cases() -> Vec<Value> {
+        serde_json::from_slice(&std::fs::read(std::env::var("CW_ENDNOTE_REFERENCE_REPLIES").unwrap()).unwrap()).unwrap()
+    }
+    fn fingerprint(app: &DesignApp) -> Value {
+        let state=app.session.active().unwrap();
+        json!({"doc":state.doc,"selection":state.selection,"revision":app.host_revision(),"page":app.host_page(),
+            "dirty":state.is_dirty(),"undo":state.history.undo.len(),"redo":state.history.redo.len()})
+    }
+    #[test]
+    fn actual_native_body_ranges_open_source_ids_forward_and_backward_without_manual_targets() {
+        let cases=reference_cases(); assert_eq!(cases.len(),6);
+        for case in cases {
+            let (mut app,reply,actions)=hydrate(case["reply"].clone());let before=fingerprint(&app);
+            let token=SelectedEndnoteQuery::capture(&app,"reference-session").unwrap();
+            assert_eq!(token.target,(case["story"].as_u64().unwrap(),case["id"].as_u64().unwrap()));
+            assert_eq!(token.request(),json!({"method":"endnote.list","params":{},"expectedVersion":reply["stateVersion"]}));
+            token.open(&mut app,"reference-session",&reply).unwrap();
+            let note=reply["result"]["notes"].as_array().unwrap().iter()
+                .find(|n|n["story"]==case["story"] && n["id"]==case["id"]).unwrap();
+            let dialog=app.ui.dialog.as_mut().unwrap();assert_eq!(dialog.id,"cmd:endnote.edit");
+            assert_eq!(dialog.fields.get("story"),Some(&case["story"]));assert_eq!(dialog.fields.get("id"),Some(&case["id"]));
+            assert_eq!(dialog.fields.get("text"),Some(&note["text"]));
+            dialog.fields.insert("text".into(),json!("Reference draft Ž😀"));
+            assert_eq!(fingerprint(&app),before);assert!(actions.lock().unwrap().is_empty());
+            crate::dialogs::confirm(&mut app).unwrap();assert!(app.host_pending());
+            assert_eq!(*actions.lock().unwrap(),vec![("endnote.edit".into(),json!({"story":case["story"],"id":case["id"],"text":"Reference draft Ž😀"}))]);
+            assert_eq!(fingerprint(&app),before);assert!(app.ui.dialog.is_some());
+        }
+    }
+    #[test]
+    fn caret_partial_utf8_ordinary_text_ambiguous_range_and_nonbody_contexts_never_choose_a_note() {
+        use designcraft_doc::{CellAddr,ItemId,StoryId};
+        let cases=reference_cases();let case=&cases[0];
+        for fault in ["no-text","caret-before","caret-after","partial-start","partial-end","out-of-range",
+            "ordinary","wide","cell","footnote","listing","missing-story","other-frame","items","anchors","content","key"] {
+            let (mut app,_,actions)=hydrate(case["reply"].clone());let state=app.session.active_mut().unwrap();
+            let mut t=state.selection.text.unwrap();let r=t.range();
+            match fault {
+                "no-text"=>state.selection.text=None,
+                "caret-before"=>{t.anchor=r.start;t.focus=r.start;state.selection.text=Some(t);},
+                "caret-after"=>{t.anchor=r.end;t.focus=r.end;state.selection.text=Some(t);},
+                "partial-start"=>{t.anchor=r.start+1;t.focus=r.end;state.selection.text=Some(t);},
+                "partial-end"=>{t.anchor=r.start;t.focus=r.end-1;state.selection.text=Some(t);},
+                "out-of-range"=>{t.focus=usize::MAX;state.selection.text=Some(t);},
+                "ordinary"=>{t.anchor=0;t.focus=2;state.selection.text=Some(t);},
+                "wide"=>{t.anchor=0;t.focus=r.end;state.selection.text=Some(t);},
+                "cell"=>{t.cell=Some(CellAddr {table:1,row:0,col:0});state.selection.text=Some(t);},
+                "footnote"=>{t.cell=Some(CellAddr::footnote(1));state.selection.text=Some(t);},
+                "listing"=>{t.story=state.doc.endnote_story.unwrap();state.selection.text=Some(t);},
+                "missing-story"=>{t.story=StoryId(999999);state.selection.text=Some(t);},
+                "other-frame"=>{t.frame=Some(ItemId(999999));state.selection.text=Some(t);},
+                "items"=>state.selection.items.push(ItemId(18)),
+                "anchors"=>state.selection.anchors.push((ItemId(18),0,0)),
+                "content"=>state.selection.content=true,
+                _=>state.selection.key=Some(ItemId(18)),
+            }
+            let before=fingerprint(&app);assert!(SelectedEndnoteQuery::capture(&app,"A").is_err(),"{fault}");
+            assert_eq!(fingerprint(&app),before);assert!(actions.lock().unwrap().is_empty());assert!(app.ui.dialog.is_none());
+        }
+    }
+    #[test]
+    fn original_reference_ordinal_is_not_note_id_or_document_number_and_invalid_mapping_refuses() {
+        let cases=reference_cases();
+        assert_eq!(cases.iter().map(|c|(c["story"].as_u64().unwrap(),c["id"].as_u64().unwrap())).collect::<Vec<_>>(),
+            vec![(19,2),(19,2),(19,1),(19,1),(10,1),(10,1)]);
+        for fault in ["missing-note","duplicate-id","zero-id","oversize-id","unframed"] {
+            let (mut app,_,actions)=hydrate(cases[0]["reply"].clone());
+            let state=app.session.active_mut().unwrap();let sid=state.selection.text.unwrap().story;
+            let story=Arc::make_mut(&mut state.doc).story_mut(sid).unwrap();
+            match fault {"missing-note"=>{story.endnotes.pop();},"duplicate-id"=>{let id=story.endnotes[1].id;Arc::make_mut(&mut story.endnotes[0]).id=id;},
+                "zero-id"=>Arc::make_mut(&mut story.endnotes[0]).id=0,
+                "oversize-id"=>Arc::make_mut(&mut story.endnotes[0]).id=u32::MAX as u64+1,_=>story.frames.clear()}
+            let before=fingerprint(&app);assert!(SelectedEndnoteQuery::capture(&app,"A").is_err(),"{fault}");
+            assert_eq!(fingerprint(&app),before);assert!(actions.lock().unwrap().is_empty());assert!(app.ui.dialog.is_none());
+        }
+    }
+    #[test]
+    fn selected_reference_query_cannot_overwrite_new_selection_draft_or_session_and_drop_is_inert() {
+        let cases=reference_cases();
+        for fault in ["selection","direction","draft","session","revision","drop"] {
+            let (mut app,reply,actions)=hydrate(cases[0]["reply"].clone());
+            let token=SelectedEndnoteQuery::capture(&app,"A").unwrap();
+            match fault {"selection"=>{let t=app.session.active_mut().unwrap().selection.text.as_mut().unwrap();t.anchor+=3;t.focus+=3;},
+                "direction"=>{let t=app.session.active_mut().unwrap().selection.text.as_mut().unwrap();std::mem::swap(&mut t.anchor,&mut t.focus);},
+                "draft"=>app.ui.dialog=Some(Dialog::new("cmd:endnote.edit",json!({"text":"newer draft"}))),
+                "revision"=>app.host_revision+=1,_=>{}}
+            let before=fingerprint(&app);let dialog=app.ui.dialog.as_ref().map(|d|d.fields.clone());
+            if fault=="drop" {drop(token);}else{assert!(token.open(&mut app,if fault=="session"{"B"}else{"A"},&reply).is_err(),"{fault}");}
+            assert_eq!(fingerprint(&app),before);assert_eq!(app.ui.dialog.as_ref().map(|d|d.fields.clone()),dialog);assert!(actions.lock().unwrap().is_empty());
+        }
     }
 }

@@ -1,3 +1,9 @@
+# PAR-03 — original selected Endnote body reference candidate (2026-10-27)
+
+The native candidate resolves an exact original U+E00F text selection through source reference order and opens the original Edit Endnote form without manual IDs. Six actual native forward/reverse selections, multibyte UTF-8 and deliberately different IDs/ordinals/numbers pass 183 UI tests (1 existing ignored), 102 repo/check/release validation. [Evidence and precise continuation](evidence/designcraft-endnote-reference.md).
+
+Unfinished experiment: shipped source patch/UI/WASM/product version/release remain unchanged. Native targeting is complete; next A is asynchronous original Quick Apply/query/form browser integration with correlation/deadline/cancellation and actual pointer/native-pixel/ACK proof. Next B from5e221c6 is same-folder child Tool reorder ACK using the existing three-child fixture after one exact CI snapshot. SAME MAIN only; DesignCraft planned and full providers/OS/all13 acceptance open.
+
 # PAR-03 — original Endnotes target service candidate (2026-10-26)
 
 A native-only candidate validates an explicit Endnotes result against its captured session/document UID/version/canonical selection and opens the original Edit Endnote form. Exact original query/page order, schema/budgets, stale/ABA/draft/busy protections and pending original confirmation pass 179 UI tests (1 existing ignored), 102 repo/check/release validation. [Evidence, limits and handoff](evidence/designcraft-endnote-target-service.md).

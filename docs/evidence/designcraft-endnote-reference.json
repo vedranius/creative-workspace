@@ -1,0 +1,118 @@
+{
+  "scope": "Experimental native selected original body-reference Endnote query-to-form service. Exact UTF-8 TextSel and original endnotes_before ordinal resolve source story/id, opaque consumed canonical context and unchanged native document/selection/dirty/history until original mutation ACK. Not connected to shipped browser UI; asynchronous transport and browser acceptance remain open.",
+  "sourcePin": "a127c6d5c3576972bbd60445f26d893db071eef3",
+  "basePatchSha256": "5243209726af965d77117c3dd7fe6483296e260168febcac3cdbd88397987802",
+  "candidateModuleSha256": "32fb51e25dcae534990eaf1940b35c893d0a6265ee1dfc139dc05147d4460d41",
+  "workerSha256": "1d6f3a7839c80dc9e86b235912997eec1905e8428d6b73ed1e2782d466277dff",
+  "generatedFixtureSha256": "5390657a5cc6ca6bea310b16a324302372b7095c741f51ec6539b0ba846cbb8c",
+  "gatewayCanonicalSha256": "570cc41effd389de58c46da36553d174e612871fe102894ec3ff6d48847a1fc9",
+  "notes": [
+    {
+      "id": 1,
+      "number": 1,
+      "story": 19,
+      "text": "First page Ω"
+    },
+    {
+      "id": 1,
+      "number": 2,
+      "story": 10,
+      "text": "Second page č"
+    }
+  ],
+  "queryReadOnly": true,
+  "wireDocumentNormalizedByOriginalModel": true,
+  "strictDocumentSchemaShape": true,
+  "sourceNumberingOrderExact": true,
+  "originalGenericEditForm": true,
+  "originalConfirmCommandExact": true,
+  "noMirrorMutationBeforeAck": true,
+  "opaqueContextConsumed": true,
+  "explicitTargetOnly": true,
+  "staleContextAndSessionAndDocumentUidRejected": true,
+  "draftPaletteBusyQueueProtected": true,
+  "malformedResultBudgetsAndSourceQueryValidated": true,
+  "selectedOriginalBodyReference": true,
+  "exactUtf8ForwardReverseRanges": true,
+  "originalReferenceOrdinalNotIdOrNumber": true,
+  "referenceCases": [
+    {
+      "story": 19,
+      "id": 2,
+      "anchor": 7,
+      "focus": 10,
+      "revision": 8,
+      "canonicalSha256": "9bba10228af6fefdd570d5b6969246cedb2543bfcae33a18094f2cde89dfc819"
+    },
+    {
+      "story": 19,
+      "id": 2,
+      "anchor": 10,
+      "focus": 7,
+      "revision": 9,
+      "canonicalSha256": "9bba10228af6fefdd570d5b6969246cedb2543bfcae33a18094f2cde89dfc819"
+    },
+    {
+      "story": 19,
+      "id": 1,
+      "anchor": 19,
+      "focus": 22,
+      "revision": 10,
+      "canonicalSha256": "9bba10228af6fefdd570d5b6969246cedb2543bfcae33a18094f2cde89dfc819"
+    },
+    {
+      "story": 19,
+      "id": 1,
+      "anchor": 22,
+      "focus": 19,
+      "revision": 11,
+      "canonicalSha256": "9bba10228af6fefdd570d5b6969246cedb2543bfcae33a18094f2cde89dfc819"
+    },
+    {
+      "story": 10,
+      "id": 1,
+      "anchor": 9,
+      "focus": 12,
+      "revision": 13,
+      "canonicalSha256": "9bba10228af6fefdd570d5b6969246cedb2543bfcae33a18094f2cde89dfc819"
+    },
+    {
+      "story": 10,
+      "id": 1,
+      "anchor": 12,
+      "focus": 9,
+      "revision": 14,
+      "canonicalSha256": "9bba10228af6fefdd570d5b6969246cedb2543bfcae33a18094f2cde89dfc819"
+    }
+  ],
+  "sourceRestored": true,
+  "uiTests": [
+    183,
+    0,
+    1
+  ],
+  "browserIntegrated": false,
+  "shippedUiChanged": false,
+  "fullAppAccepted": false,
+  "repositoryTests": 102,
+  "npmCheck": true,
+  "releaseMetadataValidation": true,
+  "nativeCandidateOnly": true,
+  "newNativeTestGroups": 4,
+  "noNativeWorkerOrWasmRebuild": true,
+  "qaContextStarted": false,
+  "shortDiskTmpRemoved": true,
+  "previousChecks": {
+    "id": 40412441632,
+    "headSha": "7559f78b78936fb71830e8c13c6e2c13b8cb839e",
+    "conclusion": "success"
+  },
+  "existingRelease": {
+    "id": 424564329,
+    "tag": "v0.2.0-alpha.77",
+    "draft": true,
+    "prerelease": true,
+    "assets": 24,
+    "unchanged": true
+  }
+}
