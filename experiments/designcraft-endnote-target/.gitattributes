@@ -1,2 +1,3 @@
 # Keep the hash-pinned candidate bytes identical on every Checks runner.
 service.rs text eol=lf
+delivery.rs text eol=lf

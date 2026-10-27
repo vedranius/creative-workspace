@@ -4,6 +4,10 @@ use crate::{DesignApp, dialogs::Dialog};
 use designcraft_engine::{DocState, Session};
 use serde_json::{Value, json};
 
+#[path = "cw_endnote_delivery_candidate.rs"]
+mod delivery;
+pub use delivery::*;
+
 // JSON relays may encode source numeric values as 0 rather than 0.0. Keep
 // the exact schema shape, then compare through the same original Document type
 // that hydrates the hosted mirror. This is typed equality, not an epsilon check.
@@ -155,7 +159,7 @@ mod tests {
     use super::*;
     use crate::{HostActionAck, Services};
     use std::sync::{Arc,Mutex};
-    fn hydrate(reply: Value) -> (DesignApp, Value, Arc<Mutex<Vec<(String, Value)>>>) {
+    pub(super) fn hydrate(reply: Value) -> (DesignApp, Value, Arc<Mutex<Vec<(String, Value)>>>) {
         let actions = Arc::new(Mutex::new(Vec::new())); let out = actions.clone();
         let mut session = Session::new(); session.set_server_mirror();
         let mut app = DesignApp::new(session, Services {host_action:Some(Box::new(move |id,p| {
@@ -255,10 +259,10 @@ mod tests {
         let token=EndnoteTargetQuery::capture(&app,"A").unwrap();assert!(token.open(&mut app,"A",&reply,999,1).is_err());
         assert!(app.ui.dialog.is_none());unchanged(&app,&reply);assert!(actions.lock().unwrap().is_empty());
     }
-    fn reference_cases() -> Vec<Value> {
+    pub(super) fn reference_cases() -> Vec<Value> {
         serde_json::from_slice(&std::fs::read(std::env::var("CW_ENDNOTE_REFERENCE_REPLIES").unwrap()).unwrap()).unwrap()
     }
-    fn fingerprint(app: &DesignApp) -> Value {
+    pub(super) fn fingerprint(app: &DesignApp) -> Value {
         let state=app.session.active().unwrap();
         json!({"doc":state.doc,"selection":state.selection,"revision":app.host_revision(),"page":app.host_page(),
             "dirty":state.is_dirty(),"undo":state.history.undo.len(),"redo":state.history.redo.len()})

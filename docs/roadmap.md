@@ -1,3 +1,9 @@
+# PAR-03 — selected Endnote asynchronous delivery candidate (2026-10-27)
+
+A separate native delivery owner now correlates selected-reference query tickets, actual session/context, fixed monotonic deadline and exact cancellation without touching the mutation ACK/FIFO. Six actual native replies and six new test groups pass 189 original UI tests (1 existing ignored); injected Cargo23 restores both modules. [Evidence and exact browser continuation](evidence/designcraft-endnote-delivery.md).
+
+Unfinished experiment: shipped browser shell/Quick Apply/source patch/WASM/product release remain unchanged. Next A must wire this owner into the original browser query queue/AbortController and existing Quick Apply/form, then prove actual pointer/native pixels/mutation ACK; do not repeat targeting/delivery guards as progress. Next B from b35316b is existing child Tool between existing folders through ACK. SAME MAIN only; DesignCraft planned/full providers/OS/all13 remain open.
+
 # PAR-03 — original selected Endnote body reference candidate (2026-10-27)
 
 The native candidate resolves an exact original U+E00F text selection through source reference order and opens the original Edit Endnote form without manual IDs. Six actual native forward/reverse selections, multibyte UTF-8 and deliberately different IDs/ordinals/numbers pass 183 UI tests (1 existing ignored), 102 repo/check/release validation. [Evidence and precise continuation](evidence/designcraft-endnote-reference.md).

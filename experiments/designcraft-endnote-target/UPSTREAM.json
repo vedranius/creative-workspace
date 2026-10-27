@@ -1,8 +1,9 @@
 {
   "sourcePin": "a127c6d5c3576972bbd60445f26d893db071eef3",
   "basePatchSha256": "5243209726af965d77117c3dd7fe6483296e260168febcac3cdbd88397987802",
-  "moduleSha256": "32fb51e25dcae534990eaf1940b35c893d0a6265ee1dfc139dc05147d4460d41",
-  "scope": "Experimental native selected original body-reference Endnote query-to-form service. Exact UTF-8 TextSel and original endnotes_before ordinal resolve source story/id, opaque consumed canonical context and unchanged native document/selection/dirty/history until original mutation ACK. Not connected to shipped browser UI; asynchronous transport and browser acceptance remain open.",
+  "moduleSha256": "4c732203e1e9d70888bc0a86064ac166b58251473df8ccec4165171c38564668",
+  "scope": "Experimental native selected Endnote asynchronous delivery owner with unique request tickets, actual session/context correlation, monotonic deadline, exact cancellation, query-local failure, late reply/no replay protection and original form/pending mutation ACK. Not connected to shipped browser shell/Quick Apply; real fetch abort and browser pointer/pixel acceptance remain open.",
   "fixtureSha256": "5390657a5cc6ca6bea310b16a324302372b7095c741f51ec6539b0ba846cbb8c",
-  "workerSha256": "1d6f3a7839c80dc9e86b235912997eec1905e8428d6b73ed1e2782d466277dff"
+  "workerSha256": "1d6f3a7839c80dc9e86b235912997eec1905e8428d6b73ed1e2782d466277dff",
+  "deliverySha256": "c1cd6ee8547502f4dc80eee3353fb96845e19d2c4b5f7f81ff682c66c7f42888"
 }

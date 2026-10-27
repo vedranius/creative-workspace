@@ -12,6 +12,7 @@ const [source,binary,fixture,output]=process.argv.slice(2);
 const hash=b=>createHash('sha256').update(b).digest('hex'),exec=promisify(execFile);
 const contract=JSON.parse(await readFile(new URL('../experiments/designcraft-endnote-target/UPSTREAM.json',import.meta.url)));
 const moduleBytes=await readFile(new URL('../experiments/designcraft-endnote-target/service.rs',import.meta.url));assert.equal(hash(moduleBytes),contract.moduleSha256);
+const deliveryBytes=await readFile(new URL('../experiments/designcraft-endnote-target/delivery.rs',import.meta.url));assert.equal(hash(deliveryBytes),contract.deliverySha256);
 const patch=await readFile(originalUiPatches.designcraft.path);assert.equal(hash(patch),contract.basePatchSha256);
 assert.equal(originalUiPins.designcraft,contract.sourcePin);
 if(process.env.PROVENANCE_ONLY){for(const key of ['fixtureSha256','workerSha256'])assert.match(contract[key],/^[a-f0-9]{64}$/);console.log('Candidate source/base patch/module/fixture/worker provenance contract valid');process.exit(0);}
@@ -21,7 +22,8 @@ await assertOriginalUiSource(source,patch,'before candidate');await mkdir(output
 const project=path.join(output,'project');await mkdir(project);const input=await readFile(fixture);assert.equal(hash(input),contract.fixtureSha256);assert.equal(hash(await readFile(binary)),contract.workerSha256);await writeFile(path.join(project,'fixture.designcraft'),input);
 const design=createDesignCraft({binary,stateDir:path.join(output,'sessions')});let id;
 const lib=path.join(source,'crates/ui-egui/src/lib.rs'),modulePath=path.join(source,'crates/ui-egui/src/cw_endnote_target_candidate.rs');
-const original=await readFile(lib);let installed=false;let reply,referenceCases=[],restored=false;
+const deliveryPath=path.join(source,'crates/ui-egui/src/cw_endnote_delivery_candidate.rs');
+const original=await readFile(lib);const installed=[];let reply,referenceCases=[],restored=false;
 try{
  const session=await design.create(project);id=session.id;
  const call=(method,params={},extra={})=>design.execute(id,{method,params,requestId:randomUUID(),...extra});
@@ -55,8 +57,8 @@ try{
  assert.equal(referenceCases.length,6);
  await writeFile(path.join(output,'reference-replies.private.json'),JSON.stringify(referenceCases));
  await design.close(id,{discard:true});id=null;design.shutdown();
- await access(modulePath).then(()=>{throw Error('Candidate module already exists');},e=>{if(e.code!=='ENOENT')throw e;});
- await writeFile(modulePath,moduleBytes,{flag:'wx'});installed=true;
+ for(const target of [modulePath,deliveryPath])await access(target).then(()=>{throw Error('Candidate module already exists');},e=>{if(e.code!=='ENOENT')throw e;});
+ for(const [target,bytes] of [[modulePath,moduleBytes],[deliveryPath,deliveryBytes]]){await writeFile(target,bytes,{flag:'wx'});installed.push(target);}
  await writeFile(lib,Buffer.concat([original,Buffer.from('\n#[cfg(test)]\nmod cw_endnote_target_candidate;\n')]));
  const env={...process.env,CW_ENDNOTE_TARGET_REPLY:path.resolve(output,'gateway-reply.private.json'),CW_ENDNOTE_REFERENCE_REPLIES:path.resolve(output,'reference-replies.private.json'),CARGO_BUILD_JOBS:'1'};
  if(process.env.CW_RUST_TOOLCHAIN_BIN)env.PATH=path.resolve(process.env.CW_RUST_TOOLCHAIN_BIN)+path.delimiter+env.PATH;
@@ -65,11 +67,12 @@ try{
  finally{await new Promise(resolve=>log.end(resolve));}
 }finally{
  if(id)await design.close(id,{discard:true}).catch(()=>{});design.shutdown();
- if(installed){await writeFile(lib,original);await rm(modulePath);}
+ if(installed.length){await writeFile(lib,original);for(const target of installed)await rm(target);}
  await assertOriginalUiSource(source,patch,'after candidate restoration');assert.equal(hash(await readFile(lib)),hash(original));restored=true;
 }
 assert.equal(hash(await readFile(fixture)),hash(input));
 const tests=await readFile(path.join(output,'ui-tests.log'),'utf8');assert.match(tests,/test result: ok\./);assert.match(tests,/cw_endnote_target_candidate::tests::actual_gateway_query_opens_exact_original_form_and_confirm_waits_for_mutation_ack \.\.\. ok/);
 for(const name of ['actual_native_body_ranges_open_source_ids_forward_and_backward_without_manual_targets','caret_partial_utf8_ordinary_text_ambiguous_range_and_nonbody_contexts_never_choose_a_note','original_reference_ordinal_is_not_note_id_or_document_number_and_invalid_mapping_refuses','selected_reference_query_cannot_overwrite_new_selection_draft_or_session_and_drop_is_inert'])assert.ok(tests.includes(name+' ... ok'),name);
-const report={scope:contract.scope,sourcePin:contract.sourcePin,basePatchSha256:hash(patch),candidateModuleSha256:hash(moduleBytes),workerSha256:hash(await readFile(binary)),generatedFixtureSha256:hash(input),gatewayCanonicalSha256:hash(Buffer.from(JSON.stringify(reply.documentSnapshot))),notes:reply.result.notes,queryReadOnly:true,wireDocumentNormalizedByOriginalModel:true,strictDocumentSchemaShape:true,sourceNumberingOrderExact:true,originalGenericEditForm:true,originalConfirmCommandExact:true,noMirrorMutationBeforeAck:true,opaqueContextConsumed:true,explicitTargetOnly:true,staleContextAndSessionAndDocumentUidRejected:true,draftPaletteBusyQueueProtected:true,malformedResultBudgetsAndSourceQueryValidated:true,selectedOriginalBodyReference:true,exactUtf8ForwardReverseRanges:true,originalReferenceOrdinalNotIdOrNumber:true,referenceCases:referenceCases.map(({story,id,anchor,focus,reply})=>({story,id,anchor,focus,revision:reply.stateVersion,canonicalSha256:hash(Buffer.from(JSON.stringify(reply.documentSnapshot)))})),sourceRestored:restored,uiTests:tests.match(/test result: ok\. (\d+) passed; (\d+) failed; (\d+) ignored/).slice(1).map(Number),browserIntegrated:false,shippedUiChanged:false,fullAppAccepted:false};
+for(const name of ['six_actual_native_replies_delivered_once_open_original_form_and_confirm_still_waits_for_ack','foreign_session_or_request_ticket_never_consumes_current_query','cancel_aborts_only_exact_ticket_and_old_reply_or_cancel_cannot_touch_explicit_new_request','exact_deadline_clock_rollback_and_overflow_refuse_without_replay','failed_query_is_local_and_held_newer_mutation_fifo_draft_palette_and_session_survive','frame_poll_releases_context_and_bad_response_consumes_only_its_query'])assert.ok(tests.includes(name+' ... ok'),name);
+const report={deliveryModuleSha256:hash(deliveryBytes),uniqueShellEpochAndProcessSerial:true,queryTicketCapturesActualSession:true,duplicateBeginDoesNotSendOrReplace:true,monotonicDeadlineMs:10000,cancelReturnsExactAbortTicket:true,lateOrForeignRepliesIgnored:true,queryFailureNeverCallsMutationErrorHandler:true,newerMutationFifoAndDraftPreserved:true,sixActualNativeRepliesThroughDelivery:true,deliveryNativeOnly:true,scope:contract.scope,sourcePin:contract.sourcePin,basePatchSha256:hash(patch),candidateModuleSha256:hash(moduleBytes),workerSha256:hash(await readFile(binary)),generatedFixtureSha256:hash(input),gatewayCanonicalSha256:hash(Buffer.from(JSON.stringify(reply.documentSnapshot))),notes:reply.result.notes,queryReadOnly:true,wireDocumentNormalizedByOriginalModel:true,strictDocumentSchemaShape:true,sourceNumberingOrderExact:true,originalGenericEditForm:true,originalConfirmCommandExact:true,noMirrorMutationBeforeAck:true,opaqueContextConsumed:true,explicitTargetOnly:true,staleContextAndSessionAndDocumentUidRejected:true,draftPaletteBusyQueueProtected:true,malformedResultBudgetsAndSourceQueryValidated:true,selectedOriginalBodyReference:true,exactUtf8ForwardReverseRanges:true,originalReferenceOrdinalNotIdOrNumber:true,referenceCases:referenceCases.map(({story,id,anchor,focus,reply})=>({story,id,anchor,focus,revision:reply.stateVersion,canonicalSha256:hash(Buffer.from(JSON.stringify(reply.documentSnapshot)))})),sourceRestored:restored,uiTests:tests.match(/test result: ok\. (\d+) passed; (\d+) failed; (\d+) ignored/).slice(1).map(Number),browserIntegrated:false,shippedUiChanged:false,fullAppAccepted:false};
 await writeFile(path.join(output,'report.json'),JSON.stringify(report,null,2)+'\n');console.log('Candidate original Endnotes target service/native gateway/UI tests passed; source restored');
