@@ -1,0 +1,152 @@
+// Actual original root Folder pointer reorder durable ACK.
+import assert from 'node:assert/strict';
+import {readFile,writeFile,readdir} from 'node:fs/promises';
+import {createServer} from 'node:http';
+import {once} from 'node:events';
+import {createHash} from 'node:crypto';
+import path from 'node:path';
+const [stage,fixture,output]=process.argv.slice(2);if(!output)throw Error('APP_CHILD_BETWEEN_STAGE PUBLIC_DNG OUTPUT_JSON');
+const hash=b=>createHash('sha256').update(b).digest('hex'),meta=JSON.parse(await readFile(new URL('../experiments/rapidraw-wasm-core/UPSTREAM.json',import.meta.url)));
+const pin=JSON.parse(await readFile(new URL('../docs/evidence/rapidraw-wasm/runtime-smoke.json',import.meta.url))).fixtures.find(f=>f.id==='raw.pixls.us 1327');assert.equal(pin.license,'CC0-1.0');assert.equal(hash(await readFile(fixture)),pin.sourceSha256);
+const source=JSON.parse(await readFile(path.join(stage,'source-proof.json'))),native512=JSON.parse(await readFile(new URL('../docs/evidence/rapidraw-wasm/quality-react-native-jpeg.json',import.meta.url)));
+assert.equal(hash(await readFile(path.join(stage,'dist/engine/cw_rapidraw_wasm_probe_bg.wasm'))),source.wasmSha256);
+assert.deepEqual(source.appRootFolderReorder,meta.appRootFolderReorder);assert.deepEqual(source.appChildBetweenFolders,meta.appChildBetweenFolders);assert.deepEqual(source.appChildReorder,meta.appChildReorder);assert.deepEqual(source.appNonemptyFolderRename,meta.appNonemptyFolderRename);assert.deepEqual(source.appRootReorder,meta.appRootReorder);assert.deepEqual(source.appChildRoot,meta.appChildRoot);assert.deepEqual(source.appToolMove,meta.appToolMove);assert.deepEqual(source.appChildDelete,meta.appChildDelete);assert.deepEqual(source.appChildOverwrite,meta.appChildOverwrite);assert.deepEqual(source.appChildDuplicate,meta.appChildDuplicate);assert.deepEqual(source.appChildConfigure,meta.appChildConfigure);assert.deepEqual(source.appFolderDelete,meta.appFolderDelete);assert.deepEqual(source.appFolderRename,meta.appFolderRename);assert.deepEqual(source.appPresetFolder,meta.appPresetFolder);assert.deepEqual(source.appPresetOverwrite,meta.appPresetOverwrite);assert.deepEqual(source.appPresetDuplicate,meta.appPresetDuplicate);assert.deepEqual(source.appPresetDelete,meta.appPresetDelete);assert.deepEqual(source.appPresetConfigure,meta.appPresetConfigure);assert.deepEqual(source.appPresetCreate,meta.appPresetCreate);assert.deepEqual(source.appPresets,meta.appPresets);assert.deepEqual(source.appCopyPaste,meta.appCopyPaste);assert.deepEqual(source.appRecoveryDiscard,meta.appRecoveryDiscard);
+assert.equal(source.nativeSource,meta.nativeApplication.commit);
+const contracts=['metadataLifecycle','metadataNavigation','metadataLibrary','metadataSelection','metadataFilmstrip','metadataCopyPaste','settingsUi','copyPasteSettings','settingsInitialization','settingsReadiness','appRoot','appFile','appExport','appRecovery','appCopyPaste','appPresets','appPresetCreate','appPresetConfigure','appPresetDelete','appPresetDuplicate','appPresetOverwrite','appPresetFolder','appFolderRename','appFolderDelete','appChildDuplicate','appChildOverwrite','appChildDelete','appToolMove','appChildRoot','appRootReorder','appNonemptyFolderRename','appChildReorder','appChildBetweenFolders','appRootFolderReorder'];
+const patched=Object.assign({},meta.appExport.lastUsedPatch.patchedFiles,...contracts.map(k=>meta[k]?.sourcePatch?.patchedFiles??{}));
+for(const [name,sha]of Object.entries({...meta.reactUi.sourceFiles,...meta.appFile.sourceFiles,...patched}))assert.equal(hash(await readFile(path.join(stage,name))),sha,name);
+for(const contract of [meta.appRootFolderReorder,meta.appChildBetweenFolders,meta.appChildReorder,meta.appNonemptyFolderRename,meta.appRootReorder,meta.appChildRoot,meta.appToolMove,meta.appChildDelete,meta.appChildOverwrite,meta.appChildDuplicate,meta.appFolderDelete,meta.appFolderRename,meta.appPresetFolder,meta.appPresetOverwrite,meta.appPresetDuplicate,meta.appPresetDelete,meta.appPresetConfigure,meta.appPresetCreate,meta.appPresets,meta.appCopyPaste,meta.appRecoveryDiscard]){
+ for(const [name,sha]of Object.entries(contract.bootstrapFiles))assert.equal(hash(await readFile(new URL('../'+name,import.meta.url))),sha);
+ assert.equal(hash(await readFile(new URL('../'+contract.sourcePatch.path,import.meta.url))),contract.sourcePatch.sha256);
+}
+for(const [name,sha]of Object.entries(source.runtimeSha256)){assert.equal(hash(await readFile(path.join(stage,'dist/engine',name))),sha);assert.equal(hash(await readFile(new URL('../experiments/rapidraw-wasm-core/'+name,import.meta.url))),sha);}
+const seed=JSON.parse(await readFile(new URL('../docs/evidence/rapidraw-wasm/app-child-between-browser.json',import.meta.url))).lastReload.stored;
+const folderName='Nonempty Fixture (1)',childName='Nested retained Copy Copy',otherFolder='Nonempty Fixture (2)',targetFolder='Nonempty Fixture';
+assert.equal(seed.revision,6);assert.equal(seed.presets.length,6);assert.equal(seed.presets.filter(i=>i.folder).length,3);
+assert.equal(hash(await readFile(path.join(stage,'main.tsx'))),meta.appRootFolderReorder.bootstrapFiles['experiments/rapidraw-react-proof/app-folder-reorder-main.tsx']);
+if(process.env.PROVENANCE_ONLY){console.log('Root Folder reorder source/patch/bootstrap/runtime/WASM pins exact');process.exit(0);}
+
+const assets=new Map(),types={'.html':'text/html','.js':'text/javascript','.css':'text/css','.wasm':'application/wasm','.svg':'image/svg+xml'};
+async function walk(dir,prefix=''){for(const e of await readdir(dir,{withFileTypes:true})){const f=path.join(dir,e.name),u=prefix+'/'+e.name;if(e.isDirectory())await walk(f,u);else assets.set(u,[types[path.extname(f)]??'application/octet-stream',await readFile(f)]);}}
+await walk(path.join(stage,'dist'));assets.set('/',assets.get('/index.html'));assets.set('/peer.html',['text/html',Buffer.from('<!doctype html><title>Library peer</title>')]);
+const server=createServer((req,res)=>{const a=assets.get(new URL(req.url,'http://localhost').pathname);if(!a){res.writeHead(404).end();return;}res.writeHead(200,{'Content-Type':a[0],'Cache-Control':'no-store'}).end(a[1]);});server.listen(0,'127.0.0.1');await once(server,'listening');
+let phase='startup',browser;const errors=[],failed=[],external=[],consoleErrors=[],knownUnavailable=[];
+try{
+ const {chromium}=await import(process.env.PLAYWRIGHT_MODULE||'playwright');browser=await chromium.launch({executablePath:process.env.CHROMIUM_PATH,headless:true,chromiumSandbox:true,args:['--disable-dev-shm-usage','--enable-unsafe-webgpu','--use-angle=swiftshader','--use-webgpu-adapter=swiftshader']});
+ const context=await browser.newContext({viewport:{width:2100,height:1800}}),origin='http://127.0.0.1:'+server.address().port;
+ await context.route('**/*',r=>{const u=new URL(r.request().url());if(['http:','https:'].includes(u.protocol)&&u.origin!==origin){external.push(u.origin);return r.abort();}return r.continue();});
+ await context.addInitScript(()=>{
+  globalThis.nativeApiCalls=[];globalThis.authorityCalls=[];
+  globalThis.__TAURI_INTERNALS__={metadata:{currentWindow:{label:'unavailable'}},invoke(command){nativeApiCalls.push(command);return Promise.reject(Error('Native API unavailable: '+command));}};
+  for(const name of ['showOpenFilePicker','showDirectoryPicker','showSaveFilePicker'])globalThis[name]=()=>{authorityCalls.push(name);return Promise.reject(Error('Unavailable picker'));};
+  Object.defineProperty(navigator,'clipboard',{value:{readText(){authorityCalls.push('clipboard.read');throw Error('Unavailable clipboard');},writeText(){authorityCalls.push('clipboard.write');throw Error('Unavailable clipboard');}}});
+
+
+  const qa=globalThis.presetQa={commits:0,hold:false,gated:false,wrote:false,abortNext:false,mismatchNext:false,
+   wrapLibrary(backend){qa.backend=backend;return {read:async()=>{const actual=await backend.read();if(qa.wrote&&qa.mismatchNext){qa.mismatchNext=false;qa.wrote=false;return qa.previous;}if(qa.wrote&&qa.hold){qa.gated=true;await new Promise(r=>qa.release=r);qa.gated=false;qa.hold=false;qa.wrote=false;}return actual;},commit:async(...args)=>{if(qa.holdWrite){qa.committing=true;await new Promise(r=>qa.releaseWrite=r);qa.committing=false;qa.holdWrite=false;}qa.previous=await backend.read();await backend.commit(...args);qa.commits++;qa.wrote=true;},close:()=>backend.close()};},
+  };
+  const put=IDBObjectStore.prototype.put;IDBObjectStore.prototype.put=function(...args){const r=put.apply(this,args);if(this.transaction.db.name==='cw-rapidraw-preset-library-v1'&&qa.abortNext){qa.abortNext=false;this.transaction.abort();}return r;};
+ });
+ const page=await context.newPage();page.setDefaultTimeout(30000);page.on('pageerror',e=>errors.push(e.message));page.on('requestfailed',r=>failed.push(r.url()));page.on('console',m=>{if(m.type()==='error'){if((m.text().includes('does not support get_lensfun_makers')||m.text().includes('does not support list_luts'))||m.text().includes('Auto-save failed:')&&m.text().includes('save_metadata_and_update_thumbnail'))knownUnavailable.push(m.text());else consoleErrors.push(phase+': '+m.text());}});
+ const panel=page,dialog=page.getByRole('dialog'),save=dialog.getByRole('button',{name:'Save',exact:true});
+ const boot=async()=>{await page.waitForFunction(()=>globalThis.appFileProof&&appFileProof.states.some(s=>s.status==='ready'));await page.evaluate(()=>{globalThis.proof=appFileProof;globalThis.presetTasks=0;const invoke=rapidRawTransport.invoke;rapidRawTransport.invoke=function(command,args){if(!['generate_preset_preview','save_metadata_and_update_thumbnail'].includes(command))return invoke(command,args);presetTasks++;return Promise.resolve(invoke(command,args)).finally(()=>presetTasks--);};});};
+ const ready=async n=>page.waitForFunction(n=>proof.presetLibrary.status().revision===n&&!proof.presetLibrary.status().busy&&!proof.presetLibrary.status().uncertain&&!proof.presetLibrary.status().pendingIO,n);
+ const drain=()=>page.waitForFunction(()=>presetTasks===0&&[...document.images].filter(i=>i.alt.endsWith(' preview')).every(i=>i.complete&&i.naturalWidth===400));
+ const clean=()=>page.waitForFunction(()=>{const s=proof.metadataHost.status();return !s.dirty&&!s.busy&&!s.uncertain&&!s.pendingIO;});
+ const input=await readFile(fixture),open=async()=>{await page.getByLabel('Open RAW File',{exact:true}).setInputFiles({name:'public-1327.dng',mimeType:'image/x-adobe-dng',buffer:input});await page.waitForFunction(()=>proof.store.getState().selectedImage?.isReady&&proof.store.getState().finalPreviewUrl);};
+ const folderNames=seed.presets.flatMap(i=>i.folder?[i.folder.name]:[]);
+ const expand=async()=>{for(const name of folderNames)await page.getByText(name,{exact:true}).click();await page.waitForTimeout(350);};
+ const reopen=async n=>{phase='reload '+n;await drain();await clean();await drain();await page.evaluate(()=>proof.close());await page.reload();await boot();assert.equal(await page.evaluate(()=>proof.store.getState().selectedImage),null);await open();await ready(n);await expand();};
+ const snapshot=()=>page.evaluate(async()=>({view:proof.ui.getState().activeView,path:proof.store.getState().selectedImage?.path??null,status:proof.presetLibrary.status(),stored:await presetQa.backend.read(),trace:proof.trace.filter(t=>['save_presets','load_presets'].includes(t.command)),commits:presetQa.commits}));
+ const published=async exposure=>{const got=await page.evaluate(async exposure=>{const deadline=performance.now()+30000;while(performance.now()<deadline){const state=proof.store.getState(),frame=proof.trace.findLast(t=>t.command==='render-result'&&!t.interactive),url=state.finalPreviewUrl;if(state.adjustments.exposure===exposure&&frame?.exposure===exposure&&url){const b=await(await fetch(url)).arrayBuffer(),sha256=Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',b)),n=>n.toString(16).padStart(2,'0')).join('');if(sha256===frame.jpegSha256&&proof.store.getState().finalPreviewUrl===url)return {frame,bytes:b.byteLength,sha256};}await new Promise(r=>requestAnimationFrame(r));}throw Error('Editor did not publish matching frame');},exposure);return got;};
+ const editor=async exposure=>{const n=native512.frames.find(f=>f.exposure===exposure);assert.ok(n,'Independent native reference must exist');const got=await published(exposure);assert.equal(got.sha256,n.jpegSha256);assert.equal(got.bytes,n.jpegBytes);assert.equal(got.frame.rgbaSha256,n.rgbaSha256);assert.equal(got.frame.adjustmentSha256,n.adjustmentSha256);return got;};
+ const configure=async(oldName,newName)=>{await panel.getByText(oldName,{exact:true}).click({button:'right'});await page.getByText('Configure Preset',{exact:true}).click();await dialog.getByPlaceholder('Enter preset name...').fill(newName);};
+ // Reuse the acknowledged, generated tool records; no new create/import proof is claimed.
+ const seedPage=await context.newPage();await seedPage.goto(origin+'/peer.html');await seedPage.evaluate(async record=>{const {createPresetLibraryDatabase}=await import('/engine/preset-library.js');const backend=createPresetLibraryDatabase();try{await backend.commit(0,{...record,revision:1});}finally{await backend.close();}},seed);await seedPage.close();
+
+ await page.goto(origin);await boot();await open();await ready(1);const initial=await snapshot();assert.deepEqual(initial.stored.presets,seed.presets);
+ const presetPanel=page.getByRole('region',{name:'Original Presets panel',exact:true}),alert=presetPanel.getByRole('alert');
+ const folderBox=name=>presetPanel.getByText(name,{exact:true}).locator('xpath=../..');
+ const child=(folder,name)=>folderBox(folder).getByText(name,{exact:true});
+ const order=async presets=>{
+  const names=[...presets.filter(i=>i.folder),...presets.filter(i=>i.preset)].map(i=>(i.preset??i.folder).name);
+  await page.waitForFunction(({root,names})=>JSON.stringify([...root.querySelectorAll('*')].filter(e=>e.childElementCount===0&&names.includes(e.textContent)).map(e=>e.textContent))===JSON.stringify(names),{root:await presetPanel.elementHandle(),names});
+  for(const {folder:f} of presets.filter(i=>i.folder)){
+   const box=folderBox(f.name);
+   await page.waitForFunction(({root,expected})=>JSON.stringify([...root.querySelectorAll('*')].filter(e=>e.childElementCount===0&&/^(Nested retained|Nested retained Copy|Nested retained Copy Copy)$/.test(e.textContent)).map(e=>e.textContent))===JSON.stringify(expected),{root:await box.elementHandle(),expected:f.children.map(p=>p.name)});
+   assert.equal(await box.locator(':scope > div').first().getByText(String(f.children.length),{exact:true}).count(),1);
+  }
+ };
+ const drag=async(from,target)=>{
+  const handle=folderBox(from).locator('[role="button"]').first(),destination=presetPanel.getByText(target,{exact:true});
+  await handle.evaluate(el=>el.scrollIntoView({block:'center',behavior:'instant'}));await page.waitForTimeout(300);
+  await handle.click({trial:true});await destination.click({trial:true});
+  const start=await handle.boundingBox(),end=await destination.boundingBox();assert.ok(start&&end);
+  const x=start.x+start.width/2,y=start.y+start.height/2,count=await page.getByText(from,{exact:true}).count();
+  await page.mouse.move(x,y);await page.mouse.down();await page.mouse.move(x+12,y+2,{steps:5});
+  // Original Folder overlay inherits the narrow icon handle width; its truncated name can have zero visible width.
+  await page.getByText(from,{exact:true}).nth(count).waitFor({state:'attached'});
+  await page.waitForFunction(el=>Number(getComputedStyle(el).opacity)===0.4,await folderBox(from).elementHandle());
+  await page.mouse.move(end.x+end.width/2,end.y+end.height/2,{steps:20});
+  for(let settle=0;settle<3;settle++){const current=await destination.boundingBox();assert.ok(current&&current.y>0&&current.y+current.height<1800);await page.mouse.move(current.x+current.width/2,current.y+current.height/2,{steps:4});await page.waitForTimeout(100);}
+  await page.mouse.up();await page.waitForTimeout(100);
+ };
+ const exactMove=(before,after,from,to)=>{
+  const expected=structuredClone(before),start=before.findIndex(i=>i.folder?.name===from),end=before.findIndex(i=>(i.preset??i.folder).name===to);
+  assert.ok(start>=0&&end>=0&&start!==end);expected.splice(end,0,expected.splice(start,1)[0]);assert.deepEqual(after,expected);
+ };
+ phase='initial native child';await expand();await child(folderName,childName).click();const beforeReorder=await editor(0.8);await clean();await drain();await order(seed.presets);
+ phase='held commit';await page.evaluate(()=>{presetQa.holdWrite=true;presetQa.hold=true;presetQa.wrote=false;});
+ await drag(folderName,otherFolder);await page.waitForFunction(()=>presetQa.committing);
+ const heldWrite=await snapshot();assert.equal(heldWrite.commits,0);assert.deepEqual(heldWrite.stored,initial.stored);
+ assert.equal(heldWrite.status.busy,true);assert.equal(await presetPanel.getAttribute('aria-busy'),'true');await order(seed.presets);
+ await drag(folderName,otherFolder);assert.equal((await snapshot()).commits,0);
+ phase='held readback';await page.evaluate(()=>presetQa.releaseWrite());await page.waitForFunction(()=>presetQa.gated);
+ const heldRead=await snapshot();assert.equal(heldRead.stored.revision,2);assert.equal(heldRead.status.revision,1);assert.equal(heldRead.commits,1);
+ await order(seed.presets);assert.equal(heldRead.trace.filter(t=>t.command==='save_presets'&&t.phase==='resolved').length,0);
+ exactMove(seed.presets,heldRead.stored.presets,folderName,otherFolder);await page.screenshot({path:output.replace(/\.json$/,'.pending.png')});
+ await presetPanel.getByText('Child Between Peer',{exact:true}).click();const pendingSelection=await page.evaluate(()=>structuredClone(proof.store.getState().adjustments));
+ assert.equal(pendingSelection.exposure,-0.5);assert.equal((await snapshot()).status.revision,1);
+ await page.evaluate(()=>presetQa.release());await ready(2);assert.deepEqual(await page.evaluate(()=>proof.store.getState().adjustments),pendingSelection);
+ const newerSelection=await published(-0.5);await clean();await drain();const acknowledged=await snapshot();
+ exactMove(seed.presets,acknowledged.stored.presets,folderName,otherFolder);await order(acknowledged.stored.presets);
+ assert.equal(acknowledged.trace.filter(t=>t.command==='save_presets'&&t.phase==='resolved').length,1);
+ assert.deepEqual(await published(-0.5),newerSelection);assert.equal(acknowledged.path,initial.path);
+ await child(folderName,childName).click();const appliedMoved=await editor(0.8);await clean();await drain();
+ phase='same folder target no IO';await drag(folderName,folderName);await order(acknowledged.stored.presets);assert.deepEqual((await snapshot()).stored,acknowledged.stored);assert.equal((await snapshot()).commits,1);
+ phase='cross Tool target refused';await drag(folderName,'Created Exposure');await alert.waitFor();assert.deepEqual((await snapshot()).stored,acknowledged.stored);assert.equal((await snapshot()).commits,1);await order(acknowledged.stored.presets);
+ phase='actual abort';const beforeAbort=await editor(0.8);await page.evaluate(()=>presetQa.abortNext=true);await drag(otherFolder,targetFolder);await alert.filter({hasText:'not acknowledged'}).waitFor();
+ const aborted=await snapshot();assert.equal(aborted.status.uncertain,true);assert.deepEqual(aborted.stored,acknowledged.stored);await order(acknowledged.stored.presets);
+ await drag(otherFolder,targetFolder);await alert.filter({hasText:'Reload preset library'}).waitFor();assert.equal((await snapshot()).commits,1);
+ const abortedCard=await editor(0.8);assert.deepEqual(abortedCard,beforeAbort);await clean();await drain();
+ await reopen(2);phase='real peer';const peer=await context.newPage();await peer.goto(origin+'/peer.html');
+ const peerSaved=await peer.evaluate(async()=>{const {createPresetLibrary}=await import('/engine/preset-library.js');const h=createPresetLibrary();try{const presets=await h.load();presets.find(i=>i.preset?.name==='Child Between Peer').preset.name='Folder Reorder Peer';await h.savePresets(presets,{allowRename:true});return {status:h.status(),presets:await h.load()};}finally{await h.close();}});await peer.close();assert.equal(peerSaved.status.revision,3);
+ phase='stale reorder';await drag(otherFolder,targetFolder);await alert.filter({hasText:'another tab'}).waitFor();
+ const stale=await snapshot();assert.equal(stale.status.revision,2);assert.equal(stale.status.uncertain,true);assert.deepEqual(stale.stored.presets,peerSaved.presets);await order(acknowledged.stored.presets);
+ await child(folderName,childName).click();const staleCard=await editor(0.8);await clean();await drain();
+ await reopen(3);phase='uncertain reorder';await child(folderName,childName).click();await editor(0.8);await clean();await drain();await page.evaluate(()=>{presetQa.mismatchNext=true;presetQa.wrote=false;});
+ await drag(otherFolder,targetFolder);await alert.filter({hasText:'readback did not acknowledge'}).waitFor();
+ const uncertain=await snapshot();assert.equal(uncertain.stored.revision,4);assert.equal(uncertain.status.revision,3);assert.equal(uncertain.status.uncertain,true);
+ await order(peerSaved.presets);exactMove(peerSaved.presets,uncertain.stored.presets,otherFolder,targetFolder);
+ const uncertainCard=await editor(0.8);await clean();await drain();await page.screenshot({path:output.replace(/\.json$/,'.uncertain.png')});
+ await reopen(4);const reconciled=await snapshot();assert.deepEqual(reconciled.stored,uncertain.stored);assert.equal(reconciled.commits,0);
+ assert.equal(reconciled.status.uncertain,false);assert.equal(reconciled.trace.filter(t=>t.command==='save_presets').length,0);await order(reconciled.stored.presets);
+ await child(folderName,childName).click();const reloadedChild=await editor(0.8);await clean();await drain();
+ phase='later Folder to Folder held ACK';await page.evaluate(()=>{presetQa.hold=true;presetQa.wrote=false;});
+ await drag(folderName,targetFolder);await page.waitForFunction(()=>presetQa.gated);const forwardHeld=await snapshot();assert.equal(forwardHeld.status.revision,4);assert.equal(forwardHeld.stored.revision,5);await order(reconciled.stored.presets);exactMove(reconciled.stored.presets,forwardHeld.stored.presets,folderName,targetFolder);
+ await page.evaluate(()=>presetQa.release());await ready(5);const forwardAcknowledged=await snapshot();await order(forwardAcknowledged.stored.presets);assert.deepEqual(await editor(0.8),reloadedChild);await clean();await drain();
+ phase='last Folder to Folder ACK';await drag(folderName,otherFolder);await ready(6);const returned=await snapshot();exactMove(forwardAcknowledged.stored.presets,returned.stored.presets,folderName,otherFolder);await order(returned.stored.presets);assert.deepEqual(await editor(0.8),reloadedChild);await clean();await drain();
+ await reopen(6);const lastReload=await snapshot();assert.deepEqual(lastReload.stored,returned.stored);assert.equal(lastReload.commits,0);assert.equal(lastReload.trace.filter(t=>t.command==='save_presets').length,0);await order(lastReload.stored.presets);
+ await child(folderName,childName).click();const finalNative=await editor(0.8);await clean();await drain();
+ await page.waitForFunction(()=>{const images=[...document.images].filter(i=>i.alt.endsWith(' preview'));return images.length>=6&&images.every(i=>{if(!i.complete||i.naturalWidth!==400)return false;for(let n=i;n;n=n.parentElement)if(Number(getComputedStyle(n).opacity)<0.99)return false;return true;});});await page.screenshot({path:output.replace(/\.json$/,'.png')});
+ const authority=await page.evaluate(()=>({nativeApiCalls,authorityCalls})),gpuErrors=await page.evaluate(()=>proof.gpuErrors),metadata=await page.evaluate(()=>proof.metadataHost.status());
+ assert.deepEqual(authority,{nativeApiCalls:[],authorityCalls:[]});assert.deepEqual(gpuErrors,[]);assert.deepEqual(errors,[]);assert.deepEqual(consoleErrors,[]);
+ assert.deepEqual(external,[]);assert.deepEqual(failed,[]);assert.equal(metadata.uncertain,false);
+ const assertions={actualOriginalApp:true,actualOriginalFolderDragHandle:true,originalRootArrayMove:true,existingPopulatedFolder:true,oldLibraryBeforeWriteAck:true,oldLibraryBeforeReadbackAck:true,newOrderOnlyAfterAck:true,duplicateSingleCommit:true,newerOriginalSelectionPreserved:true,noEditorAdjustmentFromReorder:true,allIdsNamesValuesFlagsExact:true,allChildrenAndOtherRelativeOrderExact:true,sameFolderTargetNoIo:true,crossToolTargetNoIo:true,originalFolderFirstProjectionPreserved:true,actualIdbAbortPreservesLibrary:true,failedWriteNoReplay:true,actualPeerCasPreservesNewerLibrary:true,uncertainOldOrderUntilReload:true,explicitReloadReconcilesOrder:true,reloadNoReplay:true,forwardFolderToFolder:true,backwardFolderToFolder:true,laterHeldReadbackOldOrder:true,laterHeldReorderPreservesSelectedNativeFrame:true,lastReorderPreservesSelectedNativeFrame:true,movedFolderChildNativeExact:true,reloadedFolderChildNativeExact:true,noExternalOrNativeAuthority:true,fullAppAccepted:false};
+ await writeFile(output,JSON.stringify({scope:meta.appRootFolderReorder.scope,fixture:{id:pin.id,license:pin.license,sha256:pin.sourceSha256},source,seed,initial,beforeReorder,heldWrite,heldRead,pendingSelection,newerSelection,acknowledged,appliedMoved,beforeAbort,aborted,abortedCard,peerSaved,stale,staleCard,uncertain,uncertainCard,reconciled,reloadedChild,forwardHeld,forwardAcknowledged,returned,lastReload,finalNative,authority,gpuErrors,metadata,errors,consoleErrors,failed,external,knownUnavailable,assertions},null,2)+'\n');
+ await drain();await clean();await drain();await page.evaluate(()=>proof.close());await context.close();
+ console.log('Original Folder pointer reorder durable ACK/forward/backward/abort/stale/uncertain/native proof passed');
+}catch(error){
+ console.error(JSON.stringify({phase,errors,consoleErrors,knownUnavailable}));
+ if(browser){const p=browser.contexts()[0]?.pages()[0];console.error(await p?.evaluate(()=>({text:document.body.innerText.slice(-1800),library:globalThis.proof?.presetLibrary.status(),commits:globalThis.presetQa?.commits,saveTrace:globalThis.proof?.trace.filter(t=>t.command==='save_presets'),trace:globalThis.proof?.trace.slice(-5)})));await p?.screenshot({path:output.replace(/\.json$/,'.failure.png')}).catch(()=>{});}throw error;
+}finally{await browser?.close();server.closeAllConnections();await new Promise(r=>server.close(r));}

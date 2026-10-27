@@ -1,5 +1,9 @@
 # RapidRAW browser renderer host boundary
 
+## Original Folder reorder
+
+Separate default-off root Folder reorder preserves the original folder-first rendering and exact children/library through durable commit/readback ACK. Original icon-handle forward/backward drag, held/abort/peer/uncertain/reload0replay/native child proof passes29 browser/224 serial host/84 repo/check. Cross-Tool/Style/nested Folder/general tree moves remain unavailable. [Evidence and continuation](../../docs/rapidraw-wasm-app-folder-reorder-handoff.md). Unfinished B experiment; no product release/main/demo change.
+
 ## Original preset settings persistence
 
 The optional original settings ABI uses a64KiB/32-preset IndexedDB store with atomic revision compare-and-swap and readback ACK. A pinned two-file React ACK patch delays store/list success until acknowledgement. Real source UI create/overwrite/apply/delete/reload, three held ACKs, transaction abort and stale-host refusal pass. No file paths/handles/grants persist. Renderer/WASM unchanged; this is an isolated experiment, not full App/provider/OS or product release acceptance. [Proof and limits](../../docs/rapidraw-wasm-settings-persistence-handoff.md).

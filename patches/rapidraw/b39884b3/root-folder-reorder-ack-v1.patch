@@ -1,0 +1,33 @@
+--- a/src/hooks/usePresets.ts
++++ b/src/hooks/usePresets.ts
+@@ -579,7 +579,8 @@
+       const activeRootIndex = getIndex(currentPresets, activeId);
+       const overRootIndex = getIndex(currentPresets, overId);
+       let newPresets: Array<UserPreset>;
+-      if (activeRootIndex >= 0 && overRootIndex >= 0 && activeRootIndex !== overRootIndex && currentPresets.slice(Math.min(activeRootIndex, overRootIndex), Math.max(activeRootIndex, overRootIndex) + 1).every((item: UserPreset) => item.preset?.presetType === 'tool')) {
++      const rootFolderReorder = activeRootIndex >= 0 && overRootIndex >= 0 && activeRootIndex !== overRootIndex && !!currentPresets[activeRootIndex].folder && currentPresets.slice(Math.min(activeRootIndex, overRootIndex), Math.max(activeRootIndex, overRootIndex) + 1).every((item: UserPreset) => !!item.folder);
++      if (rootFolderReorder || (activeRootIndex >= 0 && overRootIndex >= 0 && activeRootIndex !== overRootIndex && currentPresets.slice(Math.min(activeRootIndex, overRootIndex), Math.max(activeRootIndex, overRootIndex) + 1).every((item: UserPreset) => item.preset?.presetType === 'tool'))) {
+         newPresets = arrayMove(currentPresets, activeRootIndex, overRootIndex);
+       } else {
+         const item = currentPresets.find((item: UserPreset) => item.folder?.children.some((p: any) => p.id === activeId) && item.folder.children.some((p: any) => p.id === overId));
+--- a/src/components/panel/right/PresetsPanel.tsx
++++ b/src/components/panel/right/PresetsPanel.tsx
+@@ -998,7 +998,8 @@
+     const rootToolReorder = activeParentId === null && overParentId === null && overType === PresetListType.Preset && presets.some((item: UserPreset) => item.preset?.id === activeId && item.preset.presetType === 'tool') && presets.some((item: UserPreset) => item.preset?.id === overId && item.preset.presetType === 'tool');
+     const childToolReorder = !!activeParentId && activeParentId === overParentId && overType === PresetListType.Preset && presets.some((item: UserPreset) => item.folder?.id === activeParentId && item.folder.children.some((p: any) => p.id === activeId && p.presetType === 'tool') && item.folder.children.some((p: any) => p.id === overId && p.presetType === 'tool'));
+     const childBetweenFolders = !!activeParentId && !!targetFolderId && activeParentId !== targetFolderId && overType === PresetListType.Folder && presets.some((item: UserPreset) => item.folder?.id === activeParentId && item.folder.children.some((p: any) => p.id === activeId && p.presetType === 'tool'));
+-    if (activeType !== PresetListType.Preset || (!intoEmptyFolder && !childBeforeRootTool && !rootToolReorder && !childToolReorder && !childBetweenFolders)) {
++    const rootFolderReorder = activeType === PresetListType.Folder && activeParentId === null && overParentId === null && presets.some((item: UserPreset) => item.folder?.id === activeId) && overType === PresetListType.Folder && presets.some((item: UserPreset) => item.folder?.id === overId);
++    if (!rootFolderReorder && (activeType !== PresetListType.Preset || (!intoEmptyFolder && !childBeforeRootTool && !rootToolReorder && !childToolReorder && !childBetweenFolders))) {
+       setDeleteError('Move one Exposure Tool into an empty folder or one child before an existing top-level Tool');
+       return;
+     }
+@@ -1006,7 +1007,7 @@
+     setDeleteBusy(true);
+     setDeleteError('');
+     try {
+-      if (rootToolReorder || childToolReorder) {
++      if (rootFolderReorder || rootToolReorder || childToolReorder) {
+         await reorderItems(activeId, overId);
+       } else if (childBeforeRootTool) {
+         await movePreset(activeId, null, overId);

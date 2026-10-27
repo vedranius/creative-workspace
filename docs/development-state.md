@@ -1,3 +1,9 @@
+# RWASM-03 — original top-level Folder reorder ACK (2026-10-27)
+
+The original Folder icon drag handle now reorders one existing top-level folder inside its contiguous Folder block using the original root arrayMove. Its children and every ID/name/value/flag/other relative order remain exact. A separate default-off capability holds the old visible order until durable CAS/commit/readback ACK. Real held/duplicate/abort/peer/uncertain/reload0replay and native child/newer selection proof pass29 browser assertions,224 serial host/84 repo/check. [Evidence and handoff](rapidraw-wasm-app-folder-reorder-handoff.md).
+
+Experimental B; original folder-first projection and cache/WASM preserved. Cross-Tool/Style/nested Folder/general tree moves remain unavailable; no product release/main/demo/private input change. Predecessor pixel parity passed, but macOS Checks40445459733 failed the shared transfer Stop recovery test; verify/fix current A delayed-watcher recovery before Endnote production promotion. Next B: original Sort All Presets Alphabetically through exact durable ACK. SAME MAIN only.
+
 # RWASM-03 — original child Tool move between existing folders (2026-10-27)
 
 Original child removal/append now moves onto another existing folder only after durable SavePresets commit/readback ACK. Separate default-off permission preserves both parents, empty source, child IDs/values/flags/siblings/order and unrelated records. Actual pointer/held/duplicate/abort/stale/uncertain/reload0replay/native child/newer selection proof passes 27 browser assertions, 219 serial host/84 repo/check. [Evidence and precise handoff](rapidraw-wasm-app-child-between-handoff.md).

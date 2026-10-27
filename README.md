@@ -14,6 +14,8 @@ Alpha.24 adds an original Open-dialog candidate for a selected laptop `.designcr
 
 ## What is new
 
+Experimental RapidRAW WASM branch: original Folder icon drag now changes only the contiguous Folder order after durable library ACK, retaining every child/ID/value and newer editor selection. Real forward/backward/abort/peer/uncertain/reload without replay matches native pixels. Cross-group/Style/nested Folder moves and full App/provider/OS acceptance remain open. [Evidence and continuation](docs/rapidraw-wasm-app-folder-reorder-handoff.md). This experimental checkpoint is not a product release.
+
 - **RapidRAW experimental document transitions:** original Exposure Reset/Undo/Redo and selected-File switching now wait for metadata ACK, preserve uncertain/newer drafts, and isolate files by content. Full App/library navigation remains open. [Proof and limits](docs/rapidraw-wasm-metadata-lifecycle-handoff.md).
 
 - **RapidRAW experimental Exposure metadata:** original auto-save/load now uses private content-bound storage with atomic write/readback and thumbnail ACK. Reload/reopen, transaction failure, stale-tab CAS and uncertain reconciliation are evidenced; this remains the separate WASM experiment. [Proof and limits](docs/rapidraw-wasm-metadata-handoff.md).
