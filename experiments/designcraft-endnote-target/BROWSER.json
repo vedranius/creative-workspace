@@ -1,0 +1,42 @@
+{
+  "sourcePin": "a127c6d5c3576972bbd60445f26d893db071eef3",
+  "basePatchSha256": "5243209726af965d77117c3dd7fe6483296e260168febcac3cdbd88397987802",
+  "overlayPatch": {
+    "path": "patches/designcraft/a127c6d5/endnote-query-candidate.patch",
+    "sha256": "00bad12c367eb333ec2d11faac13e1fc9ea166cfaa65720de10546a5365222c0",
+    "patchedFiles": {
+      "crates/engine/src/lib.rs": "d997c6ba2ca8c9a9f07a5386170293336276c4bf2f77a59a02689e5cdc39de52",
+      "crates/ui-egui/src/lib.rs": "86c1bd03bc55d210ddf0032bfe73567efe5c857e0fa551fa21935a2e1d30c897",
+      "crates/ui-egui/src/menus.rs": "e7e6f1c8a7ea09ac7506d98a0a3fe4af4800c2bcca5126ed75f4c1856651acb9",
+      "apps/designcraft-web/src/web.rs": "920cefd60899907039258ac6fd233eaedc26aa6709bf5459803acc8e0411fb49"
+    }
+  },
+  "addedFiles": {
+    "crates/ui-egui/src/cw_endnote_target_candidate.rs": {
+      "from": "experiments/designcraft-endnote-target/service.rs",
+      "sha256": "4c732203e1e9d70888bc0a86064ac166b58251473df8ccec4165171c38564668"
+    },
+    "crates/ui-egui/src/cw_endnote_delivery_candidate.rs": {
+      "from": "experiments/designcraft-endnote-target/delivery.rs",
+      "sha256": "c1cd6ee8547502f4dc80eee3353fb96845e19d2c4b5f7f81ff682c66c7f42888"
+    },
+    "apps/designcraft-web/endnote-query.js": {
+      "from": "experiments/designcraft-endnote-target/endnote-query.js",
+      "sha256": "face3541f597e169d16108f1c2823fb8f7f1f78aa59020b90b2e632cdb1eeab9"
+    }
+  },
+  "scope": "Experimental original DesignCraft browser selected Endnote reference/Quick Apply/query/form integration, separate bounded read-only fetch with unique correlation/deadline/AbortController; original mutation ACK/FIFO preserved. Not the shipped cumulative source patch/UI/release; broad provider/OS/full-app acceptance open.",
+  "inputBridge": {
+    "patch": "patches/designcraft/a127c6d5/endnote-query-input-candidate.patch",
+    "sha256": "cfecbb0dd598d43c5faa50665500d5c89587369dadd309f3748c4371c4498036",
+    "baseFiles": {
+      "src/designcraft.js": "a27fc05654f11286ca3f1a5d8be76609a7d74b8121bbde5a6e57b5acac01a800",
+      "engines/designcraft/native/src/main.rs": "67c1f2f334b9e05222b318c1d1937f6f1f720cff6a98ed36c686834461ac5aab"
+    },
+    "patchedFiles": {
+      "src/designcraft.js": "24ea109202f92c6599cfff96fd54b9c0c14328502e388fcf0d040e180e8416a3",
+      "engines/designcraft/native/src/main.rs": "6a20d4573fa0e0739f038a52b4afc6f6f7c2d94f60db87def636174314614f34"
+    },
+    "scope": "QA-only gateway/owned native adapter copy exposes original text.move only for Shift+Left/Right single-character range extension; original native composition/visual step/UTF-8 movement, canonical ACK, no client-side range calculation. Shipped gateway/native source unchanged."
+  }
+}

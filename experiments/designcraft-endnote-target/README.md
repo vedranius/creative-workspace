@@ -1,6 +1,6 @@
 # Original Endnotes target service candidate
 
-This native candidate connects the existing guarded `endnote.list` reply to the original `cmd:endnote.edit` generic form for an **explicit** `(story,id)` choice. It is not installed in the shipped source patch or browser UI. There is no new menu, result pane or replacement form. The original document already presents the generated Endnotes listing. Source endnotes.rs specifies editing through body references, rather than typing in that listing. Native targeting and a separate asynchronous delivery owner are proven; actual browser query dispatch/AbortController, Quick Apply wiring, pointer selection and browser acceptance remain open. See [the new native reference proof](../../docs/evidence/designcraft-endnote-reference.md).
+This native candidate connects the existing guarded `endnote.list` reply to the original `cmd:endnote.edit` generic form for an **explicit** `(story,id)` choice. It is not installed in the shipped source patch or browser UI. There is no new menu, result pane or replacement form. The original document already presents the generated Endnotes listing. Source endnotes.rs specifies editing through body references, rather than typing in that listing. Native targeting and a separate asynchronous delivery owner are proven; a separately staged original browser candidate now passes30 assertions/13 queries with actual pointer/Shift+Arrow/query/form/native ACK/pixels/save/reopen. Shipped integration and product promotion remain open. See [browser evidence and limits](../../docs/evidence/designcraft-endnote-query.md).
 
 `EndnoteTargetQuery::capture` creates an opaque, non-cloneable context for a hosted idle document. `request()` supplies the unchanged original query and expected version; the transport must provide its own request ID. `open(self, ...)` consumes that context, requires the current host session identity, document UID, canonical snapshot, revision, page, selection and dirty state, refuses an existing dialog/palette/pending action/held text queue, and validates the reply against the same context. It bounds result count/text/encoded JSON and wasm32 identities, then executes the registered original query on a separate COW Session to validate exact native ordering, identity and text. Only a matching explicit target opens the original generic form with its source fields. No document selection, revision, dirty state or history changes. Original form confirmation still sends the existing acknowledged mutation; this service cannot report save or edit success.
 
@@ -22,4 +22,48 @@ The verifier additionally constructs six real gateway/native text.select/query r
 
 `EndnoteQueryDelivery` in delivery.rs now owns one pending selected query independently of mutation state. Its begin returns an immutable actual-session/request ticket and original endnote.list request with a unique shell UUID plus checked process serial. The future shell supplies a fresh crypto.randomUUID and performance.now monotonic milliseconds, carries the ticket in its fetch closure, polls the controller and aborts exactly the ticket returned by poll/cancel. deliver ignores foreign/late/duplicate tickets, consumes a matching live reply, then uses the retained original selected context to open the existing form. Deadline is fixed 10,000 ms; exact deadline/clock rollback refuse. Duplicate begin never resends; only explicit begin after completion/cancel/failure can issue another request. Errors never enter host_action_error or clear a newer mutation/FIFO/draft. This native proof does not claim that a browser fetch was aborted or that Quick Apply uses it yet. [Delivery proof and browser continuation](../../docs/evidence/designcraft-endnote-delivery.md).
 
-The verifier stages both hash-pinned modules and restores both on success or failure. Six fresh native selections pass through delivery and original form confirmation, with 189 UI tests passing (1 existing ignored render). A separately injected Cargo exit23 confirms exact source restoration/removal of both candidate modules and failure propagation. CI checks both module hashes with LF normalization; native proof remains local. Next work is actual original shell/Quick Apply integration and browser/native pixel acceptance, not additional guard-only tests.
+The verifier stages both hash-pinned modules and restores both on success or failure. Six fresh native selections pass through delivery and original form confirmation, with 189 UI tests passing (1 existing ignored render). A separately injected Cargo exit23 confirms exact source restoration/removal of both candidate modules and failure propagation. CI checks both module hashes with LF normalization; native proof remains local. That original shell/browser/native-pixel continuation is now proven by the separate browser candidate below. Next work is deliberate product promotion with fresh CI fixtures, not another guard-only or repeated browser-proof checkpoint.
+
+The separate browser candidate is defined in `BROWSER.json`: a small overlay on the
+registered cumulative patch plus the two native service modules and bounded
+`endnote-query.js` transport. `build-designcraft-endnote-query-candidate.mjs`
+checks those hashes, stages only those paths, runs the original UI suite and
+Trunk, and restores the exact base source in `finally`. Its output is a separately
+hashed candidate manifest, never a falsely labeled shipped UI package.
+
+```sh
+node scripts/build-designcraft-endnote-query-candidate.mjs PINNED_PATCHED_SOURCE EMPTY_OUTPUT
+```
+
+Use the same Rust/cache/low-impact settings and explicitly generated native
+`CW_ENDNOTE_TARGET_REPLY` / `CW_ENDNOTE_REFERENCE_REPLIES` test inputs described
+above. `PROVENANCE_ONLY=1` validates the overlay and all added source hashes
+without building. The browser smoke accepts `CW_QUERY_BUILD`, `CW_QUERY_PROOF`
+(an absent output directory), `CW_QUERY_FIXTURE`, the owned worker/helper,
+installed base UI directory, Playwright module and Chromium executable. It
+serves checksum-verified candidate assets only under a local QA prefix; every
+API request still passes through the unchanged workspace server and owned
+native engine. Generated native geometry positions the real pointer; it never
+assigns a selection or target into the browser model. Browser folder permission
+is synthetic and must not be counted as real OS/provider acceptance.
+
+The browser input candidate additionally stages the original `text.move` bridge
+from `endnote-query-input-candidate.patch` into a separate gateway/native copy.
+The first browser drag exposed that hosted Type only forwarded placeCaret; the
+strict reference resolver was kept intact. The original Type click followed by
+Shift+Left/Right uses the native visual/UTF-8 step with exact original fields;
+there is no browser offset calculation or manual target entry. Only that narrow
+input scope is admitted. Broader movement and drag remain open.
+
+```sh
+node scripts/prepare-designcraft-endnote-query-input.mjs REVIEWED_UI_SOURCE EMPTY_INPUT_OUTPUT
+```
+
+Set `CARGO_TARGET_DIR` to the existing cache. The helper verifies the base source
+and input patch, builds/tests the owned native candidate and restores the exact
+adapter in `finally`. It writes a separate worker hash/input manifest and a
+copied gateway with links to the existing public code/dependencies. It never
+modifies the shipped gateway/native source. Set `CW_QUERY_INPUT` to that output
+and `CW_DESIGNCRAFT_BINARY` to its worker for the browser smoke. `PROVENANCE_ONLY=1`
+checks its source contract without compiling or copying. Candidate assets remain
+separate from the installed UI package. [Browser evidence and limits](../../docs/evidence/designcraft-endnote-query.md).

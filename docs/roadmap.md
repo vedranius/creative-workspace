@@ -1,3 +1,9 @@
+# PAR-03 — original selected Endnote browser candidate (2026-10-27)
+
+The original Type pointer/Shift+Arrow, Quick Apply/query/automatic original form and native edit now pass a complete local browser candidate:30 assertions/13 unique queries, held/error/forged/cancel/deadline/newer palette/range/FIFO, mutation ACK, UndoRedo and native Save Copy/fresh reopen pixels. The actual missing input bridge and retained closed-palette focus were fixed in separately staged original-source candidates.25 native/44 candidate gateway/189 UI (1 existing ignored)/102 repo pass; four screenshots inspected. [Evidence and limits](evidence/designcraft-endnote-query.md).
+
+Shipped gateway/native/UI registration and alpha77 immutable draft24assets are unchanged. This remains an unfinished product integration experiment, not a release/availability claim; DesignCraft/full providers/real OS/all13 stay open. Next B in SAME MAIN: top-level Folder reorder fromcaaa615 per its child-between handoff after one exact CI snapshot. Next A: deliberately promote the proven input/UI patches with fresh native-generated CI query fixtures, next SemVer and immutable Actions draft assets. Do not repeat resolver/guard/browser-proof-only checkpoints. No new writer/chat/security change.
+
 # PAR-03 — selected Endnote asynchronous delivery candidate (2026-10-27)
 
 A separate native delivery owner now correlates selected-reference query tickets, actual session/context, fixed monotonic deadline and exact cancellation without touching the mutation ACK/FIFO. Six actual native replies and six new test groups pass 189 original UI tests (1 existing ignored); injected Cargo23 restores both modules. [Evidence and exact browser continuation](evidence/designcraft-endnote-delivery.md).

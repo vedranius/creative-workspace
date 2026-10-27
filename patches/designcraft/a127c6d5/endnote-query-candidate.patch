@@ -1,0 +1,215 @@
+--- a/crates/engine/src/lib.rs
++++ b/crates/engine/src/lib.rs
+@@ -420,7 +420,7 @@
+     /// document as it was (see [`guard`]).
+     pub fn execute(&mut self, id: &str, params: &Value) -> Result<Value> {
+         if self.server_mirror {
+-            if id == "frame.create" || id == "selection.set" || id == "text.placeCaret" || id == "text.delete" || id == "edit.undo" || id == "edit.redo" || id == "layout.pages.move" || id == "layout.pages.insert" || id == "footnote.insert" {
++            if id == "frame.create" || id == "selection.set" || id == "text.placeCaret" || id == "text.move" || id == "text.delete" || id == "edit.undo" || id == "edit.redo" || id == "layout.pages.move" || id == "layout.pages.insert" || id == "footnote.insert" {
+                 if matches!(id, "edit.undo" | "edit.redo") && !params.as_object().is_some_and(|p| p.is_empty()) {
+                     return Err(EngineError::Disabled(id.into(), "unexpected parameters".into()));
+                 }
+--- a/crates/ui-egui/src/lib.rs
++++ b/crates/ui-egui/src/lib.rs
+@@ -5,6 +5,8 @@
+ //! the control channel ([`control`]) share that entry point.
+ #![deny(clippy::unwrap_used, clippy::expect_used, clippy::panic, clippy::unimplemented, clippy::todo, clippy::unreachable)]
+ #![forbid(unsafe_code)]
++
++pub mod cw_endnote_target_candidate;
+ 
+ pub mod about;
+ pub mod canvas;
+@@ -572,6 +574,8 @@
+     last_time: f64,
+     /// When recovery data was last written (seconds, egui time).
+     pub last_recovery: f64,
++    pub host_endnote_query_enabled: bool,
++    pub host_endnote_query_requested: bool,
+     host_revision: u64,
+     host_page: usize,
+     host_caret: Option<HostCaret>,
+@@ -630,6 +634,7 @@
+             native_shortcuts: Default::default(),
+             last_time: 0.0,
+             last_recovery: 0.0,
++            host_endnote_query_enabled: false, host_endnote_query_requested: false,
+             host_caret_screen: None, host_type_menu_rect: None, host_insert_endnote_rect: None, host_insert_footnote_rect: None, host_footnote_options_rect: None, host_footnote_reference_rect: None, host_pages_tab_rect: None, host_page_rects: Vec::new(), host_preset_rect: None, host_open_rect: None, host_revision: 0, host_page: 0, host_caret: None, host_pending: false, host_open_pending: false, host_pending_command: None, host_text_queue: VecDeque::new(), host_text_queue_bytes: 0, host_draining_text: false, host_preview: None, host_texture: None,
+         }
+     }
+@@ -703,13 +708,13 @@
+                 self.ui.flyout = None;
+                 return Ok(json!({"tool": tool}));
+             }
+-            if matches!(id, "text.insert" | "text.delete" | "text.select" | "text.placeCaret") {
++            if matches!(id, "text.insert" | "text.delete" | "text.select" | "text.placeCaret" | "text.move") {
+                 let queued = self.host_pending;
+                 self.queue_host_action(id, params)?;
+                 return Ok(json!({"pending": true, "queued": queued, "commandId": id}));
+             }
+             let allowed = (matches!(id, "file.new" | "file.open") && self.session.active().is_none())
+-                || (matches!(id, "page.select" | "frame.create" | "layout.pages.move" | "layout.pages.insert" | "layout.pages.duplicateSpread" | "layout.pages.delete" | "selection.set" | "edit.selectAll" | "edit.deselectAll" | "edit.clear" | "edit.undo" | "edit.redo" | "file.saveACopy" | "endnote.insert" | "footnote.insert" | "footnote.options" | "endnote.options" | "endnote.edit" | "endnote.delete" | "footnote.goToReference" | "text.insert" | "text.delete" | "text.select" | "text.placeCaret") && self.session.active().is_some());
++                || (matches!(id, "page.select" | "frame.create" | "layout.pages.move" | "layout.pages.insert" | "layout.pages.duplicateSpread" | "layout.pages.delete" | "selection.set" | "edit.selectAll" | "edit.deselectAll" | "edit.clear" | "edit.undo" | "edit.redo" | "file.saveACopy" | "endnote.insert" | "footnote.insert" | "footnote.options" | "endnote.options" | "endnote.edit" | "endnote.delete" | "footnote.goToReference" | "text.insert" | "text.delete" | "text.select" | "text.placeCaret" | "text.move") && self.session.active().is_some());
+             if !allowed {
+                 let error = "This original action is not connected to the server yet";
+                 self.status(error); return Err(error.into());
+@@ -734,7 +739,7 @@
+             return Err(format!("{} queued text actions are held after a server failure; they will not be replayed automatically", self.host_text_queue.len()));
+         }
+         if self.host_pending {
+-            if !matches!(id, "selection.set" | "text.insert" | "text.delete" | "text.select" | "text.placeCaret") { return Err("A server action is already pending".into()); }
++            if !matches!(id, "selection.set" | "text.insert" | "text.delete" | "text.select" | "text.placeCaret" | "text.move") { return Err("A server action is already pending".into()); }
+             let bytes = if id == "text.insert" {
+                 let text = params.get("text").and_then(Value::as_str).ok_or("text.insert requires text")?;
+                 text.len()
+@@ -749,7 +754,7 @@
+             return Ok(());
+         }
+         let allowed = (matches!(id, "file.new" | "file.open") && self.session.active().is_none())
+-            || (matches!(id, "page.select" | "frame.create" | "layout.pages.move" | "layout.pages.insert" | "layout.pages.duplicateSpread" | "layout.pages.delete" | "selection.set" | "edit.selectAll" | "edit.deselectAll" | "edit.clear" | "text.placeCaret" | "text.select" | "edit.undo" | "edit.redo" | "file.saveACopy" | "endnote.insert" | "footnote.insert" | "footnote.options" | "endnote.options" | "endnote.edit" | "endnote.delete" | "footnote.goToReference" | "text.insert" | "text.delete") && self.session.active().is_some());
++            || (matches!(id, "page.select" | "frame.create" | "layout.pages.move" | "layout.pages.insert" | "layout.pages.duplicateSpread" | "layout.pages.delete" | "selection.set" | "edit.selectAll" | "edit.deselectAll" | "edit.clear" | "text.placeCaret" | "text.move" | "text.select" | "edit.undo" | "edit.redo" | "file.saveACopy" | "endnote.insert" | "footnote.insert" | "footnote.options" | "endnote.options" | "endnote.edit" | "endnote.delete" | "footnote.goToReference" | "text.insert" | "text.delete") && self.session.active().is_some());
+         if !allowed { return Err("This original action is not connected to the server yet".into()); }
+         let Some(host_action) = self.services.host_action.as_mut() else { return Err("Server action host is unavailable".into()); };
+         host_action(id, params)?;
+--- a/crates/ui-egui/src/menus.rs
++++ b/crates/ui-egui/src/menus.rs
+@@ -1806,6 +1806,11 @@
+ /// A menu item was chosen. An engine command whose label ends in "…" and that takes parameters
+ /// opens a dialog built from its parameter documentation (see [`crate::dialogs::command_fields`]).
+ pub fn activate(app: &mut DesignApp, id: &str, params: &Value) {
++    if params.is_null() && id == "endnote.edit" && app.services.host_action.is_some() && app.host_endnote_query_enabled {
++        app.host_endnote_query_requested = true;
++        return;
++    }
++
+     if params.is_null() && id == "file.close" {
+         close_document(app, None);
+         return;
+--- a/apps/designcraft-web/src/web.rs
++++ b/apps/designcraft-web/src/web.rs
+@@ -4,6 +4,20 @@
+ use designcraft_engine::Session;
+ use designcraft_ui_egui::{DesignApp, HostActionAck, ImportRequest, Inbox, Services};
+ use wasm_bindgen::JsCast as _;
++use designcraft_ui_egui::cw_endnote_target_candidate::{EndnoteQueryDelivery, QueryTicket, QueryDelivery, QueryStop};
++type QueryReplies = std::sync::Arc<std::sync::Mutex<Vec<(QueryTicket, Result<serde_json::Value,String>)>>>;
++#[wasm_bindgen::prelude::wasm_bindgen(module = "/endnote-query.js")]
++extern "C" {
++    #[wasm_bindgen::prelude::wasm_bindgen(catch, js_name = endnoteQueryEpoch)]
++    fn endnote_query_epoch() -> Result<String,wasm_bindgen::JsValue>;
++    #[wasm_bindgen::prelude::wasm_bindgen(js_name = endnoteQueryNow)]
++    fn endnote_query_now() -> f64;
++    #[wasm_bindgen::prelude::wasm_bindgen(js_name = fetchEndnoteQuery)]
++    fn fetch_endnote_query(session: &str, request_id: &str, request: &str) -> js_sys::Promise;
++    #[wasm_bindgen::prelude::wasm_bindgen(js_name = abortEndnoteQuery)]
++    fn abort_endnote_query(session: &str, request_id: &str) -> bool;
++}
++
+ 
+ type OpenReplies = std::sync::Arc<std::sync::Mutex<Vec<Result<Option<String>,String>>>>;
+ #[wasm_bindgen::prelude::wasm_bindgen(module = "/file-provider.js")]
+@@ -59,8 +73,12 @@
+                     let replies = std::sync::Arc::new(std::sync::Mutex::new(Vec::new()));
+                     let mut mirror = Session::new(); mirror.set_server_mirror();
+                     let open_replies = OpenReplies::default();
+-                    let app = DesignApp::new(mirror, services(inbox.clone(), actions.clone(), open_replies.clone(), session_id.clone(), share_id.clone(), cc.egui_ctx.clone()));
+-                    Ok(Box::new(WebShell { app, actions, replies, open_replies, session_id: session_id.clone(), busy: false }))
++                    let mut app = DesignApp::new(mirror, services(inbox.clone(), actions.clone(), open_replies.clone(), session_id.clone(), share_id.clone(), cc.egui_ctx.clone()));
++                    app.host_endnote_query_enabled = true;
++                    let epoch = endnote_query_epoch().map_err(|_|std::io::Error::other("Endnote query identity unavailable"))?;
++                    let query_delivery = EndnoteQueryDelivery::new(&epoch).map_err(std::io::Error::other)?;
++                    Ok(Box::new(WebShell { app, actions, replies, open_replies, session_id: session_id.clone(), busy: false,
++                        query_delivery, query_replies: QueryReplies::default(), query_status: "idle".into() }))
+                 }),
+             )
+             .await;
+@@ -86,6 +104,55 @@
+     session_id: String,
+     busy: bool,
+     open_replies: OpenReplies,
++    query_delivery: EndnoteQueryDelivery,
++    query_replies: QueryReplies,
++    query_status: String,
++}
++
++impl WebShell {
++    fn handle_endnote_query(&mut self, ctx: &egui::Context) {
++        let now = endnote_query_now();
++        let now = if now.is_finite() && now >= 0.0 { now as u64 } else { u64::MAX };
++        if let Some(stopped) = self.query_delivery.poll(&self.app, &self.session_id, now) {
++            abort_endnote_query(stopped.ticket.session(), stopped.ticket.request_id());
++            self.query_status = match stopped.reason {QueryStop::Deadline => "deadline", _ => "context-changed"}.into();
++            if stopped.reason == QueryStop::Deadline { self.app.status("Endnote query timed out; choose Edit Endnote again"); }
++        }
++        let replies = std::mem::take(&mut *self.query_replies.lock().unwrap_or_else(|e|e.into_inner()));
++        for (ticket,reply) in replies {
++            match self.query_delivery.deliver(&mut self.app, &self.session_id, &ticket, reply.as_ref().map_err(String::as_str), now) {
++                QueryDelivery::Ignored => {},
++                QueryDelivery::Stopped(stopped) => { abort_endnote_query(stopped.ticket.session(), stopped.ticket.request_id()); self.query_status = "context-changed".into(); },
++                QueryDelivery::Opened => { self.query_status = "opened".into(); ctx.request_repaint(); },
++                QueryDelivery::Failed | QueryDelivery::Rejected => { self.query_status = "failed".into(); self.app.status("Endnote query failed; choose Edit Endnote again"); },
++            }
++        }
++        if std::mem::take(&mut self.app.host_endnote_query_requested) {
++            match self.query_delivery.begin(&self.app, &self.session_id, now) {
++                Err(error) => self.app.status(error),
++                Ok((ticket,request)) => {
++                    // The original Quick Apply has closed. Its search field must not
++                    // keep keyboard focus during the asynchronous interval.
++                    if let Some(focused) = ctx.memory(|memory|memory.focused()) {
++                        ctx.memory_mut(|memory|memory.surrender_focus(focused));
++                    }
++                    self.query_status = "pending".into();
++                    self.app.status("Reading the selected Endnote; Escape cancels");
++                    let promise = fetch_endnote_query(ticket.session(), ticket.request_id(), &request.to_string());
++                    let replies = self.query_replies.clone(); let ctx = ctx.clone();
++                    wasm_bindgen_futures::spawn_local(async move {
++                        let reply = match wasm_bindgen_futures::JsFuture::from(promise).await {
++                            Ok(value) => value.as_string().ok_or_else(||"Invalid Endnote query response".to_owned())
++                                .and_then(|text|serde_json::from_str(&text).map_err(|_|"Invalid Endnote query JSON".into())),
++                            Err(_) => Err("Endnote query transport failed".into()),
++                        };
++                        replies.lock().unwrap_or_else(|e|e.into_inner()).push((ticket,reply));ctx.request_repaint();
++                    });
++                }
++            }
++        }
++        if self.query_delivery.pending_ticket().is_some() { ctx.request_repaint_after(std::time::Duration::from_millis(50)); }
++    }
+ }
+ 
+ impl eframe::App for WebShell {
+@@ -135,6 +202,14 @@
+     }
+ 
+     fn raw_input_hook(&mut self, ctx: &egui::Context, raw: &mut egui::RawInput) {
++        if raw.events.iter().any(|e|matches!(e,egui::Event::Key {key:egui::Key::Escape,pressed:true,..}))
++            && let Some(ticket) = self.query_delivery.pending_ticket().cloned() {
++            let _ = self.query_delivery.cancel(&ticket);
++            abort_endnote_query(ticket.session(),ticket.request_id());
++            self.query_status = "cancelled".into();self.app.status("Endnote query cancelled");
++            raw.events.retain(|e|!matches!(e,egui::Event::Key {key:egui::Key::Escape,..}));
++        }
++
+         if self.app.services.host_action.is_some() && self.app.session.wants_text() {
+             let mut deletes = Vec::new();
+             raw.events.retain(|event| {
+@@ -159,11 +234,18 @@
+ 
+     fn ui(&mut self, ui: &mut egui::Ui, _frame: &mut eframe::Frame) {
+         self.app.ui(ui);
++        self.handle_endnote_query(ui.ctx());
+         if let Some(canvas) = web_sys::window().and_then(|w|w.document()).and_then(|d|d.get_element_by_id(CANVAS_ID)) {
+             if let Some(rect) = self.app.host_preset_rect { let _ = canvas.set_attribute("data-original-preset-a4", &serde_json::json!([rect.center().x, rect.center().y]).to_string()); }
+             if let Some(rect) = self.app.host_open_rect { let _ = canvas.set_attribute("data-original-open", &serde_json::json!([rect.center().x, rect.center().y]).to_string()); }
+             let _ = canvas.set_attribute("data-server-pending", if self.app.host_pending() { "true" } else { "false" });
+             let _=canvas.set_attribute("data-original-dialog",self.app.ui.dialog.as_ref().map(|d|d.id.as_str()).unwrap_or(""));
++            let _ = canvas.set_attribute("data-endnote-query-status", &self.query_status);
++            let _ = canvas.set_attribute("data-endnote-query-request", self.query_delivery.pending_ticket().map(|t|t.request_id()).unwrap_or(""));
++            if let Some(d) = &self.app.ui.dialog {
++                if d.id == "cmd:endnote.edit" { let _ = canvas.set_attribute("data-original-endnote-values", &serde_json::json!(d.fields).to_string()); }
++            } else { let _ = canvas.remove_attribute("data-original-endnote-values"); }
++
+             if let Some(r)=self.app.host_footnote_reference_rect {let _=canvas.set_attribute("data-original-footnote-reference",&serde_json::json!([r.center().x,r.center().y]).to_string());} else {let _=canvas.remove_attribute("data-original-footnote-reference");}
+             if let Some(r)=self.app.host_footnote_options_rect {let _=canvas.set_attribute("data-original-footnote-options",&serde_json::json!([r.center().x,r.center().y]).to_string());} else {let _=canvas.remove_attribute("data-original-footnote-options");}
+             if let Some(q)=self.app.ui.palette.as_ref() {let _=canvas.set_attribute("data-original-palette",q);} else {let _=canvas.remove_attribute("data-original-palette");}

@@ -18,5 +18,15 @@ jobs:
       - run: node scripts/verify-designcraft-endnote-target.mjs
         env:
           PROVENANCE_ONLY: '1'
+      - run: node --check scripts/prepare-designcraft-endnote-query-input.mjs
+      - run: node scripts/prepare-designcraft-endnote-query-input.mjs
+        env:
+          PROVENANCE_ONLY: '1'
+      - run: node --check scripts/build-designcraft-endnote-query-candidate.mjs
+      - run: node --check scripts/smoke-designcraft-endnote-query-browser.mjs
+      - run: node --check experiments/designcraft-endnote-target/endnote-query.js
+      - run: node scripts/build-designcraft-endnote-query-candidate.mjs
+        env:
+          PROVENANCE_ONLY: '1'
       - run: npm run check
       - run: npm test

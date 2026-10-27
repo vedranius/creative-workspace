@@ -1,0 +1,605 @@
+{
+  "status": "original-browser-selected-endnote-query-candidate-passed",
+  "checks": [
+    "Original Open owns generated native document",
+    "Candidate original input scope rejects six broader or malformed operations before native mutation",
+    "Original selected reference automatically opens exact existing form",
+    "Held query opens no premature dialog",
+    "Read-only query leaves mutation pending false",
+    "Read-only query keeps canonical revision",
+    "Held query opens exact original form only after full canonical reply",
+    "Transport failure preserves selection and leaves no dialog",
+    "Failure has no automatic retry",
+    "Forged native note list cannot populate original form",
+    "Escape cancels exact query without leaking Deselect",
+    "Explicit retry has fresh ticket and old completion cannot open twice",
+    "Newer original palette query survives cancelled reply",
+    "Newer native reverse selection invalidates held query",
+    "Original reverse body selection opens same correct native target",
+    "Cancelled query does not acknowledge newer held mutation",
+    "Late query preserves newer FIFO typing until both native ACKs",
+    "Newer typing original Undo restores exact reference document",
+    "Other page same note ID resolves by selected story",
+    "Fixed ten second query deadline aborts without mutation",
+    "Timeout has no automatic replay",
+    "Original edit draft waits for native mutation ACK",
+    "Pending mutation blocks duplicate confirmation and body typing",
+    "Exact original selected target edit accepted by real owned worker",
+    "Original Undo Redo preserves exact canonical note edit",
+    "Edited generated Endnotes listing native pixels change and Undo Redo match",
+    "Chosen input bytes untouched",
+    "Retained native Save Copy and fresh reopen preserve canonical edit and listing pixels",
+    "Every actual original query has unique correlated ticket",
+    "No unexpected browser errors or failed requests"
+  ],
+  "values": {
+    "id": 1,
+    "story": 19,
+    "text": "First page \u03a9"
+  },
+  "second": {
+    "id": 1,
+    "story": 10,
+    "text": "Second page \u010d"
+  },
+  "queryCount": 13,
+  "heldReadOnlyCanonicalPreserved": true,
+  "exactCancel": true,
+  "deadlineMs": 10000,
+  "noAutomaticReplay": true,
+  "mutationAck": true,
+  "listingPng": {
+    "edited": "b71dbdd1147f5e2881f40d975566897e9d32b782a5975eace53c8e4dcd545a4c",
+    "undone": "15dbd861eb266b37d7def0415007a1011efb2178848d5743b243727c32ff7ccd"
+  },
+  "requests": [
+    {
+      "expectedVersion": 0,
+      "method": "file.open",
+      "params": {
+        "path": "chosen.designcraft"
+      },
+      "requestId": "original-file.open-1793092396606"
+    },
+    {
+      "expectedVersion": 1,
+      "method": "text.placeCaret",
+      "params": {
+        "frame": 18,
+        "point": [
+          60,
+          87.6923358623798
+        ]
+      },
+      "requestId": "original-text.placeCaret-1793092398552"
+    },
+    {
+      "expectedVersion": 2,
+      "method": "text.placeCaret",
+      "params": {
+        "frame": 18,
+        "point": [
+          109.84615384615384,
+          87.6923358623798
+        ]
+      },
+      "requestId": "original-text.placeCaret-1793092399508"
+    },
+    {
+      "expectedVersion": 3,
+      "method": "text.move",
+      "params": {
+        "dir": "right",
+        "extend": true,
+        "far": false,
+        "word": false
+      },
+      "requestId": "original-text.move-1793092400590"
+    },
+    {
+      "expectedVersion": 4,
+      "method": "endnote.list",
+      "params": {},
+      "requestId": "endnote-query-841a2bbf-725f-4f5b-baa9-58f805143954-1"
+    },
+    {
+      "expectedVersion": 4,
+      "method": "endnote.list",
+      "params": {},
+      "requestId": "endnote-query-841a2bbf-725f-4f5b-baa9-58f805143954-2"
+    },
+    {
+      "expectedVersion": 4,
+      "method": "endnote.list",
+      "params": {},
+      "requestId": "endnote-query-841a2bbf-725f-4f5b-baa9-58f805143954-3"
+    },
+    {
+      "expectedVersion": 4,
+      "method": "endnote.list",
+      "params": {},
+      "requestId": "endnote-query-841a2bbf-725f-4f5b-baa9-58f805143954-4"
+    },
+    {
+      "expectedVersion": 4,
+      "method": "endnote.list",
+      "params": {},
+      "requestId": "endnote-query-841a2bbf-725f-4f5b-baa9-58f805143954-5"
+    },
+    {
+      "expectedVersion": 4,
+      "method": "endnote.list",
+      "params": {},
+      "requestId": "endnote-query-841a2bbf-725f-4f5b-baa9-58f805143954-6"
+    },
+    {
+      "expectedVersion": 4,
+      "method": "endnote.list",
+      "params": {},
+      "requestId": "endnote-query-841a2bbf-725f-4f5b-baa9-58f805143954-7"
+    },
+    {
+      "expectedVersion": 4,
+      "method": "text.placeCaret",
+      "params": {
+        "frame": 18,
+        "point": [
+          60,
+          87.6923358623798
+        ]
+      },
+      "requestId": "original-text.placeCaret-1793092419176"
+    },
+    {
+      "expectedVersion": 5,
+      "method": "text.placeCaret",
+      "params": {
+        "frame": 18,
+        "point": [
+          109.84615384615384,
+          87.6923358623798
+        ]
+      },
+      "requestId": "original-text.placeCaret-1793092419881"
+    },
+    {
+      "expectedVersion": 6,
+      "method": "text.move",
+      "params": {
+        "dir": "right",
+        "extend": true,
+        "far": false,
+        "word": false
+      },
+      "requestId": "original-text.move-1793092420864"
+    },
+    {
+      "expectedVersion": 7,
+      "method": "endnote.list",
+      "params": {},
+      "requestId": "endnote-query-841a2bbf-725f-4f5b-baa9-58f805143954-8"
+    },
+    {
+      "expectedVersion": 7,
+      "method": "text.placeCaret",
+      "params": {
+        "frame": 18,
+        "point": [
+          60,
+          87.6923358623798
+        ]
+      },
+      "requestId": "original-text.placeCaret-1793092423254"
+    },
+    {
+      "expectedVersion": 8,
+      "method": "text.placeCaret",
+      "params": {
+        "frame": 18,
+        "point": [
+          112.61538461538464,
+          87.6923358623798
+        ]
+      },
+      "requestId": "original-text.placeCaret-1793092424320"
+    },
+    {
+      "expectedVersion": 9,
+      "method": "text.move",
+      "params": {
+        "dir": "left",
+        "extend": true,
+        "far": false,
+        "word": false
+      },
+      "requestId": "original-text.move-1793092425115"
+    },
+    {
+      "expectedVersion": 10,
+      "method": "endnote.list",
+      "params": {},
+      "requestId": "endnote-query-841a2bbf-725f-4f5b-baa9-58f805143954-9"
+    },
+    {
+      "expectedVersion": 10,
+      "method": "endnote.list",
+      "params": {},
+      "requestId": "endnote-query-841a2bbf-725f-4f5b-baa9-58f805143954-10"
+    },
+    {
+      "expectedVersion": 10,
+      "method": "text.insert",
+      "params": {
+        "text": "Q"
+      },
+      "requestId": "original-text.insert-1793092429252"
+    },
+    {
+      "expectedVersion": 11,
+      "method": "text.insert",
+      "params": {
+        "text": "R"
+      },
+      "requestId": "original-text.insert-1793092429522"
+    },
+    {
+      "expectedVersion": 12,
+      "method": "edit.undo",
+      "params": {},
+      "requestId": "original-edit.undo-1793092430295"
+    },
+    {
+      "expectedVersion": 13,
+      "method": "edit.undo",
+      "params": {},
+      "requestId": "original-edit.undo-1793092431021"
+    },
+    {
+      "expectedVersion": 14,
+      "method": "page.select",
+      "params": {
+        "index": 1
+      },
+      "requestId": "original-page.select-1793092431818"
+    },
+    {
+      "expectedVersion": 15,
+      "method": "text.placeCaret",
+      "params": {
+        "frame": 9,
+        "point": [
+          60,
+          87.69233586237976
+        ]
+      },
+      "requestId": "original-text.placeCaret-1793092432650"
+    },
+    {
+      "expectedVersion": 16,
+      "method": "text.placeCaret",
+      "params": {
+        "frame": 9,
+        "point": [
+          109.84615384615384,
+          87.69233586237976
+        ]
+      },
+      "requestId": "original-text.placeCaret-1793092433587"
+    },
+    {
+      "expectedVersion": 17,
+      "method": "text.move",
+      "params": {
+        "dir": "right",
+        "extend": true,
+        "far": false,
+        "word": false
+      },
+      "requestId": "original-text.move-1793092434226"
+    },
+    {
+      "expectedVersion": 18,
+      "method": "endnote.list",
+      "params": {},
+      "requestId": "endnote-query-841a2bbf-725f-4f5b-baa9-58f805143954-11"
+    },
+    {
+      "expectedVersion": 18,
+      "method": "endnote.list",
+      "params": {},
+      "requestId": "endnote-query-841a2bbf-725f-4f5b-baa9-58f805143954-12"
+    },
+    {
+      "expectedVersion": 18,
+      "method": "endnote.list",
+      "params": {},
+      "requestId": "endnote-query-841a2bbf-725f-4f5b-baa9-58f805143954-13"
+    },
+    {
+      "expectedVersion": 18,
+      "method": "endnote.edit",
+      "params": {
+        "id": 1,
+        "story": 10,
+        "text": "Browser selected note \u017d\ud83d\ude00"
+      },
+      "requestId": "original-endnote.edit-1793092452489"
+    },
+    {
+      "expectedVersion": 19,
+      "method": "edit.undo",
+      "params": {},
+      "requestId": "original-edit.undo-1793092455115"
+    },
+    {
+      "expectedVersion": 20,
+      "method": "edit.redo",
+      "params": {},
+      "requestId": "original-edit.redo-1793092455921"
+    },
+    {
+      "expectedVersion": 21,
+      "method": "page.select",
+      "params": {
+        "index": 2
+      },
+      "requestId": "original-page.select-1793092456724"
+    },
+    {
+      "expectedVersion": 22,
+      "method": "edit.undo",
+      "params": {},
+      "requestId": "original-edit.undo-1793092457483"
+    },
+    {
+      "expectedVersion": 23,
+      "method": "edit.redo",
+      "params": {},
+      "requestId": "original-edit.redo-1793092458441"
+    }
+  ],
+  "geometry": [
+    {
+      "story": 19,
+      "index": 0,
+      "bounds": [
+        0,
+        0,
+        612,
+        792
+      ],
+      "selection": {
+        "page": 0,
+        "story": 19,
+        "anchor": 9,
+        "focus": 12,
+        "quadCount": 1,
+        "glyphCount": 1,
+        "frames": [
+          18
+        ],
+        "bounds": [
+          109,
+          80,
+          114,
+          97
+        ]
+      },
+      "carets": [
+        [
+          [
+            109.99200000000002,
+            80
+          ],
+          [
+            109.99200000000002,
+            96.452
+          ]
+        ],
+        [
+          [
+            113.49000000000002,
+            80
+          ],
+          [
+            113.49000000000002,
+            96.452
+          ]
+        ]
+      ],
+      "resetCaret": [
+        [
+          60,
+          80
+        ],
+        [
+          60,
+          96.452
+        ]
+      ]
+    },
+    {
+      "story": 10,
+      "index": 1,
+      "bounds": [
+        0,
+        0,
+        612,
+        792
+      ],
+      "selection": {
+        "page": 1,
+        "story": 10,
+        "anchor": 9,
+        "focus": 12,
+        "quadCount": 1,
+        "glyphCount": 1,
+        "frames": [
+          9
+        ],
+        "bounds": [
+          109,
+          80,
+          114,
+          97
+        ]
+      },
+      "carets": [
+        [
+          [
+            109.99200000000002,
+            80
+          ],
+          [
+            109.99200000000002,
+            96.452
+          ]
+        ],
+        [
+          [
+            113.49000000000002,
+            80
+          ],
+          [
+            113.49000000000002,
+            96.452
+          ]
+        ]
+      ],
+      "resetCaret": [
+        [
+          60,
+          80
+        ],
+        [
+          60,
+          96.452
+        ]
+      ]
+    }
+  ],
+  "inputBridge": {
+    "patch": "patches/designcraft/a127c6d5/endnote-query-input-candidate.patch",
+    "sha256": "cfecbb0dd598d43c5faa50665500d5c89587369dadd309f3748c4371c4498036",
+    "baseFiles": {
+      "src/designcraft.js": "a27fc05654f11286ca3f1a5d8be76609a7d74b8121bbde5a6e57b5acac01a800",
+      "engines/designcraft/native/src/main.rs": "67c1f2f334b9e05222b318c1d1937f6f1f720cff6a98ed36c686834461ac5aab"
+    },
+    "patchedFiles": {
+      "src/designcraft.js": "24ea109202f92c6599cfff96fd54b9c0c14328502e388fcf0d040e180e8416a3",
+      "engines/designcraft/native/src/main.rs": "6a20d4573fa0e0739f038a52b4afc6f6f7c2d94f60db87def636174314614f34"
+    },
+    "scope": "QA-only gateway/owned native adapter copy exposes original text.move only for Shift+Left/Right single-character range extension; original native composition/visual step/UTF-8 movement, canonical ACK, no client-side range calculation. Shipped gateway/native source unchanged."
+  },
+  "nativeInputTests": 25,
+  "sourcePointerRange": "Original Type pointer caret plus Shift+Left/Right through original native text.move; drag extension remains outside this candidate",
+  "sourcePin": "a127c6d5c3576972bbd60445f26d893db071eef3",
+  "basePatchSha256": "5243209726af965d77117c3dd7fe6483296e260168febcac3cdbd88397987802",
+  "combinedSourcePatchSha256": "4fe027794797e0ac3769d1a22246efa897cf6cde069c1d019255ee3a7604d4bf",
+  "workerSha256": "7d4564f5202b8976353b4dc47ed8b114f0b035bd0949e65b529505aaca986d58",
+  "fixtureSha256": "5390657a5cc6ca6bea310b16a324302372b7095c741f51ec6539b0ba846cbb8c",
+  "scope": "Experimental original browser shell/Quick Apply/query/form with actual owned native worker; synthetic folder permission only, shipped UI/product release/full providers/OS acceptance unchanged.",
+  "wasm": {
+    "path": "designcraft-web-5d2efdf04b7e1ae_bg.wasm",
+    "bytes": 40473904,
+    "sha256": "b5c7fc03a3d9b0f85a67588c4f7f150ad70617a7def7c70cba2a805ae43eed33"
+  },
+  "sourceBaseCommit": "4b0f386ce908ad9e822c29efd6e3552c347b2f5f",
+  "validation": {
+    "browserAssertions": 30,
+    "uniqueUiQueries": 13,
+    "nativeInputTests": 25,
+    "candidateGatewayTests": 44,
+    "nativeUiTests": {
+      "passed": 189,
+      "failed": 0,
+      "existingIgnored": 1
+    },
+    "repositoryTests": 102,
+    "screenshotsInspected": 4,
+    "sourceRestored": true,
+    "qaClosed": true
+  },
+  "nativeInput": {
+    "status": "native-original-single-reference-step-passed",
+    "cases": [
+      {
+        "command": {
+          "pos": 12,
+          "commandId": "text.move"
+        },
+        "selection": {
+          "anchor": 9,
+          "focus": 12,
+          "story": 19
+        },
+        "geometry": {
+          "page": 0,
+          "story": 19,
+          "anchor": 9,
+          "focus": 12,
+          "quadCount": 1,
+          "glyphCount": 1,
+          "frames": [
+            18
+          ],
+          "bounds": [
+            109,
+            80,
+            114,
+            97
+          ]
+        },
+        "canonicalDirtyHistoryPreserved": true
+      },
+      {
+        "command": {
+          "pos": 9,
+          "commandId": "text.move"
+        },
+        "selection": {
+          "anchor": 12,
+          "focus": 9,
+          "story": 19
+        },
+        "geometry": {
+          "page": 0,
+          "story": 19,
+          "anchor": 12,
+          "focus": 9,
+          "quadCount": 1,
+          "glyphCount": 1,
+          "frames": [
+            18
+          ],
+          "bounds": [
+            109,
+            80,
+            114,
+            97
+          ]
+        },
+        "canonicalDirtyHistoryPreserved": true
+      }
+    ]
+  },
+  "expectedTransportResults": {
+    "intentional503": 1,
+    "console503": 1,
+    "abortControllerCleanupOrCancellation": 11,
+    "unexpectedErrors": 0
+  },
+  "diagnostics": {
+    "firstBrowserDragExposedMissingRangeBridge": true,
+    "pendingQuickApplyFocusBugFixed": true,
+    "priorAttemptsPreservedPrivately": 8,
+    "harnessCorrections": [
+      "Expected aborted Playwright route may already be handled; only explicitly cancelled gates permit that outcome.",
+      "Wait for actual original palette/field values rather than fixed renderer delay.",
+      "Re-establish the source Type selection between cases; click ordinary body before a selected marker, which otherwise starts the original text drag."
+    ],
+    "nativeFontCoverage": "Canonical generated UTF-8 note text is preserved; native listing shows the existing emoji glyph fallback. No additional font-coverage claim."
+  },
+  "newProductRelease": false,
+  "shippedGatewayNativeUiRegistrationChanged": false
+}
