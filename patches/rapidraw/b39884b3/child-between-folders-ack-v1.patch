@@ -1,0 +1,24 @@
+--- a/src/hooks/usePresets.ts
++++ b/src/hooks/usePresets.ts
+@@ -507,7 +507,8 @@
+ 
+       const intoEmptyFolder = !sourceFolderId && !!targetFolderId && overId === null && presets.some((item: UserPreset) => item.folder?.id === targetFolderId && item.folder.children.length === 0);
+       const childBeforeRootTool = !!sourceFolderId && targetFolderId === null && !!overId && presets.some((item: UserPreset) => item.preset?.id === overId && item.preset.presetType === 'tool');
+-      if (!presetToMove || presetToMove.presetType !== 'tool' || (!intoEmptyFolder && !childBeforeRootTool)) {
++      const childBetweenFolders = !!sourceFolderId && !!targetFolderId && sourceFolderId !== targetFolderId && overId === null && presets.some((item: UserPreset) => item.folder?.id === targetFolderId);
++      if (!presetToMove || presetToMove.presetType !== 'tool' || (!intoEmptyFolder && !childBeforeRootTool && !childBetweenFolders)) {
+         throw new Error('Move one Exposure Tool into an empty folder or one child before an existing top-level Tool');
+       }
+ 
+--- a/src/components/panel/right/PresetsPanel.tsx
++++ b/src/components/panel/right/PresetsPanel.tsx
+@@ -997,7 +997,8 @@
+     const childBeforeRootTool = !!activeParentId && !targetFolderId && overType === PresetListType.Preset && presets.some((item: UserPreset) => item.preset?.id === overId && item.preset.presetType === 'tool');
+     const rootToolReorder = activeParentId === null && overParentId === null && overType === PresetListType.Preset && presets.some((item: UserPreset) => item.preset?.id === activeId && item.preset.presetType === 'tool') && presets.some((item: UserPreset) => item.preset?.id === overId && item.preset.presetType === 'tool');
+     const childToolReorder = !!activeParentId && activeParentId === overParentId && overType === PresetListType.Preset && presets.some((item: UserPreset) => item.folder?.id === activeParentId && item.folder.children.some((p: any) => p.id === activeId && p.presetType === 'tool') && item.folder.children.some((p: any) => p.id === overId && p.presetType === 'tool'));
+-    if (activeType !== PresetListType.Preset || (!intoEmptyFolder && !childBeforeRootTool && !rootToolReorder && !childToolReorder)) {
++    const childBetweenFolders = !!activeParentId && !!targetFolderId && activeParentId !== targetFolderId && overType === PresetListType.Folder && presets.some((item: UserPreset) => item.folder?.id === activeParentId && item.folder.children.some((p: any) => p.id === activeId && p.presetType === 'tool'));
++    if (activeType !== PresetListType.Preset || (!intoEmptyFolder && !childBeforeRootTool && !rootToolReorder && !childToolReorder && !childBetweenFolders)) {
+       setDeleteError('Move one Exposure Tool into an empty folder or one child before an existing top-level Tool');
+       return;
+     }

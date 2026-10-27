@@ -1,3 +1,9 @@
+# RWASM-03 — original child Tool move between existing folders (2026-10-27)
+
+Original child removal/append now moves onto another existing folder only after durable SavePresets commit/readback ACK. Separate default-off permission preserves both parents, empty source, child IDs/values/flags/siblings/order and unrelated records. Actual pointer/held/duplicate/abort/stale/uncertain/reload0replay/native child/newer selection proof passes 27 browser assertions, 219 serial host/84 repo/check. [Evidence and precise handoff](rapidraw-wasm-app-child-between-handoff.md).
+
+Experimental B; cache/WASM reused, no Rust build/product release/main/demo/private input change. Next A from4b0f386: ACTUAL original browser shell/Quick Apply integration of completed Endnote target/delivery owner, no more guard-only checkpoint. Next B: original top-level Folder reorder with exact children through durable ACK from this revision6 library. SAME MAIN only.
+
 # RWASM-03 — original same-folder child Tool reorder ACK (2026-10-27)
 
 Original child arrayMove now waits for durable SavePresets commit/readback before publishing order. Separate default-off permission, exact parent/children/unrelated records, actual forward/backward gesture, abort/stale/uncertain/reload0replay and native child/newer selection proof pass 214 serial host/84 repo/check and original-browser assertions. [Evidence and precise handoff](rapidraw-wasm-app-child-reorder-handoff.md).

@@ -403,3 +403,32 @@ test('same-folder child reorder deadline excludes late IO until explicit reload 
 test('original child reorder SavePresets uses a separate default-off capability and exact args',async()=>{
  const {createPresetFileHost}=await import('./preset-file.js');const f=fixture();f.state.record={schema:1,revision:1,presets:childOrderLibrary()};const next=reorderedChild(await f.host.load());const prior=createPresetFileHost({libraryHost:f.host,allowReorderRootTools:true,allowRenameFolder:true,allowRenameChild:true});await assert.rejects(prior.invoke('save_presets',{presets:next}));const enabled=createPresetFileHost({libraryHost:f.host,allowReorderChildTools:true});await assert.rejects(enabled.invoke('save_presets',{presets:next,extra:true}),/arguments/);assert.equal(await enabled.invoke('save_presets',{presets:next}),null);assert.equal(f.state.commits,1);
 });
+
+const betweenFolders=(before,from=1,to=2,child=0)=>{const next=structuredClone(before);next[to].folder.children.push(next[from].folder.children.splice(child,1)[0]);return next;};
+test('child between existing folders is default-off and holds exact ACK including last-child parent retention',async()=>{
+ for(const [from,to,child]of [[1,2,0],[1,2,2],[2,1,0]]){const f=fixture();f.state.record={schema:1,revision:1,presets:childOrderLibrary()};const before=await f.host.load(),next=betweenFolders(before,from,to,child);
+ await assert.rejects(f.host.savePresets(next,{allowReorderChildTools:true,allowMoveToolIntoFolder:true,allowMoveChildToRoot:true}));assert.equal(f.state.commits,0);
+ f.state.readGate=gate();let resolved=false;const job=f.host.savePresets(next,{allowMoveChildBetweenFolders:true}).then(()=>resolved=true);await until(()=>f.state.reading);assert.equal(resolved,false);assert.equal(f.host.status().revision,1);assert.deepEqual(f.state.record.presets,next);await assert.rejects(f.host.saveChildMovedBetweenFolders(next),/Reload/);f.state.readGate.release();await job;assert.deepEqual(await f.host.load(),next);assert.deepEqual(next[0],before[0]);assert.equal(next[from].folder.id,before[from].folder.id);assert.equal(f.state.commits,1);if(from===2)assert.deepEqual(next[from].folder.children,[]);}
+});
+test('child between folders rejects parent child sibling root changes and non-append permutations before IO',async()=>{
+ const f=fixture();f.state.record={schema:1,revision:1,presets:childOrderLibrary()};const before=await f.host.load(),bad=[];
+ for(const [object,key,value]of [['child','id','forged'],['child','name','Changed'],['child','adjustments',{exposure:1.2}],['child','includeMasks',true],['child','includeCropTransform',true],['child','presetType','style'],['source','name','Changed parent'],['target','name','Changed destination'],['root','name','Changed root']]){const next=betweenFolders(before);const target=object==='child'?next[2].folder.children.at(-1):object==='source'?next[1].folder:object==='target'?next[2].folder:next[0].preset;target[key]=value;bad.push(next);}
+ const prepend=betweenFolders(before);prepend[2].folder.children.reverse();bad.push(prepend);
+ const siblings=betweenFolders(before);siblings[1].folder.children.reverse();bad.push(siblings);
+ const two=betweenFolders(before);two[2].folder.children.push(two[1].folder.children.shift());bad.push(two);
+ const swap=betweenFolders(before);swap[1].folder.children.push(swap[2].folder.children.shift());bad.push(swap);
+ const deleted=betweenFolders(before,2,1);deleted.pop();bad.push(deleted);
+ const added=betweenFolders(before);added.push({folder:{id:'new-folder',name:'New folder',children:[]}});bad.push(added);
+ bad.push(reorderedChild(before));bad.push(structuredClone(before));
+ for(const next of bad)await assert.rejects(f.host.saveChildMovedBetweenFolders(next));assert.equal(f.state.commits,0);assert.deepEqual(await f.host.load(),before);
+});
+test('child between folders abort stale and uncertain readback preserve ACK and reload never replays',async()=>{
+ for(const fault of ['abort','stale','readback']){const f=fixture();f.state.record={schema:1,revision:1,presets:childOrderLibrary()};const before=await f.host.load(),next=betweenFolders(before),read=f.backend.read;if(fault==='abort')f.state.aborted=true;if(fault==='stale'){const peer=structuredClone(before);peer[0].preset.name='Peer';f.state.record={schema:1,revision:2,presets:peer};}const durable=structuredClone(f.state.record);if(fault==='readback')f.backend.read=async()=>durable;
+ await assert.rejects(f.host.saveChildMovedBetweenFolders(next),/abort|another tab|readback/);assert.equal(f.host.status().uncertain,true);assert.equal(f.host.status().revision,1);await assert.rejects(f.host.saveChildMovedBetweenFolders(next),/Reload/);if(fault!=='readback')assert.deepEqual(f.state.record,durable);else assert.deepEqual(f.state.record.presets,next);const commits=f.state.commits;f.state.aborted=false;f.backend.read=read;await f.host.load();assert.equal(f.state.commits,commits);assert.equal(f.host.status().uncertain,false);}
+});
+test('child between folders deadline excludes late IO until explicit reload without replay',async()=>{
+ const f=fixture({timeoutMs:30});f.state.record={schema:1,revision:1,presets:childOrderLibrary()};const next=betweenFolders(await f.host.load());f.state.readGate=gate();const job=f.host.saveChildMovedBetweenFolders(next);await until(()=>f.state.reading);await assert.rejects(job,/timed out/);assert.equal(f.host.status().pendingIO,true);assert.equal(f.host.status().revision,1);await assert.rejects(f.host.saveChildMovedBetweenFolders(next),/Reload/);f.state.readGate.release();await until(()=>!f.host.status().pendingIO);assert.deepEqual(await f.host.load(),next);assert.equal(f.state.commits,1);
+});
+test('original between-folder SavePresets needs its own explicit permission and exact args',async()=>{
+ const {createPresetFileHost}=await import('./preset-file.js');const f=fixture();f.state.record={schema:1,revision:1,presets:childOrderLibrary()};const next=betweenFolders(await f.host.load());const prior=createPresetFileHost({libraryHost:f.host,allowReorderChildTools:true,allowRenameFolder:true,allowMoveChildToRoot:true,allowMoveToolIntoFolder:true});await assert.rejects(prior.invoke('save_presets',{presets:next}));const enabled=createPresetFileHost({libraryHost:f.host,allowMoveChildBetweenFolders:true});await assert.rejects(enabled.invoke('save_presets',{presets:next,extra:true}),/arguments/);assert.equal(await enabled.invoke('save_presets',{presets:next}),null);assert.equal(f.state.commits,1);
+});

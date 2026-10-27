@@ -1555,5 +1555,35 @@
       "experiments/rapidraw-react-proof/app-child-reorder-main.tsx": "e9c5c508004b41ad5ef215b6dcdac04099e714a32918cbdae99b744a15b6d656"
     },
     "scope": "Experimental original same-folder Exposure Tool child pointer reorder with original arrayMove; exact parent/child IDs/names/values/flags and all unrelated records preserved. Await durable CAS/commit/readback before publishing order; abort/stale/uncertain reload without replay. No cross-folder/folder/Style/general tree reorder or full App/provider/OS acceptance. Same-parent Tool pointer hits take precedence over enclosing folder collisions; original rectIntersection remains fallback for all other targets and keyboard input."
+  },
+  "appChildBetweenFolders": {
+    "basePatch": {
+      "path": "patches/rapidraw/b39884b3/child-tool-reorder-ack-v1.patch",
+      "sha256": "f43c6d9b569d04c924eaeb77b6cd691641b02b9f411bc3a04c217dfcb055975c",
+      "patchedFiles": {
+        "src/hooks/usePresets.ts": "caf0a74261f3268876f9b4633ed2c048cb4aeb64b2590af40c3e1a99e6e96231",
+        "src/components/panel/right/PresetsPanel.tsx": "b7b569d76e245a716254ef7543ee8b4aef78c9d48056046a500eda4c6a8339a1"
+      }
+    },
+    "sourceFiles": {
+      "src/hooks/usePresets.ts": "0b545710738a886df5a6946723e0e4e580027d98cc7a92f9bacd777bc7cf6258",
+      "src/components/panel/right/PresetsPanel.tsx": "f91a154e80a92c8692c625a9a43e1be06534024b78d79ce0052176d25ecf2949",
+      "src/components/modals/ConfigurePresetModal.tsx": "090545bc74c1c75342a958b503e26d64ad890024e14f3a722f2ceb176fdfdf8b",
+      "src-tauri/src/file_management.rs": "3f639e11c2f8a74baa31285b2aa9456516e5c71b6c8e4d78a42dbe61f5c4a219",
+      "src/components/modals/CreateFolderModal.tsx": "ff16869f30d45b6e0c96dc647314027a5828814ce0d62d0fc90840ecfd07a29a",
+      "src/components/modals/RenameFolderModal.tsx": "623d7854c69ade59dec72b4640e87cc6f053ccedbcc6e99510dfaa86c422636d"
+    },
+    "sourcePatch": {
+      "path": "patches/rapidraw/b39884b3/child-between-folders-ack-v1.patch",
+      "sha256": "d704fdc9a2018303c4719654aa6e73ca9514df518f7c296295a762cdac82d8c9",
+      "patchedFiles": {
+        "src/hooks/usePresets.ts": "39e3abaf4b760a46d06e1384aea9205373083d7b2b4fe404a711df88214e5fcf",
+        "src/components/panel/right/PresetsPanel.tsx": "a057d980847f89a4df6aec8669fa25507b4c02e8d1f20ff6bef196f0693afc75"
+      }
+    },
+    "bootstrapFiles": {
+      "experiments/rapidraw-react-proof/app-child-between-main.tsx": "4a5e8af32d716b5b417a420c163ba2a5322738901e313d18bb2f3e84bd84ebeb"
+    },
+    "scope": "Experimental original Exposure Tool child pointer move onto a different existing folder, using original removal/append and durable SavePresets commit/readback ACK. Retain empty source folder, exact parents/child IDs/names/values/flags/siblings/order and unrelated records. Separate default-off permission; abort/stale/uncertain explicit reload without replay. No folder/Style/general tree move or full App/provider/OS acceptance."
   }
 }

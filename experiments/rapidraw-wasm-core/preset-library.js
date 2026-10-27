@@ -113,6 +113,24 @@ export function createPresetLibrary({backend=createPresetLibraryDatabase(),pickF
   });
  };
  const saveChildReordered=async items=>{ready();const presets=boundedLibrary(items);if(!childToolReorderCandidate(presets))fail('Reorder one existing Exposure Tool child within the same folder; preserve parent, IDs, names, values, flags and every other record');return persist(presets);};
+ const childBetweenFoldersCandidate=presets=>{
+  const prior=current.presets;if(presets.length!==prior.length)return false;
+  const changed=presets.flatMap((item,i)=>JSON.stringify(item)!==JSON.stringify(prior[i])?[i]:[]);
+  if(changed.length!==2)return false;
+  return changed.some(from=>{
+   const to=changed.find(i=>i!==from),source=prior[from]?.folder,target=prior[to]?.folder;
+   if(!source||!target||!presets[from]?.folder||!presets[to]?.folder)return false;
+   const remaining=presets[from].folder.children;
+   if(remaining.length!==source.children.length-1)return false;
+   const removed=source.children.filter(p=>!remaining.some(n=>n.id===p.id));
+   if(removed.length!==1||removed[0].presetType!=='tool')return false;
+   const expected=structuredClone(prior);
+   expected[from].folder.children=source.children.filter(p=>p.id!==removed[0].id);
+   expected[to].folder.children.push(removed[0]);
+   return JSON.stringify(expected)===JSON.stringify(presets);
+  });
+ };
+ const saveChildMovedBetweenFolders=async items=>{ready();const presets=boundedLibrary(items);if(!childBetweenFoldersCandidate(presets))fail('Move one existing Exposure Tool child onto a different existing folder; preserve both parents, IDs, names, values, flags, siblings and order');return persist(presets);};
  const saveDeleted=async items=>{
   ready();const presets=boundedLibrary(items),prior=current.presets;
   if(presets.length!==prior.length-1)fail('Remove exactly one existing Exposure Tool preset');
@@ -207,8 +225,10 @@ export function createPresetLibrary({backend=createPresetLibraryDatabase(),pickF
   saveChildMovedToRoot,
   saveRootReordered,
   saveChildReordered,
-  async savePresets(items,{allowRename=false,allowDelete=false,allowDuplicate=false,allowOverwrite=false,allowCreateFolder=false,allowRenameFolder=false,allowDeleteFolder=false,allowRenameChild=false,allowDuplicateChild=false,allowOverwriteChild=false,allowDeleteChild=false,allowMoveToolIntoFolder=false,allowMoveChildToRoot=false,allowReorderRootTools=false,allowReorderChildTools=false}={}){
+  saveChildMovedBetweenFolders,
+  async savePresets(items,{allowRename=false,allowDelete=false,allowDuplicate=false,allowOverwrite=false,allowCreateFolder=false,allowRenameFolder=false,allowDeleteFolder=false,allowRenameChild=false,allowDuplicateChild=false,allowOverwriteChild=false,allowDeleteChild=false,allowMoveToolIntoFolder=false,allowMoveChildToRoot=false,allowReorderRootTools=false,allowReorderChildTools=false,allowMoveChildBetweenFolders=false}={}){
    ready();const presets=boundedLibrary(items);
+   if(allowMoveChildBetweenFolders&&childBetweenFoldersCandidate(presets))return saveChildMovedBetweenFolders(presets);
    if(allowReorderChildTools&&childToolReorderCandidate(presets))return saveChildReordered(presets);
    if(allowReorderRootTools&&rootToolReorderCandidate(presets))return saveRootReordered(presets);
    if(allowMoveChildToRoot&&moveChildToRootCandidate(presets))return saveChildMovedToRoot(presets);
