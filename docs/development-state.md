@@ -1,3 +1,9 @@
+# RWASM-03 — original same-folder child Tool reorder ACK (2026-10-27)
+
+Original child arrayMove now waits for durable SavePresets commit/readback before publishing order. Separate default-off permission, exact parent/children/unrelated records, actual forward/backward gesture, abort/stale/uncertain/reload0replay and native child/newer selection proof pass 214 serial host/84 repo/check and original-browser assertions. [Evidence and precise handoff](rapidraw-wasm-app-child-reorder-handoff.md).
+
+Experimental B; source/cache/WASM reused, no product release/main/demo/private input change. Next A from dc3c4bd: original selected-reference async Endnote query/form browser integration; native targeting is complete. Next B: original child move between existing folders through durable ACK from this already acknowledged library. SAME MAIN only.
+
 # RWASM-03 — original nonempty Folder Rename ACK (2026-10-26)
 
 Original Rename Folder now accepts a nonempty folder through the existing default-off rename capability and original awaited name-only map. Exact children/IDs/values/flags/order, selected native child pixels, held draft, actual abort/stale/uncertain/reload without replay pass 22 browser/209 serial host/84 repo/check. [Evidence and next step](rapidraw-wasm-app-nonempty-folder-rename-handoff.md).

@@ -1,0 +1,77 @@
+--- a/src/hooks/usePresets.ts
++++ b/src/hooks/usePresets.ts
+@@ -577,10 +577,22 @@
+         arr.findIndex((item: UserPreset) => item.preset?.id === id || item.folder?.id === id || item?.id === id);
+       const activeRootIndex = getIndex(currentPresets, activeId);
+       const overRootIndex = getIndex(currentPresets, overId);
+-      if (activeRootIndex < 0 || overRootIndex < 0 || activeRootIndex === overRootIndex || !currentPresets.slice(Math.min(activeRootIndex, overRootIndex), Math.max(activeRootIndex, overRootIndex) + 1).every((item: UserPreset) => item.preset?.presetType === 'tool')) {
+-        throw new Error('Reorder one existing top-level Exposure Tool within its Tool block');
+-      }
+-      const newPresets: Array<UserPreset> = arrayMove(currentPresets, activeRootIndex, overRootIndex);
++      let newPresets: Array<UserPreset>;
++      if (activeRootIndex >= 0 && overRootIndex >= 0 && activeRootIndex !== overRootIndex && currentPresets.slice(Math.min(activeRootIndex, overRootIndex), Math.max(activeRootIndex, overRootIndex) + 1).every((item: UserPreset) => item.preset?.presetType === 'tool')) {
++        newPresets = arrayMove(currentPresets, activeRootIndex, overRootIndex);
++      } else {
++        const item = currentPresets.find((item: UserPreset) => item.folder?.children.some((p: any) => p.id === activeId) && item.folder.children.some((p: any) => p.id === overId));
++        if (!item?.folder) throw new Error('Reorder one existing Exposure Tool within the same folder');
++        const activeChildIndex = getIndex(item.folder.children, activeId);
++        const overChildIndex = getIndex(item.folder.children, overId);
++        if (activeChildIndex === overChildIndex || !item.folder.children.slice(Math.min(activeChildIndex, overChildIndex), Math.max(activeChildIndex, overChildIndex) + 1).every((p: any) => p.presetType === 'tool')) throw new Error('Reorder one existing Exposure Tool within the same folder');
++        newPresets = currentPresets.map((p: UserPreset) => {
++          if (p.folder?.id === item.folder?.id) {
++            return { folder: { ...p.folder, children: arrayMove(p.folder.children, activeChildIndex, overChildIndex) } };
++          }
++          return p;
++        });
++      }
+       createPending.current = true;
+       setIsLoading(true);
+       try {
+--- a/src/components/panel/right/PresetsPanel.tsx
++++ b/src/components/panel/right/PresetsPanel.tsx
+@@ -3,6 +3,8 @@
+ import { open as openDialog, save as saveDialog } from '@tauri-apps/plugin-dialog';
+ import {
+   DndContext,
++  pointerWithin,
++  rectIntersection,
+   DragOverlay,
+   PointerSensor,
+   useDraggable,
+@@ -994,7 +996,8 @@
+     const intoEmptyFolder = activeParentId === null && !!targetFolderId && presets.some((item: UserPreset) => item.folder?.id === targetFolderId && item.folder.children.length === 0);
+     const childBeforeRootTool = !!activeParentId && !targetFolderId && overType === PresetListType.Preset && presets.some((item: UserPreset) => item.preset?.id === overId && item.preset.presetType === 'tool');
+     const rootToolReorder = activeParentId === null && overParentId === null && overType === PresetListType.Preset && presets.some((item: UserPreset) => item.preset?.id === activeId && item.preset.presetType === 'tool') && presets.some((item: UserPreset) => item.preset?.id === overId && item.preset.presetType === 'tool');
+-    if (activeType !== PresetListType.Preset || (!intoEmptyFolder && !childBeforeRootTool && !rootToolReorder)) {
++    const childToolReorder = !!activeParentId && activeParentId === overParentId && overType === PresetListType.Preset && presets.some((item: UserPreset) => item.folder?.id === activeParentId && item.folder.children.some((p: any) => p.id === activeId && p.presetType === 'tool') && item.folder.children.some((p: any) => p.id === overId && p.presetType === 'tool'));
++    if (activeType !== PresetListType.Preset || (!intoEmptyFolder && !childBeforeRootTool && !rootToolReorder && !childToolReorder)) {
+       setDeleteError('Move one Exposure Tool into an empty folder or one child before an existing top-level Tool');
+       return;
+     }
+@@ -1002,7 +1005,7 @@
+     setDeleteBusy(true);
+     setDeleteError('');
+     try {
+-      if (rootToolReorder) {
++      if (rootToolReorder || childToolReorder) {
+         await reorderItems(activeId, overId);
+       } else if (childBeforeRootTool) {
+         await movePreset(activeId, null, overId);
+@@ -1219,7 +1222,16 @@
+   const rootPresets = useMemo(() => presets.filter((item: UserPreset) => item.preset), [presets]);
+ 
+   return (
+-    <DndContext id="presets-panel-dnd" sensors={sensors} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
++    <DndContext id="presets-panel-dnd" sensors={sensors} onDragStart={handleDragStart} onDragEnd={handleDragEnd}
++      collisionDetection={(args) => {
++        const parent = itemParentMap.get(args.active.id);
++        const folder = presets.find((item: UserPreset) => item.folder?.id === parent)?.folder;
++        if (folder?.children.some((p: any) => p.id === args.active.id && p.presetType === 'tool')) {
++          const hits = pointerWithin(args).filter((hit) => itemParentMap.get(hit.id) === parent && folder.children.some((p: any) => p.id === hit.id && p.presetType === 'tool'));
++          if (hits.length) return hits;
++        }
++        return rectIntersection(args);
++      }}>
+       <div className="flex flex-col h-full" role="region" aria-label="Original Presets panel" aria-busy={deleteBusy}>
+         <div className="p-3 flex justify-between items-center shrink-0 border-b border-surface">
+           <Text variant={TextVariants.title}>{t('editor.presets.title')}</Text>
