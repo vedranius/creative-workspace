@@ -6,6 +6,11 @@
       "fallback": "v0.16.0",
       "reason": "The official v0.20.2 and v0.20.1 web ZIPs request a missing eframe inline JavaScript snippet and stall at startup in the isolated static Pages build. Use the last verified v0.16.0 release; test the next stable tag automatically."
     },
+    "effectcraft": {
+      "tag": "v0.21.1",
+      "fallback": "v0.17.0",
+      "reason": "The official v0.21.1 web ZIP requests a missing effectcraft-config.json and returns 404 in the isolated static Pages build. Use the last verified v0.17.0 release; test the next stable tag automatically."
+    },
     "deckcraft": {
       "tag": "v0.9.0",
       "fallback": "v0.7.0",

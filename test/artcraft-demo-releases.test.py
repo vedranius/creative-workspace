@@ -94,6 +94,7 @@ class ReleaseImport(unittest.TestCase):
         holds = policy['blockedReleases']
         self.assertIn('photocraft', holds)
         self.assertEqual(holds['photocraft']['fallback'], 'v0.16.0')
+        self.assertEqual(holds['effectcraft']['fallback'], 'v0.17.0')
         for held_app, hold in holds.items():
             for latest in [hold['tag'], 'v99.0.0']:
                 calls = []
