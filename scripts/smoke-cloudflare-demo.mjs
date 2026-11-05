@@ -19,9 +19,9 @@ try{
   page.on('response',r=>{if(r.status()>=400)item.badResponses.push({url:r.url(),status:r.status()});});
   page.on('request',r=>{if(/^https?:/.test(r.url())&&new URL(r.url()).origin!==new URL(base).origin)item.externalRequests.push(r.url());});
   try{
-   await page.goto(base+'/apps/'+app.id+'/',{waitUntil:'networkidle'});assert.equal(await page.locator('iframe').count(),0);assert.equal(await page.getByRole('button').isDisabled(),true);item.consentBeforeLoad=true;
+   await page.goto(base+'/apps/'+app.id+'/?lang=en',{waitUntil:'networkidle'});assert.equal(await page.locator('iframe').count(),0);assert.equal(await page.getByRole('button').isDisabled(),true);item.consentBeforeLoad=true;
    await page.getByRole('checkbox').check();const wasmPromise=page.waitForResponse(r=>new URL(r.url()).pathname.endsWith('.wasm'),{timeout:90000});
-   await page.getByRole('button',{name:'Open original application'}).click();
+   await page.getByRole('button',{name:'Open original interface'}).click();
    const response=await wasmPromise;const metadata=await fetch(base+app.url+'creative-workspace-ui.json').then(r=>r.json());
    const entry=metadata.files.find(f=>new URL(response.url()).pathname.endsWith('/'+f.path));assert.ok(entry);
    await page.frameLocator('iframe').locator('canvas').first().waitFor({timeout:45000});
@@ -36,7 +36,7 @@ try{
     assert.equal(actual.sha256,file.sha256);assert.equal(actual.size,file.size);item.verifiedAssets.push({path:file.path,...actual});
    }
    await page.waitForTimeout(3500);item.title=await frame.title();item.crossOriginIsolated=await frame.evaluate(()=>crossOriginIsolated);assert.equal(item.crossOriginIsolated,true);
-   assert.match(await page.locator('.mode-label').innerText(),/Processing uses your computer/);await page.screenshot({path:path.join(output,app.id+'.png')});item.rendered=true;
+   assert.match(await page.locator('.mode-label').innerText(),/PROCESSING ON YOUR COMPUTER/i);await page.screenshot({path:path.join(output,app.id+'.png')});item.rendered=true;
   }catch(e){item.error=e.message;await page.screenshot({path:path.join(output,app.id+'-error.png')}).catch(()=>{});}
   await page.close();await writeFile(path.join(output,'browser.json'),JSON.stringify(report,null,2)+'\n');console.log(app.id,item.error||'original WASM/render verified');
  }
