@@ -54,7 +54,9 @@ def check_transition(old, new):
     for before, after in zip(old['apps'], new['apps']):
         if tuple(map(int, VERSION.fullmatch(after['tag']).groups())) < tuple(map(int, VERSION.fullmatch(before['tag']).groups())):
             raise ValueError('Refusing automatic upstream downgrade')
-        if before['tag'] == after['tag'] and before != after:
+        # Compatibility-policy annotations can change without changing an
+        # immutable upstream package. All release identity/digest fields stay exact.
+        if before['tag'] == after['tag'] and {k: v for k, v in before.items() if k != 'heldLatest'} != {k: v for k, v in after.items() if k != 'heldLatest'}:
             raise ValueError('Published upstream release changed; review required')
 
 

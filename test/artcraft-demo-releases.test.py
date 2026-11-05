@@ -80,6 +80,8 @@ class ReleaseImport(unittest.TestCase):
         with self.assertRaises(ValueError):
             releases.validate(dict(schemaVersion=1, apps=lock['apps'][:-1]))
         releases.check_transition(lock, copy.deepcopy(lock))
+        annotated = copy.deepcopy(lock); annotated['apps'][0]['heldLatest'] = dict(tag='v1.2.4', reason='Compatibility hold')
+        releases.check_transition(lock, annotated)
         changed = copy.deepcopy(lock); changed['apps'][0]['sha256'] = 'c' * 64
         with self.assertRaisesRegex(ValueError, 'changed'):
             releases.check_transition(lock, changed)
