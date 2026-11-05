@@ -91,7 +91,7 @@ class ReleaseImport(unittest.TestCase):
         policy = json.loads((Path(__file__).parents[1] / 'cloudflare/artcraft-demo-policy.json').read_text())
         holds = policy['blockedReleases']
         self.assertIn('photocraft', holds)
-        self.assertEqual(holds['photocraft']['fallback'], 'v0.20.1')
+        self.assertEqual(holds['photocraft']['fallback'], 'v0.16.0')
         for held_app, hold in holds.items():
             for latest in [hold['tag'], 'v99.0.0']:
                 calls = []

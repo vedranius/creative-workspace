@@ -3,8 +3,8 @@
   "blockedReleases": {
     "photocraft": {
       "tag": "v0.20.2",
-      "fallback": "v0.20.1",
-      "reason": "The official v0.20.2 web ZIP requests a missing eframe inline JavaScript snippet and stalls at startup in the isolated static Pages build. Hold this exact tag; test the next stable tag automatically."
+      "fallback": "v0.16.0",
+      "reason": "The official v0.20.2 and v0.20.1 web ZIPs request a missing eframe inline JavaScript snippet and stall at startup in the isolated static Pages build. Use the last verified v0.16.0 release; test the next stable tag automatically."
     },
     "deckcraft": {
       "tag": "v0.9.0",
