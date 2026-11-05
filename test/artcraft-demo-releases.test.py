@@ -89,22 +89,29 @@ class ReleaseImport(unittest.TestCase):
 
     def test_compatibility_hold_is_exact_and_next_release_is_attempted(self):
         policy = json.loads((Path(__file__).parents[1] / 'cloudflare/artcraft-demo-policy.json').read_text())
-        hold = policy['blockedReleases']['deckcraft']
-        for latest in [hold['tag'], 'v99.0.0']:
-            calls = []
-            def fake(endpoint):
-                calls.append(endpoint)
-                app = endpoint.split('/')[2]
-                if '/git/ref/' in endpoint:
-                    return {'object': {'type': 'commit', 'sha': 'a' * 40}}
-                tag = (latest if app == 'deckcraft' else 'v1.2.3') if endpoint.endswith('/latest') else endpoint.rsplit('/', 1)[1]
-                return dict(tag_name=tag, draft=False, prerelease=False, id=1, published_at='2026-10-22T00:00:00Z',
-                            assets=[dict(name=f'{app}-web-{tag[1:]}.zip', size=10, digest='sha256:' + 'b' * 64), dict(name='SHA256SUMS.txt')])
-            with patch.object(releases, 'api', fake):
-                lock = releases.discover()
-            deck = next(a for a in lock['apps'] if a['app'] == 'deckcraft')
-            self.assertEqual(deck['tag'], hold['fallback'] if latest == hold['tag'] else latest)
-            self.assertEqual('heldLatest' in deck, latest == hold['tag'])
+        holds = policy['blockedReleases']
+        self.assertIn('photocraft', holds)
+        self.assertEqual(holds['photocraft']['fallback'], 'v0.20.1')
+        for held_app, hold in holds.items():
+            for latest in [hold['tag'], 'v99.0.0']:
+                calls = []
+                def fake(endpoint):
+                    calls.append(endpoint)
+                    app = endpoint.split('/')[2]
+                    if '/git/ref/' in endpoint:
+                        return {'object': {'type': 'commit', 'sha': 'a' * 40}}
+                    tag = (latest if app == held_app else 'v1.2.3') if endpoint.endswith('/latest') else endpoint.rsplit('/', 1)[1]
+                    return dict(tag_name=tag, draft=False, prerelease=False, id=1, published_at='2026-10-22T00:00:00Z',
+                                assets=[dict(name=f'{app}-web-{tag[1:]}.zip', size=10, digest='sha256:' + 'b' * 64), dict(name='SHA256SUMS.txt')])
+                with patch.object(releases, 'api', fake):
+                    lock = releases.discover()
+                actual = next(a for a in lock['apps'] if a['app'] == held_app)
+                self.assertEqual(actual['tag'], hold['fallback'] if latest == hold['tag'] else latest)
+                self.assertEqual('heldLatest' in actual, latest == hold['tag'])
+                if latest == hold['tag']:
+                    self.assertTrue(any(endpoint.endswith(f'releases/tags/{hold["fallback"]}') for endpoint in calls))
+                else:
+                    self.assertFalse(any(endpoint.endswith(f'releases/tags/{hold["fallback"]}') for endpoint in calls))
 
 
 if __name__ == '__main__':

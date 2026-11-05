@@ -1,5 +1,9 @@
 # CF-DEMO alpha.78 handoff — 2026-11-05
 
+## Latest alpha.78 deployment attempt
+
+The first Pages candidate run failed because the browser smoke still used pre-redesign English labels. That assertion was aligned with the explicit English locale, new app-launch label and visible processing label. The next candidate run then verified 12 applications but found official PhotoCraft v0.20.2 requests a missing `app/snippets/eframe-.../inline0.js` and never creates a drawable canvas. The exact v0.20.2 tag is now held by the compatibility policy; fallback v0.20.1 will be fully browser-verified before deployment. A later deploy attaches `creative-workspace.geekranius.stream` through the Cloudflare Pages API using the existing protected Actions secret; no credentials are in source.
+
 - User requested the Geekranius brand kit be applied to the Cloudflare-hosted Creative Workspace portal, using `creative-workspace.geekranius.stream` and matching the sibling `geekranius.stream` / `sigurnakopija.geekranius.stream` sites.
 - Brand assets are local under `cloudflare/demo/brand/`, including licensed font files, logo/mascot/icon set and social preview. Homepage supports Croatian/English and retains the browser-processing disclosure and upstream application licenses/provenance. Branded 404, robots and sitemap are included.
 - Builder now uses the branded 404; regression test verifies brand assets, local fonts and domain metadata. Browser smoke selector updated for app cards. Application registry and iframe consent behavior remain.

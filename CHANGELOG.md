@@ -2,7 +2,7 @@
 
 - Apply the Geekranius brand kit to the Cloudflare Pages Creative Workspace portal: local fonts, logo/mascot/icons, responsive Croatian/English interface, branded app cards, consent shell, custom 404, sitemap and robots metadata.
 - Connect the portal to `creative-workspace.geekranius.stream`, with links to `geekranius.stream` and `sigurnakopija.geekranius.stream`. The app catalog, browser-processing disclosure, upstream licenses and application launch behavior remain intact.
-- Extend static-build coverage for the portal assets and host metadata. This alpha is a design/deployment update, not broader application/server/provider acceptance. Cloudflare publication and custom-domain attachment are pending Actions and DNS verification.
+- Extend static-build coverage for the portal assets and host metadata. Hold the official PhotoCraft v0.20.2 browser package after Chromium found its missing inline snippet; the demo policy selects v0.20.1 while the next stable release remains automatically checked. This alpha is a design/deployment update, not broader application/server/provider acceptance. Cloudflare publication and custom-domain attachment are pending Actions verification.
 
 ## [0.2.0-alpha.77] - 2026-10-26
 
