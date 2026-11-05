@@ -1,0 +1,38 @@
+{
+  "version": "0.2.0-alpha.78",
+  "commit": "1447c702b0835b91b95c01b5dca75aac64b7c4fe",
+  "workflowRun": "https://github.com/vedranius/creative-workspace/actions/runs/42126520325",
+  "project": "creative-workspace-demo",
+  "domain": "creative-workspace.geekranius.stream",
+  "domainStatus": "active",
+  "deployment": "production branch main; Pages deploy and manifest inventory verification succeeded",
+  "browserGate": {
+    "apps": 13,
+    "allRendered": true,
+    "consentBeforeIframe": true,
+    "crossOriginIsolated": true,
+    "verifiedOriginalWasmHashes": true,
+    "failedRequests": 0,
+    "badResponses": 0,
+    "externalRequests": 0
+  },
+  "liveHttpsChecks": {
+    "home": 200,
+    "manifest": 200,
+    "brandFavicon": 200,
+    "localOrbitronFont": 200,
+    "robots": 200,
+    "sitemap": 200
+  },
+  "homepage": {
+    "canonical": "https://creative-workspace.geekranius.stream/",
+    "geekraniusLink": "https://geekranius.stream/",
+    "safeCopyLink": "https://sigurnakopija.geekranius.stream/"
+  },
+  "temporaryCompatibilityFallbacks": {
+    "photocraft": "v0.16.0",
+    "effectcraft": "v0.17.0",
+    "deckcraft": "v0.7.0"
+  },
+  "scope": "Browser launch/render and asset integrity; not full app editing, save/provider or server-processing acceptance"
+}
