@@ -91,6 +91,29 @@ jobs:
         run: |
           test -n "$CLOUDFLARE_API_TOKEN" || { echo 'Set CLOUDFLARE_API_TOKEN (Cloudflare Pages Edit) for environment artcraft-demo.'; exit 1; }
           node "$RUNNER_TEMP/uploader/node_modules/wrangler/bin/wrangler.js" pages deploy site --project-name creative-workspace-demo --branch main --commit-hash "$GITHUB_SHA"
+      - name: Attach the Geekranius custom domain
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: 37be952dfe8d74601e1af8bad125debb
+        run: |
+          node --input-type=module <<'JS'
+          const project='creative-workspace-demo';
+          const domain='creative-workspace.geekranius.stream';
+          const endpoint=`https://api.cloudflare.com/client/v4/accounts/${process.env.CLOUDFLARE_ACCOUNT_ID}/pages/projects/${project}/domains`;
+          const headers={'Authorization':`Bearer ${process.env.CLOUDFLARE_API_TOKEN}`,'Content-Type':'application/json'};
+          const list=await fetch(endpoint,{headers});
+          if(!list.ok)throw Error(`Pages domain lookup failed (${list.status})`);
+          const domains=await list.json();
+          if(!domains.success)throw Error(`Pages domain lookup failed (${domains.errors?.map(e=>e.code).join(',')||'unknown'})`);
+          let entry=domains.result.find(item=>item.name===domain);
+          if(!entry){
+            const response=await fetch(endpoint,{method:'POST',headers,body:JSON.stringify({name:domain})});
+            const result=await response.json();
+            if(!response.ok||!result.success)throw Error(`Pages domain attachment failed (${result.errors?.map(e=>e.code).join(',')||response.status})`);
+            entry=result.result;
+          }
+          console.log(`Pages custom domain ${domain}: ${entry.status}`);
+          JS
       - name: Verify published release inventory
         run: |
           node --input-type=module <<'JS'
