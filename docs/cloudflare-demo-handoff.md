@@ -1,3 +1,23 @@
+# CF-DEMO alpha.78 handoff — 2026-11-05
+
+- User requested the Geekranius brand kit be applied to the Cloudflare-hosted Creative Workspace portal, using `creative-workspace.geekranius.stream` and matching the sibling `geekranius.stream` / `sigurnakopija.geekranius.stream` sites.
+- Brand assets are local under `cloudflare/demo/brand/`, including licensed font files, logo/mascot/icon set and social preview. Homepage supports Croatian/English and retains the browser-processing disclosure and upstream application licenses/provenance. Branded 404, robots and sitemap are included.
+- Builder now uses the branded 404; regression test verifies brand assets, local fonts and domain metadata. Browser smoke selector updated for app cards. Application registry and iframe consent behavior remain.
+- Local tests: `npm test` 102/102; `npm run check`; `npm run release:validate` alpha.78; `git diff --check`.
+- GitHub Actions workflow `.github/workflows/artcraft-demo.yaml` builds official stable web ZIPs, verifies all apps, then deploys static output to Pages project `creative-workspace-demo` using the configured `artcraft-demo` environment. It deploys for main pushes touching `cloudflare/**` or relevant scripts.
+- DNS resolves for both sibling hostnames. This alone does not prove Cloudflare Pages custom-domain attachment or live deployment.
+
+## Remaining steps
+
+1. Commit the reviewed changes and push normally to `main` (user authorized publication).
+2. Verify Actions candidate and deploy jobs pass, then verify `creative-workspace-demo.pages.dev` and the requested hostname serve the new canonical/social metadata, branded assets and app manifest.
+3. In the Cloudflare Pages `creative-workspace-demo` project, confirm or attach custom domain `creative-workspace.geekranius.stream`; inspect existing DNS before changing anything. Verify HTTPS and the canonical hostname after DNS propagation.
+4. Record exact commit, run URL, Pages deployment URL, domain status and verification in this handoff and `docs/cloudflare-demo.md`. Keep the alpha release draft-only; this update does not establish broader app/server/provider acceptance.
+
+---
+
+## Previous deployment handoff (historical)
+
 # CF-DEMO alpha.63 handoff — 2026-10-22
 
 Human requested latest ArtCraft releases and automated public updates before resuming development. Server adapter/native/source pins are unchanged; FilmCraft and RapidRAW WIP/live studios remain untouched.

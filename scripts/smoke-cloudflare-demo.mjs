@@ -11,7 +11,7 @@ const report={base,version:manifest.version,scope:'Public original-interface lau
 const browser=await chromium.launch({executablePath:process.env.CHROMIUM_PATH,headless:true,chromiumSandbox:true,args:['--enable-webgl','--use-gl=angle','--use-angle=swiftshader','--enable-unsafe-swiftshader','--disable-dev-shm-usage']});
 try{
  const context=await browser.newContext({viewport:{width:1440,height:1000}});
- const home=await context.newPage();await home.goto(base,{waitUntil:'networkidle'});assert.equal(await home.locator('.card').count(),manifest.apps.length);await home.screenshot({path:path.join(output,'studio.png'),fullPage:true});await home.close();
+ const home=await context.newPage();await home.goto(base,{waitUntil:'networkidle'});assert.equal(await home.locator('.app-card').count(),manifest.apps.length);await home.screenshot({path:path.join(output,'studio.png'),fullPage:true});await home.close();
  for(const app of manifest.apps.filter(a=>!process.env.APP_FILTER||a.id===process.env.APP_FILTER)){
   const page=await context.newPage();const item={id:app.id,release:app.release,pageErrors:[],consoleErrors:[],failedRequests:[],badResponses:[],externalRequests:[]};report.apps.push(item);
   page.on('console',m=>{if(m.type()==='error')item.consoleErrors.push(m.text().slice(0,2000));});

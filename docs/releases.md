@@ -1,3 +1,7 @@
+## [0.2.0-alpha.78] — 2026-11-05
+
+Geekranius visual refresh for the Cloudflare browser portal. Prototype/prerelease draft; site publication and custom-domain verification are pending. It does not change the Creative Workspace server processing goal or app/provider acceptance.
+
 # PAR-03 alpha.77 — corrected immutable Actions draft assets verified (2026-10-26)
 
 Checks 40360529789 and all 25 Build/release 40360529983 jobs passed for c6b45df. Immutable tag v0.2.0-alpha.77 and draft prerelease 424564329 resolve to this corrected source. All 24 fresh downloads/12 SHA256 pairs, three Node 24 runtimes, 12 engine binaries, startup/licenses/source manifests and eight UI manifests/167 files verify. DesignCraft patch 52432097 matches packaged provenance; independently measured Actions WASM is d0a51d4b. Failed predecessor 40318334340 remains preserved. [Release evidence and limits](evidence/creative-workspace-alpha77-release.md) · [Current-adapter CI correction](evidence/designcraft-endnote-list-ci.md).

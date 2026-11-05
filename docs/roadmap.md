@@ -1,3 +1,7 @@
+# CF-DEMO alpha.78 — Geekranius brand and domain
+
+Apply the provided Geekranius brand kit consistently to the Creative Workspace Cloudflare portal and connect the sibling product sites. The local implementation and static-output regression assertions are complete; publication to `creative-workspace.geekranius.stream` and Pages custom-domain/DNS verification are the remaining acceptance steps. This is a portal presentation task, not an app/server adapter acceptance claim.
+
 # PAR-03 — original selected Endnote browser candidate (2026-10-27)
 
 The original Type pointer/Shift+Arrow, Quick Apply/query/automatic original form and native edit now pass a complete local browser candidate:30 assertions/13 unique queries, held/error/forged/cancel/deadline/newer palette/range/FIFO, mutation ACK, UndoRedo and native Save Copy/fresh reopen pixels. The actual missing input bridge and retained closed-palette focus were fixed in separately staged original-source candidates.25 native/44 candidate gateway/189 UI (1 existing ignored)/102 repo pass; four screenshots inspected. [Evidence and limits](evidence/designcraft-endnote-query.md).

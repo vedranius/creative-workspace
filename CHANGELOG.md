@@ -1,3 +1,9 @@
+## [0.2.0-alpha.78] - 2026-11-05
+
+- Apply the Geekranius brand kit to the Cloudflare Pages Creative Workspace portal: local fonts, logo/mascot/icons, responsive Croatian/English interface, branded app cards, consent shell, custom 404, sitemap and robots metadata.
+- Connect the portal to `creative-workspace.geekranius.stream`, with links to `geekranius.stream` and `sigurnakopija.geekranius.stream`. The app catalog, browser-processing disclosure, upstream licenses and application launch behavior remain intact.
+- Extend static-build coverage for the portal assets and host metadata. This alpha is a design/deployment update, not broader application/server/provider acceptance. Cloudflare publication and custom-domain attachment are pending Actions and DNS verification.
+
 ## [0.2.0-alpha.77] - 2026-10-26
 
 - Add the original read-only DesignCraft `endnote.list` through a bounded owned native query and gateway. Run the source query on an isolated COW Session; preserve live document, selection, dirty/saved state, history and gateway version.

@@ -1,3 +1,13 @@
+# CF-DEMO alpha.78 — Geekranius brand rollout (2026-11-05)
+
+Apply the supplied Geekranius Brand Kit v1.0 and align the Cloudflare Pages Creative Workspace portal with the Geekranius and SigurnaKopija sibling sites. Local branded portal implementation, local font/icon/mascot assets, Croatian/English labels, responsive app cards, custom 404, sitemap/robots, and static-builder regression coverage are complete. Target host is `creative-workspace.geekranius.stream`; links go to `geekranius.stream` and `sigurnakopija.geekranius.stream`. The visitor browser-processing disclosure and upstream app licensing/provenance remain.
+
+The active worktree is `codex/geekranius-brand`; version alpha.78 is a prototype prerelease. `npm test` (102/102), `npm run check`, release validation and diff check pass. Next: commit, normal push to main, wait for `Update ArtCraft browser demo` candidate/deploy, verify the deployed host, then attach the custom domain in Pages if not already attached. Do not claim deployment until observed. The sibling Cloudflare Pages projects remain untouched.
+
+Product limitation: this portal presents browser-processing upstream interfaces and does not imply server-backed app/provider/OS acceptance. Existing independent product releases remain draft-only.
+
+---
+
 # PAR-03 — original selected Endnote browser candidate (2026-10-27)
 
 The original Type pointer/Shift+Arrow, Quick Apply/query/automatic original form and native edit now pass a complete local browser candidate:30 assertions/13 unique queries, held/error/forged/cancel/deadline/newer palette/range/FIFO, mutation ACK, UndoRedo and native Save Copy/fresh reopen pixels. The actual missing input bridge and retained closed-palette focus were fixed in separately staged original-source candidates.25 native/44 candidate gateway/189 UI (1 existing ignored)/102 repo pass; four screenshots inspected. [Evidence and limits](evidence/designcraft-endnote-query.md).

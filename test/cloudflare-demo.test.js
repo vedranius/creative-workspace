@@ -46,6 +46,11 @@ test('static demo copies only verified public assets and preserves decoded WASM 
  }
  const result=await buildDemo(input,out);assert.equal(result.apps,12);
  const manifest=JSON.parse(await readFile(path.join(out,'demo-manifest.json')));assert.equal(manifest.documentBackend,false);assert.ok(manifest.apps.every(a=>a.processing==='browser'&&!a.serverIntegrated));
+ const portal=await readFile(path.join(out,'index.html'),'utf8');assert.match(portal,/creative-workspace\.geekranius\.stream/);assert.match(portal,/sigurnakopija\.geekranius\.stream/);assert.match(portal,/geekranius\.stream/);
+ assert.match(await readFile(path.join(out,'404.html'),'utf8'),/GEEKRANIUS/);assert.match(await readFile(path.join(out,'robots.txt'),'utf8'),/creative-workspace\.geekranius\.stream/);
+ assert.match(await readFile(path.join(out,'sitemap.xml'),'utf8'),/creative-workspace\.geekranius\.stream/);
+ for(const asset of ['brand/favicon.svg','brand/geekranius-monogram.svg','brand/icons.svg','brand/mascot-laptop-coder.png','brand/fonts/inter-latin-ext-400-normal.woff2'])await access(path.join(out,asset));
+ assert.match(await readFile(path.join(out,'base.css'),'utf8'),/@font-face/);
  const prefix=path.join(out,'original/wordcraft',originalUiPins.wordcraft);
  assert.deepEqual(gunzipSync(await readFile(path.join(prefix,'app.wasm.gz'))),Buffer.from([0,97,115,109,1,0,0,0]));
  await assert.rejects(access(path.join(prefix,'private-user-document.txt')));

@@ -1,3 +1,89 @@
 <!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Creative Workspace · Browser playground</title><link rel="icon" href="/logo.svg" type="image/svg+xml"><link rel="stylesheet" href="/demo.css"><script src="/demo.js" type="module"></script></head>
-<body><header><a class="brand" href="/"><img src="/logo.svg" alt="">Creative Workspace<span>PLAYGROUND</span></a><a href="https://github.com/vedranius/creative-workspace" target="_blank" rel="noopener">Source ↗</a></header><main><section class="hero"><div class="eyebrow">YOUR IDEAS. A WHOLE STUDIO.</div><h1>Make room<br>for <em>possibility.</em></h1><p>Explore original creative applications in your browser. Images, films, words, sound, and everything in between.</p><div class="notice"><strong>This demo uses your computer.</strong> Editing, decoding and rendering run on your laptop’s CPU, GPU and memory, inside the browser. Cloudflare hosts the application files. This demo has no document-upload backend; upstream applications may request fonts or other public resources. Save or download your work before closing a tab.</div><p class="small">The full self-hosted project is developing server processing for lightweight laptops. This public playground is a separate browser-processing preview, with no remote desktop.</p><a class="text-link" href="https://github.com/vedranius/creative-workspace#installation">Explore the self-hosted project ↗</a></section><section class="collection"><div class="section-title"><h2>Choose your medium</h2><span id="count"></span></div><div id="apps" class="grid"></div><aside class="limits"><strong>Preview, with room to grow.</strong> Format support and file commands vary by application. Large video/effects projects can be demanding. RapidRAW needs its own server and is not included here. DesignCraft here is the official browser release; its separate server adapter remains in development.</aside></section><footer>Independent Creative Workspace demo by vedranius. Original applications by the ArtCraft team and contributors; no endorsement implied. <a href="/LICENSE.md">Workspace license</a> · <a href="/ATTRIBUTION.md">Attribution</a> · <a href="/demo-manifest.json">Build provenance</a></footer></main></body></html>
+<html lang="hr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#080b12">
+  <meta name="description" content="Creative Workspace by Geekranius — kreativni alati u jednom pregledniku. Isprobajte izvorna sučelja kreativnih aplikacija.">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Geekranius">
+  <meta property="og:title" content="Creative Workspace · Geekranius">
+  <meta property="og:description" content="Ideas. Tools. Experiments. Creative work, together.">
+  <meta property="og:url" content="https://creative-workspace.geekranius.stream/">
+  <meta property="og:image" content="https://creative-workspace.geekranius.stream/brand/social-preview.jpg">
+  <link rel="canonical" href="https://creative-workspace.geekranius.stream/">
+  <link rel="alternate" hreflang="hr" href="https://creative-workspace.geekranius.stream/?lang=hr">
+  <link rel="alternate" hreflang="en" href="https://creative-workspace.geekranius.stream/?lang=en">
+  <link rel="alternate" hreflang="x-default" href="https://creative-workspace.geekranius.stream/">
+  <link rel="icon" href="/brand/favicon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="/brand/favicon-180.png">
+  <link rel="stylesheet" href="/base.css">
+  <link rel="stylesheet" href="/demo.css">
+  <title>Creative Workspace · Geekranius</title>
+  <script src="/demo.js" type="module"></script>
+</head>
+<body>
+  <a class="skip-link" href="#main" data-i18n="skip">Preskoči na sadržaj</a>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a class="brand-lockup" href="https://geekranius.stream/" aria-label="Geekranius — početna">
+        <img src="/brand/geekranius-monogram.svg" alt="" width="42" height="42">
+        <span class="brand-word"><span>GEEK</span><b>RANIUS</b></span>
+      </a>
+      <span class="product-divider" aria-hidden="true"></span>
+      <a class="product-name" href="/" aria-current="page">Creative <b>Workspace</b></a>
+      <nav class="topnav" aria-label="Glavna navigacija">
+        <a href="https://geekranius.stream/#projekti" data-i18n="projects">Projekti</a>
+        <a href="https://sigurnakopija.geekranius.stream/" data-i18n="safeCopy">SigurnaKopija</a>
+        <span class="language-switch" aria-label="Jezik / Language"><a href="?lang=hr" hreflang="hr" lang="hr" data-language="hr">HR</a><a href="?lang=en" hreflang="en" lang="en" data-language="en">EN</a></span>
+      </nav>
+      <a class="nav-cta" href="#apps"><span data-i18n="explore">Istraži alate</span><svg aria-hidden="true"><use href="/brand/icons.svg#external-link"></use></svg></a>
+    </div>
+  </header>
+
+  <main id="main">
+    <section class="hero" aria-labelledby="hero-title">
+      <div class="hero-copy">
+        <div class="eyebrow"><span class="status-dot"></span><span data-i18n="eyebrow">GEEKRANIUS PREDSTAVLJA</span></div>
+        <h1 id="hero-title"><span data-i18n="heroLine1">Ideje trebaju</span><br><em data-i18n="heroLine2">kreativni prostor.</em></h1>
+        <p class="hero-lead" data-i18n="lead">Izvorni kreativni alati, okupljeni na jednom mjestu. Istražite, isprobajte i pronađite pravi alat za svoj sljedeći projekt.</p>
+        <div class="hero-actions">
+          <a class="button-primary" href="#apps"><span data-i18n="browse">Pregledaj aplikacije</span><span class="arrow-glyph" aria-hidden="true">→</span></a>
+          <a class="button-secondary" href="https://geekranius.stream/" data-i18n="about">O Geekraniusu</a>
+        </div>
+        <div class="hero-proof"><svg aria-hidden="true"><use href="/brand/icons.svg#laptop"></use></svg><span data-i18n="browserPreview">Pregled u pregledniku</span><i></i><svg aria-hidden="true"><use href="/brand/icons.svg#lock"></use></svg><span data-i18n="privacyFirst">Tvoje datoteke ostaju tvoje</span></div>
+      </div>
+      <div class="hero-art" aria-label="Geekranius maskota radi na laptopu">
+        <div class="art-orbit orbit-one"></div><div class="art-orbit orbit-two"></div>
+        <div class="art-glow"></div>
+        <img class="mascot" src="/brand/mascot-laptop-coder.png" alt="Geekranius maskota istražuje kreativne alate na laptopu" width="1024" height="1024">
+        <div class="art-tag tag-apps"><svg aria-hidden="true"><use href="/brand/icons.svg#board"></use></svg><span><b id="count">13</b><small data-i18n="originalApps">IZVORNIH APLIKACIJA</small></span></div>
+        <div class="art-tag tag-create"><svg aria-hidden="true"><use href="/brand/icons.svg#lightbulb"></use></svg><span data-i18n="curiosity">Znatiželja je značajka.</span></div>
+      </div>
+      <aside class="processing-banner" aria-label="Važno o načinu rada">
+        <span class="banner-icon"><svg aria-hidden="true"><use href="/brand/icons.svg#ai-chip"></use></svg></span>
+        <p><strong data-i18n="browserModeTitle">Ovaj demo koristi tvoje računalo.</strong> <span data-i18n="browserModeBody">Obrada se odvija u pregledniku; Cloudflare poslužuje datoteke aplikacija. Prije pokretanja odaberi aplikaciju i potvrdi način rada.</span></p>
+        <a href="https://geekranius.stream/privatnost.html" aria-label="Geekranius — privatnost"><svg aria-hidden="true"><use href="/brand/icons.svg#external-link"></use></svg></a>
+      </aside>
+    </section>
+
+    <section class="collection" id="apps" aria-labelledby="apps-title">
+      <div class="section-heading">
+        <div><div class="eyebrow"><span class="section-mark"></span><span data-i18n="collectionEyebrow">TVOJ KREATIVNI LAB</span></div><h2 id="apps-title" data-i18n="collectionTitle">Odaberi svoj alat.</h2><p data-i18n="collectionLead">Izvorna sučelja aplikacija za ideje koje tek nastaju.</p></div>
+        <span class="collection-count"><b id="countLabel">—</b><span data-i18n="tools"> alata</span></span>
+      </div>
+      <div id="apps-grid" class="app-grid" aria-live="polite"></div>
+      <aside class="limitations"><svg aria-hidden="true"><use href="/brand/icons.svg#shield"></use></svg><p><strong data-i18n="previewTitle">Pregled za isprobavanje.</strong> <span data-i18n="previewBody">Podrška za formate i spremanje ovisi o aplikaciji. Veći video i VFX projekti mogu biti zahtjevni. Ovaj javni demo ne uključuje poslužitelje RapidRAW-a ni Creative Workspace obradu na poslužitelju.</span></p><a href="https://github.com/vedranius/creative-workspace" target="_blank" rel="noopener" data-i18n="projectDetails">Detalji projekta</a></aside>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="footer-main">
+      <a class="footer-brand" href="https://geekranius.stream/"><img src="/brand/geekranius-monogram.svg" alt="" width="34" height="34"><span><b class="brand-word"><span>GEEK</span><b>RANIUS</b></b><small data-i18n="tagline">IDEJE · ALATI · EKSPERIMENTI · TEHNOLOGIJA · MEDIJI</small></span></a>
+      <nav aria-label="Povezane Geekranius stranice"><a href="https://geekranius.stream/" data-i18n="mainSite">Glavna stranica</a><a href="https://sigurnakopija.geekranius.stream/">SigurnaKopija</a><a href="https://geekranius.stream/privatnost.html" data-i18n="privacy">Privatnost</a><a href="https://github.com/vedranius/creative-workspace">GitHub</a></nav>
+      <a class="footer-top" href="#main" aria-label="Povratak na vrh"><span aria-hidden="true">↑</span></a>
+    </div>
+    <div class="footer-bottom"><span>© <span id="year">2026</span> GEEKRANIUS · Creative Workspace</span><span data-i18n="independent">Neovisni projekt. Izvorne aplikacije i njihovi autori zadržavaju svoja prava.</span></div>
+  </footer>
+</body>
+</html>

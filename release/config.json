@@ -13,6 +13,7 @@
     "darwin-arm64"
   ],
   "limitations": [
+    "Alpha.78 applies the Geekranius visual identity to the static browser-processing portal and targets creative-workspace.geekranius.stream. Website/domain publication must be confirmed separately; this does not change app/server/provider acceptance.",
     "Alpha.77 adds the original read-only endnote.list through the owned native gateway:128 records/32 KiB text/64 KiB JSON, canonical target validation and unchanged document/selection/dirty/history/version. Original Endnotes list presentation and automatic form target discovery remain unaccepted. Exact-source Actions and independently downloaded immutable draft assets are required.",
     "Alpha.76 connects original registered Delete Endnote through hosted Quick Apply/generic story-id form with bounded native target/reference/listing/candidate preflight and matching canonical ACK. Pending/failed drafts remain; full tools/providers/real OS/all13 acceptance stays open. Keep draft prototype until exact-source Actions/tag/draft/downloaded-assets gate; local worker/WASM are QA only.",
     "Alpha.75 connects original registered Edit Endnote through Quick Apply/generic story-id-text form with bounded native target/listing/candidate validation and matching canonical ACK. Held/failed drafts, UndoRedo and retained SaveCopy/reopen are locally tested; exact-source Actions/tag/draft/downloaded-assets gate remains required. Full tools/providers/real OS/all13 acceptance stays open.",
