@@ -311,3 +311,6 @@ Alpha.46 adds a dedicated Actions job for the original FigCraft v0.6.0 browser a
 ## [0.2.0-alpha.79] — 2026-11-06
 
 Mobile layout and mascot identity refinement for the Cloudflare browser portal. Prototype/prerelease; responsive behavior and icon delivery are pending the Pages browser checks and live-domain verification. This update does not change Creative Workspace processing, provider or application acceptance.
+## [0.2.0-alpha.80] — 2026-11-06
+
+Removes the app-count and curiosity labels from the mascot illustration area. Prototype/prerelease update; Pages verification pending. The app count remains in the collection heading and application behavior is unchanged.

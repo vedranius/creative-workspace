@@ -46,7 +46,7 @@ if(selected){
   panel.append(label,button);consent.append(panel);document.body.append(bar,consent);
  }
 }else{
- const count=document.querySelector('#count');const countLabel=document.querySelector('#countLabel');if(count)count.textContent=manifest.apps.length;if(countLabel)countLabel.textContent=String(manifest.apps.length).padStart(2,'0');
+ const countLabel=document.querySelector('#countLabel');if(countLabel)countLabel.textContent=String(manifest.apps.length).padStart(2,'0');
  document.querySelector('#year').textContent=String(new Date().getFullYear());
  const grid=document.querySelector('#apps-grid');
  for(const app of manifest.apps){

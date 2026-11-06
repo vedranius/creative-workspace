@@ -10,6 +10,8 @@ RapidRAW requires an owned backend and is excluded. DesignCraft uses its officia
 
 ## Geekranius branded publication (alpha.79)
 
+Alpha.80 removes the app-count and curiosity badges from the sitting mascot's illustration. The total application count remains in the app collection heading below. Pages verification is pending.
+
 Mobile layout/mascot refinement is published from main commit `8c2c2c9`. Pages run `42187348841` passed all13 application and integrity checks, deployed the static portal, attached the custom domain and verified public inventory. Both circular mascot icons return HTTP 200. Live Chromium confirmed 13 cards and no horizontal overflow at eight widths from320px to1440px. Prototype/prerelease only; no new app/provider/server acceptance is implied.
 
 Published at [creative-workspace.geekranius.stream](https://creative-workspace.geekranius.stream/), with its Cloudflare Pages custom domain reporting active. Candidate/deploy run `42126520325` passed all13 browser launch/render and integrity checks before publishing. The generated homepage links to [geekranius.stream](https://geekranius.stream/) and [SigurnaKopija](https://sigurnakopija.geekranius.stream/); its 13-app manifest, local brand font/icon, robots and sitemap return HTTP 200. PhotoCraft v0.16.0 and EffectCraft v0.17.0 are restored from their previous verified set while upstream packages with missing static assets remain held; the next stable tags are tested automatically. [Deployment evidence](evidence/cloudflare-demo-alpha78/publication.json) · [handoff](cloudflare-demo-handoff.md).

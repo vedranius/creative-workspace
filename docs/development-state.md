@@ -621,3 +621,8 @@ Local git commits may use `git -c user.name=Codex -c user.email=codex@users.nore
 ## Next handoff template
 
 Replace the current milestone section after each bounded task with: task ID/status; final commit; changed behavior; checks and evidence; material limitations; next ready task. Keep this document compact. Keep runtime IDs and secrets out of public handoffs.
+# CF-DEMO alpha.80 — remove mascot overlay badges (2026-11-06)
+
+Remove both the “13 original apps” badge and “Curiosity is a feature” badge from the sitting mascot art. Keep the app total in the app collection heading. User reports the badges still cover the mascot. Verify the source DOM has neither item, run the Cloudflare demo smoke and local project checks, then push alpha.80 through the Pages browser/integrity deployment. Confirm the live page has no badge text in the hero while the 13-tool count remains below; preserve the circular mascot logo and favicon.
+
+---

@@ -446,3 +446,6 @@ Nakon prijavljenog usporavanja i restarta lokalne buildove pokretati jednim Carg
 # CF-DEMO — mobile overlap, spacing and mascot identity (alpha.79)
 
 **Status: complete and published.** Keep the sitting mascot separate from hero copy and decorative badges on narrow screens; replace the GR mark in header/footer/browser icons with the round mascot; make navigation, action buttons, cards and footer links wrap deliberately with usable spacing. Preserve the main-site and SigurnaKopija links, bilingual content and app launch/consent flow. Focused portal tests and project checks pass locally; live Chromium verified widths320–1440 without horizontal overflow and all13 cards. Pages run `42187348841` passed app/integrity checks, deployed, attached the custom domain and verified the public inventory. Commit `8c2c2c9` on `main`.
+# CF-DEMO — remove hero badges from mascot (alpha.80)
+
+**Status: implementation started.** Remove both the application count badge and curiosity badge from the mascot illustration DOM; retain the total count in the separate collection header. Verify mobile and desktop live render after Pages deployment.

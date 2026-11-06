@@ -10,7 +10,7 @@ Javna stranica je statički Cloudflare Pages demo na <https://creative-workspace
 - `demo.js` — učitava `demo-manifest.json`, crta kartice i ekrane aplikacija te upravlja pristankom i učitavanjem iframea.
 - `wasm-transport.js` — Service Worker za eksplicitno dozvoljene WASM resurse. Ne mijenjati za vizualni redizajn.
 
-Geekranius brand kit resursi nalaze se lokalno u `cloudflare/demo/brand/`: samostalni SVG favicon i kružna maskota, statična Apple touch ikona, ikone/sprite, laptop maskota i fontovi s licencama. Builder `scripts/build-cloudflare-demo.mjs` priprema `build/cloudflare-demo/`; Wrangler projekt i output putanja su zabilježeni u `cloudflare/wrangler.jsonc`. `/apps/<id>/` koristi isti `index.html`, dok `demo.js` odabire prikaz prema putanji.
+Geekranius brand kit resursi nalaze se lokalno u `cloudflare/demo/brand/`: samostalni SVG favicon i kružna maskota, statična Apple touch ikona, ikone/sprite, laptop maskota i fontovi s licencama. Builder `scripts/build-cloudflare-demo.mjs` priprema `build/cloudflare-demo/`; Wrangler projekt i output putanja su zabilježeni u `cloudflare/wrangler.jsonc`. `/apps/<id>/` koristi isti `index.html`, dok `demo.js` odabire prikaz prema putanji. Alpha.80 uklanja obje oznake iz područja sjedeće maskote; ukupan broj aplikacija i dalje je u naslovu kolekcije.
 
 ## Granice dizajna
 
