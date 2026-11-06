@@ -20,7 +20,7 @@ Demo obrađuje sadržaj na posjetiteljevu računalu, ne na Cloudflare serveru. Z
 
 ## Lokalni pregled
 
-Za brz vizualni pregled portala, otvori `cloudflare/demo/index.html` preko lokalnog statičkog HTTP servera. Portal je objavljen iz alpha.78 commit `1447c70`; Pages deploy run `42126520325` verificirao je svih 13 aplikacija i uključio aktivnu custom domenu. Alpha.79 donosi zaseban red za maskotu na mobitelu, oznake u njenom okviru, svjesno prelamanje i razmake te kružnu maskotu kao logo/favicon. Izmjene su lokalne dok nova Pages provjera i live deploy ne prođu. Za ponovnu lokalnu provjeru s aplikacijama potrebni su provjereni UI paketi; oni se ne čuvaju u Git repozitoriju. Builder namjerno odbija popunjen output direktorij, zato koristi samo novi prazan direktorij i nikad ne stavljaj privatne fajlove u deployment output.
+Za brz vizualni pregled portala, otvori `cloudflare/demo/index.html` preko lokalnog statičkog HTTP servera. Alpha.79 je objavljena iz commit `8c2c2c9`; Pages run `42187348841` verificirao je svih13 aplikacija, deploy i aktivnu custom domenu. Live Chromium provjera na 320, 360, 390, 560, 760, 820, 1024 i 1440px potvrdila je da nema horizontalnog overflowa, maskota ima vlastiti hero red na mobitelu, a logo/favicon i Apple touch ikona koriste okruglu maskotu. Za ponovnu lokalnu provjeru s aplikacijama potrebni su provjereni UI paketi; oni se ne čuvaju u Git repozitoriju. Builder namjerno odbija popunjen output direktorij, zato koristi samo novi prazan direktorij i nikad ne stavljaj privatne fajlove u deployment output.
 
 ```sh
 # Iz repo root-a: vizualni pregled samog portala

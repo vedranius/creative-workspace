@@ -2,7 +2,7 @@
 
 The portal update isolates the mascot and decorative badges from hero copy on narrow screens, with deliberate navigation, button, card and footer wrapping at mobile widths. Header/footer branding, the SVG favicon and the Apple touch icon use the round mascot artwork. Product version is alpha.79 (prototype/prerelease); main-site and SigurnaKopija links, app catalog and browser-processing disclosure remain.
 
-This source update is not published yet. Next: run the focused portal builder checks and `npm run check`, inspect mobile/desktop rendering, then update the roadmap and release handoff/evidence. Push via normal repository workflow, wait for the Pages browser/integrity checks, and verify the deployed domain and mascot icons before claiming it is live.
+Published from main commit `8c2c2c9`. Pages candidate/deploy run `42187348841` passed all thirteen app launch/render, consent, isolation and asset checks; custom-domain attachment and public inventory verification succeeded. Live HTML identifies `mascot-round.svg`/`mascot-round-180.png`; both icon URLs return HTTP 200 and the manifest reports `0.2.0-alpha.79`. Live Chromium loaded all13 cards and measured no document overflow at320,360,390,560,760,820,1024 and1440px; the mascot and hero copy have distinct bounds on narrow widths. Local focused demo tests4/4, `npm test`102/102, `npm run check`, release validation and `git diff --check` pass. Alpha.79 stays prototype/prerelease; the separate OS bundle workflow remains distinct. Sibling Pages projects are untouched.
 
 ---
 
