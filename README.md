@@ -2,7 +2,7 @@
 
 # Creative Workspace
 
-**Version: 0.2.0-alpha.78** — prototype/prerelease draft. This update applies the Geekranius brand to the Cloudflare browser-processing portal and connects the planned `creative-workspace.geekranius.stream` address. The goal remains all thirteen original interfaces with server processing and common providers; DesignCraft/full tools/providers/real OS acceptance remain planned. Install independently verified Actions assets in a fresh root. [Alpha.78 brand/deployment handoff](docs/cloudflare-design-handoff.md), [release limits](docs/releases.md).
+**Version: 0.2.0-alpha.79** — prototype/prerelease draft. This update refines the mobile Creative Workspace portal, uses the circular Geekranius mascot for the logo and browser icon, and keeps the live `creative-workspace.geekranius.stream` domain connected to the Geekranius and SigurnaKopija sites. The goal remains all thirteen original interfaces with server processing and common providers; DesignCraft/full tools/providers/real OS acceptance remain planned. Install independently verified Actions assets in a fresh root. [Alpha.79 mobile/mascot handoff](docs/cloudflare-design-handoff.md), [release limits](docs/releases.md).
 
 Bring your creative tools together in one browser studio. Choose an application, select your files, and access your own server from a lightweight laptop. The goal is **the original application interfaces and tools in the browser, with the server doing the heavy work**: photography, image editing, illustration, PDF, publishing, video, motion graphics, office documents, spreadsheets, presentations, CAD, interface design and audio. Browser controls run locally; document commands, data and previews travel to the server. No VNC or remote desktop is involved.
 

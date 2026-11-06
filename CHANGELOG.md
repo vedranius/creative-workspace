@@ -494,3 +494,13 @@ Each completed product update receives a new SemVer, changelog entry and immutab
 - Independent Linux RapidRAW installation and browser proxy with runtime identity verification.
 - Four ArtCraft native engine/browser adapter prototypes, shared storage providers, save recovery and session version protection.
 - No downloadable product release was published for this baseline.
+## [0.2.0-alpha.79] - 2026-11-06
+
+- Rework the narrow-screen Creative Workspace layout so the mascot has a dedicated hero row, with its feature badges kept clear of the figure and copy.
+- Replace the GR monogram with a circular Geekranius mascot mark in the portal and browser/app icons. Improve mobile navigation, card wrapping, button spacing and compact-screen card layout.
+- Keep the portal's application catalog, browser-processing disclosure and sibling-site navigation intact. Prototype/prerelease update; the browser demos do not claim server-backed app/provider/OS acceptance.
+## [0.2.0-alpha.79] - 2026-11-06
+
+- Rework the narrow-screen Creative Workspace layout so the mascot has a dedicated hero row, with its feature badges kept clear of the figure and copy.
+- Replace the GR monogram with a circular Geekranius mascot mark in the portal and browser/app icons. Improve mobile navigation, card wrapping, button spacing and compact-screen card layout.
+- Keep the portal's application catalog, browser-processing disclosure and sibling-site navigation intact. Prototype/prerelease update; the browser demos do not claim server-backed app/provider/OS acceptance.

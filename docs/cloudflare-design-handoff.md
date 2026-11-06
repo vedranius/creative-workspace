@@ -10,7 +10,7 @@ Javna stranica je statički Cloudflare Pages demo na <https://creative-workspace
 - `demo.js` — učitava `demo-manifest.json`, crta kartice i ekrane aplikacija te upravlja pristankom i učitavanjem iframea.
 - `wasm-transport.js` — Service Worker za eksplicitno dozvoljene WASM resurse. Ne mijenjati za vizualni redizajn.
 
-Geekranius brand kit resursi nalaze se lokalno u `cloudflare/demo/brand/`: favicon, monogram, ikona/sprite, mascot, lokalni Orbitron/Exo 2/Inter fontovi i njihove licence. Builder `scripts/build-cloudflare-demo.mjs` priprema `build/cloudflare-demo/`; Wrangler projekt i output putanja su zabilježeni u `cloudflare/wrangler.jsonc`. `/apps/<id>/` koristi isti `index.html`, dok `demo.js` odabire prikaz prema putanji.
+Geekranius brand kit resursi nalaze se lokalno u `cloudflare/demo/brand/`: samostalni SVG favicon i kružna maskota, statična Apple touch ikona, ikone/sprite, laptop maskota i fontovi s licencama. Builder `scripts/build-cloudflare-demo.mjs` priprema `build/cloudflare-demo/`; Wrangler projekt i output putanja su zabilježeni u `cloudflare/wrangler.jsonc`. `/apps/<id>/` koristi isti `index.html`, dok `demo.js` odabire prikaz prema putanji.
 
 ## Granice dizajna
 
@@ -20,7 +20,7 @@ Demo obrađuje sadržaj na posjetiteljevu računalu, ne na Cloudflare serveru. Z
 
 ## Lokalni pregled
 
-Za brz vizualni pregled portala, otvori `cloudflare/demo/index.html` preko lokalnog statičkog HTTP servera. Portal je objavljen iz alpha.78 commit `1447c70`; Pages deploy run `42126520325` verificirao je svih 13 aplikacija i uključio aktivnu custom domenu. Za ponovnu lokalnu provjeru s aplikacijama potrebni su provjereni UI paketi; oni se ne čuvaju u Git repozitoriju. Builder namjerno odbija popunjen output direktorij, zato koristi samo novi prazan direktorij i nikad ne stavljaj privatne fajlove u deployment output.
+Za brz vizualni pregled portala, otvori `cloudflare/demo/index.html` preko lokalnog statičkog HTTP servera. Portal je objavljen iz alpha.78 commit `1447c70`; Pages deploy run `42126520325` verificirao je svih 13 aplikacija i uključio aktivnu custom domenu. Alpha.79 donosi zaseban red za maskotu na mobitelu, oznake u njenom okviru, svjesno prelamanje i razmake te kružnu maskotu kao logo/favicon. Izmjene su lokalne dok nova Pages provjera i live deploy ne prođu. Za ponovnu lokalnu provjeru s aplikacijama potrebni su provjereni UI paketi; oni se ne čuvaju u Git repozitoriju. Builder namjerno odbija popunjen output direktorij, zato koristi samo novi prazan direktorij i nikad ne stavljaj privatne fajlove u deployment output.
 
 ```sh
 # Iz repo root-a: vizualni pregled samog portala

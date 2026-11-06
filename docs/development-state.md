@@ -1,3 +1,11 @@
+# CF-DEMO alpha.79 — mobile layout and mascot identity (2026-11-06)
+
+The portal update isolates the mascot and decorative badges from hero copy on narrow screens, with deliberate navigation, button, card and footer wrapping at mobile widths. Header/footer branding, the SVG favicon and the Apple touch icon use the round mascot artwork. Product version is alpha.79 (prototype/prerelease); main-site and SigurnaKopija links, app catalog and browser-processing disclosure remain.
+
+This source update is not published yet. Next: run the focused portal builder checks and `npm run check`, inspect mobile/desktop rendering, then update the roadmap and release handoff/evidence. Push via normal repository workflow, wait for the Pages browser/integrity checks, and verify the deployed domain and mascot icons before claiming it is live.
+
+---
+
 # CF-DEMO alpha.78 — Geekranius brand rollout (2026-11-05)
 
 Apply the supplied Geekranius Brand Kit v1.0 and align the Cloudflare Pages Creative Workspace portal with the Geekranius and SigurnaKopija sibling sites. Local branded portal implementation, local font/icon/mascot assets, Croatian/English labels, responsive app cards, custom 404, sitemap/robots, and static-builder regression coverage are complete. Target host is `creative-workspace.geekranius.stream`; links go to `geekranius.stream` and `sigurnakopija.geekranius.stream`. The visitor browser-processing disclosure and upstream app licensing/provenance remain.

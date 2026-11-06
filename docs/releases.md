@@ -308,3 +308,6 @@ Alpha.45 adds a dedicated Actions job for the original CADCraft v0.7.0 browser a
 ## Original FigCraft browser preview
 
 Alpha.46 adds a dedicated Actions job for the original FigCraft v0.6.0 browser archive at exact source pin `833f0d2c27f0acbae5394848930ae531fc89c724`, with its MIT/Apache licenses, NOTICE, attribution, ArtCraft mark terms and SHA256 sidecar. Local Chromium verified the editor and original Frame tool; see [preview report and screenshots](figcraft-original-ui-preview.md). The browser build starts blank and native open/save dialogs are not wired up; state/rendering remain in browser WASM. This is not a native bundle or a server/provider adapter. Keep FigCraft planned until the original server engine/actions/state/render/export, provider write ACK/recovery and full parity are accepted.
+## [0.2.0-alpha.79] — 2026-11-06
+
+Mobile layout and mascot identity refinement for the Cloudflare browser portal. Prototype/prerelease; responsive behavior and icon delivery are pending the Pages browser checks and live-domain verification. This update does not change Creative Workspace processing, provider or application acceptance.

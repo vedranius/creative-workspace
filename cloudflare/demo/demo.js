@@ -21,7 +21,7 @@ if(selected){
   document.title=`${app.name} · Creative Workspace by Geekranius`;document.body.className='app-view';document.body.replaceChildren();
   const bar=el('header',null,'app-topbar');
   const back=link(t.back,'/?lang='+lang);back.className='studio-back';bar.append(back);
-  const brand=link('', 'https://geekranius.stream/');brand.className='brand-lockup';brand.setAttribute('aria-label','Geekranius');const mark=el('img');mark.src='/brand/geekranius-monogram.svg';mark.alt='';mark.width=32;mark.height=32;const word=el('span',null,'brand-word');word.append(el('span','GEEK'),el('b','RANIUS'));brand.append(mark,word);bar.append(brand);
+  const brand=link('', 'https://geekranius.stream/');brand.className='brand-lockup';brand.setAttribute('aria-label','Geekranius');const mark=el('img');mark.src='/brand/mascot-round.svg';mark.alt='';mark.width=32;mark.height=32;mark.className='brand-mascot';const word=el('span',null,'brand-word');word.append(el('span','GEEK'),el('b','RANIUS'));brand.append(mark,word);bar.append(brand);
   const product=el('span',null,'app-title');product.append(document.createTextNode('Creative '),el('b','Workspace'));bar.append(product);
   const mode=el('span',t.browserLabel,'mode-label');bar.append(mode);
   const language=el('span',null,'language-switch app-language');for(const code of ['hr','en']){const choice=link(code.toUpperCase(),`/apps/${app.id}/?lang=${code}`);choice.hreflang=code;choice.lang=code;if(code===lang)choice.setAttribute('aria-current','page');language.append(choice);}bar.append(language);

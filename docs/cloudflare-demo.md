@@ -1,6 +1,6 @@
 # Public browser-processing playground
 
-The Geekranius-branded portal targets [creative-workspace.geekranius.stream](https://creative-workspace.geekranius.stream/) and links to [geekranius.stream](https://geekranius.stream/) and [SigurnaKopija](https://sigurnakopija.geekranius.stream/). Domain publication/attachment status is tracked in [the alpha.78 handoff](cloudflare-demo-handoff.md).
+The Geekranius-branded portal targets [creative-workspace.geekranius.stream](https://creative-workspace.geekranius.stream/) and links to [geekranius.stream](https://geekranius.stream/) and [SigurnaKopija](https://sigurnakopija.geekranius.stream/). Domain publication/attachment status is tracked in [the alpha.79 handoff](cloudflare-design-handoff.md).
 
 This independent static demo of thirteen original ArtCraft interfaces runs while the development computer is off. **The visitor's CPU, GPU and RAM perform editing, decoding, rendering and export inside the browser.** This explicitly labelled alternative demo mode preserves the Creative Workspace goal: server processing with original browser interfaces.
 
@@ -8,7 +8,7 @@ Each app requires an acknowledgement before its original iframe loads and retain
 
 RapidRAW requires an owned backend and is excluded. DesignCraft uses its official browser release here; the separate server candidate remains in development. Large media may overwhelm a weak laptop; broad format, audio and export parity remain unverified. This is a UI playground, not a fully accepted suite. There is no enforced 5–10 minute limit: browser computation uses no shared editing-server session, and an honest hard cutoff requires another service design.
 
-## Geekranius branded publication (alpha.78)
+## Geekranius branded publication (alpha.79)
 
 Published at [creative-workspace.geekranius.stream](https://creative-workspace.geekranius.stream/), with its Cloudflare Pages custom domain reporting active. Candidate/deploy run `42126520325` passed all13 browser launch/render and integrity checks before publishing. The generated homepage links to [geekranius.stream](https://geekranius.stream/) and [SigurnaKopija](https://sigurnakopija.geekranius.stream/); its 13-app manifest, local brand font/icon, robots and sitemap return HTTP 200. PhotoCraft v0.16.0 and EffectCraft v0.17.0 are restored from their previous verified set while upstream packages with missing static assets remain held; the next stable tags are tested automatically. [Deployment evidence](evidence/cloudflare-demo-alpha78/publication.json) · [handoff](cloudflare-demo-handoff.md).
 
